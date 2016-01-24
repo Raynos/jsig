@@ -1,0 +1,13 @@
+{
+    "extends": ["perf-standard"],
+    "globals": {
+        "global": true
+    },
+    "rules": {
+        "spaced-comment": 0,
+        "no-console": 0,
+        "indent": [2, 4, {
+            "SwitchCase": 1
+        }]
+    }
+}
