@@ -11,10 +11,10 @@ function join(expr, seperator, count) {
         Parsimmon.fail('must join() at least 1 token') :
         Parsimmon.succeed([]);
 
-    return expr.chain(function (value) {
+    return expr.chain(function findOne(value) {
         return seperator
             .then(expr)
-            .atLeast(count - 1).map(function (values) {
+            .atLeast(count - 1).map(function makeFlat(values) {
                 return [value].concat(values);
             });
     }).or(defaultToken);
