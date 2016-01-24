@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint $(git ls-files | grep '.js$')",
+    "test": "npm run lint"
+  },
+  "devDependencies": {
+    "eslint": "1.8.0",
+    "eslint-config-perf-standard": "^2.1.0",
+    "eslint-plugin-perf-standard": "^1.0.2"
   },
   "author": "",
   "license": "ISC"
