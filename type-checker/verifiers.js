@@ -6,14 +6,21 @@
 */
 
 /*eslint no-console: 0*/
+var assert = require('assert');
 // var console = require('console');
+
+var JsigAST = require('../ast.js');
 
 module.exports = {
     'Program': verifyProgram,
     'FunctionDeclaration': verifyFunctionDeclaration,
     'BlockStatement': verifyBlockStatement,
     'ExpressionStatement': verifyExpressionStatement,
-    'AssignmentExpression': verifyAssignmentExpression
+    'AssignmentExpression': verifyAssignmentExpression,
+    'MemberExpression': verifyMemberExpression,
+    'ThisExpression': verifyThisExpression,
+    'Identifier': verifyIdentifier,
+    'Literal': verifyLiteral
 };
 
 function verifyFunctionDeclaration(node, meta) {
@@ -54,13 +61,62 @@ function verifyAssignmentExpression(node, meta) {
     var leftType = meta.verifyNode(node.left);
     var rightType = meta.verifyNode(node.right);
 
-    var maybeErr = checkSubType(leftType, rightType);
+    var maybeErr = meta.checkSubType(leftType, rightType);
     if (maybeErr) {
         meta.addError(maybeErr);
         return null;
     }
 
+    if (leftType.name === 'Any:ModuleExports') {
+        meta.setModuleExportsType(rightType);
+    }
+
     return rightType;
+}
+
+function verifyMemberExpression(node, meta) {
+    var objType = meta.verifyNode(node.object);
+    var propName = node.property.name;
+
+    var valueType = findPropertyInType(objType, propName);
+    if (!valueType) {
+        throw new Error('could not find prop in object');
+    }
+
+    return valueType;
+}
+
+function verifyThisExpression(node, meta) {
+    if (meta.currentScope.type !== 'function') {
+        throw new Error('cannot access `this` outside function');
+    }
+
+    if (!meta.currentScope.thisValueType) {
+        throw new Error('cannot type inference for `this`');
+    }
+
+    return meta.currentScope.thisValueType;
+}
+
+function verifyIdentifier(node, meta) {
+    var token = meta.currentScope.getVar(node.name);
+    if (!token) {
+        throw new Error('could not resolve Identifier: ' + node.name);
+    }
+
+    return token.defn;
+}
+
+function verifyLiteral(node, meta) {
+    var value = node.value;
+
+    if (typeof value === 'string') {
+        return JsigAST.literal('String');
+    } else if (typeof value === 'number') {
+        return JsigAST.literal('Number');
+    } else {
+        throw new Error('not recognised literal');
+    }
 }
 
 // hoisting function declarations to the top makes the tree
@@ -80,4 +136,18 @@ function hoistFunctionDeclaration(nodes) {
     }
 
     return declarations;
+}
+
+function findPropertyInType(jsigType, propertyName) {
+    assert(jsigType.type === 'object',
+        'jsigType must be an object');
+
+    for (var i = 0; i < jsigType.keyValues.length; i++) {
+        var keyValue = jsigType.keyValues[i];
+        if (keyValue.key === propertyName) {
+            return keyValue.value;
+        }
+    }
+
+    return null;
 }

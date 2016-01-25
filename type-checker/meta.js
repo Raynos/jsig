@@ -12,12 +12,12 @@ var HeaderFile = require('./header-file.js');
 var fileExtRegex = /.js$/;
 var requireType = JsigAST.functionType({
     args: [JsigAST.literal('String')],
-    result: JsigAST.literal('Any')
+    result: JsigAST.value('null')
 });
 requireType.isNodeRequireToken = true;
 
 var moduleType = JsigAST.object({
-    exports: JsigAST.literal('Any')
+    exports: JsigAST.literal('Any:ModuleExports', true)
 });
 moduleType.isNodeModuleToken = true;
 
@@ -62,7 +62,7 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node) {
     if (verifyFn) {
         return verifyFn(node, this);
     } else {
-        console.warn('!! skipping verifyNode', node.type);
+        throw new Error('!! skipping verifyNode: ' + node.type);
     }
 };
 
@@ -80,8 +80,18 @@ function setModuleExportsNode(astNode) {
     }
 };
 
+ProgramMeta.prototype.setModuleExportsType =
+function setModuleExportsType(typeDefn) {
+    this.moduleExportsType = typeDefn;
+};
+
 ProgramMeta.prototype.addError = function addError(error) {
     this.errors.push(error);
+};
+
+ProgramMeta.prototype.checkSubType =
+function checkSubType(leftType, rightType) {
+    this.headerFile.checkSubType(leftType, rightType);
 };
 
 /*
@@ -102,7 +112,7 @@ function loadHeaderFile() {
 
     this.headerFile = new HeaderFile(res.value);
 
-    var assignments = this.headerFile.getAssignments();
+    var assignments = this.headerFile.getResolvedAssignments();
     for (var i = 0; i < assignments.length; i++) {
         var expr = assignments[i];
 
@@ -112,7 +122,9 @@ function loadHeaderFile() {
 
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
-    var funcScope = new FunctionMeta(this, funcNode.id.name);
+    var funcScope = new FunctionMeta(
+        this.currentScope, funcNode.id.name
+    );
 
     for (var i = 0; i < funcNode.params.length; i++) {
         var param = funcNode.params[i];
@@ -121,11 +133,9 @@ function enterFunctionScope(funcNode, typeDefn) {
         funcScope.addVar(param.name, argType);
     }
 
-    if (funcScope.isConstructor) {
-        funcScope.thisValueType = typeDefn.result;
-    } else {
-        funcScope.returnValueType = typeDefn.result;
-    }
+    funcScope.thisValueType = typeDefn.thisArg;
+    funcScope.returnValueType = typeDefn.result;
+
     this.currentScope = funcScope;
 };
 

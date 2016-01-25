@@ -29,6 +29,15 @@ test('batch-client-2', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();
 });
+
+// test 3. use `Channel` without defining it.
+
+// test 4. assign wrong type to field
+
+// test 5. do not assign all fields
+
+// test 6. assign to non-existant field
