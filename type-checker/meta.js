@@ -6,7 +6,9 @@ var console = require('console');
 var isModuleExports = require('./lib/is-module-exports.js');
 var verifiers = require('./verifiers.js');
 var JsigAST = require('../ast.js');
+var readJSigAST = require('./lib/read-jsig-ast.js');
 
+var fileExtRegex = /.js$/;
 var requireType = JsigAST.functionType({
     args: [JsigAST.literal('String')],
     result: JsigAST.literal('Any')
@@ -33,6 +35,9 @@ function ProgramMeta(ast, fileName) {
     this.currentScope = new FileMeta(this);
     this.currentScope.addVar('require', requireType);
     this.currentScope.addVar('module', moduleType);
+
+    this.errors = [];
+    this.fatalError = false;
 }
 
 ProgramMeta.prototype.getVar = function getVar(id) {
@@ -46,6 +51,10 @@ ProgramMeta.prototype.verify = function verify() {
 };
 
 ProgramMeta.prototype.verifyNode = function verifyNode(node) {
+    if (this.fatalError) {
+        return;
+    }
+
     var verifyFn = verifiers[node.type];
     if (verifyFn) {
         verifyFn(node, this);
@@ -75,7 +84,14 @@ type definitions for a subset of the program.
 */
 ProgramMeta.prototype.loadHeaderFile =
 function loadHeaderFile() {
+    var headerFileName = this.fileName.replace(fileExtRegex, '.hjs');
 
+    var res = readJSigAST(headerFileName);
+    if (res.error) {
+        this.errors.push(res.error);
+        this.fatalError = true;
+        return;
+    }
 };
 
 function FileMeta(parent) {

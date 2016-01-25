@@ -11,8 +11,8 @@ test('batch-client-1', function t(assert) {
     var file = path.join(batchClientDir, 'batch-client-1.js');
 
     var meta = compile(file);
-
-    console.log('?', meta.errors);
+    assert.ok(meta, 'expected meta to exist');
+    // console.log('?', meta.errors);
 
     assert.end();
 });
