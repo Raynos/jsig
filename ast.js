@@ -55,7 +55,7 @@ function object(keyValues, label, opts) {
     opts = opts || {};
     if (!Array.isArray(keyValues)) {
         keyValues = Object.keys(keyValues)
-            .reduce(function (acc, key) {
+            .reduce(function buildPairs(acc, key) {
                 acc.push(keyValue(key, keyValues[key]));
                 return acc;
             }, []);
@@ -101,19 +101,20 @@ function literal(name, builtin, opts) {
     return {
         type: 'typeLiteral',
         name: name,
-        builtin: builtin !== undefined ? builtin :
-            builtinTypes.indexOf(name) !== -1 ? true : false,
+        builtin: builtin !== undefined ?
+            builtin :
+            Boolean(builtinTypes.indexOf(name) !== -1),
         label: opts.label || null,
         optional: opts.optional || false
     };
 }
 
-function keyValue(key, value, opts) {
+function keyValue(key, $value, opts) {
     opts = opts || {};
     return {
         type: 'keyValue',
         key: key,
-        value: value,
+        value: $value,
         optional: opts.optional || false
     };
 }
@@ -183,4 +184,4 @@ function renamedLiteral(token, original, opts) {
         label: token.label,
         original: original
     };
-} 
+}
