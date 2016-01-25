@@ -1,0 +1,6 @@
+type IBatchClient : {
+    hosts: Array<String>,
+    channel: Channel
+}
+
+BatchClient : (channel: Channel, hosts: Array<String>) => IBatchClient

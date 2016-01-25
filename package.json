@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "error": "^7.0.2",
     "esprima": "^2.7.1",
     "parsimmon": "^0.7.0"
   }

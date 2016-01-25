@@ -14,7 +14,7 @@ var MissingHeaderFile = TypedError({
 module.exports = readJSigAST;
 
 function readJSigAST(fileName) {
-    if (!fs.exists(fileName)) {
+    if (!fs.existsSync(fileName)) {
         return new Result(MissingHeaderFile({
             fileName: fileName
         }), null);

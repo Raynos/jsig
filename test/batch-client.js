@@ -12,7 +12,23 @@ test('batch-client-1', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
-    // console.log('?', meta.errors);
+    var errors = meta.errors;
+    assert.equal(errors.length, 1, 'expected one error');
+
+    var error = errors[0];
+    assert.equal(error.type, 'jsig.missing.header-file',
+        'should have a missing header file error');
+    assert.equal(error.fileName, file.replace('.js', '.hjs'),
+        'header file error should be for our file');
+
+    assert.end();
+});
+
+test('batch-client-2', function t(assert) {
+    var file = path.join(batchClientDir, 'batch-client-2.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
 
     assert.end();
 });

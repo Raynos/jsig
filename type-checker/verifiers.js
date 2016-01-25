@@ -6,11 +6,28 @@
 */
 
 /*eslint no-console: 0*/
-var console = require('console');
+// var console = require('console');
 
 module.exports = {
-    'Program': verifyProgram
+    'Program': verifyProgram,
+    'FunctionDeclaration': verifyFunctionDeclaration,
+    'BlockStatement': verifyBlockStatement,
+    'ExpressionStatement': verifyExpressionStatement,
+    'AssignmentExpression': verifyAssignmentExpression
 };
+
+function verifyFunctionDeclaration(node, meta) {
+    var funcName = node.id.name;
+
+    var token = meta.currentScope.getVar(funcName);
+    if (!token) {
+        throw new Error('type inference not supported');
+    }
+
+    meta.enterFunctionScope(node, token.defn);
+    meta.verifyNode(node.body);
+    meta.exitFunctionScope();
+}
 
 function verifyProgram(node, meta) {
     node.body = hoistFunctionDeclaration(node.body);
@@ -21,8 +38,29 @@ function verifyProgram(node, meta) {
     for (var i = 0; i < node.body.length; i++) {
         meta.verifyNode(node.body[i]);
     }
+}
 
-    console.warn('program?');
+function verifyBlockStatement(node, meta) {
+    for (var i = 0; i < node.body.length; i++) {
+        meta.verifyNode(node.body[i]);
+    }
+}
+
+function verifyExpressionStatement(node, meta) {
+    meta.verifyNode(node.expression);
+}
+
+function verifyAssignmentExpression(node, meta) {
+    var leftType = meta.verifyNode(node.left);
+    var rightType = meta.verifyNode(node.right);
+
+    var maybeErr = checkSubType(leftType, rightType);
+    if (maybeErr) {
+        meta.addError(maybeErr);
+        return null;
+    }
+
+    return rightType;
 }
 
 // hoisting function declarations to the top makes the tree
