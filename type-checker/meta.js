@@ -8,6 +8,7 @@ var verifiers = require('./verifiers.js');
 var JsigAST = require('../ast.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var HeaderFile = require('./header-file.js');
+var SubTypeChecker = require('./sub-type.js');
 
 var fileExtRegex = /.js$/;
 var requireType = JsigAST.functionType({
@@ -41,6 +42,7 @@ function ProgramMeta(ast, fileName) {
     this.fatalError = false;
 
     this.headerFile = null;
+    this.subType = new SubTypeChecker();
 }
 
 ProgramMeta.prototype.getVar = function getVar(id) {
@@ -90,8 +92,11 @@ ProgramMeta.prototype.addError = function addError(error) {
 };
 
 ProgramMeta.prototype.checkSubType =
-function checkSubType(leftType, rightType) {
-    this.headerFile.checkSubType(leftType, rightType);
+function checkSubType(node, leftType, rightType) {
+    var err = this.subType.checkSubType(node, leftType, rightType);
+    if (err) {
+        this.addError(err);
+    }
 };
 
 /*
@@ -113,6 +118,15 @@ function loadHeaderFile() {
     this.headerFile = new HeaderFile(res.value);
 
     var assignments = this.headerFile.getResolvedAssignments();
+    if (this.headerFile.errors.length) {
+        for (var i = 0; i < this.headerFile.errors.length; i++) {
+            this.errors.push(this.headerFile.errors[i]);
+        }
+        this.fatalError = true;
+        return;
+    }
+
+
     for (var i = 0; i < assignments.length; i++) {
         var expr = assignments[i];
 
@@ -141,16 +155,6 @@ function enterFunctionScope(funcNode, typeDefn) {
 
 ProgramMeta.prototype.exitFunctionScope =
 function exitFunctionScope() {
-    var funcScope = this.currentScope;
-
-    if (funcScope.isConstructor) {
-        // TODO: verify return.
-        console.warn('!! Must check hidden class.');
-    } else {
-        // TODO: verify return.
-        console.warn('!! Must check a return');
-    }
-
     this.currentScope = this.currentScope.parent;
 };
 
@@ -183,6 +187,8 @@ function FunctionMeta(parent, funcName) {
     this.returnValueType = null;
     this.thisValueType = null;
     this.isConstructor = funcName[0].toUpperCase() === funcName[0];
+
+    this.knownFields = [];
 }
 
 FunctionMeta.prototype.addVar =
@@ -195,4 +201,11 @@ function addVar(id, typeDefn) {
 
 FunctionMeta.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
+};
+
+FunctionMeta.prototype.addKnownField =
+function addKnownField(fieldName) {
+    if (this.knownFields.indexOf(fieldName) === -1) {
+        this.knownFields.push(fieldName);
+    }
 };

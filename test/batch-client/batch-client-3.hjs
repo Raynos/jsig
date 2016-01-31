@@ -1,4 +1,3 @@
-type Channel : Object
 type IBatchClient : {
     channel: Channel,
     hosts: Array<String>

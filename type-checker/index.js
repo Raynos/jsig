@@ -19,5 +19,7 @@ function typeCheck(fileName) {
 function readEsprimaAST(fileName) {
     var source = fs.readFileSync(fileName, 'utf8');
 
-    return esprima.parse(source);
+    return esprima.parse(source, {
+        loc: true
+    });
 }

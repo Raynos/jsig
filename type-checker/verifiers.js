@@ -7,9 +7,30 @@
 
 /*eslint no-console: 0*/
 var assert = require('assert');
-// var console = require('console');
+var TypedError = require('error/typed');
+var console = require('console');
 
 var JsigAST = require('../ast.js');
+var isSameType = require('./is-same-type.js');
+
+var MissingFieldInConstr = TypedError({
+    type: 'jsig.verify.missing-field-in-constructor',
+    message: '@{line}: Expected the field: {fieldName} to be defined ' +
+        'but instead found: {otherField}.',
+    fieldName: null,
+    otherField: null,
+    loc: null,
+    line: null
+});
+
+var NonExistantField = TypedError({
+    type: 'jsig.verify.non-existant-field',
+    message: '@{line}: Object {objName} does not have field {fieldName}',
+    fieldName: null,
+    objName: null,
+    loc: null,
+    line: null
+});
 
 module.exports = {
     'Program': verifyProgram,
@@ -20,7 +41,8 @@ module.exports = {
     'MemberExpression': verifyMemberExpression,
     'ThisExpression': verifyThisExpression,
     'Identifier': verifyIdentifier,
-    'Literal': verifyLiteral
+    'Literal': verifyLiteral,
+    'ArrayExpression': verifyArrayExpression
 };
 
 function verifyFunctionDeclaration(node, meta) {
@@ -33,6 +55,29 @@ function verifyFunctionDeclaration(node, meta) {
 
     meta.enterFunctionScope(node, token.defn);
     meta.verifyNode(node.body);
+
+    if (meta.currentScope.isConstructor) {
+        var thisType = meta.currentScope.thisValueType;
+        var knownFields = meta.currentScope.knownFields;
+        assert(thisType.type === 'object', 'this field must be object');
+
+        for (var i = 0; i < thisType.keyValues.length; i++) {
+            var key = thisType.keyValues[i].key;
+            if (knownFields[i] !== key) {
+                var err = MissingFieldInConstr({
+                    fieldName: key,
+                    otherField: knownFields[i] || 'no-field',
+                    loc: node.loc,
+                    line: node.loc.start.line
+                });// new Error('missing field: ' + key);
+                meta.addError(err);
+            }
+        }
+    } else {
+        // TODO: verify return.
+        console.warn('!! Must check a return');
+    }
+
     meta.exitFunctionScope();
 }
 
@@ -59,16 +104,27 @@ function verifyExpressionStatement(node, meta) {
 
 function verifyAssignmentExpression(node, meta) {
     var leftType = meta.verifyNode(node.left);
-    var rightType = meta.verifyNode(node.right);
-
-    var maybeErr = meta.checkSubType(leftType, rightType);
-    if (maybeErr) {
-        meta.addError(maybeErr);
+    if (!leftType) {
         return null;
     }
 
+    var rightType = meta.verifyNode(node.right);
+    if (!rightType) {
+        return null;
+    }
+
+    meta.checkSubType(node, leftType, rightType);
+
     if (leftType.name === 'Any:ModuleExports') {
         meta.setModuleExportsType(rightType);
+    }
+
+    if (meta.currentScope.type === 'function' &&
+        meta.currentScope.isConstructor &&
+        node.left.type === 'MemberExpression' &&
+        node.left.object.type === 'ThisExpression'
+    ) {
+        meta.currentScope.addKnownField(node.left.property.name);
     }
 
     return rightType;
@@ -80,7 +136,21 @@ function verifyMemberExpression(node, meta) {
 
     var valueType = findPropertyInType(objType, propName);
     if (!valueType) {
-        throw new Error('could not find prop in object');
+        var objName;
+        if (node.object.type === 'ThisExpression') {
+            objName = 'this';
+        } else if (node.object.type === 'Identifier') {
+            objName = node.object.name;
+        } else {
+            assert(false, 'unknown object type');
+        }
+        meta.addError(NonExistantField({
+            fieldName: propName,
+            objName: objName,
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
     }
 
     return valueType;
@@ -117,6 +187,29 @@ function verifyLiteral(node, meta) {
     } else {
         throw new Error('not recognised literal');
     }
+}
+
+function verifyArrayExpression(node, meta) {
+    var elems = node.elements;
+
+    if (elems.length === 0) {
+        return JsigAST.literal('Array');
+    }
+
+    var type = null;
+    for (var i = 0; i < elems.length; i++) {
+        var newType = meta.verifyNode(elems[i]);
+        if (type) {
+            assert(isSameType(newType, type), 'arrays must be homogenous');
+        }
+        type = newType;
+    }
+
+    if (!type) {
+        return null;
+    }
+
+    return JsigAST.generic(JsigAST.literal('Array'), [type]);
 }
 
 // hoisting function declarations to the top makes the tree

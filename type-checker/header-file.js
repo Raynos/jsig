@@ -1,8 +1,12 @@
 'use strict';
 
-var assert = require('assert');
+var TypedError = require('error/typed');
 
-// var JsigAST = require('../ast.js');
+var UnknownLiteralError = TypedError({
+    type: 'jsig.header-file.unknown-literal',
+    message: 'Could not resolve {literal}',
+    literal: null
+});
 
 module.exports = HeaderFile;
 
@@ -32,10 +36,6 @@ function resolveReferences() {
     }
 
     copyAst = this.inlineReferences(copyAst);
-
-    if (this.errors.length > 0) {
-        throw new Error('got inline error');
-    }
 
     // console.log('copy AST?', JSON.stringify(copyAst, null, 4));
     this.resolvedJsigAst = copyAst;
@@ -83,7 +83,9 @@ function inlineReferences(ast) {
         var name = ast.name;
         var typeDefn = this.indexTable[name];
         if (!typeDefn) {
-            this.errors.push(new Error('could not find: ' + name));
+            this.errors.push(UnknownLiteralError({
+                literal: name
+            }));
         }
 
         return typeDefn;
@@ -118,53 +120,4 @@ function getResolvedAssignments() {
     }
 
     return this.resolvedJsigAst.statements;
-};
-
-HeaderFile.prototype.checkSubType =
-function checkSubType(parent, child) {
-    assert(parent && parent.type, 'parent must have a type');
-    assert(child && child.type, 'child must have a type');
-
-    if (parent.type === 'typeLiteral') {
-        return this.checkTypeLiteralSubType(parent, child);
-    } else if (parent.type === 'genericLiteral') {
-        return this.checkGenericLiteralSubType(parent, child);
-    } else {
-        throw new Error('not implemented sub type: ' + parent.type);
-    }
-};
-
-HeaderFile.prototype.checkTypeLiteralSubType =
-function checkTypeLiteralSubType(parent, child) {
-    if (!parent.builtin) {
-        throw new Error('not implemented, sub type for non-builtin');
-    }
-
-    if (parent.name === 'Any:ModuleExports') {
-        return null;
-    }
-
-    if (child.type !== 'typeLiteral') {
-        throw new Error('child must be type literal');
-    }
-
-    var name = parent.name;
-    if (name === 'Object') {
-        if (child.name !== 'Object') {
-            return new Error('Not an object');
-        }
-    }
-};
-
-HeaderFile.prototype.checkGenericLiteralSubType =
-function checkGenericLiteralSubType(parent, child) {
-    if (child.type !== 'genericLiteral') {
-        throw new Error('child must be generic literal');
-    }
-
-    var err = this.checkSubType(parent.value, child.value);
-    if (err) {
-        return err;
-    }
-
 };
