@@ -10,7 +10,7 @@ var lexemes = {
     quote: lexeme(Parsimmon.string('"')),
     identifier: lexeme(Parsimmon.regex(/[a-z\-\/]+/i)),
     moduleName: lexeme(Parsimmon.regex(/[a-z\-\/\.]+/i)),
-    labelName: lexeme(Parsimmon.regex(/[a-z\?]+/i)),
+    labelName: lexeme(Parsimmon.regex(/[a-z_\?]+/i)),
     typeName: lexeme(Parsimmon.regex(/[a-z]+/i)),
     labelSeperator: lexeme(Parsimmon.string(':')),
     comma: lexeme(Parsimmon.string(',')),

@@ -53,26 +53,15 @@ function verifyFunctionDeclaration(node, meta) {
         throw new Error('type inference not supported');
     }
 
-    meta.enterFunctionScope(node, token.defn);
+    checkFunctionType(node, meta, token.defn);
+}
+
+function checkFunctionType(node, meta, defn) {
+    meta.enterFunctionScope(node, defn);
     meta.verifyNode(node.body);
 
     if (meta.currentScope.isConstructor) {
-        var thisType = meta.currentScope.thisValueType;
-        var knownFields = meta.currentScope.knownFields;
-        assert(thisType.type === 'object', 'this field must be object');
-
-        for (var i = 0; i < thisType.keyValues.length; i++) {
-            var key = thisType.keyValues[i].key;
-            if (knownFields[i] !== key) {
-                var err = MissingFieldInConstr({
-                    fieldName: key,
-                    otherField: knownFields[i] || 'no-field',
-                    loc: node.loc,
-                    line: node.loc.start.line
-                });// new Error('missing field: ' + key);
-                meta.addError(err);
-            }
-        }
+        checkHiddenClass(node, meta);
     } else {
         // TODO: verify return.
         console.warn('!! Must check a return');
@@ -81,13 +70,41 @@ function verifyFunctionDeclaration(node, meta) {
     meta.exitFunctionScope();
 }
 
+function checkHiddenClass(node, meta) {
+    var thisType = meta.currentScope.thisValueType;
+    var knownFields = meta.currentScope.knownFields;
+    assert(thisType.type === 'object', 'this field must be object');
+
+    for (var i = 0; i < thisType.keyValues.length; i++) {
+        var key = thisType.keyValues[i].key;
+        if (knownFields[i] !== key) {
+            var err = MissingFieldInConstr({
+                fieldName: key,
+                otherField: knownFields[i] || 'no-field',
+                loc: node.loc,
+                line: node.loc.start.line
+            });// new Error('missing field: ' + key);
+            meta.addError(err);
+        }
+    }
+}
+
 function verifyProgram(node, meta) {
     node.body = hoistFunctionDeclaration(node.body);
 
     meta.setModuleExportsNode(node);
+
+    var i = 0;
+    for (i = 0; i < node.body.length; i++) {
+        if (node.body[i].type === 'FunctionDeclaration') {
+            var name = node.body[i].id.name;
+            meta.currentScope.addFunction(name, node.body[i]);
+        }
+    }
+
     meta.loadHeaderFile();
 
-    for (var i = 0; i < node.body.length; i++) {
+    for (i = 0; i < node.body.length; i++) {
         meta.verifyNode(node.body[i]);
     }
 }
@@ -113,6 +130,19 @@ function verifyAssignmentExpression(node, meta) {
         return null;
     }
 
+    if (rightType.type === 'untyped-function') {
+        var prevErrors = meta.errors.length;
+        checkFunctionType(rightType.node, meta, leftType);
+        var currErrors = meta.errors.length;
+
+        if (prevErrors === currErrors) {
+            meta.currentScope.addVar(
+                rightType.node.id.name, leftType
+            );
+            rightType = leftType;
+        }
+    }
+
     meta.checkSubType(node, leftType, rightType);
 
     if (leftType.name === 'Any:ModuleExports') {
@@ -134,6 +164,7 @@ function verifyMemberExpression(node, meta) {
     var objType = meta.verifyNode(node.object);
     var propName = node.property.name;
 
+    // console.log('?', node);
     var valueType = findPropertyInType(objType, propName);
     if (!valueType) {
         var objName;
@@ -170,11 +201,16 @@ function verifyThisExpression(node, meta) {
 
 function verifyIdentifier(node, meta) {
     var token = meta.currentScope.getVar(node.name);
+    if (token) {
+        return token.defn;
+    }
+
+    token = meta.currentScope.getFunction(node.name);
     if (!token) {
         throw new Error('could not resolve Identifier: ' + node.name);
     }
 
-    return token.defn;
+    return token;
 }
 
 function verifyLiteral(node, meta) {
@@ -224,7 +260,7 @@ function hoistFunctionDeclaration(nodes) {
 
     for (i = 0; i < nodes.length; i++) {
         if (nodes[i].type !== 'FunctionDeclaration') {
-            declarations.push(nodes[i]);
+            declarations.unshift(nodes[i]);
         }
     }
 
@@ -232,6 +268,12 @@ function hoistFunctionDeclaration(nodes) {
 }
 
 function findPropertyInType(jsigType, propertyName) {
+    if (jsigType.type === 'function' &&
+        propertyName === 'prototype'
+    ) {
+        return jsigType.thisArg;
+    }
+
     assert(jsigType.type === 'object',
         'jsigType must be an object');
 

@@ -118,3 +118,13 @@ test('batch-client-7', function t(assert) {
 
     assert.end();
 });
+
+test('batch-client-8', function t(assert) {
+    var file = path.join(batchClientDir, 'batch-client-8.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    console.log('??', meta.errors.length, meta.errors[0]);
+
+    assert.end();
+});

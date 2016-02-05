@@ -29,6 +29,8 @@ function ProgramMeta(ast, fileName) {
     this.fileName = fileName;
 
     this.identifiers = {};
+    this.untypedFunctions = {};
+
     this.type = 'program';
 
     this.moduleExportsNode = null;
@@ -126,8 +128,7 @@ function loadHeaderFile() {
         return;
     }
 
-
-    for (var i = 0; i < assignments.length; i++) {
+    for (i = 0; i < assignments.length; i++) {
         var expr = assignments[i];
 
         this.currentScope.addVar(expr.identifier, expr.typeExpression);
@@ -162,6 +163,8 @@ function FileMeta(parent) {
     this.parent = parent;
 
     this.identifiers = Object.create(null);
+    this.untypedFunctions = {};
+
     this.type = 'file';
 }
 
@@ -171,6 +174,19 @@ function addVar(id, typeDefn) {
         type: 'variable',
         defn: typeDefn
     };
+};
+
+FileMeta.prototype.addFunction =
+function addFunction(id, node) {
+    this.untypedFunctions[id] = {
+        type: 'untyped-function',
+        node: node
+    };
+};
+
+FileMeta.prototype.getFunction =
+function getFunction(id) {
+    return this.untypedFunctions[id] || null;
 };
 
 FileMeta.prototype.getVar = function getVar(id) {
@@ -186,7 +202,7 @@ function FunctionMeta(parent, funcName) {
     this.funcName = funcName;
     this.returnValueType = null;
     this.thisValueType = null;
-    this.isConstructor = funcName[0].toUpperCase() === funcName[0];
+    this.isConstructor = /[A-Z]/.test(funcName[0]);
 
     this.knownFields = [];
 }
