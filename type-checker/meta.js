@@ -1,10 +1,10 @@
 'use strict';
 
 /*eslint no-console: 0*/
-var console = require('console');
+// var console = require('console');
 
 var isModuleExports = require('./lib/is-module-exports.js');
-var verifiers = require('./verifiers.js');
+var ASTVerifier = require('./ast-verifier.js');
 var JsigAST = require('../ast.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var HeaderFile = require('./header-file.js');
@@ -36,7 +36,7 @@ function ProgramMeta(ast, fileName) {
     this.moduleExportsNode = null;
     this.moduleExportsType = null;
 
-    this.currentScope = new FileMeta(this);
+    this.currentScope = new FileScope(this);
     this.currentScope.addVar('require', requireType);
     this.currentScope.addVar('module', moduleType);
 
@@ -45,6 +45,7 @@ function ProgramMeta(ast, fileName) {
 
     this.headerFile = null;
     this.subType = new SubTypeChecker();
+    this.verifier = new ASTVerifier(this);
 }
 
 ProgramMeta.prototype.getVar = function getVar(id) {
@@ -62,12 +63,7 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node) {
         return null;
     }
 
-    var verifyFn = verifiers[node.type];
-    if (verifyFn) {
-        return verifyFn(node, this);
-    } else {
-        throw new Error('!! skipping verifyNode: ' + node.type);
-    }
+    return this.verifier.verifyNode(node);
 };
 
 ProgramMeta.prototype.setModuleExportsNode =
@@ -137,7 +133,7 @@ function loadHeaderFile() {
 
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
-    var funcScope = new FunctionMeta(
+    var funcScope = new FunctionScope(
         this.currentScope, funcNode.id.name
     );
 
@@ -159,7 +155,7 @@ function exitFunctionScope() {
     this.currentScope = this.currentScope.parent;
 };
 
-function FileMeta(parent) {
+function FileScope(parent) {
     this.parent = parent;
 
     this.identifiers = Object.create(null);
@@ -168,7 +164,7 @@ function FileMeta(parent) {
     this.type = 'file';
 }
 
-FileMeta.prototype.addVar =
+FileScope.prototype.addVar =
 function addVar(id, typeDefn) {
     this.identifiers[id] = {
         type: 'variable',
@@ -176,7 +172,7 @@ function addVar(id, typeDefn) {
     };
 };
 
-FileMeta.prototype.addFunction =
+FileScope.prototype.addFunction =
 function addFunction(id, node) {
     this.untypedFunctions[id] = {
         type: 'untyped-function',
@@ -184,16 +180,16 @@ function addFunction(id, node) {
     };
 };
 
-FileMeta.prototype.getFunction =
+FileScope.prototype.getFunction =
 function getFunction(id) {
     return this.untypedFunctions[id] || null;
 };
 
-FileMeta.prototype.getVar = function getVar(id) {
+FileScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
 };
 
-function FunctionMeta(parent, funcName) {
+function FunctionScope(parent, funcName) {
     this.parent = parent;
 
     this.identifiers = Object.create(null);
@@ -207,7 +203,7 @@ function FunctionMeta(parent, funcName) {
     this.knownFields = [];
 }
 
-FunctionMeta.prototype.addVar =
+FunctionScope.prototype.addVar =
 function addVar(id, typeDefn) {
     this.identifiers[id] = {
         type: 'variable',
@@ -215,11 +211,11 @@ function addVar(id, typeDefn) {
     };
 };
 
-FunctionMeta.prototype.getVar = function getVar(id) {
+FunctionScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
 };
 
-FunctionMeta.prototype.addKnownField =
+FunctionScope.prototype.addKnownField =
 function addKnownField(fieldName) {
     if (this.knownFields.indexOf(fieldName) === -1) {
         this.knownFields.push(fieldName);
