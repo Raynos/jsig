@@ -71,8 +71,12 @@ function checkTypeLiteralSubType(node, parent, child) {
         if (child.name !== name) {
             return new Error('[Internal] Not a void');
         }
+    } else if (name === 'Number') {
+        if (child.name !== name) {
+            return new Error('[Internal] Not a number');
+        }
     } else {
-        // console.warn('wat', parent);
+        console.warn('wat', parent);
         throw new Error('NotImplemented');
     }
 };

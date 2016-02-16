@@ -46,7 +46,24 @@ function ProgramMeta(ast, fileName) {
     this.headerFile = null;
     this.subType = new SubTypeChecker();
     this.verifier = new ASTVerifier(this);
+
+    this.loadLanguageIdentifiers();
 }
+
+ProgramMeta.prototype.loadLanguageIdentifiers =
+function loadLanguageIdentifiers() {
+    this._addVar('String', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('String')
+    }));
+};
+
+ProgramMeta.prototype._addVar = function _addVar(id, typeDefn) {
+    this.identifiers[id] = {
+        type: 'variable',
+        defn: typeDefn
+    };
+};
 
 ProgramMeta.prototype.getVar = function getVar(id) {
     return this.identifiers[id];

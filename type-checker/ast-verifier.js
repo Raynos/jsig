@@ -81,6 +81,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyLiteral(node);
     } else if (node.type === 'ArrayExpression') {
         return this.verifyArrayExpression(node);
+    } else if (node.type === 'CallExpression') {
+        return this.verifyCallExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -275,6 +277,30 @@ function verifyArrayExpression(node) {
     }
 
     return JsigAST.generic(JsigAST.literal('Array'), [type]);
+};
+
+ASTVerifier.prototype.verifyCallExpression =
+function verifyCallExpression(node) {
+    assert(node.callee.type === 'Identifier',
+        'expected callee to be identifier');
+
+    var token = this.meta.currentScope.getVar(node.callee.name);
+    assert(token, 'do not support type inference caller()');
+
+    var defn = token.defn;
+    assert(defn.args.length === node.arguments.length,
+        'expected same number of args');
+    assert(defn.thisArg === null,
+        'CallExpression() with thisArg not supported');
+
+    for (var i = 0; i < defn.args.length; i++) {
+        var wantedType = defn.args[i];
+        var actualType = this.meta.verifyNode(node.arguments[i]);
+
+        this.meta.checkSubType(node.arguments[i], wantedType, actualType);
+    }
+
+    return defn.result;
 };
 
 ASTVerifier.prototype._checkFunctionType =

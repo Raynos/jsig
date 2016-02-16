@@ -120,7 +120,16 @@ test('Assigning Array<Number> to Array<String> field', function t(assert) {
     assert.end();
 });
 
-test('calling function in constructor');
+test('Calling String(x) in constructor', function t(assert) {
+    var file = getFile('good-calling-string-x-in-constructor.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 0, 'expected 0 errors');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
 
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);

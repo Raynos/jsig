@@ -1,0 +1,12 @@
+type Channel : Object
+type IBatchClient : {
+    channel: Channel,
+    hosts: Array<String>,
+    value: String
+}
+
+BatchClient : (
+    this: IBatchClient,
+    channel: Channel,
+    hosts: Array<String>
+) => void
