@@ -34,6 +34,17 @@ var TooManyArgsInFunc = TypedError({
     line: null
 });
 
+var TooFewArgsInFunc = TypedError({
+    type: 'jsig.verify.too-few-function-args',
+    message: '@{line}: Expected the function {funcName} to have exactly ' +
+        '{expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
 var NonExistantField = TypedError({
     type: 'jsig.verify.non-existant-field',
     message: '@{line}: Object {objName} does not have field {fieldName}.',
@@ -270,8 +281,9 @@ ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
 
+    var err;
     if (node.params.length > defn.args.length) {
-        var err = TooManyArgsInFunc({
+        err = TooManyArgsInFunc({
             funcName: node.id.name,
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
@@ -282,7 +294,16 @@ function checkFunctionType(node, defn) {
         this.meta.exitFunctionScope();
         return;
     } else if (node.params.length < defn.args.length) {
-        throw new Error('wrong number of args');
+        err = TooFewArgsInFunc({
+            funcName: node.id.name,
+            actualArgs: node.params.length,
+            expectedArgs: defn.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        this.meta.exitFunctionScope();
+        return;
     }
 
     this.meta.verifyNode(node.body);

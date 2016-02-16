@@ -1,3 +1,4 @@
 'use strict';
 
-require('./batch-client.js');
+require('./batch-client-methods.js');
+require('./batch-client-constructor.js');
