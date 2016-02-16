@@ -10,7 +10,7 @@ var compile = require('../type-checker/');
 var batchClientDir = path.join(__dirname, 'batch-client');
 
 test('Missing header file', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-1.js');
+    var file = getFile('bad-missing-header-file.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
@@ -27,7 +27,7 @@ test('Missing header file', function t(assert) {
 });
 
 test('Working simple constructor', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-2.js');
+    var file = getFile('good-working-simple-constructor.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
@@ -38,7 +38,7 @@ test('Working simple constructor', function t(assert) {
 });
 
 test('Header file references unknown literal', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-3.js');
+    var file = getFile('bad-header-file-references-unknown-literal.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -56,7 +56,7 @@ test('Header file references unknown literal', function t(assert) {
 });
 
 test('Assigning field in constructor to wrong type', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-4.js');
+    var file = getFile('bad-assigning-field-in-constructor-to-wrong-type.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -73,7 +73,7 @@ test('Assigning field in constructor to wrong type', function t(assert) {
 });
 
 test('Skipping a field in the constructor', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-5.js');
+    var file = getFile('bad-skipping-a-field-in-the-constructor.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -89,7 +89,7 @@ test('Skipping a field in the constructor', function t(assert) {
 });
 
 test('Assigning non-existant field in constructor', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-6.js');
+    var file = getFile('bad-assigning-non-existant-field-in-constructor.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -105,7 +105,7 @@ test('Assigning non-existant field in constructor', function t(assert) {
 });
 
 test('Assigning Array<Number> to Array<String> field', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-7.js');
+    var file = getFile('bad-assigning-array-number-to-array-string-field.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -121,7 +121,7 @@ test('Assigning Array<Number> to Array<String> field', function t(assert) {
 });
 
 test('Working prototype method definition', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-8.js');
+    var file = getFile('good-working-prototype-method-definition.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -132,7 +132,7 @@ test('Working prototype method definition', function t(assert) {
 });
 
 test('Assign method which has too many args', function t(assert) {
-    var file = path.join(batchClientDir, 'batch-client-9.js');
+    var file = getFile('bad-assigning-method-which-has-too-many-args.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
@@ -157,3 +157,7 @@ test('forget to return');
 test('return when it says void');
 test('forget to assign to prototype');
 test('treat this value as a string');
+
+function getFile(fileName) {
+    return path.join(batchClientDir, fileName);
+}
