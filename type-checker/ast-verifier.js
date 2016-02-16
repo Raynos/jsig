@@ -23,9 +23,20 @@ var MissingFieldInConstr = TypedError({
     line: null
 });
 
+var TooManyArgsInFunc = TypedError({
+    type: 'jsig.verify.too-many-function-args',
+    message: '@{line}: Expected the function {funcName} to have exactly ' +
+        '{expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
 var NonExistantField = TypedError({
     type: 'jsig.verify.non-existant-field',
-    message: '@{line}: Object {objName} does not have field {fieldName}',
+    message: '@{line}: Object {objName} does not have field {fieldName}.',
     fieldName: null,
     objName: null,
     loc: null,
@@ -122,16 +133,10 @@ function verifyAssignmentExpression(node) {
     }
 
     if (rightType.type === 'untyped-function') {
-        var prevErrors = this.meta.errors.length;
-        this._checkFunctionType(rightType.node, leftType);
-        var currErrors = this.meta.errors.length;
-
-        if (prevErrors === currErrors) {
-            this.meta.currentScope.addVar(
-                rightType.node.id.name, leftType
-            );
-            rightType = leftType;
-        }
+        this.meta.currentScope.addVar(
+            rightType.node.id.name, leftType
+        );
+        rightType = leftType;
     }
 
     this.meta.checkSubType(node, leftType, rightType);
@@ -146,6 +151,23 @@ function verifyAssignmentExpression(node) {
         node.left.object.type === 'ThisExpression'
     ) {
         this.meta.currentScope.addKnownField(node.left.property.name);
+    }
+
+    if (node.left.type === 'MemberExpression' &&
+        node.left.object.type === 'MemberExpression' &&
+        node.left.object.property.name === 'prototype'
+    ) {
+        assert(node.left.object.object.type === 'Identifier',
+            'expected identifier');
+        var funcName = node.left.object.object.name;
+        var fieldName = node.left.property.name;
+
+        assert(this.meta.currentScope.type === 'file',
+            'expected to be in file scope');
+
+        this.meta.currentScope.addPrototypeField(
+            funcName, fieldName, rightType
+        );
     }
 
     return rightType;
@@ -247,6 +269,22 @@ function verifyArrayExpression(node) {
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
+
+    if (node.params.length > defn.args.length) {
+        var err = TooManyArgsInFunc({
+            funcName: node.id.name,
+            actualArgs: node.params.length,
+            expectedArgs: defn.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        this.meta.exitFunctionScope();
+        return;
+    } else if (node.params.length < defn.args.length) {
+        throw new Error('wrong number of args');
+    }
+
     this.meta.verifyNode(node.body);
 
     if (this.meta.currentScope.isConstructor) {
@@ -263,11 +301,15 @@ ASTVerifier.prototype._checkHiddenClass =
 function checkHiddenClass(node) {
     var thisType = this.meta.currentScope.thisValueType;
     var knownFields = this.meta.currentScope.knownFields;
+    var protoFields = this.meta.currentScope.getPrototypeFields();
     assert(thisType.type === 'object', 'this field must be object');
 
     for (var i = 0; i < thisType.keyValues.length; i++) {
         var key = thisType.keyValues[i].key;
-        if (knownFields[i] !== key) {
+        if (
+            knownFields[i] !== key &&
+            !(protoFields && protoFields[key])
+        ) {
             var err = MissingFieldInConstr({
                 fieldName: key,
                 otherField: knownFields[i] || 'no-field',

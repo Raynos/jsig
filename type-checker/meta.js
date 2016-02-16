@@ -160,6 +160,7 @@ function FileScope(parent) {
 
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
+    this.prototypes = {};
 
     this.type = 'file';
 }
@@ -178,6 +179,18 @@ function addFunction(id, node) {
         type: 'untyped-function',
         node: node
     };
+};
+
+FileScope.prototype.addPrototypeField =
+function addPrototypeField(id, fieldName, typeDefn) {
+    if (!this.prototypes[id]) {
+        this.prototypes[id] = {
+            type: 'prototype',
+            fields: {}
+        };
+    }
+
+    this.prototypes[id].fields[fieldName] = typeDefn;
 };
 
 FileScope.prototype.getFunction =
@@ -213,6 +226,21 @@ function addVar(id, typeDefn) {
 
 FunctionScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
+};
+
+FunctionScope.prototype.getPrototypeFields =
+function getPrototypeFields() {
+    var parent = this.parent;
+    while (parent.type === 'function') {
+        parent = parent.parent;
+    }
+
+    var p = parent.prototypes[this.funcName];
+    if (!p) {
+        return null;
+    }
+
+    return p.fields;
 };
 
 FunctionScope.prototype.addKnownField =

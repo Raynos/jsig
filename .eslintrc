@@ -6,6 +6,7 @@
     "rules": {
         "spaced-comment": 0,
         "no-console": 0,
+        "max-statements": [2, 40],
         "indent": [2, 4, {
             "SwitchCase": 1
         }]
