@@ -65,7 +65,7 @@ function checkTypeLiteralSubType(node, parent, child) {
         }
     } else if (name === 'String') {
         if (child.name !== name) {
-            return new Error('[Internal] Not a string');
+            return reportTypeMisMatch(node, parent, child);
         }
     } else if (name === 'void') {
         if (child.name !== name) {
@@ -73,7 +73,7 @@ function checkTypeLiteralSubType(node, parent, child) {
         }
     } else if (name === 'Number') {
         if (child.name !== name) {
-            return new Error('[Internal] Not a number');
+            return reportTypeMisMatch(node, parent, child);
         }
     } else {
         console.warn('wat', parent);

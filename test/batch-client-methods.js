@@ -54,17 +54,21 @@ test('assign method too few args', function t(assert) {
     assert.end();
 });
 
-// test('assign method with wrong arg number -> string', function t(assert) {
-//     var file = getFile('bad-assigning-method-with-wrong-arg-type.js');
+test('assign method with wrong arg number -> string', function t(assert) {
+    var file = getFile('bad-assigning-method-with-wrong-arg-type.js');
 
-//     var meta = compile(file);
-//     assert.ok(meta, 'expected meta');
-//     assert.equal(meta.errors.length, 1, 'expected 1 error');
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
 
-//     console.log('err', meta.errors[0]);
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'Number');
+    assert.equal(err.actual, 'foo: String');
+    assert.equal(err.line, 14);
 
-//     assert.end();
-// });
+    assert.end();
+});
 
 test('assign non-existant field in method');
 test('assign wrong value to field in method');

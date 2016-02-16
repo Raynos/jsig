@@ -60,6 +60,7 @@ function ASTVerifier(meta) {
     this.meta = meta;
 }
 
+/*eslint complexity: [2, 30] */
 ASTVerifier.prototype.verifyNode = function verifyNode(node) {
     if (node.type === 'Program') {
         return this.verifyProgram(node);
@@ -83,6 +84,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyArrayExpression(node);
     } else if (node.type === 'CallExpression') {
         return this.verifyCallExpression(node);
+    } else if (node.type === 'BinaryExpression') {
+        return this.verifyBinaryExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -299,6 +302,24 @@ function verifyCallExpression(node) {
 
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
+
+    return defn.result;
+};
+
+ASTVerifier.prototype.verifyBinaryExpression =
+function verifyBinaryExpression(node) {
+    var leftType = this.meta.verifyNode(node.left);
+    var rightType = this.meta.verifyNode(node.right);
+
+    var token = this.meta.getOperator(node.operator);
+    assert(token, 'do not support unknown operators');
+
+    var defn = token.defn;
+    assert(defn.args.length === 2,
+        'expected type defn args to be two');
+
+    this.meta.checkSubType(node.left, defn.args[0], leftType);
+    this.meta.checkSubType(node.right, defn.args[1], rightType);
 
     return defn.result;
 };

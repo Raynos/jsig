@@ -29,7 +29,7 @@ function ProgramMeta(ast, fileName) {
     this.fileName = fileName;
 
     this.identifiers = {};
-    this.untypedFunctions = {};
+    this.operators = {};
 
     this.type = 'program';
 
@@ -56,6 +56,11 @@ function loadLanguageIdentifiers() {
         args: [JsigAST.literal('Number')],
         result: JsigAST.literal('String')
     }));
+
+    this._addOperator('*', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
 };
 
 ProgramMeta.prototype._addVar = function _addVar(id, typeDefn) {
@@ -64,9 +69,19 @@ ProgramMeta.prototype._addVar = function _addVar(id, typeDefn) {
         defn: typeDefn
     };
 };
+ProgramMeta.prototype._addOperator = function _addOperator(id, typeDefn) {
+    this.operators[id] = {
+        type: 'operator',
+        defn: typeDefn
+    };
+};
 
 ProgramMeta.prototype.getVar = function getVar(id) {
     return this.identifiers[id];
+};
+
+ProgramMeta.prototype.getOperator = function getOperator(id) {
+    return this.operators[id];
 };
 
 ProgramMeta.prototype.verify = function verify() {
