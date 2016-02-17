@@ -70,15 +70,54 @@ test('assign method with wrong arg number -> string', function t(assert) {
     assert.end();
 });
 
-test('assign non-existant field in method');
-test('assign wrong value to field in method');
+test('assign non-existant field in method', function t(assert) {
+    var file = getFile('bad-assigning-to-non-existant-field-in-method.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-existant-field');
+    assert.equal(err.fieldName, 'x');
+    assert.equal(err.objName, 'this');
+    assert.equal(err.line, 8);
+
+    assert.end();
+});
+
+test('assign wrong value to field in method', function t(assert) {
+    var file = getFile('bad-assign-wrong-value-to-field-in-method.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'Number');
+    assert.equal(err.line, 9);
+
+    assert.end();
+});
+
 test('return the wrong value');
 test('forget to return');
 test('return when it says void');
 test('forget to assign to prototype');
 test('treat this value as a string');
 
-test('declare export after assignment to prototype');
+test('declare export after assignment to prototype', function t(assert) {
+    var file = getFile('good-declare-export-after-assignment-to-prototype.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.ok(meta.moduleExportsType, 'expected export type');
+
+    assert.end();
+});
+
 test('make assigning to prototype illegal after export');
 
 function getFile(fileName) {

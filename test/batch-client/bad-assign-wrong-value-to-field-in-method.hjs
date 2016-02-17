@@ -1,0 +1,16 @@
+type Channel : Object
+
+type TBatchClient : {
+    channel: Channel,
+    hosts: Array<String>,
+    value: String,
+    x: String,
+
+    _sendRequest: (this: TBatchClient, foo: String) => void
+}
+
+BatchClient : (
+    this: TBatchClient,
+    channel: Channel,
+    hosts: Array<String>
+) => void
