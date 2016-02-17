@@ -246,6 +246,8 @@ function FunctionScope(parent, funcName) {
     this.isConstructor = /[A-Z]/.test(funcName[0]);
 
     this.knownFields = [];
+    this.knownReturnType = null;
+    this.returnStatementASTNode = null;
 }
 
 FunctionScope.prototype.addVar =
@@ -280,4 +282,10 @@ function addKnownField(fieldName) {
     if (this.knownFields.indexOf(fieldName) === -1) {
         this.knownFields.push(fieldName);
     }
+};
+
+FunctionScope.prototype.markReturnType =
+function markReturnType(defn, node) {
+    this.knownReturnType = defn;
+    this.returnStatementASTNode = node;
 };

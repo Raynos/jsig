@@ -12,6 +12,7 @@ var console = require('console');
 
 var JsigAST = require('../ast.js');
 var isSameType = require('./is-same-type.js');
+var serialize = require('../serialize.js');
 
 var MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
@@ -54,6 +55,15 @@ var NonExistantField = TypedError({
     line: null
 });
 
+var NonVoidReturnType = TypedError({
+    type: 'jsig.verify.non-void-return-type',
+    message: '@{line}: Expected function to return void but found: {actual}.',
+    expected: null,
+    actual: null,
+    loc: null,
+    line: null
+});
+
 module.exports = ASTVerifier;
 
 function ASTVerifier(meta) {
@@ -86,6 +96,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyCallExpression(node);
     } else if (node.type === 'BinaryExpression') {
         return this.verifyBinaryExpression(node);
+    } else if (node.type === 'ReturnStatement') {
+        return this.verifyReturnStatement(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -324,6 +336,18 @@ function verifyBinaryExpression(node) {
     return defn.result;
 };
 
+ASTVerifier.prototype.verifyReturnStatement =
+function verifyReturnStatement(node) {
+    var defn = this.meta.verifyNode(node.argument);
+    assert(defn, 'cannot inference return type');
+
+    assert(this.meta.currentScope.type === 'function',
+        'return must be within a function scope');
+
+    this.meta.currentScope.markReturnType(defn, node);
+    return defn;
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
@@ -359,7 +383,7 @@ function checkFunctionType(node, defn) {
         this._checkHiddenClass(node);
     } else {
         // TODO: verify return.
-        console.warn('!! Must check a return');
+        this._checkReturnType(node);
     }
 
     this.meta.exitFunctionScope();
@@ -387,6 +411,28 @@ function checkHiddenClass(node) {
             this.meta.addError(err);
         }
     }
+};
+
+ASTVerifier.prototype._checkReturnType =
+function _checkReturnType(node) {
+    var expected = this.meta.currentScope.returnValueType;
+    var actual = this.meta.currentScope.knownReturnType;
+    var returnNode = this.meta.currentScope.returnStatementASTNode;
+
+    if (expected.type === 'typeLiteral' && expected.name === 'void') {
+        if (actual !== null) {
+            var err = NonVoidReturnType({
+                expected: 'void',
+                actual: serialize(actual),
+                loc: returnNode.loc,
+                line: returnNode.loc.start.line
+            });
+            this.meta.addError(err);
+        }
+        return;
+    }
+
+    console.warn('TODO: type check return lol');
 };
 
 // hoisting function declarations to the top makes the tree

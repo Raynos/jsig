@@ -102,7 +102,22 @@ test('assign wrong value to field in method', function t(assert) {
     assert.end();
 });
 
-test('return the wrong value');
+test('return the wrong value from method', function t(assert) {
+    var file = getFile('bad-return-the-wrong-value-from-method.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-void-return-type');
+    assert.equal(err.expected, 'void');
+    assert.equal(err.actual, 'String');
+    assert.equal(err.line, 10);
+
+    assert.end();
+});
+
 test('forget to return');
 test('return when it says void');
 test('forget to assign to prototype');
