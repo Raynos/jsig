@@ -7,7 +7,7 @@ var path = require('path');
 
 var compile = require('../type-checker/');
 
-var batchClientDir = path.join(__dirname, 'batch-client');
+var batchClientDir = path.join(__dirname, 'batch-client-constructor');
 
 test('Missing header file', function t(assert) {
     var file = getFile('bad-missing-header-file.js');
