@@ -57,9 +57,22 @@ var NonExistantField = TypedError({
 
 var NonVoidReturnType = TypedError({
     type: 'jsig.verify.non-void-return-type',
-    message: '@{line}: Expected function to return void but found: {actual}.',
+    message: '@{line}: Expected function {funcName} to return ' +
+        'void but found: {actual}.',
     expected: null,
     actual: null,
+    funcName: null,
+    loc: null,
+    line: null
+});
+
+var MissingReturnStatement = TypedError({
+    type: 'jsig.verify.missing-return-statement',
+    message: '@{line}: Expected function {funcName} to return ' +
+        '{expected} but found no return statement.',
+    expected: null,
+    actual: null,
+    funcName: null,
     loc: null,
     line: null
 });
@@ -418,12 +431,14 @@ function _checkReturnType(node) {
     var expected = this.meta.currentScope.returnValueType;
     var actual = this.meta.currentScope.knownReturnType;
     var returnNode = this.meta.currentScope.returnStatementASTNode;
+    var err;
 
     if (expected.type === 'typeLiteral' && expected.name === 'void') {
         if (actual !== null) {
-            var err = NonVoidReturnType({
+            err = NonVoidReturnType({
                 expected: 'void',
                 actual: serialize(actual),
+                funcName: this.meta.currentScope.funcName,
                 loc: returnNode.loc,
                 line: returnNode.loc.start.line
             });
@@ -432,7 +447,21 @@ function _checkReturnType(node) {
         return;
     }
 
-    console.warn('TODO: type check return lol');
+    if (actual === null && returnNode === null) {
+        var funcNode = this.meta.currentScope.funcASTNode;
+        err = MissingReturnStatement({
+            expected: serialize(expected),
+            actual: 'void',
+            funcName: this.meta.currentScope.funcName,
+            loc: funcNode.loc,
+            line: funcNode.loc.start.line
+        });
+        this.meta.addError(err);
+        return;
+    }
+
+    this.meta.checkSubType(returnNode, expected, actual);
+    // console.warn('TODO: type check return lol');
 };
 
 // hoisting function declarations to the top makes the tree

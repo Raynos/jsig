@@ -166,7 +166,7 @@ function loadHeaderFile() {
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
     var funcScope = new FunctionScope(
-        this.currentScope, funcNode.id.name
+        this.currentScope, funcNode.id.name, funcNode
     );
 
     for (var i = 0; i < funcNode.params.length; i++) {
@@ -234,7 +234,7 @@ FileScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
 };
 
-function FunctionScope(parent, funcName) {
+function FunctionScope(parent, funcName, funcNode) {
     this.parent = parent;
 
     this.identifiers = Object.create(null);
@@ -248,6 +248,7 @@ function FunctionScope(parent, funcName) {
     this.knownFields = [];
     this.knownReturnType = null;
     this.returnStatementASTNode = null;
+    this.funcASTNode = funcNode;
 }
 
 FunctionScope.prototype.addVar =

@@ -110,16 +110,48 @@ test('return the wrong value from method', function t(assert) {
     assert.equal(meta.errors.length, 1, 'expected 1 error');
 
     var err = meta.errors[0];
-    assert.equal(err.type, 'jsig.verify.non-void-return-type');
-    assert.equal(err.expected, 'void');
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'Number');
     assert.equal(err.actual, 'String');
     assert.equal(err.line, 10);
 
     assert.end();
 });
 
-test('forget to return');
-test('return when it says void');
+test('forget to return', function t(assert) {
+    var file = getFile('bad-method-without-a-return.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.missing-return-statement');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'void');
+    assert.equal(err.funcName, '_sendRequest');
+    assert.equal(err.line, 7);
+
+    assert.end();
+});
+
+test('return when it says void', function t(assert) {
+    var file = getFile('bad-method-returning-when-it-should-not.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-void-return-type');
+    assert.equal(err.expected, 'void');
+    assert.equal(err.actual, 'Number');
+    assert.equal(err.funcName, '_sendRequest');
+    assert.equal(err.line, 10);
+
+    assert.end();
+});
+
 test('forget to assign to prototype');
 test('treat this value as a string');
 

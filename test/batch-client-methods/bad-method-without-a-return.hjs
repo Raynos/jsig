@@ -5,7 +5,7 @@ type TBatchClient : {
     hosts: Array<String>,
     value: String,
 
-    _sendRequest: (this: TBatchClient, foo: String) => Number
+    _sendRequest: (this: TBatchClient, foo: String) => String
 }
 
 BatchClient : (
