@@ -17,9 +17,10 @@ var serialize = require('../serialize.js');
 var MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
     message: '@{line}: Expected the field: {fieldName} to be defined ' +
-        'but instead found: {otherField}.',
+        'in constructor {funcName} but instead found: {otherField}.',
     fieldName: null,
     otherField: null,
+    funcName: null,
     loc: null,
     line: null
 });
@@ -72,6 +73,15 @@ var MissingReturnStatement = TypedError({
         '{expected} but found no return statement.',
     expected: null,
     actual: null,
+    funcName: null,
+    loc: null,
+    line: null
+});
+
+var UnTypedFunctionFound = TypedError({
+    type: 'jsig.verify.untyped-function-found',
+    message: '@{line}: Expected the function {funcName} to have ' +
+        'type but could not find one.',
     funcName: null,
     loc: null,
     line: null
@@ -143,7 +153,13 @@ function verifyFunctionDeclaration(node) {
 
     var token = this.meta.currentScope.getVar(funcName);
     if (!token) {
-        throw new Error('type inference not supported');
+        var err = UnTypedFunctionFound({
+            funcName: funcName,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return;
     }
 
     this._checkFunctionType(node, token.defn);
@@ -417,6 +433,7 @@ function checkHiddenClass(node) {
         ) {
             var err = MissingFieldInConstr({
                 fieldName: key,
+                funcName: this.meta.currentScope.funcName,
                 otherField: knownFields[i] || 'no-field',
                 loc: node.loc,
                 line: node.loc.start.line
