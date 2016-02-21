@@ -35,6 +35,7 @@ function ProgramMeta(ast, fileName) {
 
     this.moduleExportsNode = null;
     this.moduleExportsType = null;
+    this.moduleExportsName = null;
 
     this.currentScope = new FileScope(this);
     this.currentScope.addVar('require', requireType);
@@ -113,7 +114,8 @@ function setModuleExportsNode(astNode) {
 };
 
 ProgramMeta.prototype.setModuleExportsType =
-function setModuleExportsType(typeDefn) {
+function setModuleExportsType(typeDefn, astNode) {
+    this.moduleExportsName = astNode.name;
     this.moduleExportsType = typeDefn;
 };
 

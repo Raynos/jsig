@@ -20,6 +20,17 @@ test('Working prototype method definition', function t(assert) {
     assert.end();
 });
 
+test('declare export after assignment to prototype', function t(assert) {
+    var file = getFile('good-declare-export-after-assignment-to-prototype.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 0, 'expected no errors');
+    assert.ok(meta.moduleExportsType, 'expected export type');
+
+    assert.end();
+});
+
 test('Assign method which has too many args', function t(assert) {
     var file = getFile('bad-assigning-method-which-has-too-many-args.js');
 
@@ -174,19 +185,21 @@ test('forget to assign to prototype', function t(assert) {
     assert.end();
 });
 
-test('treat this value as a string');
-
-test('declare export after assignment to prototype', function t(assert) {
-    var file = getFile('good-declare-export-after-assignment-to-prototype.js');
+test('treat this value as a string', function t(assert) {
+    var file = getFile('bad-treat-this-value-as-string.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
-    assert.ok(meta.moduleExportsType, 'expected export type');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'this: TBatchClient');
+    assert.equal(err.line, 8);
 
     assert.end();
 });
-
-test('make assigning to prototype illegal after export');
 
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);

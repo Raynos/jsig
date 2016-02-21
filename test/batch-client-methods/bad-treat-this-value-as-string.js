@@ -1,11 +1,11 @@
 'use strict';
 
-BatchClient.prototype._sendRequest = _sendRequest;
-
 module.exports = BatchClient;
 
+BatchClient.prototype._sendRequest = _sendRequest;
+
 function _sendRequest(foo) {
-    this.value = foo;
+    this.value = this;
 }
 
 function BatchClient(channel, hosts) {

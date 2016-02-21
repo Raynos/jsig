@@ -51,7 +51,8 @@ function checkTypeLiteralSubType(node, parent, child) {
     }
 
     if (child.type !== 'typeLiteral') {
-        return new Error('expected type literal');
+        return reportTypeMisMatch(node, parent, child);
+        // return new Error('[Internal] expected type literal');
     }
 
     var name = parent.name;

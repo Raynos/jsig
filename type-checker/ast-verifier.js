@@ -199,7 +199,10 @@ function verifyAssignmentExpression(node) {
     this.meta.checkSubType(node, leftType, rightType);
 
     if (leftType.name === 'Any:ModuleExports') {
-        this.meta.setModuleExportsType(rightType);
+        assert(node.right.type === 'Identifier',
+            'export must be identifier');
+
+        this.meta.setModuleExportsType(rightType, node.right);
     }
 
     if (this.meta.currentScope.type === 'function' &&

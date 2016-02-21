@@ -99,6 +99,8 @@ function inlineReferences(ast, rawAst) {
             this.errors.push(UnknownLiteralError({
                 literal: name
             }));
+        } else {
+            typeDefn._raw = rawAst;
         }
 
         return typeDefn;
