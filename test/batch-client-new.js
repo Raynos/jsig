@@ -20,9 +20,56 @@ test('working new call', function t(assert) {
     assert.end();
 });
 
-test('calling constructor with wrong type');
-test('calling constructor with too many args');
-test('calling constructor with too few args');
+test('calling constructor with wrong type', function t(assert) {
+    var file = getFile('bad-calling-constructor-with-wrong-type.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'str: String');
+    assert.equal(err.actual, 'Number');
+    assert.equal(err.line, 9);
+
+    assert.end();
+});
+
+test('calling constructor with too many args', function t(assert) {
+    var file = getFile('bad-calling-constructor-with-too-many-args.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.too-many-args-in-new-expression');
+    assert.equal(err.funcName, 'Buffer');
+    assert.equal(err.actualArgs, 2);
+    assert.equal(err.expectedArgs, 1);
+    assert.equal(err.line, 9);
+
+    assert.end();
+});
+
+test('calling constructor with too few args', function t(assert) {
+    var file = getFile('bad-calling-constructor-with-too-few-args.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.too-few-args-in-new-expression');
+    assert.equal(err.funcName, 'Buffer');
+    assert.equal(err.actualArgs, 0);
+    assert.equal(err.expectedArgs, 1);
+    assert.equal(err.line, 9);
+
+    assert.end();
+});
+
 test('calling new on normal function');
 test('calling new on non-object thisArg');
 test('calling new on empty object thisArg');

@@ -47,6 +47,28 @@ var TooFewArgsInFunc = TypedError({
     line: null
 });
 
+var TooManyArgsInNewExpression = TypedError({
+    type: 'jsig.verify.too-many-args-in-new-expression',
+    message: '@{line}: Expected the new call on constructor {funcName} to ' +
+        'have exactly {expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
+var TooFewArgsInNewExpression = TypedError({
+    type: 'jsig.verify.too-few-args-in-new-expression',
+    message: '@{line}: Expected the new call on constructor {funcName} to ' +
+        'have exactly {expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
 var NonExistantField = TypedError({
     type: 'jsig.verify.non-existant-field',
     message: '@{line}: Object {objName} does not have field {fieldName}.',
@@ -389,37 +411,42 @@ function verifyNewExpression(node) {
     assert(fnType, 'new expression callee must exist');
     assert(fnType.type === 'function', 'only support defined constructors');
 
-    assert(fnType.args.length === node.arguments.length,
-        'expected same number of args');
     assert(fnType.result.type === 'typeLiteral' &&
         fnType.result.name === 'void',
         'constructors must return void');
     assert(fnType.thisArg,
         'constructors must have a thisArg');
 
-    for (var i = 0; i < fnType.args.length; i++) {
+    var err;
+    if (node.arguments.length > fnType.args.length) {
+        err = TooManyArgsInNewExpression({
+            funcName: node.callee.name,
+            actualArgs: node.arguments.length,
+            expectedArgs: fnType.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+    } else if (node.arguments.length < fnType.args.length) {
+        err = TooFewArgsInNewExpression({
+            funcName: node.callee.name,
+            actualArgs: node.arguments.length,
+            expectedArgs: fnType.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+    }
+
+    var minLength = Math.min(fnType.args.length, node.arguments.length);
+    for (var i = 0; i < minLength; i++) {
         var wantedType = fnType.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
-
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
 
     return fnType.thisArg;
 };
-
-/*
-   assert(defn.args.length === node.arguments.length,
-        'expected same number of args');
-    assert(defn.thisArg === null,
-        'CallExpression() with thisArg not supported');
-
-    for (var i = 0; i < defn.args.length; i++) {
-        var wantedType = defn.args[i];
-        var actualType = this.meta.verifyNode(node.arguments[i]);
-
-        this.meta.checkSubType(node.arguments[i], wantedType, actualType);
-    }
-*/
 
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
@@ -522,7 +549,6 @@ function _checkReturnType(node) {
     }
 
     this.meta.checkSubType(returnNode, expected, actual);
-    // console.warn('TODO: type check return lol');
 };
 
 // hoisting function declarations to the top makes the tree
