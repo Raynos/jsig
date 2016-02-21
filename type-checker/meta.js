@@ -265,6 +265,10 @@ FunctionScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
 };
 
+FunctionScope.prototype.getFunction = function getFunction(id) {
+    return this.parent.getFunction(id);
+};
+
 FunctionScope.prototype.getPrototypeFields =
 function getPrototypeFields() {
     var parent = this.parent;

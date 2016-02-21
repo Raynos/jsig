@@ -121,6 +121,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyBinaryExpression(node);
     } else if (node.type === 'ReturnStatement') {
         return this.verifyReturnStatement(node);
+    } else if (node.type === 'NewExpression') {
+        return this.verifyNewExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -379,6 +381,45 @@ function verifyReturnStatement(node) {
     this.meta.currentScope.markReturnType(defn, node);
     return defn;
 };
+
+ASTVerifier.prototype.verifyNewExpression =
+function verifyNewExpression(node) {
+    var fnType = this.meta.verifyNode(node.callee);
+
+    assert(fnType, 'new expression callee must exist');
+    assert(fnType.type === 'function', 'only support defined constructors');
+
+    assert(fnType.args.length === node.arguments.length,
+        'expected same number of args');
+    assert(fnType.result.type === 'typeLiteral' &&
+        fnType.result.name === 'void',
+        'constructors must return void');
+    assert(fnType.thisArg,
+        'constructors must have a thisArg');
+
+    for (var i = 0; i < fnType.args.length; i++) {
+        var wantedType = fnType.args[i];
+        var actualType = this.meta.verifyNode(node.arguments[i]);
+
+        this.meta.checkSubType(node.arguments[i], wantedType, actualType);
+    }
+
+    return fnType.thisArg;
+};
+
+/*
+   assert(defn.args.length === node.arguments.length,
+        'expected same number of args');
+    assert(defn.thisArg === null,
+        'CallExpression() with thisArg not supported');
+
+    for (var i = 0; i < defn.args.length; i++) {
+        var wantedType = defn.args[i];
+        var actualType = this.meta.verifyNode(node.arguments[i]);
+
+        this.meta.checkSubType(node.arguments[i], wantedType, actualType);
+    }
+*/
 
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
