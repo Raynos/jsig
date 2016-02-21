@@ -9,6 +9,28 @@ var compile = require('../type-checker/');
 
 var batchClientDir = path.join(__dirname, 'batch-client-constructor');
 
+test('Working simple constructor', function t(assert) {
+    var file = getFile('good-working-simple-constructor.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 0, 'expected no errors');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
+
+test('Calling String(x) in constructor', function t(assert) {
+    var file = getFile('good-calling-string-x-in-constructor.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 0, 'expected 0 errors');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
+
 test('Missing header file', function t(assert) {
     var file = getFile('bad-missing-header-file.js');
 
@@ -22,17 +44,6 @@ test('Missing header file', function t(assert) {
         'should have a missing header file error');
     assert.equal(error.fileName, file.replace('.js', '.hjs'),
         'header file error should be for our file');
-
-    assert.end();
-});
-
-test('Working simple constructor', function t(assert) {
-    var file = getFile('good-working-simple-constructor.js');
-
-    var meta = compile(file);
-    assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 0, 'expected no errors');
-    assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();
 });
@@ -116,17 +127,6 @@ test('Assigning Array<Number> to Array<String> field', function t(assert) {
     assert.equal(err.expected, 'Array<String>');
     assert.equal(err.actual, 'Array<Number>');
     assert.equal(err.line, 7);
-
-    assert.end();
-});
-
-test('Calling String(x) in constructor', function t(assert) {
-    var file = getFile('good-calling-string-x-in-constructor.js');
-
-    var meta = compile(file);
-    assert.ok(meta, 'expected meta');
-    assert.equal(meta.errors.length, 0, 'expected 0 errors');
-    assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();
 });
