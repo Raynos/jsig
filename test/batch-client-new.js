@@ -70,10 +70,25 @@ test('calling constructor with too few args', function t(assert) {
     assert.end();
 });
 
+test('assigning result of new to wrong type', function t(assert) {
+    var file = getFile('bad-assigning-result-of-new-to-wrong-type.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'this: TBuffer');
+    assert.equal(err.line, 9);
+
+    assert.end();
+});
+
 test('calling new on normal function');
 test('calling new on non-object thisArg');
 test('calling new on empty object thisArg');
-test('assigning result of new to wrong type');
 test('calling new on constructor with a return string');
 test('calling new on constructor with a return other object');
 test('calling new on constructor with return null');
