@@ -5,10 +5,8 @@
     They return the type defn of the node.
 */
 
-/*eslint no-console: 0*/
 var assert = require('assert');
 var TypedError = require('error/typed');
-var console = require('console');
 
 var JsigAST = require('../ast.js');
 var isSameType = require('./is-same-type.js');
@@ -285,7 +283,6 @@ function verifyMemberExpression(node) {
     var objType = this.meta.verifyNode(node.object);
     var propName = node.property.name;
 
-    // console.log('?', node);
     var valueType = findPropertyInType(objType, propName);
     if (!valueType) {
         var objName;
@@ -515,8 +512,6 @@ function verifyVariableDeclaration(node) {
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
-
-    console.log('?', defn.args.length, this.meta.currentScope.funcName);
 
     var err;
     if (node.params.length > defn.args.length) {

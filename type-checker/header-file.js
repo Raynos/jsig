@@ -37,7 +37,6 @@ function resolveReferences() {
 
     copyAst = this.inlineReferences(copyAst, ast);
 
-    // console.log('copy AST?', JSON.stringify(copyAst, null, 4));
     this.resolvedJsigAst = copyAst;
 };
 

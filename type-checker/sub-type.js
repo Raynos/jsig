@@ -77,8 +77,7 @@ function checkTypeLiteralSubType(node, parent, child) {
             return reportTypeMisMatch(node, parent, child);
         }
     } else {
-        console.warn('wat', parent);
-        throw new Error('NotImplemented');
+        throw new Error('NotImplemented: ' + parent.type);
     }
 };
 

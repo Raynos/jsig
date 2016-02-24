@@ -1,8 +1,5 @@
 'use strict';
 
-/*eslint no-console: 0*/
-// var console = require('console');
-
 var isModuleExports = require('./lib/is-module-exports.js');
 var ASTVerifier = require('./ast-verifier.js');
 var JsigAST = require('../ast.js');
@@ -180,8 +177,6 @@ function enterFunctionScope(funcNode, typeDefn) {
 
     funcScope.thisValueType = typeDefn.thisArg;
     funcScope.returnValueType = typeDefn.result;
-
-    // console.log('alloc funcScope', funcNode.id.name, typeDefn);
 
     this.currentScope = funcScope;
 };
