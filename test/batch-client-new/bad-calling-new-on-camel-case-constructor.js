@@ -6,9 +6,9 @@ function BatchClient(channel, hosts) {
     this.channel = channel;
     this.hosts = hosts;
 
-    this.key = new Baffer('KEY_VALUE');
+    this.key = new makeBuffer('KEY_VALUE');
 }
 
-function Baffer(str) {
+function makeBuffer(str) {
     this.str = str;
 }

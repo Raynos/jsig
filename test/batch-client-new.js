@@ -86,23 +86,28 @@ test('assigning result of new to wrong type', function t(assert) {
     assert.end();
 });
 
-// test('calling new on camel case constructor', function t(assert) {
-//     var file = getFile('bad-calling-new-on-camel-case-constructor.js');
+test('calling new on camel case constructor', function t(assert) {
+    var file = getFile('bad-calling-new-on-camel-case-constructor.js');
 
-//     var meta = compile(file);
-//     assert.ok(meta, 'expected meta to exist');
-//     assert.equal(meta.errors.length, 3, 'expected two errors');
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 2, 'expected two errors');
 
-//     var err1 = meta.errors[0];
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.constructor-must-be-pascal-case');
+    assert.equal(err1.line, 9);
+    assert.equal(err1.funcName, 'makeBuffer');
+    assert.equal(err1.funcType, '(this: TBuffer, str: String) => void');
 
-//     var err2 = meta.errors[1];
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
+    assert.equal(err2.fieldName, 'key');
+    assert.equal(err2.line, 5);
+    assert.equal(err2.otherField, 'no-field');
+    assert.equal(err2.funcName, 'BatchClient');
 
-//     var err3 = meta.errors[2];
-
-//     console.log('e', err1, err2, err3);
-
-//     assert.end();
-// });
+    assert.end();
+});
 
 test('calling new on normal function', function t(assert) {
     var file = getFile('bad-calling-new-on-normal-function.js');

@@ -14,4 +14,4 @@ BatchClient : (
     hosts: Array<String>
 ) => void
 
-Baffer : (this: TBuffer, str: String) => void
+makeBuffer : (this: TBuffer, str: String) => void
