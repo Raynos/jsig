@@ -165,20 +165,20 @@ function serializeValue(node, opts) {
 
 function serializeFunctionType(node, opts) {
     var str = serializeLabel(node, opts) + '(';
-    var argNodes = node.args;
+    var argNodes = node.args.slice();
 
     if (node.thisArg) {
         argNodes.unshift(node.thisArg);
     }
 
-    var argStrs = node.args.map(function s(n) {
+    var argStrs = argNodes.map(function s(n) {
         return serialize(n, opts);
     });
     var argStr = argStrs.join(', ');
 
     if (argStrs.join(', ').split('\n')[0].length > 65) {
         var offset = '\n' + spaces(opts.indent + 1);
-        argStrs = node.args.map(function s(n) {
+        argStrs = argNodes.map(function s(n) {
             return serialize(n, extend(opts, {
                 indent: opts.indent + 1
             }));
