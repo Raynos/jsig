@@ -22,6 +22,11 @@ module.exports = serialize;
 
 function serialize(ast, opts) {
     opts = opts || { indent: 0, lineStart: 0 };
+
+    if (ast._raw) {
+        return serialize(ast._raw, opts);
+    }
+
     var fn = serializers[ast.type];
 
     if (!fn) {
