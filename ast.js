@@ -22,7 +22,8 @@ module.exports = {
 function program(statements) {
     return {
         type: 'program',
-        statements: statements
+        statements: statements,
+        _raw: null
     };
 }
 
@@ -31,7 +32,8 @@ function typeDeclaration(identifier, typeExpression, generics) {
         type: 'typeDeclaration',
         identifier: identifier,
         typeExpression: typeExpression,
-        generics: generics || []
+        generics: generics || [],
+        _raw: null
     };
 }
 
@@ -39,7 +41,8 @@ function assignment(identifier, typeExpression) {
     return {
         type: 'assignment',
         identifier: identifier,
-        typeExpression: typeExpression
+        typeExpression: typeExpression,
+        _raw: null
     };
 }
 
@@ -47,7 +50,8 @@ function importStatement(dependency, types) {
     return {
         type: 'import',
         dependency: dependency,
-        types: types
+        types: types,
+        _raw: null
     };
 }
 
@@ -65,7 +69,8 @@ function object(keyValues, label, opts) {
         type: 'object',
         keyValues: keyValues,
         label: label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -76,7 +81,8 @@ function union(unions, label, opts) {
         type: 'unionType',
         unions: unions,
         label: label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -87,7 +93,8 @@ function intersection(intersections, label, opts) {
         type: 'intersectionType',
         intersections: intersections,
         label: label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -105,7 +112,8 @@ function literal(name, builtin, opts) {
             builtin :
             Boolean(builtinTypes.indexOf(name) !== -1),
         label: opts.label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -115,7 +123,8 @@ function keyValue(key, $value, opts) {
         type: 'keyValue',
         key: key,
         value: $value,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -130,7 +139,8 @@ function value(_value, name, label) {
         value: _value,
         name: name,
         label: label || null,
-        optional: false
+        optional: false,
+        _raw: null
     };
 }
 
@@ -141,7 +151,8 @@ function functionType(opts) {
         result: opts.result,
         thisArg: opts.thisArg || null,
         label: opts.label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -151,7 +162,8 @@ function generic(astValue, generics, label) {
         value: astValue,
         generics: generics,
         label: label || null,
-        optional: false
+        optional: false,
+        _raw: null
     };
 }
 
@@ -161,7 +173,8 @@ function tuple(values, label, opts) {
         type: 'tuple',
         values: values,
         label: label || null,
-        optional: opts.optional || false
+        optional: opts.optional || false,
+        _raw: null
     };
 }
 
@@ -182,6 +195,7 @@ function renamedLiteral(token, original, opts) {
         builtin: token.builtin,
         optional: token.optional,
         label: token.label,
-        original: original
+        original: original,
+        _raw: null
     };
 }
