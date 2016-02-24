@@ -181,6 +181,8 @@ function enterFunctionScope(funcNode, typeDefn) {
     funcScope.thisValueType = typeDefn.thisArg;
     funcScope.returnValueType = typeDefn.result;
 
+    // console.log('alloc funcScope', funcNode.id.name, typeDefn);
+
     this.currentScope = funcScope;
 };
 

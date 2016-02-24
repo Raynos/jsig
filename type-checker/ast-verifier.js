@@ -109,6 +109,26 @@ var UnTypedFunctionFound = TypedError({
     line: null
 });
 
+var CallingNewOnPlainFunction = TypedError({
+    type: 'jsig.verify.calling-new-on-plain-function',
+    message: '@{line}: Cannot call `new` on plain function {funcName}. ' +
+        'The function type {funcType} is not a constructor.',
+    funcName: null,
+    funcType: null,
+    loc: null,
+    line: null
+});
+
+var ConstructorMustBePascalCase = TypedError({
+    type: 'jsig.verify.constructor-must-be-pascal-case',
+    message: '@{line}: Constructor function {funcName} must be pascal case. ' +
+        'Cannot call `new` on function type {funcType}.',
+    funcName: null,
+    funcType: null,
+    loc: null,
+    line: null
+});
+
 module.exports = ASTVerifier;
 
 function ASTVerifier(meta) {
@@ -145,6 +165,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyReturnStatement(node);
     } else if (node.type === 'NewExpression') {
         return this.verifyNewExpression(node);
+    } else if (node.type === 'VariableDeclaration') { 
+        return this.verifyVariableDeclaration(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -186,6 +208,7 @@ function verifyFunctionDeclaration(node) {
         return;
     }
 
+    // console.log('wat wat', node.id.name, serialize(token.defn));
     this._checkFunctionType(node, token.defn);
 };
 
@@ -411,13 +434,35 @@ function verifyNewExpression(node) {
     assert(fnType, 'new expression callee must exist');
     assert(fnType.type === 'function', 'only support defined constructors');
 
+    var err;
+    if (!fnType.thisArg) {
+        err = CallingNewOnPlainFunction({
+            funcName: node.callee.name,
+            funcType: serialize(fnType),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+    assert(fnType.thisArg,
+        'constructors must have a thisArg');
     assert(fnType.result.type === 'typeLiteral' &&
         fnType.result.name === 'void',
         'constructors must return void');
-    assert(fnType.thisArg,
-        'constructors must have a thisArg');
 
-    var err;
+    var isConstructor = /[A-Z]/.test(node.callee.name[0]);
+    if (!isConstructor) {
+        err = ConstructorMustBePascalCase({
+            funcName: node.callee.name,
+            funcType: serialize(fnType),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     if (node.arguments.length > fnType.args.length) {
         err = TooManyArgsInNewExpression({
             funcName: node.callee.name,
@@ -448,9 +493,30 @@ function verifyNewExpression(node) {
     return fnType.thisArg;
 };
 
+ASTVerifier.prototype.verifyVariableDeclaration =
+function verifyVariableDeclaration(node) {
+    assert(node.declarations.length === 1,
+        'only support single declaration');
+
+    var decl = node.declarations[0];
+    assert(decl.init, 'declaration must have init value');
+
+    var id = decl.id.name;
+    var token = this.meta.currentScope.getVar(id);
+    assert(!token, 'shadowing variables not supported');
+
+    var type = this.meta.verifyNode(decl.init);
+    assert(type, 'initial value must have a type');
+
+    this.meta.currentScope.addVar(id, type);
+    return null;
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
+
+    console.log('?', defn.args.length, this.meta.currentScope.funcName);
 
     var err;
     if (node.params.length > defn.args.length) {
@@ -494,7 +560,7 @@ function checkHiddenClass(node) {
     var thisType = this.meta.currentScope.thisValueType;
     var knownFields = this.meta.currentScope.knownFields;
     var protoFields = this.meta.currentScope.getPrototypeFields();
-    assert(thisType.type === 'object', 'this field must be object');
+    assert(thisType && thisType.type === 'object', 'this field must be object');
 
     for (var i = 0; i < thisType.keyValues.length; i++) {
         var key = thisType.keyValues[i].key;

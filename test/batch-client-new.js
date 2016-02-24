@@ -86,7 +86,47 @@ test('assigning result of new to wrong type', function t(assert) {
     assert.end();
 });
 
-test('calling new on normal function');
+// test('calling new on camel case constructor', function t(assert) {
+//     var file = getFile('bad-calling-new-on-camel-case-constructor.js');
+
+//     var meta = compile(file);
+//     assert.ok(meta, 'expected meta to exist');
+//     assert.equal(meta.errors.length, 3, 'expected two errors');
+
+//     var err1 = meta.errors[0];
+
+//     var err2 = meta.errors[1];
+
+//     var err3 = meta.errors[2];
+
+//     console.log('e', err1, err2, err3);
+
+//     assert.end();
+// });
+
+test('calling new on normal function', function t(assert) {
+    var file = getFile('bad-calling-new-on-normal-function.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 2, 'expected two errors');
+
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.calling-new-on-plain-function');
+    assert.equal(err1.line, 10);
+    assert.equal(err1.funcName, 'Buffer');
+    assert.equal(err1.funcType, '(str: String) => String');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
+    assert.equal(err2.fieldName, 'key');
+    assert.equal(err2.line, 5);
+    assert.equal(err2.otherField, 'no-field');
+    assert.equal(err2.funcName, 'BatchClient');
+
+    assert.end();
+});
+
 test('calling new on non-object thisArg');
 test('calling new on empty object thisArg');
 test('calling new on constructor with a return string');
