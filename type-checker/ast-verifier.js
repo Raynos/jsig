@@ -163,7 +163,7 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyReturnStatement(node);
     } else if (node.type === 'NewExpression') {
         return this.verifyNewExpression(node);
-    } else if (node.type === 'VariableDeclaration') { 
+    } else if (node.type === 'VariableDeclaration') {
         return this.verifyVariableDeclaration(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);

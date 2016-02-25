@@ -43,7 +43,7 @@ function serializeProgram(node, opts) {
 }
 
 function serializeTypeDeclaration(node, opts) {
-    var generics = node.generics.length ? 
+    var generics = node.generics.length ?
         '<' + node.generics.map(function s(n) {
             return serialize(n, opts);
         }).join(', ') + '>' : '';
@@ -223,5 +223,5 @@ function spaces(n) {
 }
 
 function trimLeft(str) {
-    return str.replace(/^\s+/,'');
+    return str.replace(/^\s+/, '');
 }

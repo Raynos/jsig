@@ -173,14 +173,14 @@ test('forget to assign to prototype', function t(assert) {
     var err1 = meta.errors[0];
     assert.equal(err1.type, 'jsig.verify.untyped-function-found');
     assert.equal(err1.funcName, '_sendRequest');
-    assert.equal(err1.line, 7);
+    assert.equal(err1.line, 8);
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
     assert.equal(err2.fieldName, '_sendRequest');
     assert.equal(err2.otherField, 'no-field');
     assert.equal(err2.funcName, 'BatchClient');
-    assert.equal(err2.line, 11);
+    assert.equal(err2.line, 12);
 
     assert.end();
 });

@@ -95,14 +95,14 @@ test('calling new on camel case constructor', function t(assert) {
 
     var err1 = meta.errors[0];
     assert.equal(err1.type, 'jsig.verify.constructor-must-be-pascal-case');
-    assert.equal(err1.line, 9);
+    assert.equal(err1.line, 10);
     assert.equal(err1.funcName, 'makeBuffer');
     assert.equal(err1.funcType, '(this: TBuffer, str: String) => void');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
     assert.equal(err2.fieldName, 'key');
-    assert.equal(err2.line, 5);
+    assert.equal(err2.line, 6);
     assert.equal(err2.otherField, 'no-field');
     assert.equal(err2.funcName, 'BatchClient');
 
