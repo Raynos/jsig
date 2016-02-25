@@ -127,6 +127,16 @@ var ConstructorMustBePascalCase = TypedError({
     line: null
 });
 
+var ConstructorThisTypeMustBeObject = TypedError({
+    type: 'jsig.verify.constructor-this-type-must-be-object',
+    message: '@{line}: Constructor function {funcName} must ' +
+        'create an object. Cannot have non-object this: {thisType}.',
+    funcName: null,
+    thisType: null,
+    loc: null,
+    line: null
+});
+
 module.exports = ASTVerifier;
 
 function ASTVerifier(meta) {
@@ -442,8 +452,18 @@ function verifyNewExpression(node) {
         this.meta.addError(err);
         return null;
     }
-    assert(fnType.thisArg,
-        'constructors must have a thisArg');
+
+    if (fnType.thisArg.type !== 'object') {
+        err = ConstructorThisTypeMustBeObject({
+            funcName: node.callee.name,
+            thisType: serialize(fnType.thisArg),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     assert(fnType.result.type === 'typeLiteral' &&
         fnType.result.name === 'void',
         'constructors must return void');
@@ -555,6 +575,18 @@ function checkHiddenClass(node) {
     var thisType = this.meta.currentScope.thisValueType;
     var knownFields = this.meta.currentScope.knownFields;
     var protoFields = this.meta.currentScope.getPrototypeFields();
+
+    var err;
+    if (!thisType || thisType.type !== 'object') {
+        err = ConstructorThisTypeMustBeObject({
+            funcName: this.meta.currentScope.funcName,
+            thisType: thisType ? serialize(thisType) : 'void',
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return;
+    }
     assert(thisType && thisType.type === 'object', 'this field must be object');
 
     for (var i = 0; i < thisType.keyValues.length; i++) {
@@ -563,7 +595,7 @@ function checkHiddenClass(node) {
             knownFields[i] !== key &&
             !(protoFields && protoFields[key])
         ) {
-            var err = MissingFieldInConstr({
+            err = MissingFieldInConstr({
                 fieldName: key,
                 funcName: this.meta.currentScope.funcName,
                 otherField: knownFields[i] || 'no-field',

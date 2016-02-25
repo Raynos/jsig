@@ -132,7 +132,35 @@ test('calling new on normal function', function t(assert) {
     assert.end();
 });
 
-test('calling new on non-object thisArg');
+test('calling new on non-object thisArg', function t(assert) {
+    var file = getFile('bad-calling-new-on-function-with-weird-this.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 3, 'expected two errors');
+
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.constructor-this-type-must-be-object');
+    assert.equal(err1.line, 9);
+    assert.equal(err1.funcName, 'Buffer');
+    assert.equal(err1.thisType, 'this: String');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
+    assert.equal(err2.fieldName, 'key');
+    assert.equal(err2.line, 5);
+    assert.equal(err2.otherField, 'no-field');
+    assert.equal(err2.funcName, 'BatchClient');
+
+    var err3 = meta.errors[2];
+    assert.equal(err3.type, 'jsig.verify.constructor-this-type-must-be-object');
+    assert.equal(err3.line, 12);
+    assert.equal(err3.funcName, 'Buffer');
+    assert.equal(err3.thisType, 'this: String');
+
+    assert.end();
+});
+
 test('calling new on empty object thisArg');
 test('calling new on constructor with a return string');
 test('calling new on constructor with a return other object');
