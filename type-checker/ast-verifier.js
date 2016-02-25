@@ -129,8 +129,8 @@ var ConstructorMustBePascalCase = TypedError({
 
 var ConstructorThisTypeMustBeObject = TypedError({
     type: 'jsig.verify.constructor-this-type-must-be-object',
-    message: '@{line}: Constructor function {funcName} must ' +
-        'create an object. Cannot have non-object this: {thisType}.',
+    message: '@{line}: Constructor {funcName} must have non-empty thisType. ' +
+        'Cannot have non-object or empty object this ({thisType}).',
     funcName: null,
     thisType: null,
     loc: null,
@@ -453,7 +453,9 @@ function verifyNewExpression(node) {
         return null;
     }
 
-    if (fnType.thisArg.type !== 'object') {
+    if (fnType.thisArg.type !== 'object' ||
+        fnType.thisArg.keyValues.length === 0
+    ) {
         err = ConstructorThisTypeMustBeObject({
             funcName: node.callee.name,
             thisType: serialize(fnType.thisArg),

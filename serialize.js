@@ -74,6 +74,10 @@ function serializeLabel(node) {
 function serializeObject(node, opts) {
     var keyValues = node.keyValues;
 
+    if (keyValues.length === 0) {
+        return serializeLabel(node, opts) + '{}';
+    }
+
     /* heuristic. Pretty print single key, value on one line */
     if (keyValues.length <= 1) {
         var content = serializeLabel(node, opts) + '{ ' +
