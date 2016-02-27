@@ -564,6 +564,7 @@ function checkFunctionType(node, defn) {
 
     if (this.meta.currentScope.isConstructor) {
         this._checkHiddenClass(node);
+        this._checkVoidReturnType(node);
     } else {
         // TODO: verify return.
         this._checkReturnType(node);
@@ -644,6 +645,19 @@ function _checkReturnType(node) {
     }
 
     this.meta.checkSubType(returnNode, expected, actual);
+};
+
+ASTVerifier.prototype._checkVoidReturnType =
+function _checkVoidReturnType(node) {
+    var returnType = this.meta.currentScope.returnValueType;
+    var actualReturnType = this.meta.currentScope.knownReturnType;
+    var returnNode = this.meta.currentScope.returnStatementASTNode;
+
+    assert(!returnNode, 'expected no return statement in constructor');
+    assert(returnType.type === 'typeLiteral' && returnType.name === 'void',
+        'expected Constructor to have no return void');
+    assert(actualReturnType === null,
+        'expected implementation to have no return type');
 };
 
 // hoisting function declarations to the top makes the tree
