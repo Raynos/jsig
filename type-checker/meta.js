@@ -6,18 +6,10 @@ var JsigAST = require('../ast.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var HeaderFile = require('./header-file.js');
 var SubTypeChecker = require('./sub-type.js');
+var FileScope = require('./scope.js').FileScope;
+var FunctionScope = require('./scope.js').FunctionScope;
 
 var fileExtRegex = /.js$/;
-var requireType = JsigAST.functionType({
-    args: [JsigAST.literal('String')],
-    result: JsigAST.value('null')
-});
-requireType.isNodeRequireToken = true;
-
-var moduleType = JsigAST.object({
-    exports: JsigAST.literal('Any:ModuleExports', true)
-});
-moduleType.isNodeModuleToken = true;
 
 module.exports = ProgramMeta;
 
@@ -35,8 +27,7 @@ function ProgramMeta(ast, fileName) {
     this.moduleExportsName = null;
 
     this.currentScope = new FileScope(this);
-    this.currentScope.addVar('require', requireType);
-    this.currentScope.addVar('module', moduleType);
+    this.currentScope.loadModuleTokens();
 
     this.errors = [];
     this.fatalError = false;
@@ -139,7 +130,7 @@ function loadHeaderFile() {
 
     var res = readJSigAST(headerFileName);
     if (res.error) {
-        this.errors.push(res.error);
+        this.addError(res.error);
         this.fatalError = true;
         return;
     }
@@ -149,7 +140,7 @@ function loadHeaderFile() {
     var assignments = this.headerFile.getResolvedAssignments();
     if (this.headerFile.errors.length) {
         for (var i = 0; i < this.headerFile.errors.length; i++) {
-            this.errors.push(this.headerFile.errors[i]);
+            this.addError(this.headerFile.errors[i]);
         }
         this.fatalError = true;
         return;
@@ -167,16 +158,7 @@ function enterFunctionScope(funcNode, typeDefn) {
     var funcScope = new FunctionScope(
         this.currentScope, funcNode.id.name, funcNode
     );
-
-    for (var i = 0; i < funcNode.params.length; i++) {
-        var param = funcNode.params[i];
-        var argType = typeDefn.args[i];
-
-        funcScope.addVar(param.name, argType);
-    }
-
-    funcScope.thisValueType = typeDefn.thisArg;
-    funcScope.returnValueType = typeDefn.result;
+    funcScope.loadTypes(funcNode, typeDefn);
 
     this.currentScope = funcScope;
 };
@@ -184,112 +166,4 @@ function enterFunctionScope(funcNode, typeDefn) {
 ProgramMeta.prototype.exitFunctionScope =
 function exitFunctionScope() {
     this.currentScope = this.currentScope.parent;
-};
-
-function FileScope(parent) {
-    this.parent = parent;
-
-    this.identifiers = Object.create(null);
-    this.untypedFunctions = {};
-    this.prototypes = {};
-
-    this.type = 'file';
-}
-
-FileScope.prototype.addVar =
-function addVar(id, typeDefn) {
-    this.identifiers[id] = {
-        type: 'variable',
-        defn: typeDefn
-    };
-};
-
-FileScope.prototype.addFunction =
-function addFunction(id, node) {
-    this.untypedFunctions[id] = {
-        type: 'untyped-function',
-        node: node
-    };
-};
-
-FileScope.prototype.addPrototypeField =
-function addPrototypeField(id, fieldName, typeDefn) {
-    if (!this.prototypes[id]) {
-        this.prototypes[id] = {
-            type: 'prototype',
-            fields: {}
-        };
-    }
-
-    this.prototypes[id].fields[fieldName] = typeDefn;
-};
-
-FileScope.prototype.getFunction =
-function getFunction(id) {
-    return this.untypedFunctions[id] || null;
-};
-
-FileScope.prototype.getVar = function getVar(id) {
-    return this.identifiers[id] || this.parent.getVar(id);
-};
-
-function FunctionScope(parent, funcName, funcNode) {
-    this.parent = parent;
-
-    this.identifiers = Object.create(null);
-    this.type = 'function';
-
-    this.funcName = funcName;
-    this.returnValueType = null;
-    this.thisValueType = null;
-    this.isConstructor = /[A-Z]/.test(funcName[0]);
-
-    this.knownFields = [];
-    this.knownReturnType = null;
-    this.returnStatementASTNode = null;
-    this.funcASTNode = funcNode;
-}
-
-FunctionScope.prototype.addVar =
-function addVar(id, typeDefn) {
-    this.identifiers[id] = {
-        type: 'variable',
-        defn: typeDefn
-    };
-};
-
-FunctionScope.prototype.getVar = function getVar(id) {
-    return this.identifiers[id] || this.parent.getVar(id);
-};
-
-FunctionScope.prototype.getFunction = function getFunction(id) {
-    return this.parent.getFunction(id);
-};
-
-FunctionScope.prototype.getPrototypeFields =
-function getPrototypeFields() {
-    var parent = this.parent;
-    while (parent.type === 'function') {
-        parent = parent.parent;
-    }
-
-    var p = parent.prototypes[this.funcName];
-    if (!p) {
-        return null;
-    }
-
-    return p.fields;
-};
-
-FunctionScope.prototype.addKnownField =
-function addKnownField(fieldName) {
-    if (this.knownFields.indexOf(fieldName) === -1) {
-        this.knownFields.push(fieldName);
-    }
-};
-
-FunctionScope.prototype.markReturnType =
-function markReturnType(defn, node) {
-    this.knownReturnType = defn;
-    this.returnStatementASTNode = node;
 };
