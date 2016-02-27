@@ -175,6 +175,10 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyNewExpression(node);
     } else if (node.type === 'VariableDeclaration') {
         return this.verifyVariableDeclaration(node);
+    } else if (node.type === 'ForStatement') {
+        return this.verifyForStatement(node);
+    } else if (node.type === 'UpdateExpression') {
+        return this.verifyUpdateExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -216,7 +220,6 @@ function verifyFunctionDeclaration(node) {
         return;
     }
 
-    // console.log('wat wat', node.id.name, serialize(token.defn));
     this._checkFunctionType(node, token.defn);
 };
 
@@ -239,13 +242,18 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
+    this.meta.currentScope.enterAssignment(leftType);
     var rightType = this.meta.verifyNode(node.right);
+    this.meta.currentScope.exitAssignment();
     if (!rightType) {
         return null;
     }
 
     if (rightType.type === 'untyped-function') {
-        this.meta.currentScope.addVar(
+        assert(leftType.name !== 'Any:ModuleExports',
+            'cannot assign untyped function to module.exports');
+
+        this.meta.currentScope.updateFunction(
             rightType.node.id.name, leftType
         );
         rightType = leftType;
@@ -386,6 +394,12 @@ function verifyCallExpression(node) {
         'expected callee to be identifier');
 
     var token = this.meta.currentScope.getVar(node.callee.name);
+    if (!token) {
+        var untypedFunc = this.meta.currentScope.getFunction(node.callee.name);
+        if (untypedFunc) {
+            token = this._inferFunctionTypeBasedOnCall(node, untypedFunc);
+        }
+    }
     assert(token, 'do not support type inference caller()');
 
     var defn = token.defn;
@@ -410,7 +424,7 @@ function verifyBinaryExpression(node) {
     var rightType = this.meta.verifyNode(node.right);
 
     var token = this.meta.getOperator(node.operator);
-    assert(token, 'do not support unknown operators');
+    assert(token, 'do not support unknown operators: ' + node.operator);
 
     var defn = token.defn;
     assert(defn.args.length === 2,
@@ -529,6 +543,36 @@ function verifyVariableDeclaration(node) {
 
     this.meta.currentScope.addVar(id, type);
     return null;
+};
+
+ASTVerifier.prototype.verifyForStatement =
+function verifyForStatement(node) {
+    this.meta.verifyNode(node.init);
+    var testType = this.meta.verifyNode(node.test);
+
+    assert(testType && testType.type === 'typeLiteral' &&
+        testType.name === 'Boolean',
+        'for loop condition statement must be a Boolean expression'
+    );
+
+    this.meta.verifyNode(node.update);
+    this.meta.verifyNode(node.body);
+};
+
+ASTVerifier.prototype.verifyUpdateExpression =
+function verifyUpdateExpression(node) {
+    var firstType = this.meta.verifyNode(node.argument);
+
+    var token = this.meta.getOperator(node.operator);
+    assert(token, 'do not support unknown operators: ' + node.operator);
+
+    var defn = token.defn;
+    assert(defn.args.length === 1,
+        'expecteted type defn args to be one');
+
+    this.meta.checkSubType(node.argument, defn.args[0], firstType);
+
+    return defn.result;
 };
 
 ASTVerifier.prototype._checkFunctionType =
@@ -658,6 +702,34 @@ function _checkVoidReturnType(node) {
         'expected Constructor to have no return void');
     assert(actualReturnType === null,
         'expected implementation to have no return type');
+};
+
+ASTVerifier.prototype._inferFunctionTypeBasedOnCall =
+function _inferFunctionTypeBasedOnCall(node, untypedFunc) {
+    var args = node.arguments;
+
+    var argTypes = [];
+    for (var i = 0; i < args.length; i++) {
+        argTypes.push(this.meta.verifyNode(args[i]));
+    }
+
+    var returnType = JsigAST.literal('void');
+    if (this.meta.currentScope.currentAssignmentType) {
+        returnType = this.meta.currentScope.currentAssignmentType;
+    }
+
+    // TODO: infer this arg based on method calls
+    var funcType = JsigAST.functionType({
+        args: argTypes,
+        result: returnType,
+        thisArg: null,
+        label: node.callee.name,
+        optional: false
+    });
+
+    return this.meta.currentScope.updateFunction(
+        node.callee.name, funcType
+    );
 };
 
 // hoisting function declarations to the top makes the tree

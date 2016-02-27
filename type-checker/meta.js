@@ -50,6 +50,16 @@ function loadLanguageIdentifiers() {
         args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
         result: JsigAST.literal('Number')
     }));
+
+    this._addOperator('<', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('++', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
 };
 
 ProgramMeta.prototype._addVar = function _addVar(id, typeDefn) {

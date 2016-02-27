@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var JsigAST = require('../ast.js');
 
 var requireType = JsigAST.functionType({
@@ -24,6 +25,7 @@ function FileScope(parent) {
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
     this.prototypes = {};
+    this.currentAssignmentType = null;
 
     this.type = 'file';
 }
@@ -36,10 +38,12 @@ function loadModuleTokens() {
 
 FileScope.prototype.addVar =
 function addVar(id, typeDefn) {
-    this.identifiers[id] = {
+    var token = {
         type: 'variable',
         defn: typeDefn
     };
+    this.identifiers[id] = token;
+    return token;
 };
 
 FileScope.prototype.addFunction =
@@ -67,8 +71,25 @@ function getFunction(id) {
     return this.untypedFunctions[id] || null;
 };
 
+FileScope.prototype.updateFunction =
+function updateFunction(id, typeDefn) {
+    assert(this.untypedFunctions[id], 'function must exist already');
+    this.untypedFunctions[id] = null;
+    return this.addVar(id, typeDefn);
+};
+
 FileScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
+};
+
+FileScope.prototype.enterAssignment =
+function enterAssignment(leftType) {
+    this.currentAssignmentType = leftType;
+};
+
+FileScope.prototype.exitAssignment =
+function exitAssignment() {
+    this.currentAssignmentType = null;
 };
 
 function FunctionScope(parent, funcName, funcNode) {
@@ -81,6 +102,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.returnValueType = null;
     this.thisValueType = null;
     this.isConstructor = /[A-Z]/.test(funcName[0]);
+    this.currentAssignmentType = null;
 
     this.knownFields = [];
     this.knownReturnType = null;
@@ -103,10 +125,12 @@ function loadTypes(funcNode, typeDefn) {
 
 FunctionScope.prototype.addVar =
 function addVar(id, typeDefn) {
-    this.identifiers[id] = {
+    var token = {
         type: 'variable',
         defn: typeDefn
     };
+    this.identifiers[id] = token;
+    return token;
 };
 
 FunctionScope.prototype.getVar = function getVar(id) {
@@ -115,6 +139,10 @@ FunctionScope.prototype.getVar = function getVar(id) {
 
 FunctionScope.prototype.getFunction = function getFunction(id) {
     return this.parent.getFunction(id);
+};
+
+FunctionScope.prototype.updateFunction = function updateFunction(id, type) {
+    return this.parent.updateFunction(id, type);
 };
 
 FunctionScope.prototype.getPrototypeFields =
@@ -143,4 +171,14 @@ FunctionScope.prototype.markReturnType =
 function markReturnType(defn, node) {
     this.knownReturnType = defn;
     this.returnStatementASTNode = node;
+};
+
+FunctionScope.prototype.enterAssignment =
+function enterAssignment(leftType) {
+    this.currentAssignmentType = leftType;
+};
+
+FunctionScope.prototype.exitAssignment =
+function exitAssignment() {
+    this.currentAssignmentType = null;
 };
