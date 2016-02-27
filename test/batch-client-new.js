@@ -184,14 +184,16 @@ test('calling new on empty object thisArg', function t(assert) {
     assert.end();
 });
 
-test.skip('calling new on constructor with a return string', function t(assert) {
+test('calling new on constructor with a return string', {
+    skip: true
+}, function t(assert) {
     var file = getFile('bad-calling-new-on-function-with-string-return.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
     assert.equal(meta.errors.length, 2, 'expected two errors');
 
-    console.log('e', meta.errors);
+    // console.log('e', meta.errors);
 
     assert.end();
 });
