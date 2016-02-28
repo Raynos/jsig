@@ -30,7 +30,9 @@ var lexemes = {
     undefinedWord: lexeme(Parsimmon.string('undefined')),
     asWord: lexeme(Parsimmon.string('as')),
     openBrace: lexeme(Parsimmon.string('(')),
-    closeBrace: lexeme(Parsimmon.string(')'))
+    closeBrace: lexeme(Parsimmon.string(')')),
+    commentStart: Parsimmon.string('--'),
+    nonNewLine: Parsimmon.regex(/[^\n]/)
 };
 
 lexemes.label = lexemes.labelName

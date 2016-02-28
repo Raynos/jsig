@@ -45,10 +45,17 @@ var assignment = lexemes.identifier
             });
     });
 
+var commentStatement = lexemes.commentStart
+    .then(lexemes.nonNewLine.many())
+    .map(function comment(text) {
+        return AST.comment('--' + text.join(''));
+    });
+
 var statement = Parsimmon.alt(
     importStatement,
     assignment,
-    typeDeclaration
+    typeDeclaration,
+    commentStatement
 );
 
 module.exports = statement;

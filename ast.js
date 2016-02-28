@@ -16,7 +16,8 @@ module.exports = {
     functionType: functionType,
     generic: generic,
     tuple: tuple,
-    renamedLiteral: renamedLiteral
+    renamedLiteral: renamedLiteral,
+    comment: comment
 };
 
 function program(statements) {
@@ -196,6 +197,14 @@ function renamedLiteral(token, original, opts) {
         optional: token.optional,
         label: token.label,
         original: original,
+        _raw: null
+    };
+}
+
+function comment(text) {
+    return {
+        type: 'comment',
+        text: text,
         _raw: null
     };
 }

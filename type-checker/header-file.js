@@ -139,6 +139,9 @@ function inlineReferences(ast, rawAst) {
     } else if (ast.type === 'valueLiteral') {
         ast._raw = rawAst;
         return ast;
+    } else if (ast.type === 'comment') {
+        ast._raw = rawAst;
+        return ast;
     } else {
         throw new Error('unknown ast type: ' + ast.type);
     }
