@@ -1,4 +1,4 @@
-// vim: set ft=Haskell:
+-- vim: set ft=Haskell:
 type Channel : Object
 type Callback : (err: Error | null) => void
 
