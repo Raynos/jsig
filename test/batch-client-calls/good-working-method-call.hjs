@@ -1,4 +1,4 @@
-
+// vim: set ft=OCaml:
 type Channel : Object
 type Callback : (err: Error | null) => void
 
