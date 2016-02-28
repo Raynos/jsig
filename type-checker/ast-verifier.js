@@ -179,6 +179,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyForStatement(node);
     } else if (node.type === 'UpdateExpression') {
         return this.verifyUpdateExpression(node);
+    } else if (node.type === 'ObjectExpression') {
+        return this.verifyObjectExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -208,6 +210,7 @@ function verifyProgram(node) {
 ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
     var funcName = node.id.name;
+    // console.log('verifyFunctionDeclaration', funcName);
 
     var token = this.meta.currentScope.getVar(funcName);
     if (!token) {
@@ -239,6 +242,7 @@ ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     var leftType = this.meta.verifyNode(node.left);
     if (!leftType) {
+        console.warn('could not find leftType');
         return null;
     }
 
@@ -250,6 +254,7 @@ function verifyAssignmentExpression(node) {
         var name = node.right.name;
         var maybeFunc = this.meta.currentScope.getFunction(name);
         if (!maybeFunc) {
+            console.warn('could not find possible function');
             return null;
         }
 
@@ -307,6 +312,10 @@ function verifyMemberExpression(node) {
     var objType = this.meta.verifyNode(node.object);
     var propName = node.property.name;
 
+    if (objType === null) {
+        return null;
+    }
+
     var valueType = findPropertyInType(objType, propName);
     if (!valueType) {
         var objName;
@@ -314,7 +323,14 @@ function verifyMemberExpression(node) {
             objName = 'this';
         } else if (node.object.type === 'Identifier') {
             objName = node.object.name;
+        } else if (node.object.type === 'MemberExpression') {
+            assert(node.object.object.type === 'Identifier');
+            assert(node.object.property.type === 'Identifier');
+
+            objName = node.object.object.name + '.' +
+                node.object.property.name;
         } else {
+            // console.log('weird objType', node);
             assert(false, 'unknown object type');
         }
         this.meta.addError(NonExistantField({
@@ -370,7 +386,7 @@ function verifyArrayExpression(node) {
     var elems = node.elements;
 
     if (elems.length === 0) {
-        return JsigAST.literal('Array');
+        return JsigAST.literal('Array:Empty');
     }
 
     var type = null;
@@ -391,29 +407,23 @@ function verifyArrayExpression(node) {
 
 ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
-    assert(node.callee.type === 'Identifier',
-        'expected callee to be identifier');
-
-    var token = this.meta.currentScope.getVar(node.callee.name);
-    if (!token) {
-        var untypedFunc = this.meta.currentScope.getFunction(node.callee.name);
-        if (untypedFunc) {
-            token = this._inferFunctionTypeBasedOnCall(node, untypedFunc);
-        }
-    }
-    assert(token, 'do not support type inference caller()');
-
-    var defn = token.defn;
-    assert(defn.args.length === node.arguments.length,
-        'expected same number of args');
-    assert(defn.thisArg === null,
-        'CallExpression() with thisArg not supported');
+    var defn = this._getFunctionTypeFromCallee(node);
 
     for (var i = 0; i < defn.args.length; i++) {
         var wantedType = defn.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
 
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
+    }
+
+    if (defn.thisArg) {
+        assert(node.callee.type === 'MemberExpression',
+            'must be a method call expression');
+
+        var obj = this.meta.verifyNode(node.callee.object);
+        assert(obj, 'object of method call must have a type');
+
+        this.meta.checkSubType(node.callee.object, defn.thisArg, obj);
     }
 
     return defn.result;
@@ -576,6 +586,27 @@ function verifyUpdateExpression(node) {
     return defn.result;
 };
 
+ASTVerifier.prototype.verifyObjectExpression =
+function verifyObjectExpression(node) {
+    var properties = node.properties;
+
+    if (properties.length === 0) {
+        return JsigAST.object([]);
+    }
+
+    var keyValues = [];
+    for (var i = 0; i < properties.length; i++) {
+        var prop = properties[i];
+        assert(prop.kind === 'init', 'only support init kind');
+
+        var value = this.meta.verifyNode(prop.value);
+        assert(value, 'expect value expression to have types');
+        keyValues.push(JsigAST.keyValue(prop.key.name, value));
+    }
+
+    return JsigAST.object(keyValues);
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
@@ -603,6 +634,14 @@ function checkFunctionType(node, defn) {
         this.meta.addError(err);
         this.meta.exitFunctionScope();
         return;
+    }
+
+    var statements = node.body.body;
+    for (var i = 0; i < statements.length; i++) {
+        if (statements[i].type === 'FunctionDeclaration') {
+            var name = statements[i].id.name;
+            this.meta.currentScope.addFunction(name, statements[i]);
+        }
     }
 
     this.meta.verifyNode(node.body);
@@ -731,6 +770,46 @@ function _inferFunctionTypeBasedOnCall(node, untypedFunc) {
     return this.meta.currentScope.updateFunction(
         node.callee.name, funcType
     );
+};
+
+ASTVerifier.prototype._getFunctionTypeFromCallee =
+function _getFunctionTypeFromCallee(node) {
+    var defn;
+    var token;
+    if (node.callee.type === 'Identifier') {
+        token = this.meta.currentScope.getVar(node.callee.name);
+        if (!token) {
+            var untypedFunc = this.meta.currentScope
+                .getFunction(node.callee.name);
+            if (untypedFunc) {
+                token = this._inferFunctionTypeBasedOnCall(node, untypedFunc);
+            }
+        }
+        assert(token, 'do not support type inference caller()');
+        defn = token.defn;
+    } else {
+        assert(node.callee.object.type === 'Identifier');
+        assert(node.callee.property.type === 'Identifier');
+
+        token = this.meta.currentScope.getVar(node.callee.object.name);
+        assert(token,
+            'expected method call to be on existing token: ' +
+            node.callee.object.name
+        );
+
+        // TODO: figure out thisType in call verification
+        defn = findPropertyInType(
+            token.defn, node.callee.property.name
+        );
+        assert(defn,
+            'property name ' + node.callee.property.name + ' must exist'
+        );
+    }
+
+    assert(defn.args.length === node.arguments.length,
+        'expected same number of args');
+
+    return defn;
 };
 
 // hoisting function declarations to the top makes the tree

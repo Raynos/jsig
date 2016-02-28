@@ -46,6 +46,13 @@ function loadLanguageIdentifiers() {
         result: JsigAST.literal('String')
     }));
 
+    this._addVar('Date', JsigAST.object({
+        'now': JsigAST.functionType({
+            args: [],
+            result: JsigAST.literal('Number')
+        })
+    }));
+
     this._addOperator('*', JsigAST.functionType({
         args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
         result: JsigAST.literal('Number')

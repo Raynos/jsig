@@ -96,6 +96,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.parent = parent;
 
     this.identifiers = Object.create(null);
+    this.untypedFunctions = {};
     this.type = 'function';
 
     this.funcName = funcName;
@@ -137,11 +138,24 @@ FunctionScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
 };
 
+FunctionScope.prototype.addFunction = function addFunction(id, node) {
+    this.untypedFunctions[id] = {
+        type: 'untyped-function',
+        node: node
+    };
+};
+
 FunctionScope.prototype.getFunction = function getFunction(id) {
-    return this.parent.getFunction(id);
+    return this.untypedFunctions[id] || this.parent.getFunction(id);
 };
 
 FunctionScope.prototype.updateFunction = function updateFunction(id, type) {
+    var func = this.untypedFunctions[id];
+    if (func) {
+        this.untypedFunctions[id] = null;
+        return this.addVar(id, type);
+    }
+
     return this.parent.updateFunction(id, type);
 };
 

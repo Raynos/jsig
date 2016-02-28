@@ -127,6 +127,18 @@ function inlineReferences(ast, rawAst) {
         ast.value = this.inlineReferences(ast.value, rawAst.value);
         ast._raw = rawAst;
         return ast;
+    } else if (ast.type === 'unionType') {
+        for (i = 0; i < ast.unions.length; i++) {
+            ast.unions[i] = this.inlineReferences(
+                ast.unions[i], rawAst.unions[i]
+            );
+        }
+
+        ast._raw = rawAst;
+        return ast;
+    } else if (ast.type === 'valueLiteral') {
+        ast._raw = rawAst;
+        return ast;
     } else {
         throw new Error('unknown ast type: ' + ast.type);
     }

@@ -26,6 +26,10 @@ function checkSubType(node, parent, child) {
     assert(parent && parent.type, 'parent must have a type');
     assert(child && child.type, 'child must have a type');
 
+    if (parent === child) {
+        return null;
+    }
+
     if (parent.type === 'typeLiteral') {
         return this.checkTypeLiteralSubType(node, parent, child);
     } else if (parent.type === 'genericLiteral') {
@@ -83,6 +87,14 @@ function checkTypeLiteralSubType(node, parent, child) {
 
 SubTypeChecker.prototype.checkGenericLiteralSubType =
 function checkGenericLiteralSubType(node, parent, child) {
+    if (parent.value.name === 'Array' &&
+        parent.value.builtin &&
+        child.type === 'typeLiteral' &&
+        child.name === 'Array:Empty'
+    ) {
+        return null;
+    }
+
     if (child.type !== 'genericLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }
@@ -119,9 +131,11 @@ function checkFunctionSubType(node, parent, child) {
         return err;
     }
 
-    err = this.checkSubType(node, parent.thisArg, child.thisArg);
-    if (err) {
-        return err;
+    if (parent.thisArg) {
+        err = this.checkSubType(node, parent.thisArg, child.thisArg);
+        if (err) {
+            return err;
+        }
     }
 
     if (parent.args.length !== child.args.length) {
@@ -142,10 +156,6 @@ SubTypeChecker.prototype.checkObjectSubType =
 function checkObjectSubType(node, parent, child) {
     if (child.type !== 'object') {
         return reportTypeMisMatch(node, parent, child);
-    }
-
-    if (parent === child) {
-        return null;
     }
 
     if (parent.keyValues.length !== child.keyValues.length) {

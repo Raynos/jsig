@@ -1,0 +1,45 @@
+
+type Channel : Object
+type Callback : (err: Error | null) => void
+
+type TBatchClient : {
+    channel: Channel,
+    hosts: Array<String>,
+    key: String,
+    body: String,
+    batchSize: Number,
+
+    sendRequests : (this: TBatchClient, cb: Callback) => void
+}
+
+type TBatchClientLoop : {
+    batchClient: TBatchClient,
+    startTime: Number,
+    onFinish: Callback,
+    requestCounter: Number,
+    responseCounter: Number,
+    currentRun: Number,
+    results: TBatchClientResults,
+    boundRunAgain: () => void,
+
+    runNext: (this: TBatchClientLoop) => void
+}
+
+type TBatchClientResults : {
+    errors: Array<Error>,
+    results: Array<String>
+}
+
+BatchClient : (
+    this: TBatchClient, hosts: Array<String>, channel: Channel
+) => void
+
+BatchClientLoop : (
+    this: TBatchClientLoop, options: {
+        start: Number,
+        batchClient: TBatchClient,
+        onFinish: Callback
+    }
+) => void
+
+BatchClientResults : (this: TBatchClientResults) => void
