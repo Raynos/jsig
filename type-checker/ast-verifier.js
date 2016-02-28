@@ -245,18 +245,24 @@ function verifyAssignmentExpression(node) {
     this.meta.currentScope.enterAssignment(leftType);
     var rightType = this.meta.verifyNode(node.right);
     this.meta.currentScope.exitAssignment();
-    if (!rightType) {
-        return null;
-    }
 
-    if (rightType.type === 'untyped-function') {
+    if (!rightType && node.right.type === 'Identifier') {
+        var name = node.right.name;
+        var maybeFunc = this.meta.currentScope.getFunction(name);
+        if (!maybeFunc) {
+            return null;
+        }
+
         assert(leftType.name !== 'Any:ModuleExports',
             'cannot assign untyped function to module.exports');
 
         this.meta.currentScope.updateFunction(
-            rightType.node.id.name, leftType
+            name, leftType
         );
         rightType = leftType;
+    }
+    if (!rightType) {
+        return null;
     }
 
     this.meta.checkSubType(node, leftType, rightType);
@@ -343,12 +349,7 @@ function verifyIdentifier(node) {
         return token.defn;
     }
 
-    token = this.meta.currentScope.getFunction(node.name);
-    if (!token) {
-        throw new Error('could not resolve Identifier: ' + node.name);
-    }
-
-    return token;
+    return null;
 };
 
 ASTVerifier.prototype.verifyLiteral =
