@@ -137,6 +137,26 @@ var ConstructorThisTypeMustBeObject = TypedError({
     line: null
 });
 
+var ConstructorMustReturnVoid = TypedError({
+    type: 'jsig.verify.constructor-must-return-void',
+    message: '@{line}: Constructor {funcName} must return void. ' +
+        'Cannot return type: {returnType}.',
+    funcName: null,
+    returnType: null,
+    loc: null,
+    line: null
+});
+
+var ReturnStatementInConstructor = TypedError({
+    type: 'jsig.verify.return-statement-in-constructor',
+    message: '@{line}: Constructor {funcName} has unexpected return statement. ' +
+        'Expected no return but found type: {returnType}.',
+    funcName: null,
+    returnType: null,
+    loc: null,
+    line: null
+});
+
 module.exports = ASTVerifier;
 
 function ASTVerifier(meta) {
@@ -491,9 +511,18 @@ function verifyNewExpression(node) {
         return null;
     }
 
-    assert(fnType.result.type === 'typeLiteral' &&
-        fnType.result.name === 'void',
-        'constructors must return void');
+    if (fnType.result.type !== 'typeLiteral' ||
+        fnType.result.name !== 'void'
+    ) {
+        err = ConstructorMustReturnVoid({
+            funcName: node.callee.name,
+            returnType: serialize(fnType.result),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
 
     var isConstructor = /[A-Z]/.test(node.callee.name[0]);
     if (!isConstructor) {
@@ -737,11 +766,20 @@ function _checkVoidReturnType(node) {
     var actualReturnType = this.meta.currentScope.knownReturnType;
     var returnNode = this.meta.currentScope.returnStatementASTNode;
 
-    assert(!returnNode, 'expected no return statement in constructor');
+    var err;
+    if (returnNode || actualReturnType !== null) {
+        err = ReturnStatementInConstructor({
+            funcName: this.meta.currentScope.funcName,
+            returnType: serialize(actualReturnType),
+            line: returnNode.loc.start.line,
+            loc: returnNode.loc
+        });
+        this.meta.addError(err);
+        return;
+    }
+
     assert(returnType.type === 'typeLiteral' && returnType.name === 'void',
         'expected Constructor to have no return void');
-    assert(actualReturnType === null,
-        'expected implementation to have no return type');
 };
 
 ASTVerifier.prototype._inferFunctionTypeBasedOnCall =
