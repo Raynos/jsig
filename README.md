@@ -8,4 +8,10 @@ From scratch type-checker
  - [x] type check method definition
  - [x] type check new Foo()
  - [ ] type check method calls 
+ - [ ] support module system
+ - [ ] create binary with pretty errors.
+
+# later
+
+ - [ ] define type definitions for npm modules
  - [ ] support more JavaScript features.
