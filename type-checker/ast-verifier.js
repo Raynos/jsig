@@ -380,6 +380,10 @@ function verifyThisExpression(node) {
 
 ASTVerifier.prototype.verifyIdentifier =
 function verifyIdentifier(node) {
+    if (node.name === 'undefined') {
+        return JsigAST.value('undefined');
+    }
+
     var token = this.meta.currentScope.getVar(node.name);
     if (token) {
         return token.defn;
@@ -396,6 +400,8 @@ function verifyLiteral(node) {
         return JsigAST.literal('String');
     } else if (typeof value === 'number') {
         return JsigAST.literal('Number');
+    } else if (value === null) {
+        return JsigAST.value('null');
     } else {
         throw new Error('not recognised literal');
     }
@@ -469,7 +475,12 @@ function verifyBinaryExpression(node) {
 
 ASTVerifier.prototype.verifyReturnStatement =
 function verifyReturnStatement(node) {
-    var defn = this.meta.verifyNode(node.argument);
+    var defn;
+    if (node.argument === null) {
+        defn = JsigAST.literal('void');
+    } else {
+        defn = this.meta.verifyNode(node.argument);
+    }
     assert(defn, 'cannot inference return type');
 
     assert(this.meta.currentScope.type === 'function',
@@ -768,9 +779,11 @@ function _checkVoidReturnType(node) {
 
     var err;
     if (returnNode || actualReturnType !== null) {
+        var returnTypeInfo = serialize(actualReturnType);
         err = ReturnStatementInConstructor({
             funcName: this.meta.currentScope.funcName,
-            returnType: serialize(actualReturnType),
+            returnType: returnTypeInfo === 'void' ?
+                'empty return' : returnTypeInfo,
             line: returnNode.loc.start.line,
             loc: returnNode.loc
         });

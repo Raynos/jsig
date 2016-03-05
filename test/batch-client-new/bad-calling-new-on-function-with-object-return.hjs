@@ -1,0 +1,19 @@
+type Channel : Object
+type TBuffer : {
+    str: String
+}
+type IBatchClient : {
+    channel: Channel,
+    hosts: Array<String>,
+    key: TBuffer
+}
+
+BatchClient : (
+    this: IBatchClient,
+    channel: Channel,
+    hosts: Array<String>
+) => void
+
+Buffer : (this: TBuffer, str: String) => {
+    str: String
+}
