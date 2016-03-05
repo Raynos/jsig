@@ -6,6 +6,6 @@ From scratch type-checker
 
  - [x] type check constructor
  - [x] type check method definition
- - [ ] type check new Foo()
+ - [x] type check new Foo()
  - [ ] type check method calls 
  - [ ] support more JavaScript features.
