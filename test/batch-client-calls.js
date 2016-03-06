@@ -9,8 +9,8 @@ var compile = require('../type-checker/');
 
 var batchClientDir = path.join(__dirname, 'batch-client-calls');
 
-test('working new call', function t(assert) {
-    var file = getFile('good-working-method-call.js');
+test('working method calls within a closure', function t(assert) {
+    var file = getFile('good-working-method-with-closure.js');
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
