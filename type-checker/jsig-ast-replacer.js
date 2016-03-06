@@ -8,46 +8,67 @@ function JsigASTReplacer(replacer) {
 
 /*eslint complexity: [2, 30], max-statements: [2, 80]*/
 JsigASTReplacer.prototype.inlineReferences =
-function inlineReferences(ast, rawAst) {
+function inlineReferences(ast, rawAst, stack) {
     var i;
+    stack = stack || [];
 
     if (ast.type === 'program') {
         var newStatements = [];
+        stack.push('statements');
         for (i = 0; i < ast.statements.length; i++) {
+            stack.push(i);
             var t = this.inlineReferences(
-                ast.statements[i], rawAst.statements[i]
+                ast.statements[i], rawAst.statements[i], stack
             );
+            stack.pop();
             if (t) {
                 newStatements.push(t);
             }
         }
+        stack.pop();
         ast.statements = newStatements;
         ast._raw = rawAst;
         return ast;
     } else if (ast.type === 'typeDeclaration') {
+        stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
-            ast.typeExpression, rawAst.typeExpression
+            ast.typeExpression, rawAst.typeExpression, stack
         );
+        stack.pop();
         ast._raw = rawAst;
         return null;
     } else if (ast.type === 'assignment') {
+        stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
-            ast.typeExpression, rawAst.typeExpression
+            ast.typeExpression, rawAst.typeExpression, stack
         );
+        stack.pop();
         ast._raw = rawAst;
         return ast;
     } else if (ast.type === 'function') {
+        stack.push('args');
         for (i = 0; i < ast.args.length; i++) {
+            stack.push(i);
             ast.args[i] = this.inlineReferences(
-                ast.args[i], rawAst.args[i]
+                ast.args[i], rawAst.args[i], stack
             );
+            stack.pop();
         }
+        stack.pop();
 
         if (ast.result) {
-            ast.result = this.inlineReferences(ast.result, rawAst.result);
+            stack.push('result');
+            ast.result = this.inlineReferences(
+                ast.result, rawAst.result, stack
+            );
+            stack.pop();
         }
         if (ast.thisArg) {
-            ast.thisArg = this.inlineReferences(ast.thisArg, rawAst.thisArg);
+            stack.push('thisArg');
+            ast.thisArg = this.inlineReferences(
+                ast.thisArg, rawAst.thisArg, stack
+            );
+            stack.pop();
         }
 
         ast._raw = rawAst;
@@ -58,37 +79,53 @@ function inlineReferences(ast, rawAst) {
             return ast;
         }
 
-        return this.replacer.replace(ast, rawAst);
+        return this.replacer.replace(ast, rawAst, stack);
     } else if (ast.type === 'genericLiteral') {
-        ast.value = this.inlineReferences(ast.value, rawAst.value);
+        stack.push('value');
+        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+        stack.pop();
 
+        stack.push('generics');
         for (i = 0; i < ast.generics.length; i++) {
+            stack.push(i);
             ast.generics[i] = this.inlineReferences(
-                ast.generics[i], rawAst.generics[i]
+                ast.generics[i], rawAst.generics[i], stack
             );
+            stack.pop();
         }
+        stack.pop();
 
         ast._raw = rawAst;
         return ast;
     } else if (ast.type === 'object') {
+        stack.push('keyValues');
         for (i = 0; i < ast.keyValues.length; i++) {
+            stack.push(i);
             ast.keyValues[i] = this.inlineReferences(
-                ast.keyValues[i], rawAst.keyValues[i]
+                ast.keyValues[i], rawAst.keyValues[i], stack
             );
+            stack.pop();
         }
+        stack.pop();
 
         ast._raw = rawAst;
         return ast;
     } else if (ast.type === 'keyValue') {
-        ast.value = this.inlineReferences(ast.value, rawAst.value);
+        stack.push('value');
+        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+        stack.pop();
         ast._raw = rawAst;
         return ast;
     } else if (ast.type === 'unionType') {
+        stack.push('unions');
         for (i = 0; i < ast.unions.length; i++) {
+            stack.push(i);
             ast.unions[i] = this.inlineReferences(
                 ast.unions[i], rawAst.unions[i]
             );
+            stack.pop();
         }
+        stack.pop();
 
         ast._raw = rawAst;
         return ast;
