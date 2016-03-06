@@ -191,7 +191,14 @@ function checkSubType(node, leftType, rightType) {
     var err = this.subType.checkSubType(node, leftType, rightType);
     if (err) {
         this.addError(err);
+        return false;
     }
+    return true;
+};
+
+ProgramMeta.prototype.isSubType =
+function isSubType(node, leftType, rightType) {
+    return !this.subType.checkSubType(node, leftType, rightType);
 };
 
 /*
