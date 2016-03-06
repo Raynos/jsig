@@ -21,6 +21,7 @@ function ProgramMeta(ast, fileName, source) {
 
     this.identifiers = {};
     this.operators = {};
+    this.virtualTypes = {};
 
     this.type = 'program';
 
@@ -81,6 +82,25 @@ function loadLanguageIdentifiers() {
         })
     }));
 
+    this._addVar('Object', JsigAST.object({
+        'create': JsigAST.functionType({
+            args: [JsigAST.value('null')],
+            result: JsigAST.literal('Object:Empty')
+        })
+    }));
+
+    this._addVirtualType('TArray', JsigAST.object({
+        'push': JsigAST.functionType({
+            thisArg: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            args: [JsigAST.literal('T')],
+            result: JsigAST.literal('Number'),
+            generics: [JsigAST.literal('T')]
+        })
+    }));
+
     this._addOperator('*', JsigAST.functionType({
         args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
         result: JsigAST.literal('Number')
@@ -109,6 +129,12 @@ ProgramMeta.prototype._addOperator = function _addOperator(id, typeDefn) {
         defn: typeDefn
     };
 };
+ProgramMeta.prototype._addVirtualType = function _addVirtualType(id, typeDefn) {
+    this.virtualTypes[id] = {
+        type: 'virtual-type',
+        defn: typeDefn
+    };
+};
 
 ProgramMeta.prototype.getVar = function getVar(id) {
     return this.identifiers[id];
@@ -117,6 +143,10 @@ ProgramMeta.prototype.getVar = function getVar(id) {
 ProgramMeta.prototype.getOperator = function getOperator(id) {
     return this.operators[id];
 };
+
+ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
+    return this.virtualTypes[id];
+}
 
 ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
