@@ -336,7 +336,7 @@ function verifyMemberExpression(node) {
         return null;
     }
 
-    var valueType = findPropertyInType(objType, propName);
+    var valueType = this._findPropertyInType(objType, propName);
     if (!valueType) {
         var objName;
         if (node.object.type === 'ThisExpression') {
@@ -442,10 +442,12 @@ function verifyCallExpression(node) {
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
 
+    // TODO: figure out thisType in call verification
     if (defn.thisArg) {
         assert(node.callee.type === 'MemberExpression',
             'must be a method call expression');
 
+        // TODO: This could be wrong...
         var obj = this.meta.verifyNode(node.callee.object);
         assert(obj, 'object of method call must have a type');
 
@@ -839,28 +841,39 @@ function _getFunctionTypeFromCallee(node) {
         assert(token, 'do not support type inference caller()');
         defn = token.defn;
     } else {
-        assert(node.callee.object.type === 'Identifier');
-        assert(node.callee.property.type === 'Identifier');
-
-        token = this.meta.currentScope.getVar(node.callee.object.name);
-        assert(token,
-            'expected method call to be on existing token: ' +
-            node.callee.object.name
-        );
-
-        // TODO: figure out thisType in call verification
-        defn = findPropertyInType(
-            token.defn, node.callee.property.name
-        );
-        assert(defn,
-            'property name ' + node.callee.property.name + ' must exist'
-        );
+        defn = this.verifyNode(node.callee);
     }
 
     assert(defn.args.length === node.arguments.length,
         'expected same number of args');
 
     return defn;
+};
+
+ASTVerifier.prototype._findPropertyInType =
+function _findPropertyInType(jsigType, propertyName) {
+    if (jsigType.type === 'function' &&
+        propertyName === 'prototype'
+    ) {
+        return jsigType.thisArg;
+    } else if (jsigType.type === 'genericLiteral' &&
+        jsigType.value.type === 'typeLiteral' &&
+        jsigType.value.name === 'Array'
+    ) {
+        jsigType = this.meta.getVirtualType('TArray').defn;
+    }
+
+    assert(jsigType.type === 'object',
+        'jsigType must be an object');
+
+    for (var i = 0; i < jsigType.keyValues.length; i++) {
+        var keyValue = jsigType.keyValues[i];
+        if (keyValue.key === propertyName) {
+            return keyValue.value;
+        }
+    }
+
+    return null;
 };
 
 // hoisting function declarations to the top makes the tree
@@ -882,22 +895,3 @@ function hoistFunctionDeclaration(nodes) {
     return declarations;
 }
 
-function findPropertyInType(jsigType, propertyName) {
-    if (jsigType.type === 'function' &&
-        propertyName === 'prototype'
-    ) {
-        return jsigType.thisArg;
-    }
-
-    assert(jsigType.type === 'object',
-        'jsigType must be an object');
-
-    for (var i = 0; i < jsigType.keyValues.length; i++) {
-        var keyValue = jsigType.keyValues[i];
-        if (keyValue.key === propertyName) {
-            return keyValue.value;
-        }
-    }
-
-    return null;
-}
