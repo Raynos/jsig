@@ -153,6 +153,7 @@ function functionType(opts) {
         thisArg: opts.thisArg || null,
         label: opts.label || null,
         optional: opts.optional || false,
+        generics: opts.generics || [],
         _raw: null
     };
 }
