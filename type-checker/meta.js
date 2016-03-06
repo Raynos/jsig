@@ -13,9 +13,11 @@ var fileExtRegex = /.js$/;
 
 module.exports = ProgramMeta;
 
-function ProgramMeta(ast, fileName) {
+function ProgramMeta(ast, fileName, source) {
     this.ast = ast;
     this.fileName = fileName;
+    this.source = source;
+    this.sourceLines = source.split('\n');
 
     this.identifiers = {};
     this.operators = {};
@@ -38,6 +40,32 @@ function ProgramMeta(ast, fileName) {
 
     this.loadLanguageIdentifiers();
 }
+
+ProgramMeta.prototype.serializeAST =
+function serializeAST(ast) {
+    var startLine = ast.loc.start.line;
+    var endLine = ast.loc.end.line;
+
+    if (startLine === endLine) {
+        return this.sourceLines[startLine - 1].slice(
+            ast.loc.start.column, ast.loc.end.column
+        );
+    }
+
+    var segments = [
+        this.sourceLines[startLine - 1].slice(ast.loc.start.column)
+    ];
+
+    for (var i = startLine + 1; i < endLine - 1; i++) {
+        segments.push(this.sourceLines[i - 1]);
+    }
+
+    segments.push(
+        this.sourceLines[endLine - 1].slice(0, -ast.loc.end.column)
+    );
+
+    return segments.join('\n');
+};
 
 ProgramMeta.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {

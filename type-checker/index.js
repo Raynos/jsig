@@ -8,18 +8,14 @@ var ProgramMeta = require('./meta.js');
 module.exports = typeCheck;
 
 function typeCheck(fileName) {
-    var ast = readEsprimaAST(fileName);
-    var meta = new ProgramMeta(ast, fileName);
+    var source = fs.readFileSync(fileName, 'utf8');
+    var ast = esprima.parse(source, {
+        loc: true
+    });
+    var meta = new ProgramMeta(ast, fileName, source);
 
     meta.verify();
 
     return meta;
 }
 
-function readEsprimaAST(fileName) {
-    var source = fs.readFileSync(fileName, 'utf8');
-
-    return esprima.parse(source, {
-        loc: true
-    });
-}
