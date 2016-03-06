@@ -11,6 +11,7 @@ var TypedError = require('error/typed');
 var JsigAST = require('../ast.js');
 var isSameType = require('./is-same-type.js');
 var serialize = require('../serialize.js');
+var JsigASTReplacer = require('./jsig-ast-replacer.js');
 
 var MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
@@ -434,6 +435,11 @@ function verifyArrayExpression(node) {
 ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
     var defn = this._getFunctionTypeFromCallee(node);
+
+    if (defn.generics.length > 0) {
+        // TODO: resolve generics
+        defn = this._resolveGenericsFromCallee(defn, node);
+    }
 
     for (var i = 0; i < defn.args.length; i++) {
         var wantedType = defn.args[i];
@@ -875,6 +881,79 @@ function _findPropertyInType(jsigType, propertyName) {
 
     return null;
 };
+
+ASTVerifier.prototype._resolveGenericsFromCallee =
+function _resolveGenericsFromCallee(funcType, node) {
+    var genericReplacer = new JsigASTGenericTable(this.meta, funcType, node);
+    var replacer = new JsigASTReplacer(genericReplacer);
+
+    var copyFunc = JSON.parse(JSON.stringify(funcType));
+    copyFunc = replacer.inlineReferences(copyFunc, funcType);
+
+    return copyFunc;
+};
+
+function JsigASTGenericTable(meta, funcType, node) {
+    this.meta = meta;
+    this.funcType = funcType;
+    this.node = node;
+    this.knownGenerics = {};
+    this.knownGenericTypes = {};
+
+    for (var i = 0; i < funcType.generics.length; i++) {
+        this.knownGenerics[funcType.generics[i].name] = true;
+    }
+}
+
+JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
+    assert(this.knownGenerics[ast.name], 'literal must be a known generic');
+
+    var newType;
+    var referenceNode;
+    if (stack[0] === 'args') {
+        referenceNode = this.node.arguments[stack[1]];
+        newType = this.meta.verifyNode(referenceNode);
+        newType = walkProps(newType, stack, 2);
+    } else if (stack[0] === 'thisArg') {
+        referenceNode = this.node.callee.object;
+        // TODO: this might be wrong
+        newType = this.meta.verifyNode(referenceNode);
+        newType = walkProps(newType, stack, 1);
+    } else {
+        newType = this.knownGenericTypes[ast.name];
+        assert(newType, 'newType must exist in fallback');
+    }
+
+    if (this.knownGenericTypes[ast.name]) {
+        var isSub = this.meta.isSubType(
+            referenceNode, this.knownGenericTypes[ast.name], newType
+        );
+        if (!isSub) {
+            isSub = this.meta.isSubType(
+                referenceNode, newType, this.knownGenericTypes[ast.name]
+            );
+            this.knownGenericTypes[ast.name] = newType;
+        }
+        if (!isSub) {
+            // TODO: bug and shit
+            assert(false, 'could not resolve generics');
+        }
+    } else {
+        this.knownGenericTypes[ast.name] = newType;
+    }
+
+
+    rawAst._raw = newType;
+
+    return newType;
+};
+
+function walkProps(object, stack, start) {
+    for (var i = start; i < stack.length; i++) {
+        object = object[stack[i]];
+    }
+    return object;
+}
 
 // hoisting function declarations to the top makes the tree
 // order algorithm simpler
