@@ -5,7 +5,7 @@ var builtinTypes = [
     'Number',
     'Object',
     'void',
-    'Any',
+    'Boolean',
     'Array',
     'Error',
     'Function'
