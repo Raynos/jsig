@@ -121,6 +121,14 @@ function checkGenericLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.value.name === 'Object' &&
+        parent.value.builtin &&
+        child.type === 'typeLiteral' &&
+        child.name === 'Object:Empty'
+    ) {
+        return null;
+    }
+
     if (child.type !== 'genericLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }

@@ -90,6 +90,7 @@ function loadLanguageIdentifiers() {
     }));
 
     this._addVirtualType('TArray', JsigAST.object({
+        'length': JsigAST.literal('Number'),
         'push': JsigAST.functionType({
             thisArg: JsigAST.generic(
                 JsigAST.literal('Array'),
@@ -99,7 +100,7 @@ function loadLanguageIdentifiers() {
             result: JsigAST.literal('Number'),
             generics: [JsigAST.literal('T')]
         }),
-        slice: JsigAST.functionType({
+        'slice': JsigAST.functionType({
             thisArg: JsigAST.generic(
                 JsigAST.literal('Array'),
                 [JsigAST.literal('T')]
