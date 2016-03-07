@@ -146,7 +146,7 @@ ProgramMeta.prototype.getOperator = function getOperator(id) {
 
 ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
     return this.virtualTypes[id];
-}
+};
 
 ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;

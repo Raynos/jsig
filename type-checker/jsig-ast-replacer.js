@@ -6,7 +6,7 @@ function JsigASTReplacer(replacer) {
     this.replacer = replacer;
 }
 
-/*eslint complexity: [2, 30], max-statements: [2, 80]*/
+/*eslint complexity: [2, 30], max-statements: [2, 120]*/
 JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     var i;

@@ -22,6 +22,7 @@ function sendRequests(cb) {
     loop.runNext();
 }
 
+/*eslint perf-standard/no-self-in-constructor: 0*/
 function BatchClientLoop(options) {
     var self = this;
 

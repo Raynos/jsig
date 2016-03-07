@@ -3,7 +3,6 @@
 var TypedError = require('error/typed');
 var assert = require('assert');
 
-var JsigAST = require('../ast.js');
 var serialize = require('../serialize.js');
 
 var TypeClassMismatch = TypedError({
