@@ -98,6 +98,21 @@ function loadLanguageIdentifiers() {
             args: [JsigAST.literal('T')],
             result: JsigAST.literal('Number'),
             generics: [JsigAST.literal('T')]
+        }),
+        slice: JsigAST.functionType({
+            thisArg: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            args: [
+                JsigAST.literal('Number'),
+                JsigAST.literal('Number')
+            ],
+            result: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            generics: [JsigAST.literal('T')]
         })
     }));
 
@@ -124,6 +139,24 @@ function loadLanguageIdentifiers() {
     this._addOperator('++', JsigAST.functionType({
         args: [JsigAST.literal('Number')],
         result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('--', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('!', JsigAST.functionType({
+        args: [JsigAST.literal('Boolean:Any', true)],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('===', JsigAST.functionType({
+        args: [
+            JsigAST.literal('Boolean:Any', true),
+            JsigAST.literal('Boolean:Any', true)
+        ],
+        result: JsigAST.literal('Boolean')
     }));
 };
 
