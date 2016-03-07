@@ -823,11 +823,15 @@ function _findTypeInContainer(node, objType, propType) {
     } else if (objType.value.name === 'Object') {
         this.meta.checkSubType(node, objType.generics[0], propType);
 
-        valueType = objType.generics[1];
+        valueType = JsigAST.union([
+            objType.generics[1],
+            JsigAST.value('undefined')
+        ]);
     } else {
         assert(false, 'Cannot look inside non Array/Object container');
     }
 
+    assert(valueType, 'expected valueType to exist');
     return valueType;
 };
 

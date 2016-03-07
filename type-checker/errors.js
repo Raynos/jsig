@@ -150,4 +150,14 @@ Errors.ReturnStatementInConstructor = TypedError({
     line: null
 });
 
+Errors.UnionFieldAccess = TypedError({
+    type: 'jsig.verify.accessing-field-on-union',
+    message: '@{line}: Cannot read field {fieldName} of union. ' +
+        'Expected an object type but found {unionType}.',
+    fieldName: null,
+    unionType: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;
