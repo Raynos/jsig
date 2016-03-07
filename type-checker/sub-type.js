@@ -56,6 +56,8 @@ function checkTypeLiteralSubType(node, parent, child) {
 
     if (parent.name === 'Any:ModuleExports') {
         return null;
+    } else if (parent.name === 'Boolean:Any') {
+        return null;
     }
 
     if (child.type !== 'typeLiteral') {
@@ -85,7 +87,7 @@ function checkTypeLiteralSubType(node, parent, child) {
             return reportTypeMisMatch(node, parent, child);
         }
     } else {
-        throw new Error('NotImplemented: ' + parent.type);
+        throw new Error('NotImplemented: ' + parent.name);
     }
 };
 
