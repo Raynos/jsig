@@ -60,6 +60,10 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyUpdateExpression(node);
     } else if (node.type === 'ObjectExpression') {
         return this.verifyObjectExpression(node);
+    } else if (node.type === 'IfStatement') {
+        return this.verifyIfStatement(node);
+    } else if (node.type === 'UnaryExpression') {
+        return this.verifyUnaryExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -204,7 +208,7 @@ function verifyMemberExpression(node) {
     }
 
     if (!valueType) {
-        var err = createNonExistantFieldError(node, propName);
+        var err = this._createNonExistantFieldError(node, propName);
         this.meta.addError(err);
         return null;
     }
@@ -290,6 +294,9 @@ function verifyCallExpression(node) {
     for (var i = 0; i < defn.args.length; i++) {
         var wantedType = defn.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
+        if (!actualType) {
+            return null;
+        }
 
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
@@ -425,6 +432,10 @@ function verifyNewExpression(node) {
     for (var i = 0; i < minLength; i++) {
         var wantedType = fnType.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
+        if (!actualType) {
+            return null;
+        }
+
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
 
@@ -444,7 +455,9 @@ function verifyVariableDeclaration(node) {
     assert(!token, 'shadowing variables not supported');
 
     var type = this.meta.verifyNode(decl.init);
-    assert(type, 'initial value must have a type');
+    if (!type) {
+        return null;
+    }
 
     this.meta.currentScope.addVar(id, type);
     return null;
@@ -501,6 +514,51 @@ function verifyObjectExpression(node) {
     return JsigAST.object(keyValues);
 };
 
+ASTVerifier.prototype.verifyIfStatement =
+function verifyIfStatement(node) {
+    // TODO: check things ?
+    this.meta.verifyNode(node.test);
+
+    if (node.consequent) {
+        // TODO: create a new scope
+        this.meta.verifyNode(node.consequent);
+    }
+    if (node.alternative) {
+        // TODO: create a new scope
+        this.meta.verifyNode(node.alternative);
+    }
+};
+
+ASTVerifier.prototype.verifyUnaryExpression =
+function verifyUnaryExpression(node) {
+
+    if (node.operator === 'delete') {
+        this.meta.verifyNode(node.argument);
+        var objectType = this.meta.verifyNode(node.argument.object);
+
+        assert(objectType.type === 'genericLiteral',
+            'delete must operate on generic objects');
+        assert(objectType.value.type === 'typeLiteral' &&
+            objectType.value.name === 'Object',
+            'delete must operate on objects');
+
+        return null;
+    }
+
+    var firstType = this.meta.verifyNode(node.argument);
+
+    var token = this.meta.getOperator(node.operator);
+    assert(token, 'do not support unknown operators: ' + node.operator);
+
+    var defn = token.defn;
+    assert(defn.args.length === 1,
+        'expecteted type defn args to be one');
+
+    this.meta.checkSubType(node.argument, defn.args[0], firstType);
+
+    return defn.result;
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
@@ -552,7 +610,7 @@ function checkFunctionType(node, defn) {
 };
 
 ASTVerifier.prototype._checkHiddenClass =
-function checkHiddenClass(node) {
+function _checkHiddenClass(node) {
     var thisType = this.meta.currentScope.thisValueType;
     var knownFields = this.meta.currentScope.knownFields;
     var protoFields = this.meta.currentScope.getPrototypeFields();
@@ -694,6 +752,7 @@ function _getFunctionTypeFromCallee(node) {
         defn = token.defn;
     } else {
         defn = this.verifyNode(node.callee);
+        assert(defn, 'node.callee must have a definition');
     }
 
     assert(defn.args.length === node.arguments.length,
@@ -757,6 +816,28 @@ function _findTypeInContainer(node, objType, propType) {
     return valueType;
 };
 
+ASTVerifier.prototype._createNonExistantFieldError =
+function _createNonExistantFieldError(node, propName) {
+    var objName;
+    if (node.object.type === 'ThisExpression') {
+        objName = 'this';
+    } else if (node.object.type === 'Identifier') {
+        objName = node.object.name;
+    } else if (node.object.type === 'MemberExpression') {
+        objName = this.meta.serializeAST(node.object);
+    } else {
+        // console.log('weird objType', node);
+        assert(false, 'unknown object type');
+    }
+
+    return Errors.NonExistantField({
+        fieldName: propName,
+        objName: objName,
+        loc: node.loc,
+        line: node.loc.start.line
+    });
+};
+
 function JsigASTGenericTable(meta, funcType, node) {
     this.meta = meta;
     this.funcType = funcType;
@@ -784,6 +865,7 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
         newType = this.meta.verifyNode(referenceNode);
         newType = walkProps(newType, stack, 1);
     } else {
+        referenceNode = this.node;
         newType = this.knownGenericTypes[ast.name];
         assert(newType, 'newType must exist in fallback');
     }
@@ -835,30 +917,5 @@ function hoistFunctionDeclaration(nodes) {
     }
 
     return declarations;
-}
-
-function createNonExistantFieldError(node, propName) {
-    var objName;
-    if (node.object.type === 'ThisExpression') {
-        objName = 'this';
-    } else if (node.object.type === 'Identifier') {
-        objName = node.object.name;
-    } else if (node.object.type === 'MemberExpression') {
-        assert(node.object.object.type === 'Identifier');
-        assert(node.object.property.type === 'Identifier');
-
-        objName = node.object.object.name + '.' +
-            node.object.property.name;
-    } else {
-        // console.log('weird objType', node);
-        assert(false, 'unknown object type');
-    }
-
-    return Errors.NonExistantField({
-        fieldName: propName,
-        objName: objName,
-        loc: node.loc,
-        line: node.loc.start.line
-    });
 }
 

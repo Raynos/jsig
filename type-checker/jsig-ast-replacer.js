@@ -56,17 +56,17 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
 
-        if (ast.result) {
-            stack.push('result');
-            ast.result = this.inlineReferences(
-                ast.result, rawAst.result, stack
-            );
-            stack.pop();
-        }
         if (ast.thisArg) {
             stack.push('thisArg');
             ast.thisArg = this.inlineReferences(
                 ast.thisArg, rawAst.thisArg, stack
+            );
+            stack.pop();
+        }
+        if (ast.result) {
+            stack.push('result');
+            ast.result = this.inlineReferences(
+                ast.result, rawAst.result, stack
             );
             stack.pop();
         }
