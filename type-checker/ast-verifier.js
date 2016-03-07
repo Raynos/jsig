@@ -201,16 +201,10 @@ function verifyMemberExpression(node) {
 
     var valueType;
     if (!node.computed) {
-        valueType = this._findPropertyInType(objType, propName);
+        valueType = this._findPropertyInType(node, objType, propName);
     } else {
         var propType = this.meta.verifyNode(node.property);
         valueType = this._findTypeInContainer(node, objType, propType);
-    }
-
-    if (!valueType) {
-        var err = this._createNonExistantFieldError(node, propName);
-        this.meta.addError(err);
-        return null;
     }
 
     return valueType;
@@ -319,7 +313,14 @@ function verifyCallExpression(node) {
 ASTVerifier.prototype.verifyBinaryExpression =
 function verifyBinaryExpression(node) {
     var leftType = this.meta.verifyNode(node.left);
+    if (!leftType) {
+        return null;
+    }
+
     var rightType = this.meta.verifyNode(node.right);
+    if (!rightType) {
+        return null;
+    }
 
     var token = this.meta.getOperator(node.operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
@@ -480,6 +481,9 @@ function verifyForStatement(node) {
 ASTVerifier.prototype.verifyUpdateExpression =
 function verifyUpdateExpression(node) {
     var firstType = this.meta.verifyNode(node.argument);
+    if (!firstType) {
+        return null;
+    }
 
     var token = this.meta.getOperator(node.operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
@@ -531,7 +535,6 @@ function verifyIfStatement(node) {
 
 ASTVerifier.prototype.verifyUnaryExpression =
 function verifyUnaryExpression(node) {
-
     if (node.operator === 'delete') {
         this.meta.verifyNode(node.argument);
         var objectType = this.meta.verifyNode(node.argument.object);
@@ -762,7 +765,7 @@ function _getFunctionTypeFromCallee(node) {
 };
 
 ASTVerifier.prototype._findPropertyInType =
-function _findPropertyInType(jsigType, propertyName) {
+function _findPropertyInType(node, jsigType, propertyName) {
     if (jsigType.type === 'function' &&
         propertyName === 'prototype'
     ) {
@@ -772,6 +775,16 @@ function _findPropertyInType(jsigType, propertyName) {
         jsigType.value.name === 'Array'
     ) {
         jsigType = this.meta.getVirtualType('TArray').defn;
+    }
+
+    if (jsigType.type === 'unionType') {
+        this.meta.addError(Errors.UnionFieldAccess({
+            loc: node.loc,
+            line: node.loc.start.line,
+            fieldName: propertyName,
+            unionType: serialize(jsigType)
+        }));
+        return null;
     }
 
     assert(jsigType.type === 'object',
@@ -784,6 +797,8 @@ function _findPropertyInType(jsigType, propertyName) {
         }
     }
 
+    var err = this._createNonExistantFieldError(node, propertyName);
+    this.meta.addError(err);
     return null;
 };
 
