@@ -5,158 +5,16 @@
     They return the type defn of the node.
 */
 
+var console = require('console');
 var assert = require('assert');
-var TypedError = require('error/typed');
 
 var JsigAST = require('../ast.js');
 var isSameType = require('./is-same-type.js');
 var serialize = require('../serialize.js');
 var JsigASTReplacer = require('./jsig-ast-replacer.js');
+var Errors = require('./errors.js');
 
-var MissingFieldInConstr = TypedError({
-    type: 'jsig.verify.missing-field-in-constructor',
-    message: '@{line}: Expected the field: {fieldName} to be defined ' +
-        'in constructor {funcName} but instead found: {otherField}.',
-    fieldName: null,
-    otherField: null,
-    funcName: null,
-    loc: null,
-    line: null
-});
-
-var TooManyArgsInFunc = TypedError({
-    type: 'jsig.verify.too-many-function-args',
-    message: '@{line}: Expected the function {funcName} to have exactly ' +
-        '{expectedArgs} arguments but instead has {actualArgs}.',
-    funcName: null,
-    actualArgs: null,
-    expectedArgs: null,
-    loc: null,
-    line: null
-});
-
-var TooFewArgsInFunc = TypedError({
-    type: 'jsig.verify.too-few-function-args',
-    message: '@{line}: Expected the function {funcName} to have exactly ' +
-        '{expectedArgs} arguments but instead has {actualArgs}.',
-    funcName: null,
-    actualArgs: null,
-    expectedArgs: null,
-    loc: null,
-    line: null
-});
-
-var TooManyArgsInNewExpression = TypedError({
-    type: 'jsig.verify.too-many-args-in-new-expression',
-    message: '@{line}: Expected the new call on constructor {funcName} to ' +
-        'have exactly {expectedArgs} arguments but instead has {actualArgs}.',
-    funcName: null,
-    actualArgs: null,
-    expectedArgs: null,
-    loc: null,
-    line: null
-});
-
-var TooFewArgsInNewExpression = TypedError({
-    type: 'jsig.verify.too-few-args-in-new-expression',
-    message: '@{line}: Expected the new call on constructor {funcName} to ' +
-        'have exactly {expectedArgs} arguments but instead has {actualArgs}.',
-    funcName: null,
-    actualArgs: null,
-    expectedArgs: null,
-    loc: null,
-    line: null
-});
-
-var NonExistantField = TypedError({
-    type: 'jsig.verify.non-existant-field',
-    message: '@{line}: Object {objName} does not have field {fieldName}.',
-    fieldName: null,
-    objName: null,
-    loc: null,
-    line: null
-});
-
-var NonVoidReturnType = TypedError({
-    type: 'jsig.verify.non-void-return-type',
-    message: '@{line}: Expected function {funcName} to return ' +
-        'void but found: {actual}.',
-    expected: null,
-    actual: null,
-    funcName: null,
-    loc: null,
-    line: null
-});
-
-var MissingReturnStatement = TypedError({
-    type: 'jsig.verify.missing-return-statement',
-    message: '@{line}: Expected function {funcName} to return ' +
-        '{expected} but found no return statement.',
-    expected: null,
-    actual: null,
-    funcName: null,
-    loc: null,
-    line: null
-});
-
-var UnTypedFunctionFound = TypedError({
-    type: 'jsig.verify.untyped-function-found',
-    message: '@{line}: Expected the function {funcName} to have ' +
-        'type but could not find one.',
-    funcName: null,
-    loc: null,
-    line: null
-});
-
-var CallingNewOnPlainFunction = TypedError({
-    type: 'jsig.verify.calling-new-on-plain-function',
-    message: '@{line}: Cannot call `new` on plain function {funcName}. ' +
-        'The function type {funcType} is not a constructor.',
-    funcName: null,
-    funcType: null,
-    loc: null,
-    line: null
-});
-
-var ConstructorMustBePascalCase = TypedError({
-    type: 'jsig.verify.constructor-must-be-pascal-case',
-    message: '@{line}: Constructor function {funcName} must be pascal case. ' +
-        'Cannot call `new` on function type {funcType}.',
-    funcName: null,
-    funcType: null,
-    loc: null,
-    line: null
-});
-
-var ConstructorThisTypeMustBeObject = TypedError({
-    type: 'jsig.verify.constructor-this-type-must-be-object',
-    message: '@{line}: Constructor {funcName} must have non-empty thisType. ' +
-        'Cannot have non-object or empty object this ({thisType}).',
-    funcName: null,
-    thisType: null,
-    loc: null,
-    line: null
-});
-
-var ConstructorMustReturnVoid = TypedError({
-    type: 'jsig.verify.constructor-must-return-void',
-    message: '@{line}: Constructor {funcName} must return void. ' +
-        'Cannot return type: {returnType}.',
-    funcName: null,
-    returnType: null,
-    loc: null,
-    line: null
-});
-
-var ReturnStatementInConstructor = TypedError({
-    type: 'jsig.verify.return-statement-in-constructor',
-    message: '@{line}: Constructor {funcName} has unexpected return statement. ' +
-        'Expected no return but found type: {returnType}.',
-    funcName: null,
-    returnType: null,
-    loc: null,
-    line: null
-});
+var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
 module.exports = ASTVerifier;
 
@@ -235,7 +93,7 @@ function verifyFunctionDeclaration(node) {
 
     var token = this.meta.currentScope.getVar(funcName);
     if (!token) {
-        var err = UnTypedFunctionFound({
+        var err = Errors.UnTypedFunctionFound({
             funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
@@ -337,29 +195,17 @@ function verifyMemberExpression(node) {
         return null;
     }
 
-    var valueType = this._findPropertyInType(objType, propName);
-    if (!valueType) {
-        var objName;
-        if (node.object.type === 'ThisExpression') {
-            objName = 'this';
-        } else if (node.object.type === 'Identifier') {
-            objName = node.object.name;
-        } else if (node.object.type === 'MemberExpression') {
-            assert(node.object.object.type === 'Identifier');
-            assert(node.object.property.type === 'Identifier');
+    var valueType;
+    if (!node.computed) {
+        valueType = this._findPropertyInType(objType, propName);
+    } else {
+        var propType = this.meta.verifyNode(node.property);
+        valueType = this._findTypeInContainer(node, objType, propType);
+    }
 
-            objName = node.object.object.name + '.' +
-                node.object.property.name;
-        } else {
-            // console.log('weird objType', node);
-            assert(false, 'unknown object type');
-        }
-        this.meta.addError(NonExistantField({
-            fieldName: propName,
-            objName: objName,
-            loc: node.loc,
-            line: node.loc.start.line
-        }));
+    if (!valueType) {
+        var err = createNonExistantFieldError(node, propName);
+        this.meta.addError(err);
         return null;
     }
 
@@ -507,7 +353,7 @@ function verifyNewExpression(node) {
 
     var err;
     if (!fnType.thisArg) {
-        err = CallingNewOnPlainFunction({
+        err = Errors.CallingNewOnPlainFunction({
             funcName: node.callee.name,
             funcType: serialize(fnType),
             loc: node.loc,
@@ -520,7 +366,7 @@ function verifyNewExpression(node) {
     if (fnType.thisArg.type !== 'object' ||
         fnType.thisArg.keyValues.length === 0
     ) {
-        err = ConstructorThisTypeMustBeObject({
+        err = Errors.ConstructorThisTypeMustBeObject({
             funcName: node.callee.name,
             thisType: serialize(fnType.thisArg),
             loc: node.loc,
@@ -533,7 +379,7 @@ function verifyNewExpression(node) {
     if (fnType.result.type !== 'typeLiteral' ||
         fnType.result.name !== 'void'
     ) {
-        err = ConstructorMustReturnVoid({
+        err = Errors.ConstructorMustReturnVoid({
             funcName: node.callee.name,
             returnType: serialize(fnType.result),
             loc: node.loc,
@@ -545,7 +391,7 @@ function verifyNewExpression(node) {
 
     var isConstructor = /[A-Z]/.test(node.callee.name[0]);
     if (!isConstructor) {
-        err = ConstructorMustBePascalCase({
+        err = Errors.ConstructorMustBePascalCase({
             funcName: node.callee.name,
             funcType: serialize(fnType),
             loc: node.loc,
@@ -556,7 +402,7 @@ function verifyNewExpression(node) {
     }
 
     if (node.arguments.length > fnType.args.length) {
-        err = TooManyArgsInNewExpression({
+        err = Errors.TooManyArgsInNewExpression({
             funcName: node.callee.name,
             actualArgs: node.arguments.length,
             expectedArgs: fnType.args.length,
@@ -565,7 +411,7 @@ function verifyNewExpression(node) {
         });
         this.meta.addError(err);
     } else if (node.arguments.length < fnType.args.length) {
-        err = TooFewArgsInNewExpression({
+        err = Errors.TooFewArgsInNewExpression({
             funcName: node.callee.name,
             actualArgs: node.arguments.length,
             expectedArgs: fnType.args.length,
@@ -661,7 +507,7 @@ function checkFunctionType(node, defn) {
 
     var err;
     if (node.params.length > defn.args.length) {
-        err = TooManyArgsInFunc({
+        err = Errors.TooManyArgsInFunc({
             funcName: node.id.name,
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
@@ -672,7 +518,7 @@ function checkFunctionType(node, defn) {
         this.meta.exitFunctionScope();
         return;
     } else if (node.params.length < defn.args.length) {
-        err = TooFewArgsInFunc({
+        err = Errors.TooFewArgsInFunc({
             funcName: node.id.name,
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
@@ -713,7 +559,7 @@ function checkHiddenClass(node) {
 
     var err;
     if (!thisType || thisType.type !== 'object') {
-        err = ConstructorThisTypeMustBeObject({
+        err = Errors.ConstructorThisTypeMustBeObject({
             funcName: this.meta.currentScope.funcName,
             thisType: thisType ? serialize(thisType) : 'void',
             loc: node.loc,
@@ -730,7 +576,7 @@ function checkHiddenClass(node) {
             knownFields[i] !== key &&
             !(protoFields && protoFields[key])
         ) {
-            err = MissingFieldInConstr({
+            err = Errors.MissingFieldInConstr({
                 fieldName: key,
                 funcName: this.meta.currentScope.funcName,
                 otherField: knownFields[i] || 'no-field',
@@ -751,7 +597,7 @@ function _checkReturnType(node) {
 
     if (expected.type === 'typeLiteral' && expected.name === 'void') {
         if (actual !== null) {
-            err = NonVoidReturnType({
+            err = Errors.NonVoidReturnType({
                 expected: 'void',
                 actual: serialize(actual),
                 funcName: this.meta.currentScope.funcName,
@@ -765,7 +611,7 @@ function _checkReturnType(node) {
 
     if (actual === null && returnNode === null) {
         var funcNode = this.meta.currentScope.funcASTNode;
-        err = MissingReturnStatement({
+        err = Errors.MissingReturnStatement({
             expected: serialize(expected),
             actual: 'void',
             funcName: this.meta.currentScope.funcName,
@@ -788,7 +634,7 @@ function _checkVoidReturnType(node) {
     var err;
     if (returnNode || actualReturnType !== null) {
         var returnTypeInfo = serialize(actualReturnType);
-        err = ReturnStatementInConstructor({
+        err = Errors.ReturnStatementInConstructor({
             funcName: this.meta.currentScope.funcName,
             returnType: returnTypeInfo === 'void' ?
                 'empty return' : returnTypeInfo,
@@ -893,6 +739,24 @@ function _resolveGenericsFromCallee(funcType, node) {
     return copyFunc;
 };
 
+ASTVerifier.prototype._findTypeInContainer =
+function _findTypeInContainer(node, objType, propType) {
+    var valueType;
+    if (objType.value.name === 'Array') {
+        this.meta.checkSubType(node, ARRAY_KEY_TYPE, propType);
+
+        valueType = objType.generics[0];
+    } else if (objType.value.name === 'Object') {
+        this.meta.checkSubType(node, objType.generics[0], propType);
+
+        valueType = objType.generics[1];
+    } else {
+        assert(false, 'Cannot look inside non Array/Object container');
+    }
+
+    return valueType;
+};
+
 function JsigASTGenericTable(meta, funcType, node) {
     this.meta = meta;
     this.funcType = funcType;
@@ -942,7 +806,6 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
         this.knownGenericTypes[ast.name] = newType;
     }
 
-
     rawAst._raw = newType;
 
     return newType;
@@ -972,5 +835,30 @@ function hoistFunctionDeclaration(nodes) {
     }
 
     return declarations;
+}
+
+function createNonExistantFieldError(node, propName) {
+    var objName;
+    if (node.object.type === 'ThisExpression') {
+        objName = 'this';
+    } else if (node.object.type === 'Identifier') {
+        objName = node.object.name;
+    } else if (node.object.type === 'MemberExpression') {
+        assert(node.object.object.type === 'Identifier');
+        assert(node.object.property.type === 'Identifier');
+
+        objName = node.object.object.name + '.' +
+            node.object.property.name;
+    } else {
+        // console.log('weird objType', node);
+        assert(false, 'unknown object type');
+    }
+
+    return Errors.NonExistantField({
+        fieldName: propName,
+        objName: objName,
+        loc: node.loc,
+        line: node.loc.start.line
+    });
 }
 
