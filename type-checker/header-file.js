@@ -2,7 +2,7 @@
 
 var TypedError = require('error/typed');
 
-var JsigASTReplacer = require('./jsig-ast-replacer.js');
+var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 
 var UnknownLiteralError = TypedError({
     type: 'jsig.header-file.unknown-literal',

@@ -2,6 +2,7 @@
 
 var isModuleExports = require('./lib/is-module-exports.js');
 var ASTVerifier = require('./ast-verifier.js');
+var TypeInference = require('./type-inference.js');
 var JsigAST = require('../ast.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var HeaderFile = require('./header-file.js');
@@ -38,6 +39,7 @@ function ProgramMeta(ast, fileName, source) {
     this.headerFile = null;
     this.subType = new SubTypeChecker();
     this.verifier = new ASTVerifier(this);
+    this.inference = new TypeInference(this);
 
     this.loadLanguageIdentifiers();
 }
@@ -204,6 +206,23 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node) {
     }
 
     return this.verifier.verifyNode(node);
+};
+
+ProgramMeta.prototype.inferType = function inferType(node) {
+    if (this.fatalError) {
+        return null;
+    }
+
+    return this.inference.inferType(node);
+};
+
+ProgramMeta.prototype.resolveGeneric =
+function resolveGeneric(funcType, node) {
+    if (this.fatalError) {
+        return null;
+    }
+
+    return this.inference.resolveGeneric(funcType, node);
 };
 
 ProgramMeta.prototype.setModuleExportsNode =

@@ -9,9 +9,8 @@ var console = require('console');
 var assert = require('assert');
 
 var JsigAST = require('../ast.js');
-var isSameType = require('./is-same-type.js');
+var isSameType = require('./lib/is-same-type.js');
 var serialize = require('../serialize.js');
-var JsigASTReplacer = require('./jsig-ast-replacer.js');
 var Errors = require('./errors.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
@@ -225,6 +224,7 @@ function verifyThisExpression(node) {
 
 ASTVerifier.prototype.verifyIdentifier =
 function verifyIdentifier(node) {
+    // FFFF--- javascript. undefined is a value, not an identifier
     if (node.name === 'undefined') {
         return JsigAST.value('undefined');
     }
@@ -278,12 +278,28 @@ function verifyArrayExpression(node) {
 
 ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
-    var defn = this._getFunctionTypeFromCallee(node);
+    var defn;
+    var token;
+    if (node.callee.type === 'Identifier') {
+        token = this.meta.currentScope.getVar(node.callee.name);
+        if (token) {
+            defn = token.defn;
+        } else {
+            defn = this.meta.inferType(node);
+        }
+        assert(defn, 'do not support type inference caller()');
+    } else {
+        defn = this.verifyNode(node.callee);
+        assert(defn, 'node.callee must have a definition');
+    }
 
     if (defn.generics.length > 0) {
         // TODO: resolve generics
-        defn = this._resolveGenericsFromCallee(defn, node);
+        defn = this.meta.resolveGeneric(defn, node);
     }
+
+    assert(defn.args.length === node.arguments.length,
+        'expected same number of args');
 
     for (var i = 0; i < defn.args.length; i++) {
         var wantedType = defn.args[i];
@@ -710,60 +726,6 @@ function _checkVoidReturnType(node) {
         'expected Constructor to have no return void');
 };
 
-ASTVerifier.prototype._inferFunctionTypeBasedOnCall =
-function _inferFunctionTypeBasedOnCall(node, untypedFunc) {
-    var args = node.arguments;
-
-    var argTypes = [];
-    for (var i = 0; i < args.length; i++) {
-        argTypes.push(this.meta.verifyNode(args[i]));
-    }
-
-    var returnType = JsigAST.literal('void');
-    if (this.meta.currentScope.currentAssignmentType) {
-        returnType = this.meta.currentScope.currentAssignmentType;
-    }
-
-    // TODO: infer this arg based on method calls
-    var funcType = JsigAST.functionType({
-        args: argTypes,
-        result: returnType,
-        thisArg: null,
-        label: node.callee.name,
-        optional: false
-    });
-
-    return this.meta.currentScope.updateFunction(
-        node.callee.name, funcType
-    );
-};
-
-ASTVerifier.prototype._getFunctionTypeFromCallee =
-function _getFunctionTypeFromCallee(node) {
-    var defn;
-    var token;
-    if (node.callee.type === 'Identifier') {
-        token = this.meta.currentScope.getVar(node.callee.name);
-        if (!token) {
-            var untypedFunc = this.meta.currentScope
-                .getFunction(node.callee.name);
-            if (untypedFunc) {
-                token = this._inferFunctionTypeBasedOnCall(node, untypedFunc);
-            }
-        }
-        assert(token, 'do not support type inference caller()');
-        defn = token.defn;
-    } else {
-        defn = this.verifyNode(node.callee);
-        assert(defn, 'node.callee must have a definition');
-    }
-
-    assert(defn.args.length === node.arguments.length,
-        'expected same number of args');
-
-    return defn;
-};
-
 ASTVerifier.prototype._findPropertyInType =
 function _findPropertyInType(node, jsigType, propertyName) {
     if (jsigType.type === 'function' &&
@@ -800,17 +762,6 @@ function _findPropertyInType(node, jsigType, propertyName) {
     var err = this._createNonExistantFieldError(node, propertyName);
     this.meta.addError(err);
     return null;
-};
-
-ASTVerifier.prototype._resolveGenericsFromCallee =
-function _resolveGenericsFromCallee(funcType, node) {
-    var genericReplacer = new JsigASTGenericTable(this.meta, funcType, node);
-    var replacer = new JsigASTReplacer(genericReplacer);
-
-    var copyFunc = JSON.parse(JSON.stringify(funcType));
-    copyFunc = replacer.inlineReferences(copyFunc, funcType);
-
-    return copyFunc;
 };
 
 ASTVerifier.prototype._findTypeInContainer =
@@ -856,68 +807,6 @@ function _createNonExistantFieldError(node, propName) {
         line: node.loc.start.line
     });
 };
-
-function JsigASTGenericTable(meta, funcType, node) {
-    this.meta = meta;
-    this.funcType = funcType;
-    this.node = node;
-    this.knownGenerics = {};
-    this.knownGenericTypes = {};
-
-    for (var i = 0; i < funcType.generics.length; i++) {
-        this.knownGenerics[funcType.generics[i].name] = true;
-    }
-}
-
-JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
-    assert(this.knownGenerics[ast.name], 'literal must be a known generic');
-
-    var newType;
-    var referenceNode;
-    if (stack[0] === 'args') {
-        referenceNode = this.node.arguments[stack[1]];
-        newType = this.meta.verifyNode(referenceNode);
-        newType = walkProps(newType, stack, 2);
-    } else if (stack[0] === 'thisArg') {
-        referenceNode = this.node.callee.object;
-        // TODO: this might be wrong
-        newType = this.meta.verifyNode(referenceNode);
-        newType = walkProps(newType, stack, 1);
-    } else {
-        referenceNode = this.node;
-        newType = this.knownGenericTypes[ast.name];
-        assert(newType, 'newType must exist in fallback');
-    }
-
-    if (this.knownGenericTypes[ast.name]) {
-        var isSub = this.meta.isSubType(
-            referenceNode, this.knownGenericTypes[ast.name], newType
-        );
-        if (!isSub) {
-            isSub = this.meta.isSubType(
-                referenceNode, newType, this.knownGenericTypes[ast.name]
-            );
-            this.knownGenericTypes[ast.name] = newType;
-        }
-        if (!isSub) {
-            // TODO: bug and shit
-            assert(false, 'could not resolve generics');
-        }
-    } else {
-        this.knownGenericTypes[ast.name] = newType;
-    }
-
-    rawAst._raw = newType;
-
-    return newType;
-};
-
-function walkProps(object, stack, start) {
-    for (var i = start; i < stack.length; i++) {
-        object = object[stack[i]];
-    }
-    return object;
-}
 
 // hoisting function declarations to the top makes the tree
 // order algorithm simpler
