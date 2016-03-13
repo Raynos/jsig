@@ -1,14 +1,19 @@
 'use strict';
 
+var assert = require('assert');
+
 var isModuleExports = require('./lib/is-module-exports.js');
+var serialize = require('../serialize.js');
 var ASTVerifier = require('./ast-verifier.js');
 var TypeInference = require('./type-inference.js');
 var JsigAST = require('../ast.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var HeaderFile = require('./header-file.js');
 var SubTypeChecker = require('./sub-type.js');
+var NarrowType = require('./narrow-type.js');
 var FileScope = require('./scope.js').FileScope;
 var FunctionScope = require('./scope.js').FunctionScope;
+var BranchScope = require('./scope.js').BranchScope;
 
 var fileExtRegex = /.js$/;
 
@@ -40,9 +45,15 @@ function ProgramMeta(ast, fileName, source) {
     this.subType = new SubTypeChecker();
     this.verifier = new ASTVerifier(this);
     this.inference = new TypeInference(this);
+    this.narrow = new NarrowType(this);
 
     this.loadLanguageIdentifiers();
 }
+
+ProgramMeta.prototype.serializeType =
+function serializeType(type) {
+    return serialize(type);
+};
 
 ProgramMeta.prototype.serializeAST =
 function serializeAST(ast) {
@@ -216,6 +227,15 @@ ProgramMeta.prototype.inferType = function inferType(node) {
     return this.inference.inferType(node);
 };
 
+ProgramMeta.prototype.narrowType =
+function narrowType(node, ifBranch, elseBranch) {
+    if (this.fatalError) {
+        return null;
+    }
+
+    return this.narrow.narrowType(node, ifBranch, elseBranch);
+};
+
 ProgramMeta.prototype.resolveGeneric =
 function resolveGeneric(funcType, node) {
     if (this.fatalError) {
@@ -296,6 +316,23 @@ function loadHeaderFile() {
 
         this.currentScope.addVar(expr.identifier, expr.typeExpression);
     }
+};
+
+ProgramMeta.prototype.allocateBranchScope =
+function allocateBranchScope() {
+    return new BranchScope(this.currentScope);
+};
+
+ProgramMeta.prototype.enterBranchScope =
+function enterBranchScope(scope) {
+    assert(scope, 'must have a scope to enter');
+
+    this.currentScope = scope;
+};
+
+ProgramMeta.prototype.exitBranchScope =
+function exitBranchScope() {
+    this.currentScope = this.currentScope.parent;
 };
 
 ProgramMeta.prototype.enterFunctionScope =

@@ -160,12 +160,12 @@ function verifyAssignmentExpression(node) {
         this.meta.setModuleExportsType(rightType, node.right);
     }
 
-    if (this.meta.currentScope.type === 'function' &&
-        this.meta.currentScope.isConstructor &&
+    var funcScope = this.meta.currentScope.getFunctionScope();
+    if (funcScope && funcScope.isConstructor &&
         node.left.type === 'MemberExpression' &&
         node.left.object.type === 'ThisExpression'
     ) {
-        this.meta.currentScope.addKnownField(node.left.property.name);
+        funcScope.addKnownField(node.left.property.name);
     }
 
     if (node.left.type === 'MemberExpression' &&
@@ -210,15 +210,13 @@ function verifyMemberExpression(node) {
 
 ASTVerifier.prototype.verifyThisExpression =
 function verifyThisExpression(node) {
-    if (this.meta.currentScope.type !== 'function') {
-        throw new Error('cannot access `this` outside function');
-    }
+    var funcScope = this.meta.currentScope.getFunctionScope();
+    assert(funcScope,
+        'cannot access `this` outside function');
+    assert(funcScope.thisValueType,
+        'cannot type inference for `this`');
 
-    if (!this.meta.currentScope.thisValueType) {
-        throw new Error('cannot type inference for `this`');
-    }
-
-    return this.meta.currentScope.thisValueType;
+    return funcScope.thisValueType;
 };
 
 ASTVerifier.prototype.verifyIdentifier =
@@ -331,10 +329,10 @@ function verifyReturnStatement(node) {
     }
     assert(defn, 'cannot inference return type');
 
-    assert(this.meta.currentScope.type === 'function',
-        'return must be within a function scope');
+    var funcScope = this.meta.currentScope.getFunctionScope();
+    assert(funcScope, 'return must be within a function scope');
 
-    this.meta.currentScope.markReturnType(defn, node);
+    funcScope.markReturnType(defn, node);
     return defn;
 };
 
@@ -488,18 +486,36 @@ function verifyObjectExpression(node) {
     return this.meta.inferType(node);
 };
 
+/*
+    check test expression
+    Allocate if branch scope ; Allocate else branch scope;
+    narrowType(node, ifBranch, elseBranch);
+
+    check if within ifBranch scope
+    check else within elseBranch scope
+
+    For each restriction that exists in both if & else.
+    change the type of that identifier in function scope.
+*/
 ASTVerifier.prototype.verifyIfStatement =
 function verifyIfStatement(node) {
-    // TODO: check things ?
     this.meta.verifyNode(node.test);
 
+    var ifBranch = this.meta.allocateBranchScope();
+    var elseBranch = this.meta.allocateBranchScope();
+
+    // TODO: check things ?
+    this.meta.narrowType(node.test, ifBranch, elseBranch);
+
     if (node.consequent) {
-        // TODO: create a new scope
+        this.meta.enterBranchScope(ifBranch);
         this.meta.verifyNode(node.consequent);
+        this.meta.exitBranchScope();
     }
     if (node.alternative) {
-        // TODO: create a new scope
+        this.meta.enterBranchScope(elseBranch);
         this.meta.verifyNode(node.alternative);
+        this.meta.exitBranchScope();
     }
 };
 

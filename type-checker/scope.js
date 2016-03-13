@@ -16,18 +16,18 @@ moduleType.isNodeModuleToken = true;
 
 module.exports = {
     FileScope: FileScope,
-    FunctionScope: FunctionScope
+    FunctionScope: FunctionScope,
+    BranchScope: BranchScope
 };
 
 function FileScope(parent) {
     this.parent = parent;
+    this.type = 'file';
 
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
     this.prototypes = {};
     this.currentAssignmentType = null;
-
-    this.type = 'file';
 }
 
 FileScope.prototype.loadModuleTokens =
@@ -92,12 +92,17 @@ function exitAssignment() {
     this.currentAssignmentType = null;
 };
 
+FileScope.prototype.getFunctionScope =
+function getFunctionScope() {
+    return null;
+};
+
 function FunctionScope(parent, funcName, funcNode) {
     this.parent = parent;
+    this.type = 'function';
 
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
-    this.type = 'function';
 
     this.funcName = funcName;
     this.returnValueType = null;
@@ -193,6 +198,63 @@ function enterAssignment(leftType) {
 };
 
 FunctionScope.prototype.exitAssignment =
+function exitAssignment() {
+    this.currentAssignmentType = null;
+};
+
+FunctionScope.prototype.getFunctionScope =
+function getFunctionScope() {
+    return this;
+};
+
+function BranchScope(parent) {
+    this.parent = parent;
+    this.type = 'branch';
+
+    this.typeRestrictions = Object.create(null);
+    this.identifiers = Object.create(null);
+    this.currentAssignmentType = null;
+}
+
+BranchScope.prototype.getVar = function getVar(id) {
+    return this.identifiers[id] || this.typeRestrictions[id] ||
+        this.parent.getVar(id);
+};
+
+BranchScope.prototype.restrictType = function restrictType(id, type) {
+    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
+};
+
+BranchScope.prototype.addVar = function addVar(id, typeDefn) {
+    var token = {
+        type: 'variable',
+        defn: typeDefn
+    };
+    this.identifiers[id] = token;
+    return token;
+};
+
+BranchScope.prototype.getFunctionScope =
+function getFunctionScope() {
+    var parent = this.parent;
+    while (parent && parent.type !== 'function') {
+        parent = parent.parent;
+    }
+
+    return parent;
+};
+
+BranchScope.prototype.enterAssignment =
+function enterAssignment(leftType) {
+    this.currentAssignmentType = leftType;
+};
+
+BranchScope.prototype.exitAssignment =
 function exitAssignment() {
     this.currentAssignmentType = null;
 };
