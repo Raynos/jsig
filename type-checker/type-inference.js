@@ -3,6 +3,7 @@
 var assert = require('assert');
 
 var JsigAST = require('../ast.js');
+var isSameType = require('./lib/is-same-type.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 
 module.exports = TypeInference;
@@ -14,6 +15,12 @@ function TypeInference(meta) {
 TypeInference.prototype.inferType = function inferType(node) {
     if (node.type === 'CallExpression') {
         return this.inferCallExpression(node);
+    } else if (node.type === 'Literal') {
+        return this.inferLiteral(node);
+    } else if (node.type === 'ArrayExpression') {
+        return this.inferArrayExpression(node);
+    } else if (node.type === 'ObjectExpression') {
+        return this.inferObjectExpression(node);
     } else {
         throw new Error('!! skipping inferType: ' + node.type);
     }
@@ -51,6 +58,66 @@ function inferCallExpression(node) {
         node.callee.name, funcType
     );
     return token.defn;
+};
+
+TypeInference.prototype.inferLiteral =
+function inferLiteral(node) {
+    var value = node.value;
+
+    if (typeof value === 'string') {
+        return JsigAST.literal('String');
+    } else if (typeof value === 'number') {
+        return JsigAST.literal('Number');
+    } else if (value === null) {
+        return JsigAST.value('null');
+    } else {
+        throw new Error('not recognised literal');
+    }
+};
+
+TypeInference.prototype.inferArrayExpression =
+function inferArrayExpression(node) {
+    var elems = node.elements;
+
+    if (elems.length === 0) {
+        return JsigAST.literal('Array:Empty');
+    }
+
+    var type = null;
+    for (var i = 0; i < elems.length; i++) {
+        var newType = this.meta.verifyNode(elems[i]);
+        if (type) {
+            assert(isSameType(newType, type), 'arrays must be homogenous');
+        }
+        type = newType;
+    }
+
+    if (!type) {
+        return null;
+    }
+
+    return JsigAST.generic(JsigAST.literal('Array'), [type]);
+};
+
+TypeInference.prototype.inferObjectExpression =
+function inferObjectExpression(node) {
+    var properties = node.properties;
+
+    if (properties.length === 0) {
+        return JsigAST.object([]);
+    }
+
+    var keyValues = [];
+    for (var i = 0; i < properties.length; i++) {
+        var prop = properties[i];
+        assert(prop.kind === 'init', 'only support init kind');
+
+        var value = this.meta.verifyNode(prop.value);
+        assert(value, 'expect value expression to have types');
+        keyValues.push(JsigAST.keyValue(prop.key.name, value));
+    }
+
+    return JsigAST.object(keyValues);
 };
 
 TypeInference.prototype.resolveGeneric =
