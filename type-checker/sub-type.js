@@ -93,6 +93,12 @@ function checkTypeLiteralSubType(node, parent, child) {
 
 SubTypeChecker.prototype.checkValueLiteralSubType =
 function checkValueLiteralSubType(node, parent, child) {
+    if (parent.name === 'null' && child.type === 'typeLiteral' &&
+        child.builtin && child.name === 'Null:Default'
+    ) {
+        return null;
+    }
+
     if (child.type !== 'valueLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }
@@ -211,17 +217,20 @@ function checkObjectSubType(node, parent, child) {
 
 SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {
+    // Check to see that child matches ONE of parent.
+
+    var err;
     for (var i = 0; i < parent.unions.length; i++) {
-        var error = this.checkSubType(
+        err = this.checkSubType(
             node, parent.unions[i], child
         );
-
-        if (!error) {
+        if (!err) {
             return null;
         }
     }
 
-    throw new Error('[Internal] union does not match');
+    // Find all errors?
+    return err;
 };
 
 function reportTypeMisMatch(node, parent, child) {

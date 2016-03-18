@@ -97,12 +97,21 @@ function getFunctionScope() {
     return null;
 };
 
+FileScope.prototype.setWritableTokenLookup =
+function setWritableTokenLookup() {
+};
+
+FileScope.prototype.unsetWritableTokenLookup =
+function unsetWritableTokenLookup() {
+};
+
 function FunctionScope(parent, funcName, funcNode) {
     this.parent = parent;
     this.type = 'function';
 
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
+    this.typeRestrictions = Object.create(null);
 
     this.funcName = funcName;
     this.returnValueType = null;
@@ -114,6 +123,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.knownReturnType = null;
     this.returnStatementASTNode = null;
     this.funcASTNode = funcNode;
+    this.writableTokenLookup = false;
 }
 
 FunctionScope.prototype.loadTypes =
@@ -140,7 +150,12 @@ function addVar(id, typeDefn) {
 };
 
 FunctionScope.prototype.getVar = function getVar(id) {
-    return this.identifiers[id] || this.parent.getVar(id);
+    if (this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id);
+    }
+
+    return this.typeRestrictions[id] || this.identifiers[id] ||
+        this.parent.getVar(id);
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
@@ -207,6 +222,30 @@ function getFunctionScope() {
     return this;
 };
 
+FunctionScope.prototype.setWritableTokenLookup =
+function setWritableTokenLookup() {
+    this.writableTokenLookup = true;
+};
+
+FunctionScope.prototype.unsetWritableTokenLookup =
+function unsetWritableTokenLookup() {
+    this.writableTokenLookup = false;
+};
+
+FunctionScope.prototype.updateVar =
+function updateVar() {
+};
+
+FunctionScope.prototype.restrictType =
+function restrictType(id, type) {
+    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
+};
+
 function BranchScope(parent) {
     this.parent = parent;
     this.type = 'branch';
@@ -214,9 +253,14 @@ function BranchScope(parent) {
     this.typeRestrictions = Object.create(null);
     this.identifiers = Object.create(null);
     this.currentAssignmentType = null;
+    this.writableTokenLookup = false;
 }
 
 BranchScope.prototype.getVar = function getVar(id) {
+    if (this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id);
+    }
+
     return this.identifiers[id] || this.typeRestrictions[id] ||
         this.parent.getVar(id);
 };
@@ -257,4 +301,27 @@ function enterAssignment(leftType) {
 BranchScope.prototype.exitAssignment =
 function exitAssignment() {
     this.currentAssignmentType = null;
+};
+
+BranchScope.prototype.setWritableTokenLookup =
+function setWritableTokenLookup() {
+    this.writableTokenLookup = true;
+};
+
+BranchScope.prototype.unsetWritableTokenLookup =
+function unsetWritableTokenLookup() {
+    this.writableTokenLookup = false;
+};
+
+BranchScope.prototype.updateVar =
+function updateVar(id, typeDefn) {
+    var restriction = this.typeRestrictions[id];
+    if (!restriction) {
+        return;
+    }
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: typeDefn
+    };
 };

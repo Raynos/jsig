@@ -1,0 +1,28 @@
+type PendingElements : Array<null | PendingOutOperation>
+
+type TOutPending : {
+    buckets: Object<Number, TOutPendingBucket>,
+    bucketSize: Number,
+
+    emptyBucket: PendingElements,
+
+    push: (this: TOutPending, id: Number, op: PendingOutOperation) => void,
+    getOrCreateBucket: (
+        this: TOutPending, bucketStart: Number
+    ) => TOutPendingBucket,
+    pop: (this: TOutPending, id: Number) => PendingOutOperation | null
+}
+
+type TOutPendingBucket : {
+    elements: PendingElements,
+    count: Number
+}
+
+type PendingOutOperation : {
+    timedOut: Boolean,
+    data: String,
+    timeout: Number
+}
+
+OutPending : (this: TOutPending) => void
+OutPendingBucket : (this: TOutPendingBucket, elems: PendingElements) => void

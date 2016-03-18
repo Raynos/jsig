@@ -11,6 +11,7 @@ var assert = require('assert');
 var JsigAST = require('../ast.js');
 var serialize = require('../serialize.js');
 var Errors = require('./errors.js');
+var isSameType = require('./lib/is-same-type.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
@@ -121,7 +122,9 @@ function verifyExpressionStatement(node) {
 
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
+    this.meta.currentScope.setWritableTokenLookup();
     var leftType = this.meta.verifyNode(node.left);
+    this.meta.currentScope.unsetWritableTokenLookup();
     if (!leftType) {
         console.warn('could not find leftType');
         return null;
@@ -151,7 +154,16 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
-    this.meta.checkSubType(node, leftType, rightType);
+    var isDefault = leftType.type === 'typeLiteral' &&
+        leftType.builtin && leftType.name === 'Null:Default';
+
+    if (!isDefault) {
+        this.meta.checkSubType(node, leftType, rightType);
+    }
+
+    if (node.left.type === 'Identifier') {
+        this.meta.currentScope.updateVar(node.left.name, rightType);
+    }
 
     if (leftType.name === 'Any:ModuleExports') {
         assert(node.right.type === 'Identifier',
@@ -444,6 +456,10 @@ function verifyVariableDeclaration(node) {
         return null;
     }
 
+    if (type.type === 'valueLiteral' && type.name === 'null') {
+        type = JsigAST.literal('Null:Default', true);
+    }
+
     this.meta.currentScope.addVar(id, type);
     return null;
 };
@@ -516,6 +532,17 @@ function verifyIfStatement(node) {
         this.meta.enterBranchScope(elseBranch);
         this.meta.verifyNode(node.alternative);
         this.meta.exitBranchScope();
+    }
+
+    var keys = Object.keys(ifBranch.typeRestrictions);
+    for (var i = 0; i < keys.length; i++) {
+        var name = keys[i];
+        var ifType = ifBranch.typeRestrictions[name];
+        var elseType = elseBranch.typeRestrictions[name];
+
+        if (isSameType(ifType.defn, elseType.defn)) {
+            this.meta.currentScope.restrictType(name, ifType.defn);
+        }
     }
 };
 
