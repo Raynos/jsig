@@ -1,3 +1,4 @@
+-- vim: set ft=Haskell:
 type PendingElements : Array<null | PendingOutOperation>
 
 type TOutPending : {
