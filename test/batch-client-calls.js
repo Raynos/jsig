@@ -113,7 +113,22 @@ test('calling method on primitive', function t(assert) {
     assert.end();
 });
 
-test('assigning result of method to wrong type');
+test('assigning result of method to wrong type', function t(assert) {
+    var file = getFile('bad-assign-result-of-method-to-wrong-type.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.line, 21);
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'this: TOutPendingBucket');
+
+    assert.end();
+});
+
 test('calling method that does not exist');
 
 function getFile(fileName) {
