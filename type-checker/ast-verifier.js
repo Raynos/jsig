@@ -278,10 +278,23 @@ function verifyCallExpression(node) {
         defn = this.meta.resolveGeneric(defn, node);
     }
 
-    assert(defn.args.length === node.arguments.length,
-        'expected same number of args');
+    var err;
+    if (node.arguments.length < defn.args.length) {
+        err = Errors.TooFewArgsInCall({
+            funcName: this.meta.serializeAST(node.callee),
+            actualArgs: node.arguments.length,
+            expectedArgs: defn.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+    } else if (node.arguments.length > defn.args.length) {
+        assert(defn.args.length === node.arguments.length,
+            'expected same number of args');
+    }
 
-    for (var i = 0; i < defn.args.length; i++) {
+    var minLength = Math.min(defn.args.length, node.arguments.length);
+    for (var i = 0; i < minLength; i++) {
         var wantedType = defn.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
         if (!actualType) {

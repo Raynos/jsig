@@ -47,6 +47,29 @@ test('calling method with wrong args', function t(assert) {
     assert.end();
 });
 
+test('calling method without argument', function t(assert) {
+    var file = getFile('bad-calling-method-with-no-args.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.too-few-args-in-call');
+    assert.equal(err.line, 19);
+    assert.equal(err.expectedArgs, 1);
+    assert.equal(err.actualArgs, 0);
+    assert.equal(err.funcName, 'this.getOrCreateBucket');
+
+    assert.end();
+});
+
+test('calling method with extra argument');
+test('calling method on wrong object');
+test('calling method on primitive');
+test('assigning result of method to wrong type');
+test('calling method that does not exist');
+
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);
 }

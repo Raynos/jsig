@@ -59,6 +59,17 @@ Errors.TooFewArgsInNewExpression = TypedError({
     line: null
 });
 
+Errors.TooFewArgsInCall = TypedError({
+    type: 'jsig.verify.too-few-args-in-call',
+    message: '@{line}: Expected invocation of {funcName} to have exactly ' +
+        '{expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
 Errors.NonExistantField = TypedError({
     type: 'jsig.verify.non-existant-field',
     message: '@{line}: Object {objName} does not have field {fieldName}.',
