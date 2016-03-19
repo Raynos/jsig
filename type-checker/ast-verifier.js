@@ -768,8 +768,15 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return null;
     }
 
-    assert(jsigType.type === 'object',
-        'jsigType must be an object');
+    if (jsigType.type !== 'object') {
+        this.meta.addError(Errors.NonObjectFieldAccess({
+            loc: node.loc,
+            line: node.loc.start.line,
+            fieldName: propertyName,
+            nonObjectType: serialize(jsigType)
+        }));
+        return null;
+    }
 
     for (var i = 0; i < jsigType.keyValues.length; i++) {
         var keyValue = jsigType.keyValues[i];

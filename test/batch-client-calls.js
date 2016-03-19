@@ -97,7 +97,22 @@ test('calling method on wrong object', function t(assert) {
     assert.end();
 });
 
-test('calling method on primitive');
+test('calling method on primitive', function t(assert) {
+    var file = getFile('bad-calling-method-on-primitive.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.line, 19);
+    assert.equal(err.fieldName, 'getOrCreateBucket');
+    assert.equal(err.nonObjectType, 'id: Number');
+
+    assert.end();
+});
+
 test('assigning result of method to wrong type');
 test('calling method that does not exist');
 
