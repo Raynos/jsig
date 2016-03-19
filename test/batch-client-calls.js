@@ -81,7 +81,22 @@ test('calling method with extra argument', function t(assert) {
     assert.end();
 });
 
-test('calling method on wrong object');
+test('calling method on wrong object', function t(assert) {
+    var file = getFile('bad-calling-method-on-wrong-object.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-existant-field');
+    assert.equal(err.line, 19);
+    assert.equal(err.fieldName, 'getOrCreateBucket');
+    assert.equal(err.objName, 'op');
+
+    assert.end();
+});
+
 test('calling method on primitive');
 test('assigning result of method to wrong type');
 test('calling method that does not exist');

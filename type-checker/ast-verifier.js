@@ -126,7 +126,8 @@ function verifyAssignmentExpression(node) {
     var leftType = this.meta.verifyNode(node.left);
     this.meta.currentScope.unsetWritableTokenLookup();
     if (!leftType) {
-        console.warn('could not find leftType');
+        console.warn('!!! could not find leftType: ',
+            this.meta.serializeAST(node));
         return null;
     }
 
@@ -138,7 +139,7 @@ function verifyAssignmentExpression(node) {
         var name = node.right.name;
         var maybeFunc = this.meta.currentScope.getFunction(name);
         if (!maybeFunc) {
-            console.warn('could not find possible function');
+            console.warn('!!! could not find possible function');
             return null;
         }
 
@@ -270,7 +271,9 @@ function verifyCallExpression(node) {
         assert(defn, 'do not support type inference caller()');
     } else {
         defn = this.verifyNode(node.callee);
-        assert(defn, 'node.callee must have a definition');
+        if (!defn) {
+            return null;
+        }
     }
 
     if (defn.generics.length > 0) {
