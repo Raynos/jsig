@@ -15,7 +15,6 @@ function OutPending() {
 OutPending.prototype.push = push;
 function push(id, op) {
     var remainder = id % 1024;
-    var bucketStart = id - remainder;
     var bucket = this.getOrCreateBucket();
 
     bucket.elements[remainder] = op;

@@ -40,7 +40,7 @@ test('calling method with wrong args', function t(assert) {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.line, 19);
+    assert.equal(err.line, 18);
     assert.equal(err.expected, 'bucketStart: Number');
     assert.equal(err.actual, 'op: PendingOutOperation');
 
@@ -56,7 +56,7 @@ test('calling method without argument', function t(assert) {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.too-few-args-in-call');
-    assert.equal(err.line, 19);
+    assert.equal(err.line, 18);
     assert.equal(err.expectedArgs, 1);
     assert.equal(err.actualArgs, 0);
     assert.equal(err.funcName, 'this.getOrCreateBucket');
