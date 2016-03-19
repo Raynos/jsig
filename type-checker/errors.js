@@ -59,6 +59,17 @@ Errors.TooFewArgsInNewExpression = TypedError({
     line: null
 });
 
+Errors.TooManyArgsInCall = TypedError({
+    type: 'jsig.verify.too-many-args-in-call',
+    message: '@{line}: Expected invocation of {funcName} to have exactly ' +
+        '{expectedArgs} arguments but instead has {actualArgs}.',
+    funcName: null,
+    actualArgs: null,
+    expectedArgs: null,
+    loc: null,
+    line: null
+});
+
 Errors.TooFewArgsInCall = TypedError({
     type: 'jsig.verify.too-few-args-in-call',
     message: '@{line}: Expected invocation of {funcName} to have exactly ' +

@@ -289,8 +289,14 @@ function verifyCallExpression(node) {
         });
         this.meta.addError(err);
     } else if (node.arguments.length > defn.args.length) {
-        assert(defn.args.length === node.arguments.length,
-            'expected same number of args');
+        err = Errors.TooManyArgsInCall({
+            funcName: this.meta.serializeAST(node.callee),
+            actualArgs: node.arguments.length,
+            expectedArgs: defn.args.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
     }
 
     var minLength = Math.min(defn.args.length, node.arguments.length);
