@@ -28,7 +28,7 @@ HeaderFile.prototype.replace = function replace(ast, rawAst) {
         this.errors.push(UnknownLiteralError({
             literal: name
         }));
-    } else if (typeDefn._raw === null) {
+    } else {
         typeDefn._raw = rawAst;
     }
 

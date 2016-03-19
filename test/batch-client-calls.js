@@ -31,6 +31,22 @@ test('working method calls within a class', function t(assert) {
     assert.end();
 });
 
+test('calling method with wrong args', function t(assert) {
+    var file = getFile('bad-call-method-with-wrong-argument.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected one errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.line, 19);
+    assert.equal(err.expected, 'bucketStart: Number');
+    assert.equal(err.actual, 'op: PendingOutOperation');
+
+    assert.end();
+});
+
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);
 }
