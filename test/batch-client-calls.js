@@ -129,7 +129,21 @@ test('assigning result of method to wrong type', function t(assert) {
     assert.end();
 });
 
-test('calling method that does not exist');
+test('calling method that does not exist', function t(assert) {
+    var file = getFile('bad-calling-non-existant-method.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 1, 'expected on error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-existant-field');
+    assert.equal(err.line, 19);
+    assert.equal(err.fieldName, 'getOrCreateBucket2');
+    assert.equal(err.objName, 'this');
+
+    assert.end();
+});
 
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);
