@@ -1,0 +1,10 @@
+
+type TDB : {
+    _values: Object<String, String>,
+
+    get : (this: TDB, key: String) => String,
+    set : (this: TDB, key: String, value: String) => void,
+    keys : (this: TDB) => Array<String>
+}
+
+DB : (this: TDB) => void
