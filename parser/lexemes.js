@@ -9,7 +9,7 @@ var lexemes = {
     fromWord: lexeme(Parsimmon.string('from')),
     quote: lexeme(Parsimmon.string('"')),
     identifier: lexeme(Parsimmon.regex(/[a-z\-\/]+/i)),
-    moduleName: lexeme(Parsimmon.regex(/[a-z\-\/\.]+/i)),
+    moduleName: lexeme(Parsimmon.regex(/[a-z0-9\-\/\.]+/i)),
     labelName: lexeme(Parsimmon.regex(/[a-z_\?]+/i)),
     typeName: lexeme(Parsimmon.regex(/[a-z]+/i)),
     labelSeperator: lexeme(Parsimmon.string(':')),
