@@ -13,12 +13,17 @@
     "eslint-plugin-perf-standard": "^1.0.2",
     "tape": "^4.4.0"
   },
+  "bin": {
+    "jsig": "./bin/jsig.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "error": "^7.0.2",
     "esprima": "^2.7.1",
+    "minimist": "^1.2.0",
     "parsimmon": "^0.7.0",
+    "term-color": "^1.0.1",
     "xtend": "^4.0.1"
   }
 }

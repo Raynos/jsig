@@ -269,6 +269,7 @@ function setModuleExportsType(typeDefn, astNode) {
 };
 
 ProgramMeta.prototype.addError = function addError(error) {
+    error.fileName = this.fileName;
     this.checker.addError(error);
 };
 

@@ -7,6 +7,8 @@ var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var ProgramMeta = require('./meta.js');
 
+compile.TypeChecker = TypeChecker;
+
 module.exports = compile;
 
 function compile(fileName) {
