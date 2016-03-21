@@ -78,15 +78,18 @@ function verifyProgram(node) {
 
     this.meta.setModuleExportsNode(node);
 
+    this.meta.loadHeaderFile();
+
     var i = 0;
     for (i = 0; i < node.body.length; i++) {
         if (node.body[i].type === 'FunctionDeclaration') {
             var name = node.body[i].id.name;
-            this.meta.currentScope.addFunction(name, node.body[i]);
+
+            if (!this.meta.currentScope.getVar(name)) {
+                this.meta.currentScope.addFunction(name, node.body[i]);
+            }
         }
     }
-
-    this.meta.loadHeaderFile();
 
     for (i = 0; i < node.body.length; i++) {
         this.meta.verifyNode(node.body[i]);
@@ -139,26 +142,23 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
-    this.meta.currentScope.enterAssignment(leftType);
-    var rightType = this.meta.verifyNode(node.right);
-    this.meta.currentScope.exitAssignment();
-
-    if (!rightType && node.right.type === 'Identifier') {
-        var name = node.right.name;
-        var maybeFunc = this.meta.currentScope.getFunction(name);
-        if (!maybeFunc) {
-            console.warn('!!! could not find possible function');
-            return null;
-        }
-
+    var rightType;
+    if (node.right.type === 'Identifier' &&
+        this.meta.currentScope.getFunction(node.right.name)
+    ) {
         assert(leftType.name !== 'Any:ModuleExports',
             'cannot assign untyped function to module.exports');
 
         this.meta.currentScope.updateFunction(
-            name, leftType
+            node.right.name, leftType
         );
         rightType = leftType;
+    } else {
+        this.meta.currentScope.enterAssignment(leftType);
+        rightType = this.meta.verifyNode(node.right);
+        this.meta.currentScope.exitAssignment();
     }
+
     if (!rightType) {
         return null;
     }
@@ -252,7 +252,22 @@ function verifyIdentifier(node) {
         return token.defn;
     }
 
-    console.warn('!!! could not find identifier: ' + node.name);
+    var isUnknown = Boolean(this.meta.currentScope.getUnknownVar(node.name));
+
+    if (isUnknown) {
+        this.meta.addError(Errors.UnTypedIdentifier({
+            tokenName: node.name,
+            line: node.loc.start.line,
+            loc: node.loc
+        }));
+    } else {
+        this.meta.addError(Errors.UnknownIdentifier({
+            tokenName: node.name,
+            line: node.loc.start.line,
+            loc: node.loc
+        }));
+    }
+
     return null;
 };
 
@@ -492,6 +507,7 @@ function verifyVariableDeclaration(node) {
 
     var type = this.meta.verifyNode(decl.init);
     if (!type) {
+        this.meta.currentScope.addUnknownVar(id);
         return null;
     }
 

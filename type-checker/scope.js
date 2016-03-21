@@ -41,6 +41,8 @@ function addVar(id, typeDefn) {
 
 FileScope.prototype.addFunction =
 function addFunction(id, node) {
+    assert(!this.identifiers[id], 'cannot shadow identifier');
+
     this.untypedFunctions[id] = {
         type: 'untyped-function',
         node: node
@@ -105,6 +107,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
     this.typeRestrictions = Object.create(null);
+    this.unknownIdentifiers = Object.create(null);
 
     this.funcName = funcName;
     this.returnValueType = null;
@@ -142,6 +145,20 @@ function addVar(id, typeDefn) {
     return token;
 };
 
+FunctionScope.prototype.addUnknownVar =
+function addUnknownVar(id) {
+    var token = {
+        type: 'unknown-variable'
+    };
+    this.unknownIdentifiers[id] = token;
+    return token;
+};
+
+FunctionScope.prototype.getUnknownVar =
+function getUnknownVar(id) {
+    return this.unknownIdentifiers[id];
+};
+
 FunctionScope.prototype.getVar = function getVar(id) {
     if (this.writableTokenLookup) {
         return this.identifiers[id] || this.parent.getVar(id);
@@ -152,6 +169,8 @@ FunctionScope.prototype.getVar = function getVar(id) {
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
+    assert(!this.identifiers[id], 'cannot shadow identifier');
+
     this.untypedFunctions[id] = {
         type: 'untyped-function',
         node: node

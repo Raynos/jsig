@@ -15,6 +15,22 @@ Errors.MissingFieldInConstr = TypedError({
     line: null
 });
 
+Errors.UnknownIdentifier = TypedError({
+    type: 'jsig.verify.unknown-identifier',
+    message: '@{line}: Could not find identifier {tokenName}.',
+    name: null,
+    loc: null,
+    line: null
+});
+
+Errors.UnTypedIdentifier = TypedError({
+    type: 'jsig.verify.untyped-identifier',
+    message: '@{line}: Identifier {tokenName} does not have a type.',
+    name: null,
+    loc: null,
+    line: null
+});
+
 Errors.TooManyArgsInFunc = TypedError({
     type: 'jsig.verify.too-many-function-args',
     message: '@{line}: Expected the function {funcName} to have exactly ' +
