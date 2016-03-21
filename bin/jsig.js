@@ -41,6 +41,8 @@ function main(args) {
 
     for (var i = 0; i < checker.errors.length; i++) {
         var error = checker.errors[i];
+        assert(error.fileName, 'error must have fileName');
+
         var relativePath = path.relative(process.cwd(), error.fileName);
 
         console.log(TermColor.underline(relativePath));
@@ -84,11 +86,13 @@ function getFailingLines(checker, err) {
         String(startLine - 1) + '. ' + TermColor.gray(prevLine)
     ];
 
+    var failLine;
+    var startColumn;
+    var endColumn;
     if (startLine === endLine) {
-        var failLine = meta.sourceLines[startLine];
-
-        var startColumn = err.loc.start.column;
-        var endColumn = err.loc.end.column;
+        failLine = meta.sourceLines[startLine];
+        startColumn = err.loc.start.column;
+        endColumn = err.loc.end.column;
 
         segments.push(
             String(startLine) + '. ' +
@@ -97,7 +101,29 @@ function getFailingLines(checker, err) {
             failLine.slice(endColumn, failLine.length)
         );
     } else {
-        assert(false, 'multi-line pretty print not implemented');
+        failLine = meta.sourceLines[startLine];
+        startColumn = err.loc.start.column;
+        endColumn = err.loc.end.column;
+
+        segments.push(
+            String(startLine) + '. ' +
+            failLine.slice(0, startColumn) +
+            TermColor.red(failLine.slice(startColumn, failLine.length))
+        );
+
+        for (var i = startLine + 1; i < endLine - 1; i++) {
+            segments.push(
+                String(i) + '. ' + TermColor.red(meta.sourceLines[i])
+            );
+        }
+
+        failLine = meta.sourceLines[endLine];
+
+        segments.push(
+            String(endLine) + '. ' +
+            TermColor.red(failLine.slice(0, endColumn)) +
+            failLine.slice(endColumn, failLine.length)
+        );
     }
 
     segments.push(
