@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var TypedError = require('error/typed');
 
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
@@ -22,6 +23,17 @@ function HeaderFile(jsigAst) {
 }
 
 HeaderFile.prototype.replace = function replace(ast, rawAst) {
+    if (ast.type === 'typeLiteral') {
+        return this.replaceTypeLiteral(ast, rawAst);
+    } else if (ast.type === 'import') {
+        return this.replaceImport(ast, rawAst);
+    } else {
+        assert(false, 'unexpected ast.type: ' + ast.type);
+    }
+};
+
+HeaderFile.prototype.replaceTypeLiteral =
+function replaceTypeLiteral(ast, rawAst) {
     var name = ast.name;
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {
@@ -33,6 +45,19 @@ HeaderFile.prototype.replace = function replace(ast, rawAst) {
     }
 
     return typeDefn;
+};
+
+HeaderFile.prototype.replaceImport =
+function replaceImport(ast, rawAst) {
+    // Find another HeaderFile instance for filePath
+    // Then reach into indexTable and grab tokens
+    // Copy tokens into local index table
+};
+
+HeaderFile.prototype.addToken =
+function addToken(token, defn) {
+    assert(!this.indexTable[token], 'cannot double add token');
+    this.indexTable[token] = defn;
 };
 
 HeaderFile.prototype.resolveReferences =
@@ -48,7 +73,7 @@ function resolveReferences() {
         var line = copyAst.statements[i];
 
         if (line.type === 'typeDeclaration') {
-            this.indexTable[line.identifier] = line.typeExpression;
+            this.addToken(line.identifier, line.typeExpression);
         }
     }
 
