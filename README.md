@@ -9,7 +9,7 @@ From scratch type-checker
  - [x] type check new Foo()
  - [x] type check method calls 
  - [ ] support module system
- - [ ] create binary with pretty errors.
+ - [x] create binary with pretty errors.
 
 # later
 
