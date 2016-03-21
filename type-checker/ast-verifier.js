@@ -123,14 +123,19 @@ function verifyExpressionStatement(node) {
     return this.meta.verifyNode(node.expression);
 };
 
+/*eslint max-statements: [2, 60]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     this.meta.currentScope.setWritableTokenLookup();
+    var beforeError = this.meta.countErrors();
     var leftType = this.meta.verifyNode(node.left);
+    var afterError = this.meta.countErrors();
     this.meta.currentScope.unsetWritableTokenLookup();
     if (!leftType) {
-        console.warn('!!! could not find leftType: ',
-            this.meta.serializeAST(node));
+        if (afterError === beforeError) {
+            console.warn('!!! could not find leftType: ',
+                this.meta.serializeAST(node));
+        }
         return null;
     }
 

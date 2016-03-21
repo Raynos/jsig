@@ -29,6 +29,10 @@ TypeChecker.prototype.addError = function addError(err) {
     this.errors.push(err);
 };
 
+TypeChecker.prototype.countErrors = function countErrors() {
+    return this.errors.length;
+}
+
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
     var meta = this.getOrCreateMeta(this.entryFile);

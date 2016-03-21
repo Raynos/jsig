@@ -272,6 +272,10 @@ ProgramMeta.prototype.addError = function addError(error) {
     this.checker.addError(error);
 };
 
+ProgramMeta.prototype.countErrors = function countErrors() {
+    return this.checker.countErrors();
+}
+
 ProgramMeta.prototype.checkSubType =
 function checkSubType(node, leftType, rightType) {
     var err = this.subType.checkSubType(node, leftType, rightType);
