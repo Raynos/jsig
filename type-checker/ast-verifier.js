@@ -146,8 +146,14 @@ function verifyAssignmentExpression(node) {
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getFunction(node.right.name)
     ) {
-        assert(leftType.name !== 'Any:ModuleExports',
-            'cannot assign untyped function to module.exports');
+        if (leftType.name === 'Any:ModuleExports') {
+            this.meta.addError(Errors.UnknownModuleExports({
+                funcName: node.right.name,
+                loc: node.loc,
+                line: node.loc.start.line
+            }));
+            return null;
+        }
 
         this.meta.currentScope.updateFunction(
             node.right.name, leftType
@@ -404,9 +410,17 @@ function verifyReturnStatement(node) {
 
 ASTVerifier.prototype.verifyNewExpression =
 function verifyNewExpression(node) {
+    var beforeError = this.meta.countErrors();
     var fnType = this.meta.verifyNode(node.callee);
+    var afterError = this.meta.countErrors();
 
-    assert(fnType, 'new expression callee must exist');
+    if (!fnType) {
+        if (beforeError === afterError) {
+            console.warn('!!! cannot call new on unknown function');
+        }
+        return;
+    }
+
     assert(fnType.type === 'function', 'only support defined constructors');
 
     var err;
@@ -723,6 +737,11 @@ function _checkReturnType(node) {
     var actual = this.meta.currentScope.knownReturnType;
     var returnNode = this.meta.currentScope.returnStatementASTNode;
     var err;
+
+    // If we never inferred the return type then it may or may not return
+    if (expected.type === 'typeLiteral' && expected.name === 'void:Any') {
+        return;
+    }
 
     if (expected.type === 'typeLiteral' && expected.name === 'void') {
         if (actual !== null) {

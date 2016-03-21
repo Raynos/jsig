@@ -49,6 +49,7 @@ function getOrCreateHeaderFile(fileName) {
 
     var res = readJSigAST(fileName);
     if (res.error) {
+        res.error.fileName = fileName;
         this.addError(res.error);
         return null;
     }
@@ -61,6 +62,7 @@ function getOrCreateHeaderFile(fileName) {
     headerFile.resolveReferences();
     if (headerFile.errors.length) {
         for (var i = 0; i < headerFile.errors.length; i++) {
+            headerFile.errors[i].fileName = fileName;
             this.addError(headerFile.errors[i]);
         }
         return null;

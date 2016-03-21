@@ -18,7 +18,15 @@ Errors.MissingFieldInConstr = TypedError({
 Errors.UnknownIdentifier = TypedError({
     type: 'jsig.verify.unknown-identifier',
     message: '@{line}: Could not find identifier {tokenName}.',
-    name: null,
+    tokenName: null,
+    loc: null,
+    line: null
+});
+
+Errors.UnknownModuleExports = TypedError({
+    type: 'jsig.verify.unknown-module-exports',
+    message: '@{line}: Cannot export untyped function {funcName}.',
+    funcName: null,
     loc: null,
     line: null
 });

@@ -97,6 +97,17 @@ function loadLanguageIdentifiers() {
         'create': JsigAST.functionType({
             args: [JsigAST.value('null')],
             result: JsigAST.literal('Object:Empty', true)
+        }),
+        'keys': JsigAST.functionType({
+            args: [JsigAST.generic(
+                JsigAST.literal('Object'),
+                [JsigAST.literal('K'), JsigAST.literal('V')]
+            )],
+            result: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('String')]
+            ),
+            generics: [JsigAST.literal('K'), JsigAST.literal('V')]
         })
     }));
 

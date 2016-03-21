@@ -21,6 +21,7 @@ function FileScope(parent) {
     this.identifiers = Object.create(null);
     this.untypedFunctions = {};
     this.prototypes = {};
+    this.unknownIdentifiers = {};
     this.currentAssignmentType = null;
 }
 
@@ -75,6 +76,20 @@ function updateFunction(id, typeDefn) {
 
 FileScope.prototype.getVar = function getVar(id) {
     return this.identifiers[id] || this.parent.getVar(id);
+};
+
+FileScope.prototype.addUnknownVar =
+function addUnknownVar(id) {
+    var token = {
+        type: 'unknown-variable'
+    };
+    this.unknownIdentifiers[id] = token;
+    return token;
+};
+
+FileScope.prototype.getUnknownVar =
+function getUnknownVar(id) {
+    return this.unknownIdentifiers[id];
 };
 
 FileScope.prototype.enterAssignment =
