@@ -854,7 +854,7 @@ function _createNonExistantFieldError(node, propName) {
         objName = node.object.name;
     } else if (node.object.type === 'MemberExpression') {
         objName = this.meta.serializeAST(node.object);
-    } else {s
+    } else {
         assert(false, 'unknown object type');
     }
 

@@ -274,7 +274,7 @@ ProgramMeta.prototype.addError = function addError(error) {
 
 ProgramMeta.prototype.countErrors = function countErrors() {
     return this.checker.countErrors();
-}
+};
 
 ProgramMeta.prototype.checkSubType =
 function checkSubType(node, leftType, rightType) {

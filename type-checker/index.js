@@ -31,7 +31,7 @@ TypeChecker.prototype.addError = function addError(err) {
 
 TypeChecker.prototype.countErrors = function countErrors() {
     return this.errors.length;
-}
+};
 
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
