@@ -1,23 +1,14 @@
 'use strict';
 
 var fs = require('fs');
-var TypedError = require('error/typed');
 var program = require('../../parser/program.js');
 var Parsimmon = require('parsimmon');
-
-var MissingHeaderFile = TypedError({
-    type: 'jsig.missing.header-file',
-    message: 'Could not find header file: {fileName}',
-    fileName: null
-});
 
 module.exports = readJSigAST;
 
 function readJSigAST(fileName) {
     if (!fs.existsSync(fileName)) {
-        return new Result(MissingHeaderFile({
-            fileName: fileName
-        }), null);
+        return new Result(null, null);
     }
 
     var source = fs.readFileSync(fileName, 'utf8');

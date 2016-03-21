@@ -303,7 +303,6 @@ function loadHeaderFile() {
 
     this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName);
     if (!this.headerFile) {
-        this.fatalError = true;
         return;
     }
 

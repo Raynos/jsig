@@ -53,6 +53,10 @@ function getOrCreateHeaderFile(fileName) {
         return null;
     }
 
+    if (!res.value) {
+        return null;
+    }
+
     var headerFile = new HeaderFile(this, res.value, fileName);
     headerFile.resolveReferences();
     if (headerFile.errors.length) {
