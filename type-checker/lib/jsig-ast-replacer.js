@@ -135,6 +135,8 @@ function inlineReferences(ast, rawAst, stack) {
     } else if (ast.type === 'comment') {
         ast._raw = ast._raw || rawAst;
         return ast;
+    } else if (ast.type === 'import') {
+        return this.replacer.replace(ast, rawAst, stack);
     } else {
         throw new Error('unknown ast type: ' + ast.type);
     }

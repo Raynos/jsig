@@ -7,8 +7,6 @@ var serialize = require('../serialize.js');
 var ASTVerifier = require('./ast-verifier.js');
 var TypeInference = require('./type-inference.js');
 var JsigAST = require('../ast.js');
-var readJSigAST = require('./lib/read-jsig-ast.js');
-var HeaderFile = require('./header-file.js');
 var SubTypeChecker = require('./sub-type.js');
 var NarrowType = require('./narrow-type.js');
 var FileScope = require('./scope.js').FileScope;
@@ -19,7 +17,8 @@ var fileExtRegex = /.js$/;
 
 module.exports = ProgramMeta;
 
-function ProgramMeta(ast, fileName, source) {
+function ProgramMeta(checker, ast, fileName, source) {
+    this.checker = checker;
     this.ast = ast;
     this.fileName = fileName;
     this.source = source;
@@ -38,7 +37,6 @@ function ProgramMeta(ast, fileName, source) {
     this.currentScope = new FileScope(this);
     this.currentScope.loadModuleTokens();
 
-    this.errors = [];
     this.fatalError = false;
 
     this.headerFile = null;
@@ -266,7 +264,7 @@ function setModuleExportsType(typeDefn, astNode) {
 };
 
 ProgramMeta.prototype.addError = function addError(error) {
-    this.errors.push(error);
+    this.checker.addError(error);
 };
 
 ProgramMeta.prototype.checkSubType =
@@ -293,25 +291,14 @@ ProgramMeta.prototype.loadHeaderFile =
 function loadHeaderFile() {
     var headerFileName = this.fileName.replace(fileExtRegex, '.hjs');
 
-    var res = readJSigAST(headerFileName);
-    if (res.error) {
-        this.addError(res.error);
+    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName);
+    if (!this.headerFile) {
         this.fatalError = true;
         return;
     }
-
-    this.headerFile = new HeaderFile(res.value);
 
     var assignments = this.headerFile.getResolvedAssignments();
-    if (this.headerFile.errors.length) {
-        for (var i = 0; i < this.headerFile.errors.length; i++) {
-            this.addError(this.headerFile.errors[i]);
-        }
-        this.fatalError = true;
-        return;
-    }
-
-    for (i = 0; i < assignments.length; i++) {
+    for (var i = 0; i < assignments.length; i++) {
         var expr = assignments[i];
 
         this.currentScope.addVar(expr.identifier, expr.typeExpression);
