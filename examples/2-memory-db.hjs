@@ -1,4 +1,4 @@
-
+-- vim: set ft=Haskell:
 type TDB : {
     _values: Object<String, String>,
 
