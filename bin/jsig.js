@@ -43,7 +43,9 @@ function main(args) {
         var error = checker.errors[i];
         var failingLines = getFailingLines(checker, error);
 
-        console.log(TermColor.underline(error.fileName));
+        var relativePath = path.relative(process.cwd(), error.fileName);
+
+        console.log(TermColor.underline(relativePath));
         console.log('Found error: ' + TermColor.cyan(error.type));
         console.log(error.message);
         console.log('');
@@ -55,8 +57,6 @@ function main(args) {
             console.log('Actual   : ' + TermColor.red(error.actual));
             console.log('');
         }
-
-        // console.log(checker.errors[i]);
     }
 
     var word = checker.errors.length === 1 ? 'error' : 'errors';
