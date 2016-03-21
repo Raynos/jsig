@@ -16,7 +16,9 @@ From scratch type-checker
  - [ ] define type definitions for npm modules
  - [ ] support more JavaScript features.
 
-# Examples
+# Hello world example
+
+There is a small hello world example that shows inference.
 
 ```js
 'use strict';
@@ -44,4 +46,31 @@ Expected : Number
 Actual   : String
 
 Found (1) error
+```
+
+## More examples
+
+```
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig2 on master*
+$ jsig examples/2-main.js 
+No type errors
+```
+
+There is a `2-main.js` that shows a small program that type checks
+
+This includes the module system and the definition files.
+
+## Even more examples
+
+There are a lot of tests that show examples
+
+```
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig2 on master*
+$ git ls-files | grep test | grep 'hjs'
+test/batch-client-calls/bad-assign-result-of-method-to-wrong-type.hjs
+test/batch-client-calls/bad-call-method-with-wrong-argument.hjs
+test/batch-client-calls/bad-calling-method-on-primitive.hjs
+test/batch-client-calls/bad-calling-method-on-wrong-object.hjs
+test/batch-client-calls/bad-calling-method-with-extra-args.hjs
+...
 ```
