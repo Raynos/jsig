@@ -16,6 +16,16 @@ From scratch type-checker
  - [ ] define type definitions for npm modules
  - [ ] support more JavaScript features.
 
+# Stability status: Experimental
+
+This project is pre-alpha and an experimental type checker.
+
+There are a lot of rough edges, sometimes the type checker will
+report pretty errors and sometimes it just aborts.
+
+This project is only interesting if you actually want to implement
+or contribute to a type checker.
+
 # Hello world example
 
 There is a small hello world example that shows inference.
