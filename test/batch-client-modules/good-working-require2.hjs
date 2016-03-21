@@ -1,0 +1,11 @@
+type Callback : (err: Error | null) => void
+
+type TChannel : {
+    hostPort: String | null,
+
+    listen: (
+        this: TChannel, port: Number, host: String, onListen: Callback
+    ) => void
+}
+
+Channel : (this: TChannel) => void
