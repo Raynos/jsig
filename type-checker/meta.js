@@ -41,7 +41,7 @@ function ProgramMeta(checker, ast, fileName, source) {
 
     this.headerFile = null;
     this.subType = new SubTypeChecker();
-    this.verifier = new ASTVerifier(this);
+    this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
     this.narrow = new NarrowType(this);
 
@@ -126,6 +126,11 @@ function loadLanguageIdentifiers() {
             ),
             generics: [JsigAST.literal('T')]
         })
+    }));
+
+    this._addOperator('+', JsigAST.functionType({
+        args: [JsigAST.literal('String'), JsigAST.literal('String')],
+        result: JsigAST.literal('String')
     }));
 
     this._addOperator('*', JsigAST.functionType({

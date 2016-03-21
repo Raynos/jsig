@@ -1,6 +1,7 @@
 'use strict';
 
 var assert = require('assert');
+var path = require('path');
 var TypedError = require('error/typed');
 
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
@@ -13,7 +14,10 @@ var UnknownLiteralError = TypedError({
 
 module.exports = HeaderFile;
 
-function HeaderFile(jsigAst) {
+function HeaderFile(checker, jsigAst, fileName) {
+    this.checker = checker;
+    this.fileName = fileName;
+    this.folderName = path.dirname(fileName);
     this.rawJsigAst = jsigAst;
     this.resolvedJsigAst = null;
 
@@ -49,10 +53,42 @@ function replaceTypeLiteral(ast, rawAst) {
 
 HeaderFile.prototype.replaceImport =
 function replaceImport(ast, rawAst) {
+    var depPath = ast.dependency;
+    var fileName = resolvePath(depPath, this.folderName);
+
+    var otherHeader = this.checker.getOrCreateHeaderFile(fileName);
+    if (!otherHeader) {
+        return ast;
+    }
+
+    for (var i = 0; i < ast.types.length; i++) {
+        var t = ast.types[i];
+        assert(t.type === 'typeLiteral', 'expected typeLiteral');
+
+        assert(otherHeader.indexTable[t.name],
+            'expected token to be defined in other header');
+
+        this.addToken(t.name, otherHeader.indexTable[t.name]);
+    }
+
+    return ast;
     // Find another HeaderFile instance for filePath
     // Then reach into indexTable and grab tokens
     // Copy tokens into local index table
 };
+
+function resolvePath(possiblePath, dirname) {
+    if (possiblePath[0] === path.sep) {
+        // is absolute path
+        return possiblePath;
+    } else if (possiblePath[0] === '.') {
+        // is relative path
+        return path.resolve(dirname, possiblePath);
+    } else {
+        // require lookup semantics...
+        assert(false, 'node_modules lookup not implemented');
+    }
+}
 
 HeaderFile.prototype.addToken =
 function addToken(token, defn) {

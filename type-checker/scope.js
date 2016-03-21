@@ -3,12 +3,6 @@
 var assert = require('assert');
 var JsigAST = require('../ast.js');
 
-var requireType = JsigAST.functionType({
-    args: [JsigAST.literal('String')],
-    result: JsigAST.value('null')
-});
-requireType.isNodeRequireToken = true;
-
 var moduleType = JsigAST.object({
     exports: JsigAST.literal('Any:ModuleExports', true)
 });
@@ -32,7 +26,6 @@ function FileScope(parent) {
 
 FileScope.prototype.loadModuleTokens =
 function loadModuleTokens() {
-    this.addVar('require', requireType);
     this.addVar('module', moduleType);
 };
 

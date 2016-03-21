@@ -32,7 +32,6 @@ TypeChecker.prototype.addError = function addError(err) {
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
     var meta = this.getOrCreateMeta(this.entryFile);
-    meta.verify();
     this.moduleExportsType = meta.moduleExportsType;
 };
 
@@ -48,7 +47,7 @@ function getOrCreateHeaderFile(fileName) {
         return null;
     }
 
-    var headerFile = new HeaderFile(res.value);
+    var headerFile = new HeaderFile(this, res.value, fileName);
     headerFile.resolveReferences();
     if (headerFile.errors.length) {
         for (var i = 0; i < headerFile.errors.length; i++) {
@@ -72,6 +71,8 @@ function getOrCreateMeta(fileName) {
         loc: true
     });
     var meta = new ProgramMeta(this, ast, fileName, source);
+    meta.verify();
+
     this.metas[fileName] = meta;
     return meta;
 };

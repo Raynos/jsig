@@ -7,6 +7,7 @@
 
 var console = require('console');
 var assert = require('assert');
+var path = require('path');
 
 var JsigAST = require('../ast.js');
 var serialize = require('../serialize.js');
@@ -17,8 +18,11 @@ var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
 module.exports = ASTVerifier;
 
-function ASTVerifier(meta) {
+function ASTVerifier(meta, checker, fileName) {
     this.meta = meta;
+    this.checker = checker;
+    this.fileName = fileName;
+    this.folderName = path.dirname(fileName);
 }
 
 /*eslint complexity: [2, 30] */
@@ -92,7 +96,6 @@ function verifyProgram(node) {
 ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
     var funcName = node.id.name;
-    // console.log('verifyFunctionDeclaration', funcName);
 
     var token = this.meta.currentScope.getVar(funcName);
     if (!token) {
@@ -244,6 +247,7 @@ function verifyIdentifier(node) {
         return token.defn;
     }
 
+    console.warn('!!! could not find identifier: ' + node.name);
     return null;
 };
 
@@ -261,6 +265,13 @@ ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
     var defn;
     var token;
+
+    if (node.callee.type === 'Identifier' &&
+        node.callee.name === 'require'
+    ) {
+        return this._getTypeFromRequire(node);
+    }
+
     if (node.callee.type === 'Identifier') {
         token = this.meta.currentScope.getVar(node.callee.name);
         if (token) {
@@ -268,6 +279,7 @@ function verifyCallExpression(node) {
         } else {
             defn = this.meta.inferType(node);
         }
+
         assert(defn, 'do not support type inference caller()');
     } else {
         defn = this.verifyNode(node.callee);
@@ -821,8 +833,7 @@ function _createNonExistantFieldError(node, propName) {
         objName = node.object.name;
     } else if (node.object.type === 'MemberExpression') {
         objName = this.meta.serializeAST(node.object);
-    } else {
-        // console.log('weird objType', node);
+    } else {s
         assert(false, 'unknown object type');
     }
 
@@ -833,6 +844,38 @@ function _createNonExistantFieldError(node, propName) {
         line: node.loc.start.line
     });
 };
+
+ASTVerifier.prototype._getTypeFromRequire =
+function _getTypeFromRequire(node) {
+    assert(node.callee.name === 'require', 'func name must be require');
+
+    var arg = node.arguments[0];
+    assert(arg.type === 'Literal' && typeof arg.value === 'string',
+        'arg to require must be a string literal');
+
+    var depPath = arg.value;
+    var fileName = resolvePath(depPath, this.folderName);
+
+    var otherMeta = this.checker.getOrCreateMeta(fileName);
+    if (!otherMeta) {
+        return null;
+    }
+
+    return otherMeta.moduleExportsType;
+};
+
+function resolvePath(possiblePath, dirname) {
+    if (possiblePath[0] === path.sep) {
+        // is absolute path
+        return possiblePath;
+    } else if (possiblePath[0] === '.') {
+        // is relative path
+        return path.resolve(dirname, possiblePath);
+    } else {
+        // require lookup semantics...
+        assert(false, 'node_modules lookup not implemented');
+    }
+}
 
 // hoisting function declarations to the top makes the tree
 // order algorithm simpler
