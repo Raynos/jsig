@@ -32,7 +32,7 @@ function main(args) {
     }
 
     var checker = compile(path.resolve(process.cwd(), fileName));
-    if (checker.length === 0) {
+    if (checker.errors.length === 0) {
         console.log('No type errors');
         return process.exit(0);
     }
