@@ -41,16 +41,19 @@ function main(args) {
 
     for (var i = 0; i < checker.errors.length; i++) {
         var error = checker.errors[i];
-        var failingLines = getFailingLines(checker, error);
-
         var relativePath = path.relative(process.cwd(), error.fileName);
 
         console.log(TermColor.underline(relativePath));
         console.log('Found error: ' + TermColor.cyan(error.type));
         console.log(error.message);
-        console.log('');
-        console.log(failingLines);
-        console.log('');
+
+        if (error.loc) {
+            var failingLines = getFailingLines(checker, error);
+
+            console.log('');
+            console.log(failingLines);
+            console.log('');
+        }
 
         if (error.type === 'jsig.sub-type.type-class-mismatch') {
             console.log('Expected : ' + TermColor.green(error.expected));
