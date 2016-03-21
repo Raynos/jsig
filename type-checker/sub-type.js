@@ -58,6 +58,8 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     } else if (parent.name === 'Boolean:Any') {
         return null;
+    } else if (parent.name === 'void:Any') {
+        return null;
     }
 
     if (child.type !== 'typeLiteral') {

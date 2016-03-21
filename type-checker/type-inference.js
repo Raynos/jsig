@@ -40,7 +40,7 @@ function inferCallExpression(node) {
         argTypes.push(this.meta.verifyNode(args[i]));
     }
 
-    var returnType = JsigAST.literal('void');
+    var returnType = JsigAST.literal('void:Any', true);
     if (this.meta.currentScope.currentAssignmentType) {
         returnType = this.meta.currentScope.currentAssignmentType;
     }
@@ -80,7 +80,7 @@ function inferArrayExpression(node) {
     var elems = node.elements;
 
     if (elems.length === 0) {
-        return JsigAST.literal('Array:Empty');
+        return JsigAST.literal('Array:Empty', true);
     }
 
     var type = null;
