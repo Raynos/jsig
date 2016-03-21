@@ -86,13 +86,23 @@ test('calling method on wrong object', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 1, 'expected one errors');
+    assert.equal(meta.errors.length, 3, 'expected three errors');
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.non-existant-field');
     assert.equal(err.line, 19);
     assert.equal(err.fieldName, 'getOrCreateBucket');
     assert.equal(err.objName, 'op');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err2.line, 21);
+    assert.equal(err2.tokenName, 'bucket');
+
+    var err3 = meta.errors[2];
+    assert.equal(err3.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err3.line, 22);
+    assert.equal(err3.tokenName, 'bucket');
 
     assert.end();
 });
@@ -102,13 +112,23 @@ test('calling method on primitive', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 1, 'expected one errors');
+    assert.equal(meta.errors.length, 3, 'expected three errors');
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
     assert.equal(err.line, 19);
     assert.equal(err.fieldName, 'getOrCreateBucket');
     assert.equal(err.nonObjectType, 'id: Number');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err2.line, 21);
+    assert.equal(err2.tokenName, 'bucket');
+
+    var err3 = meta.errors[2];
+    assert.equal(err3.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err3.line, 22);
+    assert.equal(err3.tokenName, 'bucket');
 
     assert.end();
 });
@@ -134,13 +154,23 @@ test('calling method that does not exist', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 1, 'expected on error');
+    assert.equal(meta.errors.length, 3, 'expected three errors');
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.non-existant-field');
     assert.equal(err.line, 19);
     assert.equal(err.fieldName, 'getOrCreateBucket2');
     assert.equal(err.objName, 'this');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err2.line, 21);
+    assert.equal(err2.tokenName, 'bucket');
+
+    var err3 = meta.errors[2];
+    assert.equal(err3.type, 'jsig.verify.untyped-identifier');
+    assert.equal(err3.line, 22);
+    assert.equal(err3.tokenName, 'bucket');
 
     assert.end();
 });
