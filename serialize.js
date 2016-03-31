@@ -37,16 +37,21 @@ function serialize(ast, opts) {
 }
 
 function serializeProgram(node, opts) {
-    return node.statements.map(function s(n) {
-        return serialize(n, opts);
-    }).join('\n\n');
+    var tokens = [];
+    for (var i = 0; i < node.statements.length; i++) {
+        tokens.push(serialize(node.statements[i], opts));
+    }
+    return tokens.join('\n\n');
 }
 
 function serializeTypeDeclaration(node, opts) {
-    var generics = node.generics.length ?
-        '<' + node.generics.map(function s(n) {
-            return serialize(n, opts);
-        }).join(', ') + '>' : '';
+    var tokens = [];
+    for (var i = 0; i < node.generics.length; i++) {
+        tokens.push(serialize(node.generics[i], opts));
+    }
+
+    var generics = tokens.length ?
+        '<' + tokens.join(', ') + '>' : '';
     var str = 'type ' + node.identifier + generics + ' : ';
 
     return str + serialize(node.typeExpression, extend(opts, {
@@ -60,9 +65,13 @@ function serializeAssignment(node, opts) {
 }
 
 function serializeImportStatement(node, opts) {
-    return 'import { ' + node.types.map(function s(n) {
-        return serialize(n, opts);
-    }).join(', ') + ' } from "' + node.dependency + '"';
+    var tokens = [];
+    for (var i = 0; i < node.types.length; i++) {
+        tokens.push(serialize(node.types[i], opts));
+    }
+
+    return 'import { ' + tokens.join(', ') +
+        ' } from "' + node.dependency + '"';
 }
 
 function serializeLabel(node) {
@@ -73,6 +82,7 @@ function serializeLabel(node) {
 
 function serializeObject(node, opts) {
     var keyValues = node.keyValues;
+    var tokens;
 
     if (keyValues.length === 0) {
         return serializeLabel(node, opts) + '{}';
@@ -80,10 +90,12 @@ function serializeObject(node, opts) {
 
     /* heuristic. Pretty print single key, value on one line */
     if (keyValues.length <= 1) {
+        tokens = [];
+        for (var i = 0; i < keyValues.length; i++) {
+            tokens.push(serialize(keyValues[i]));
+        }
         var content = serializeLabel(node, opts) + '{ ' +
-            keyValues.map(function s(n) {
-                return serialize(n);
-            }).join(', ') + ' }';
+            tokens.join(', ') + ' }';
 
         if (content.length < 65 &&
             content.indexOf('\n') === -1
@@ -92,16 +104,22 @@ function serializeObject(node, opts) {
         }
     }
 
+    tokens = [];
+    for (i = 0; i < keyValues.length; i++) {
+        tokens.push(serialize(keyValues[i], extend(opts, {
+            indent: opts.indent + 1
+        })));
+    }
+
     return serializeLabel(node, opts) + '{\n' +
-        keyValues.map(function s(n) {
-            return serialize(n, extend(opts, {
-                indent: opts.indent + 1
-            }));
-        }).join(',\n') + '\n' + spaces(opts.indent) + '}';
+        tokens.join(',\n') + '\n' + spaces(opts.indent) + '}';
 }
 
 function prettyFormatList(labelStr, tokens, seperator, opts) {
-    var list = tokens.reduce(function buildPart(parts, token) {
+    var parts = [''];
+    for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+
         var lastIndex = parts.length - 1;
         var last = parts[lastIndex];
         var len = (last + token + seperator).length;
@@ -121,18 +139,19 @@ function prettyFormatList(labelStr, tokens, seperator, opts) {
 
         parts[parts.length] = spaces(opts.indent + 1) +
             trimLeft(token) + seperator;
-        return parts;
-    }, ['']);
-    var str = labelStr + list.join('\n');
+    }
+
+    var str = labelStr + parts.join('\n');
     // remove extra {seperator} at the end
     return str.substr(0, str.length - 1);
 }
 
 function serializeUnion(node, opts) {
     var labelStr = serializeLabel(node);
-    var nodes = node.unions.map(function s(n) {
-        return serialize(n, opts);
-    });
+    var nodes = [];
+    for (var i = 0; i < node.unions.length; i++) {
+        nodes.push(serialize(node.unions[i], opts));
+    }
     var str = labelStr + nodes.join(' | ');
 
     /* heuristic. Split across multiple lines if too long */
@@ -145,9 +164,11 @@ function serializeUnion(node, opts) {
 
 function serializeIntersection(node, opts) {
     var labelStr = serializeLabel(node);
-    var nodes = node.intersections.map(function s(n) {
-        return serialize(n, opts);
-    });
+    var nodes = [];
+    for (var i = 0; i < node.intersections.length; i++) {
+        nodes.push(serialize(node.intersections[i], opts));
+    }
+
     var str = labelStr + nodes.join(' & ');
 
     /* heuristic. Split across multiple lines if too long */
@@ -180,18 +201,20 @@ function serializeFunctionType(node, opts) {
         argNodes.unshift(node.thisArg);
     }
 
-    var argStrs = argNodes.map(function s(n) {
-        return serialize(n, opts);
-    });
+    var argStrs = [];
+    for (var i = 0; i < argNodes.length; i++) {
+        argStrs.push(serialize(argNodes[i], opts));
+    }
     var argStr = argStrs.join(', ');
 
     if (argStrs.join(', ').split('\n')[0].length > 65) {
         var offset = '\n' + spaces(opts.indent + 1);
-        argStrs = argNodes.map(function s(n) {
-            return serialize(n, extend(opts, {
+        argStrs = [];
+        for (i = 0; i < argNodes.length; i++) {
+            argStrs.push(serialize(argNodes[i], extend(opts, {
                 indent: opts.indent + 1
-            }));
-        });
+            })));
+        }
         argStr = offset + argStrs.join(',' + offset) + '\n';
         argStr += spaces(opts.indent);
     }
@@ -203,18 +226,24 @@ function serializeFunctionType(node, opts) {
 }
 
 function serializeGeneric(node, opts) {
+    var nodes = [];
+    for (var i = 0; i < node.generics.length; i++) {
+        nodes.push(serialize(node.generics[i], opts));
+    }
+
     return serializeLabel(node, opts) +
         serialize(node.value, opts) +
-        '<' + node.generics.map(function s(n) {
-            return serialize(n, opts);
-        }).join(', ') + '>';
+        '<' + nodes.join(', ') + '>';
 }
 
 function serializeTuple(node, opts) {
+    var nodes = [];
+    for (var i = 0; i < node.values.length; i++) {
+        nodes.push(serialize(node.values[i], opts));
+    }
+
     return serializeLabel(node, opts) +
-        '[' + node.values.map(function s(n) {
-            return serialize(n, opts);
-        }).join(', ') + ']';
+        '[' + nodes.join(', ') + ']';
 }
 
 function spaces(n) {
