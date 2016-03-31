@@ -418,7 +418,7 @@ function verifyNewExpression(node) {
         if (beforeError === afterError) {
             console.warn('!!! cannot call new on unknown function');
         }
-        return;
+        return null;
     }
 
     assert(fnType.type === 'function', 'only support defined constructors');

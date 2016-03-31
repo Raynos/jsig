@@ -79,7 +79,6 @@ test('Header file references unknown literal', function t(assert) {
     assert.equal(error4.funcName, 'BatchClient');
     assert.equal(error4.line, 5);
 
-
     assert.end();
 });
 
