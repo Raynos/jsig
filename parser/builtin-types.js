@@ -8,7 +8,8 @@ var builtinTypes = [
     'Boolean',
     'Array',
     'Error',
-    'Function'
+    'Function',
+    'RegExp'
 ];
 
 module.exports = builtinTypes;
