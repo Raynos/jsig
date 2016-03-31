@@ -1,6 +1,7 @@
 'use strict';
 
 var assert = require('assert');
+var util = require('util');
 var JsigAST = require('../ast.js');
 
 var moduleType = JsigAST.object({
@@ -14,23 +15,18 @@ module.exports = {
     BranchScope: BranchScope
 };
 
-function FileScope(parent) {
+function BaseScope(parent) {
     this.parent = parent;
-    this.type = 'file';
+    this.type = 'base';
 
     this.identifiers = Object.create(null);
-    this.untypedFunctions = {};
-    this.prototypes = {};
-    this.unknownIdentifiers = {};
+    this.unknownIdentifiers = Object.create(null);
+    this.typeRestrictions = Object.create(null);
     this.currentAssignmentType = null;
+    this.writableTokenLookup = false;
 }
 
-FileScope.prototype.loadModuleTokens =
-function loadModuleTokens() {
-    this.addVar('module', moduleType);
-};
-
-FileScope.prototype.addVar =
+BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
     var token = {
         type: 'variable',
@@ -38,6 +34,77 @@ function addVar(id, typeDefn) {
     };
     this.identifiers[id] = token;
     return token;
+};
+
+BaseScope.prototype.getVar = function getVar(id) {
+    if (this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id);
+    }
+
+    return this.typeRestrictions[id] || this.identifiers[id] ||
+        this.parent.getVar(id);
+};
+
+BaseScope.prototype.restrictType = function restrictType(id, type) {
+    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
+};
+
+BaseScope.prototype.enterAssignment =
+function enterAssignment(leftType) {
+    this.currentAssignmentType = leftType;
+};
+
+BaseScope.prototype.exitAssignment =
+function exitAssignment() {
+    this.currentAssignmentType = null;
+};
+
+BaseScope.prototype.getFunctionScope =
+function getFunctionScope() {
+    return null;
+};
+
+BaseScope.prototype.setWritableTokenLookup =
+function setWritableTokenLookup() {
+    this.writableTokenLookup = true;
+};
+
+BaseScope.prototype.unsetWritableTokenLookup =
+function unsetWritableTokenLookup() {
+    this.writableTokenLookup = false;
+};
+
+BaseScope.prototype.addUnknownVar =
+function addUnknownVar(id) {
+    var token = {
+        type: 'unknown-variable'
+    };
+    this.unknownIdentifiers[id] = token;
+    return token;
+};
+
+BaseScope.prototype.getUnknownVar =
+function getUnknownVar(id) {
+    return this.unknownIdentifiers[id];
+};
+
+function FileScope(parent) {
+    BaseScope.call(this, parent);
+    this.type = 'file';
+
+    this.untypedFunctions = {};
+    this.prototypes = {};
+}
+util.inherits(FileScope, BaseScope);
+
+FileScope.prototype.loadModuleTokens =
+function loadModuleTokens() {
+    this.addVar('module', moduleType);
 };
 
 FileScope.prototype.addFunction =
@@ -74,61 +141,16 @@ function updateFunction(id, typeDefn) {
     return this.addVar(id, typeDefn);
 };
 
-FileScope.prototype.getVar = function getVar(id) {
-    return this.identifiers[id] || this.parent.getVar(id);
-};
-
-FileScope.prototype.addUnknownVar =
-function addUnknownVar(id) {
-    var token = {
-        type: 'unknown-variable'
-    };
-    this.unknownIdentifiers[id] = token;
-    return token;
-};
-
-FileScope.prototype.getUnknownVar =
-function getUnknownVar(id) {
-    return this.unknownIdentifiers[id];
-};
-
-FileScope.prototype.enterAssignment =
-function enterAssignment(leftType) {
-    this.currentAssignmentType = leftType;
-};
-
-FileScope.prototype.exitAssignment =
-function exitAssignment() {
-    this.currentAssignmentType = null;
-};
-
-FileScope.prototype.getFunctionScope =
-function getFunctionScope() {
-    return null;
-};
-
-FileScope.prototype.setWritableTokenLookup =
-function setWritableTokenLookup() {
-};
-
-FileScope.prototype.unsetWritableTokenLookup =
-function unsetWritableTokenLookup() {
-};
-
 function FunctionScope(parent, funcName, funcNode) {
-    this.parent = parent;
+    BaseScope.call(this, parent);
     this.type = 'function';
 
-    this.identifiers = Object.create(null);
     this.untypedFunctions = {};
-    this.typeRestrictions = Object.create(null);
-    this.unknownIdentifiers = Object.create(null);
 
     this.funcName = funcName;
     this.returnValueType = null;
     this.thisValueType = null;
     this.isConstructor = /[A-Z]/.test(funcName[0]);
-    this.currentAssignmentType = null;
 
     this.knownFields = [];
     this.knownReturnType = null;
@@ -136,6 +158,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.funcASTNode = funcNode;
     this.writableTokenLookup = false;
 }
+util.inherits(FunctionScope, BaseScope);
 
 FunctionScope.prototype.loadTypes =
 function loadTypes(funcNode, typeDefn) {
@@ -148,39 +171,6 @@ function loadTypes(funcNode, typeDefn) {
 
     this.thisValueType = typeDefn.thisArg;
     this.returnValueType = typeDefn.result;
-};
-
-FunctionScope.prototype.addVar =
-function addVar(id, typeDefn) {
-    var token = {
-        type: 'variable',
-        defn: typeDefn
-    };
-    this.identifiers[id] = token;
-    return token;
-};
-
-FunctionScope.prototype.addUnknownVar =
-function addUnknownVar(id) {
-    var token = {
-        type: 'unknown-variable'
-    };
-    this.unknownIdentifiers[id] = token;
-    return token;
-};
-
-FunctionScope.prototype.getUnknownVar =
-function getUnknownVar(id) {
-    return this.unknownIdentifiers[id];
-};
-
-FunctionScope.prototype.getVar = function getVar(id) {
-    if (this.writableTokenLookup) {
-        return this.identifiers[id] || this.parent.getVar(id);
-    }
-
-    return this.typeRestrictions[id] || this.identifiers[id] ||
-        this.parent.getVar(id);
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
@@ -234,81 +224,20 @@ function markReturnType(defn, node) {
     this.returnStatementASTNode = node;
 };
 
-FunctionScope.prototype.enterAssignment =
-function enterAssignment(leftType) {
-    this.currentAssignmentType = leftType;
-};
-
-FunctionScope.prototype.exitAssignment =
-function exitAssignment() {
-    this.currentAssignmentType = null;
-};
-
 FunctionScope.prototype.getFunctionScope =
 function getFunctionScope() {
     return this;
-};
-
-FunctionScope.prototype.setWritableTokenLookup =
-function setWritableTokenLookup() {
-    this.writableTokenLookup = true;
-};
-
-FunctionScope.prototype.unsetWritableTokenLookup =
-function unsetWritableTokenLookup() {
-    this.writableTokenLookup = false;
 };
 
 FunctionScope.prototype.updateVar =
 function updateVar() {
 };
 
-FunctionScope.prototype.restrictType =
-function restrictType(id, type) {
-    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
-
-    this.typeRestrictions[id] = {
-        type: 'restriction',
-        defn: type
-    };
-};
-
 function BranchScope(parent) {
-    this.parent = parent;
+    BaseScope.call(this, parent);
     this.type = 'branch';
-
-    this.typeRestrictions = Object.create(null);
-    this.identifiers = Object.create(null);
-    this.currentAssignmentType = null;
-    this.writableTokenLookup = false;
 }
-
-BranchScope.prototype.getVar = function getVar(id) {
-    if (this.writableTokenLookup) {
-        return this.identifiers[id] || this.parent.getVar(id);
-    }
-
-    return this.identifiers[id] || this.typeRestrictions[id] ||
-        this.parent.getVar(id);
-};
-
-BranchScope.prototype.restrictType = function restrictType(id, type) {
-    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
-
-    this.typeRestrictions[id] = {
-        type: 'restriction',
-        defn: type
-    };
-};
-
-BranchScope.prototype.addVar = function addVar(id, typeDefn) {
-    var token = {
-        type: 'variable',
-        defn: typeDefn
-    };
-    this.identifiers[id] = token;
-    return token;
-};
+util.inherits(BranchScope, BaseScope);
 
 BranchScope.prototype.getFunctionScope =
 function getFunctionScope() {
@@ -318,26 +247,6 @@ function getFunctionScope() {
     }
 
     return parent;
-};
-
-BranchScope.prototype.enterAssignment =
-function enterAssignment(leftType) {
-    this.currentAssignmentType = leftType;
-};
-
-BranchScope.prototype.exitAssignment =
-function exitAssignment() {
-    this.currentAssignmentType = null;
-};
-
-BranchScope.prototype.setWritableTokenLookup =
-function setWritableTokenLookup() {
-    this.writableTokenLookup = true;
-};
-
-BranchScope.prototype.unsetWritableTokenLookup =
-function unsetWritableTokenLookup() {
-    this.writableTokenLookup = false;
 };
 
 BranchScope.prototype.updateVar =
