@@ -9,6 +9,7 @@
         "max-statements": [2, 40],
         "indent": [2, 4, {
             "SwitchCase": 1
-        }]
+        }],
+        "perf-standard/no-array-iterators": 0
     }
 }
