@@ -308,7 +308,8 @@ function verifyCallExpression(node) {
             defn = this.meta.inferType(node);
         }
 
-        assert(defn, 'do not support type inference caller()');
+        assert(defn, 'do not support type inference caller(): ' +
+            node.callee.name);
     } else {
         defn = this.verifyNode(node.callee);
         if (!defn) {
@@ -798,7 +799,9 @@ function _checkReturnType(node) {
     }
 
     if (expected.type === 'typeLiteral' && expected.name === 'void') {
-        if (actual !== null) {
+        if (actual !== null && !(
+            actual.type === 'typeLiteral' && actual.name === 'void'
+        )) {
             err = Errors.NonVoidReturnType({
                 expected: 'void',
                 actual: serialize(actual),
@@ -862,6 +865,10 @@ function _findPropertyInType(node, jsigType, propertyName) {
         jsigType.value.name === 'Array'
     ) {
         jsigType = this.meta.getVirtualType('TArray').defn;
+    } else if (jsigType.type === 'typeLiteral' &&
+        jsigType.name === 'String'
+    ) {
+        jsigType = this.meta.getVirtualType('TString').defn;
     }
 
     if (jsigType.type === 'unionType') {

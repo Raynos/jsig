@@ -209,7 +209,7 @@ Errors.UnionFieldAccess = TypedError({
 Errors.NonObjectFieldAccess = TypedError({
     type: 'jsig.verify.accessing-field-on-non-object',
     message: '@{line}: Cannot read field {fieldName} of non-object. ' +
-        'Expected an object type but found {unionType}.',
+        'Expected an object type but found {nonObjectType}.',
     fieldName: null,
     nonObjectType: null,
     loc: null,

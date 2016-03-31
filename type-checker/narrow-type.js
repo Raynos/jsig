@@ -20,6 +20,8 @@ function narrowType(node, ifBranch, elseBranch) {
         return this.narrowBinaryExpression(node, ifBranch, elseBranch);
     } else if (node.type === 'LogicalExpression') {
         return this.narrowLogicalExpression(node, ifBranch, elseBranch);
+    } else if (node.type === 'MemberExpression') {
+        return this.narrowMemberExpression(node, ifBranch, elseBranch);
     } else {
         throw new Error('!! skipping narrowType: ' + node.type);
     }
@@ -55,6 +57,11 @@ NarrowType.prototype.narrowLogicalExpression =
 function narrowLogicalExpression(node, ifBranch, elseBranch) {
     // TODO: support ||
     // TODO: support &&
+};
+
+NarrowType.prototype.narrowMemberExpression =
+function narrowMemberExpression(node, ifBranch, elseBranch) {
+    // TODO: support nullable field check
 };
 
 function getUnionWithoutBool(type, truthy) {

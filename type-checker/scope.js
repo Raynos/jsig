@@ -147,6 +147,11 @@ function loadLanguageIdentifiers() {
         })
     }));
 
+    this._addVar('parseInt', JsigAST.functionType({
+        args: [JsigAST.literal('String'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
     this._addVar('Object', JsigAST.object({
         'create': JsigAST.functionType({
             args: [JsigAST.value('null')],
@@ -190,6 +195,17 @@ function loadLanguageIdentifiers() {
                 [JsigAST.literal('T')]
             ),
             generics: [JsigAST.literal('T')]
+        })
+    }));
+
+    this._addVirtualType('TString', JsigAST.object({
+        'split': JsigAST.functionType({
+            thisArg: JsigAST.literal('String'),
+            args: [JsigAST.literal('String')],
+            result: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('String')]
+            )
         })
     }));
 
