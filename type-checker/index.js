@@ -6,6 +6,7 @@ var fs = require('fs');
 var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var ProgramMeta = require('./meta.js');
+var GlobalScope = require('./scope.js').GlobalScope;
 
 compile.TypeChecker = TypeChecker;
 
@@ -20,6 +21,7 @@ function compile(fileName) {
 function TypeChecker(entryFile) {
     this.entryFile = entryFile;
 
+    this.globalScope = new GlobalScope();
     this.metas = Object.create(null);
     this.headerFiles = Object.create(null);
 
@@ -37,6 +39,8 @@ TypeChecker.prototype.countErrors = function countErrors() {
 
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
+    this.globalScope.loadLanguageIdentifiers();
+
     var meta = this.getOrCreateMeta(this.entryFile);
     this.moduleExportsType = meta.moduleExportsType;
 };

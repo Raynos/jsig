@@ -10,6 +10,7 @@ var moduleType = JsigAST.object({
 moduleType.isNodeModuleToken = true;
 
 module.exports = {
+    GlobalScope: GlobalScope,
     FileScope: FileScope,
     FunctionScope: FunctionScope,
     BranchScope: BranchScope
@@ -93,12 +94,160 @@ function getUnknownVar(id) {
     return this.unknownIdentifiers[id];
 };
 
+function GlobalScope() {
+    this.type = 'global';
+
+    this.identifiers = Object.create(null);
+    this.operators = Object.create(null);
+    this.virtualTypes = Object.create(null);
+}
+
+GlobalScope.prototype.getVar = function getVar(id) {
+    return this.identifiers[id];
+};
+
+GlobalScope.prototype.getOperator = function getOperator(id) {
+    return this.operators[id];
+};
+
+GlobalScope.prototype.getVirtualType = function getVirtualType(id) {
+    return this.virtualTypes[id];
+};
+
+GlobalScope.prototype._addVar = function _addVar(id, typeDefn) {
+    this.identifiers[id] = {
+        type: 'variable',
+        defn: typeDefn
+    };
+};
+GlobalScope.prototype._addOperator = function _addOperator(id, typeDefn) {
+    this.operators[id] = {
+        type: 'operator',
+        defn: typeDefn
+    };
+};
+GlobalScope.prototype._addVirtualType = function _addVirtualType(id, typeDefn) {
+    this.virtualTypes[id] = {
+        type: 'virtual-type',
+        defn: typeDefn
+    };
+};
+
+GlobalScope.prototype.loadLanguageIdentifiers =
+function loadLanguageIdentifiers() {
+    this._addVar('String', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('String')
+    }));
+
+    this._addVar('Date', JsigAST.object({
+        'now': JsigAST.functionType({
+            args: [],
+            result: JsigAST.literal('Number')
+        })
+    }));
+
+    this._addVar('Object', JsigAST.object({
+        'create': JsigAST.functionType({
+            args: [JsigAST.value('null')],
+            result: JsigAST.literal('Object:Empty', true)
+        }),
+        'keys': JsigAST.functionType({
+            args: [JsigAST.generic(
+                JsigAST.literal('Object'),
+                [JsigAST.literal('K'), JsigAST.literal('V')]
+            )],
+            result: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('String')]
+            ),
+            generics: [JsigAST.literal('K'), JsigAST.literal('V')]
+        })
+    }));
+
+    this._addVirtualType('TArray', JsigAST.object({
+        'length': JsigAST.literal('Number'),
+        'push': JsigAST.functionType({
+            thisArg: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            args: [JsigAST.literal('T')],
+            result: JsigAST.literal('Number'),
+            generics: [JsigAST.literal('T')]
+        }),
+        'slice': JsigAST.functionType({
+            thisArg: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            args: [
+                JsigAST.literal('Number'),
+                JsigAST.literal('Number')
+            ],
+            result: JsigAST.generic(
+                JsigAST.literal('Array'),
+                [JsigAST.literal('T')]
+            ),
+            generics: [JsigAST.literal('T')]
+        })
+    }));
+
+    this._addOperator('+', JsigAST.functionType({
+        args: [JsigAST.literal('String'), JsigAST.literal('String')],
+        result: JsigAST.literal('String')
+    }));
+
+    this._addOperator('*', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('%', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('-', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('<', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('++', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('--', JsigAST.functionType({
+        args: [JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
+    this._addOperator('!', JsigAST.functionType({
+        args: [JsigAST.literal('Boolean:Any', true)],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('===', JsigAST.functionType({
+        args: [
+            JsigAST.literal('Boolean:Any', true),
+            JsigAST.literal('Boolean:Any', true)
+        ],
+        result: JsigAST.literal('Boolean')
+    }));
+};
+
 function FileScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'file';
 
-    this.untypedFunctions = {};
-    this.prototypes = {};
+    this.untypedFunctions = Object.create(null);
+    this.prototypes = Object.create(null);
 }
 util.inherits(FileScope, BaseScope);
 
@@ -117,18 +266,6 @@ function addFunction(id, node) {
     };
 };
 
-FileScope.prototype.addPrototypeField =
-function addPrototypeField(id, fieldName, typeDefn) {
-    if (!this.prototypes[id]) {
-        this.prototypes[id] = {
-            type: 'prototype',
-            fields: {}
-        };
-    }
-
-    this.prototypes[id].fields[fieldName] = typeDefn;
-};
-
 FileScope.prototype.getFunction =
 function getFunction(id) {
     return this.untypedFunctions[id] || null;
@@ -141,11 +278,23 @@ function updateFunction(id, typeDefn) {
     return this.addVar(id, typeDefn);
 };
 
+FileScope.prototype.addPrototypeField =
+function addPrototypeField(id, fieldName, typeDefn) {
+    if (!this.prototypes[id]) {
+        this.prototypes[id] = {
+            type: 'prototype',
+            fields: {}
+        };
+    }
+
+    this.prototypes[id].fields[fieldName] = typeDefn;
+};
+
 function FunctionScope(parent, funcName, funcNode) {
     BaseScope.call(this, parent);
     this.type = 'function';
 
-    this.untypedFunctions = {};
+    this.untypedFunctions = Object.create(null);
 
     this.funcName = funcName;
     this.returnValueType = null;

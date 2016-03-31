@@ -6,7 +6,6 @@ var isModuleExports = require('./lib/is-module-exports.js');
 var serialize = require('../serialize.js');
 var ASTVerifier = require('./ast-verifier.js');
 var TypeInference = require('./type-inference.js');
-var JsigAST = require('../ast.js');
 var SubTypeChecker = require('./sub-type.js');
 var NarrowType = require('./narrow-type.js');
 var FileScope = require('./scope.js').FileScope;
@@ -34,7 +33,8 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.moduleExportsType = null;
     this.moduleExportsName = null;
 
-    this.currentScope = new FileScope(this);
+    this.globalScope = checker.globalScope;
+    this.currentScope = new FileScope(this.globalScope);
     this.currentScope.loadModuleTokens();
 
     this.fatalError = false;
@@ -44,8 +44,6 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
     this.narrow = new NarrowType(this);
-
-    this.loadLanguageIdentifiers();
 }
 
 ProgramMeta.prototype.serializeType =
@@ -79,144 +77,12 @@ function serializeAST(ast) {
     return segments.join('\n');
 };
 
-ProgramMeta.prototype.loadLanguageIdentifiers =
-function loadLanguageIdentifiers() {
-    this._addVar('String', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('String')
-    }));
-
-    this._addVar('Date', JsigAST.object({
-        'now': JsigAST.functionType({
-            args: [],
-            result: JsigAST.literal('Number')
-        })
-    }));
-
-    this._addVar('Object', JsigAST.object({
-        'create': JsigAST.functionType({
-            args: [JsigAST.value('null')],
-            result: JsigAST.literal('Object:Empty', true)
-        }),
-        'keys': JsigAST.functionType({
-            args: [JsigAST.generic(
-                JsigAST.literal('Object'),
-                [JsigAST.literal('K'), JsigAST.literal('V')]
-            )],
-            result: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('String')]
-            ),
-            generics: [JsigAST.literal('K'), JsigAST.literal('V')]
-        })
-    }));
-
-    this._addVirtualType('TArray', JsigAST.object({
-        'length': JsigAST.literal('Number'),
-        'push': JsigAST.functionType({
-            thisArg: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            args: [JsigAST.literal('T')],
-            result: JsigAST.literal('Number'),
-            generics: [JsigAST.literal('T')]
-        }),
-        'slice': JsigAST.functionType({
-            thisArg: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            args: [
-                JsigAST.literal('Number'),
-                JsigAST.literal('Number')
-            ],
-            result: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            generics: [JsigAST.literal('T')]
-        })
-    }));
-
-    this._addOperator('+', JsigAST.functionType({
-        args: [JsigAST.literal('String'), JsigAST.literal('String')],
-        result: JsigAST.literal('String')
-    }));
-
-    this._addOperator('*', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('%', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('-', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('<', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('++', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('--', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('!', JsigAST.functionType({
-        args: [JsigAST.literal('Boolean:Any', true)],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('===', JsigAST.functionType({
-        args: [
-            JsigAST.literal('Boolean:Any', true),
-            JsigAST.literal('Boolean:Any', true)
-        ],
-        result: JsigAST.literal('Boolean')
-    }));
-};
-
-ProgramMeta.prototype._addVar = function _addVar(id, typeDefn) {
-    this.identifiers[id] = {
-        type: 'variable',
-        defn: typeDefn
-    };
-};
-ProgramMeta.prototype._addOperator = function _addOperator(id, typeDefn) {
-    this.operators[id] = {
-        type: 'operator',
-        defn: typeDefn
-    };
-};
-ProgramMeta.prototype._addVirtualType = function _addVirtualType(id, typeDefn) {
-    this.virtualTypes[id] = {
-        type: 'virtual-type',
-        defn: typeDefn
-    };
-};
-
-ProgramMeta.prototype.getVar = function getVar(id) {
-    return this.identifiers[id];
-};
-
 ProgramMeta.prototype.getOperator = function getOperator(id) {
-    return this.operators[id];
+    return this.globalScope.getOperator(id);
 };
 
 ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
-    return this.virtualTypes[id];
+    return this.globalScope.getVirtualType(id);
 };
 
 ProgramMeta.prototype.verify = function verify() {
