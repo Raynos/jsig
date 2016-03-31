@@ -2,6 +2,6 @@ fs : {
     readFile: (
         filePath: String,
         encoding: String,
-        cb: (error: Error | null, result: String | undefined) => void
+        cb: (error: Error | null, result: String) => void
     ) => void
 }
