@@ -1,0 +1,7 @@
+fs : {
+    readFile: (
+        filePath: String,
+        encoding: String,
+        cb: (error: Error | null, result: String | undefined) => void
+    ) => void
+}

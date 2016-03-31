@@ -1,0 +1,6 @@
+
+type TTimer : {}
+
+timers : {
+    setTimeout : (fn: Function, delay: Number) => TTimer
+}

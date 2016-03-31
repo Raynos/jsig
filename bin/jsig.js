@@ -31,7 +31,10 @@ function main(args) {
         return shortHelp();
     }
 
-    var checker = compile(path.resolve(process.cwd(), fileName));
+    var sourceFile = path.resolve(process.cwd(), fileName);
+    var checker = compile(sourceFile, {
+        definitions: args.definitions || null
+    });
     if (checker.errors.length === 0) {
         console.log('No type errors');
         return process.exit(0);

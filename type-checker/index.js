@@ -2,6 +2,7 @@
 
 var esprima = require('esprima');
 var fs = require('fs');
+var path = require('path');
 
 var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
@@ -12,18 +13,21 @@ compile.TypeChecker = TypeChecker;
 
 module.exports = compile;
 
-function compile(fileName) {
-    var checker = new TypeChecker(fileName);
+function compile(fileName, options) {
+    var checker = new TypeChecker(fileName, options);
     checker.checkProgram();
     return checker;
 }
 
-function TypeChecker(entryFile) {
+function TypeChecker(entryFile, options) {
     this.entryFile = entryFile;
 
     this.globalScope = new GlobalScope();
     this.metas = Object.create(null);
     this.headerFiles = Object.create(null);
+    this.definitions = Object.create(null);
+
+    this.definitionsFolder = options ? options.definitions : null;
 
     this.errors = [];
     this.moduleExportsType = null;
@@ -40,6 +44,7 @@ TypeChecker.prototype.countErrors = function countErrors() {
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
     this.globalScope.loadLanguageIdentifiers();
+    this.preloadDefinitions();
 
     var meta = this.getOrCreateMeta(this.entryFile);
     this.moduleExportsType = meta.moduleExportsType;
@@ -91,4 +96,38 @@ function getOrCreateMeta(fileName) {
 
     this.metas[fileName] = meta;
     return meta;
+};
+
+TypeChecker.prototype.getDefinition =
+function getDefinition(id) {
+    return this.definitions[id];
+};
+
+TypeChecker.prototype._addDefinition =
+function _addDefinition(id, typeDefn) {
+    var token = {
+        type: 'external-definition',
+        defn: typeDefn
+    };
+    this.definitions[id] = token;
+    return token;
+};
+
+TypeChecker.prototype.preloadDefinitions =
+function preloadDefinitions() {
+    if (!this.definitionsFolder) {
+        return;
+    }
+
+    var files = fs.readdirSync(this.definitionsFolder);
+    for (var i = 0; i < files.length; i++) {
+        var fileName = path.join(this.definitionsFolder, files[i]);
+        var headerFile = this.getOrCreateHeaderFile(fileName);
+
+        var assignments = headerFile.getResolvedAssignments();
+        for (var j = 0; j < assignments.length; j++) {
+            var a = assignments[j];
+            this._addDefinition(a.identifier, a.typeExpression);
+        }
+    }
 };

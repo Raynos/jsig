@@ -894,6 +894,12 @@ function _getTypeFromRequire(node) {
         'arg to require must be a string literal');
 
     var depPath = arg.value;
+
+    var externDefn = this.checker.getDefinition(depPath);
+    if (externDefn) {
+        return externDefn.defn;
+    }
+
     var fileName = resolvePath(depPath, this.folderName);
 
     var otherMeta = this.checker.getOrCreateMeta(fileName);
@@ -913,7 +919,7 @@ function resolvePath(possiblePath, dirname) {
         return path.resolve(dirname, possiblePath);
     } else {
         // require lookup semantics...
-        assert(false, 'node_modules lookup not implemented');
+        assert(false, 'node_modules lookup not implemented: ' + possiblePath);
     }
 }
 
