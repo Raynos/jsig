@@ -1,5 +1,4 @@
 
-
 path : {
-    join : (String, String, String) => String
+    join : (String, String, str3?: String) => String
 }
