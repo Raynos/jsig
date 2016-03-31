@@ -17,7 +17,8 @@ var TypeClassMismatch = TypedError({
 
 module.exports = SubTypeChecker;
 
-function SubTypeChecker() {
+function SubTypeChecker(meta) {
+    this.meta = meta;
 }
 
 SubTypeChecker.prototype.checkSubType =
@@ -88,6 +89,10 @@ function checkTypeLiteralSubType(node, parent, child) {
         if (child.name !== name) {
             return reportTypeMisMatch(node, parent, child);
         }
+    } else if (name === 'Error') {
+        if (child.name !== name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
     } else {
         throw new Error('NotImplemented: ' + parent.name);
     }
@@ -109,6 +114,10 @@ function checkValueLiteralSubType(node, parent, child) {
     if (name === 'null') {
         if (child.name !== name) {
             return new Error('[Internal] Not null');
+        }
+    } else if (name === 'undefined') {
+        if (child.name !== name) {
+            return new Error('[Internal] Not undefined');
         }
     } else {
         // console.log('valueLiteral?', {
@@ -221,18 +230,29 @@ SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {
     // Check to see that child matches ONE of parent.
 
+    // console.log('check?', {
+    //     p: this.meta.serializeType(parent),
+    //     c: this.meta.serializeType(child)
+    // });
+
+    var childUnions = child.type === 'unionType' ? child.unions : [child];
+
     var err;
-    for (var i = 0; i < parent.unions.length; i++) {
-        err = this.checkSubType(
-            node, parent.unions[i], child
-        );
-        if (!err) {
-            return null;
+    for (var j = 0; j < childUnions.length; j++) {
+        var isBad = true;
+
+        for (var i = 0; i < parent.unions.length; i++) {
+            err = this.checkSubType(
+                node, parent.unions[i], childUnions[j]
+            );
+            if (!err) {
+                isBad = false;
+            }
         }
     }
 
     // Find all errors?
-    return err;
+    return isBad ? err : null;
 };
 
 function reportTypeMisMatch(node, parent, child) {

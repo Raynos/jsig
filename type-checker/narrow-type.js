@@ -18,6 +18,8 @@ function narrowType(node, ifBranch, elseBranch) {
         return this.narrowIdentifier(node, ifBranch, elseBranch);
     } else if (node.type === 'BinaryExpression') {
         return this.narrowBinaryExpression(node, ifBranch, elseBranch);
+    } else if (node.type === 'LogicalExpression') {
+        return this.narrowLogicalExpression(node, ifBranch, elseBranch);
     } else {
         throw new Error('!! skipping narrowType: ' + node.type);
     }
@@ -47,6 +49,12 @@ NarrowType.prototype.narrowBinaryExpression =
 function narrowBinaryExpression(node, ifBranch, elseBranch) {
     // TODO: support `x === null`
     // TODO: support `typeof y === "{{tag}}"`
+};
+
+NarrowType.prototype.narrowLogicalExpression =
+function narrowLogicalExpression(node, ifBranch, elseBranch) {
+    // TODO: support ||
+    // TODO: support &&
 };
 
 function getUnionWithoutBool(type, truthy) {

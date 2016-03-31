@@ -40,7 +40,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.fatalError = false;
 
     this.headerFile = null;
-    this.subType = new SubTypeChecker();
+    this.subType = new SubTypeChecker(this);
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
     this.narrow = new NarrowType(this);

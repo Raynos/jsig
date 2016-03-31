@@ -12,7 +12,7 @@ test('working require from another file', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.equal(meta.errors.length, 0, 'expected no error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();

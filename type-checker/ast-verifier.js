@@ -67,6 +67,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyIfStatement(node);
     } else if (node.type === 'UnaryExpression') {
         return this.verifyUnaryExpression(node);
+    } else if (node.type === 'LogicalExpression') {
+        return this.verifyLogicalExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -381,14 +383,38 @@ function verifyBinaryExpression(node) {
     var token = this.meta.getOperator(node.operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
 
-    var defn = token.defn;
-    assert(defn.args.length === 2,
-        'expected type defn args to be two');
+    var unions = token.defn.type === 'unionType' ?
+        token.defn.unions : [token.defn];
 
-    this.meta.checkSubType(node.left, defn.args[0], leftType);
-    this.meta.checkSubType(node.right, defn.args[1], rightType);
+    var defn;
+    var correctDefn = unions[0];
+    var isBad = true;
+    for (var i = 0; i < unions.length; i++) {
+        defn = unions[i];
 
-    return defn.result;
+        assert(defn.args.length === 2,
+            'expected type defn args to be two');
+
+        var isLeft = this.meta.isSubType(node.left, defn.args[0], leftType);
+        var isRight = this.meta.isSubType(node.right, defn.args[1], rightType);
+
+        if (isLeft && isRight) {
+            correctDefn = defn;
+            isBad = false;
+        }
+    }
+
+    // TODO: better error message UX
+    if (isBad) {
+        for (i = 0; i < unions.length; i++) {
+            defn = unions[i];
+
+            this.meta.checkSubType(node.left, defn.args[0], leftType);
+            this.meta.checkSubType(node.right, defn.args[1], rightType);
+        }
+    }
+
+    return correctDefn.result;
 };
 
 ASTVerifier.prototype.verifyReturnStatement =
@@ -631,6 +657,9 @@ function verifyUnaryExpression(node) {
     }
 
     var firstType = this.meta.verifyNode(node.argument);
+    if (!firstType) {
+        return null;
+    }
 
     var token = this.meta.getOperator(node.operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
@@ -640,6 +669,31 @@ function verifyUnaryExpression(node) {
         'expecteted type defn args to be one');
 
     this.meta.checkSubType(node.argument, defn.args[0], firstType);
+
+    return defn.result;
+};
+
+ASTVerifier.prototype.verifyLogicalExpression =
+function verifyLogicalExpression(node) {
+    var leftType = this.meta.verifyNode(node.left);
+    if (!leftType) {
+        return null;
+    }
+
+    var rightType = this.meta.verifyNode(node.right);
+    if (!rightType) {
+        return null;
+    }
+
+    var token = this.meta.getOperator(node.operator);
+    assert(token, 'do not support unknown operator: ' + node.operator);
+
+    var defn = token.defn;
+    assert(defn.args.length === 2,
+        'expected type defn args to be two');
+
+    this.meta.checkSubType(node.left, defn.args[0], leftType);
+    this.meta.checkSubType(node.right, defn.args[1], rightType);
 
     return defn.result;
 };
