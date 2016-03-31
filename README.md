@@ -72,6 +72,35 @@ There is a `2-main.js` that shows a small program that type checks
 
 This includes the module system and the definition files.
 
+## Definitions example
+
+```
+raynos at raynos-ThinkPad-T440p  ~/projects/jsig2 on master*
+$ jsig ./examples/3-node_modules.js --definitions ./definitions/
+
+examples/3-node_modules.js
+Found error: jsig.sub-type.type-class-mismatch
+@21: Got unexpected type class. Expected Number but got result: String
+
+19.             headLine: str.split('\n').slice(0, 3),
+20.             invalidField: str * 2
+21.         });
+
+Expected : Number
+Actual   : result: String
+
+Found (1) error
+```
+
+There is a `3-node_modules.js` example that shows how to use external
+definitions. In this case we pass the `./definitions/` folder that
+is part of jsig2 and contains stubs for modules defined in node core.
+
+This is an example of how to define definitions for modules that you
+did not author or that are not part of your current code repository.
+
+This approach works for both npm modules and node core modules.
+
 ## Even more examples
 
 There are a lot of tests that show examples
