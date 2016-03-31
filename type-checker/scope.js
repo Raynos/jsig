@@ -283,6 +283,7 @@ util.inherits(FileScope, BaseScope);
 FileScope.prototype.loadModuleTokens =
 function loadModuleTokens() {
     this.addVar('module', moduleType);
+    this.addVar('__dirname', JsigAST.literal('String'));
 };
 
 FileScope.prototype.addFunction =
@@ -438,4 +439,9 @@ function updateVar(id, typeDefn) {
         type: 'restriction',
         defn: typeDefn
     };
+};
+
+BranchScope.prototype.getFunction =
+function getFunction(id) {
+    return this.parent.getFunction(id);
 };

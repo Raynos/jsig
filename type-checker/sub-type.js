@@ -63,6 +63,8 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     } else if (parent.name === 'Function' && child.type === 'function') {
         return null;
+    } else if (parent.name === 'Object' && child.type === 'object') {
+        return null;
     }
 
     if (child.type !== 'typeLiteral') {
@@ -72,8 +74,9 @@ function checkTypeLiteralSubType(node, parent, child) {
 
     var name = parent.name;
     if (name === 'Object') {
-        if (child.name !== name) {
-            return new Error('[Internal] Not an object');
+        // TODO: model that Error inherits from Object
+        if (child.name !== name && child.name !== 'Error') {
+            return reportTypeMisMatch(node, parent, child);
         }
     } else if (name === 'Array') {
         if (child.name !== name) {

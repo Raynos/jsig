@@ -123,6 +123,9 @@ function preloadDefinitions() {
     for (var i = 0; i < files.length; i++) {
         var fileName = path.join(this.definitionsFolder, files[i]);
         var headerFile = this.getOrCreateHeaderFile(fileName);
+        if (!headerFile) {
+            continue;
+        }
 
         var assignments = headerFile.getResolvedAssignments();
         for (var j = 0; j < assignments.length; j++) {

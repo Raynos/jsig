@@ -322,8 +322,15 @@ function verifyCallExpression(node) {
         defn = this.meta.resolveGeneric(defn, node);
     }
 
+    var minArgs = defn.args.length;
+    for (var i = 0; i < defn.args.length; i++) {
+        if (defn.args[i].optional) {
+            minArgs--;
+        }
+    }
+
     var err;
-    if (node.arguments.length < defn.args.length) {
+    if (node.arguments.length < minArgs) {
         err = Errors.TooFewArgsInCall({
             funcName: this.meta.serializeAST(node.callee),
             actualArgs: node.arguments.length,
@@ -344,9 +351,21 @@ function verifyCallExpression(node) {
     }
 
     var minLength = Math.min(defn.args.length, node.arguments.length);
-    for (var i = 0; i < minLength; i++) {
+    for (i = 0; i < minLength; i++) {
         var wantedType = defn.args[i];
-        var actualType = this.meta.verifyNode(node.arguments[i]);
+
+        var actualType;
+        if (node.arguments[i].type === 'Identifier' &&
+            this.meta.currentScope.getFunction(node.arguments[i].name)
+        ) {
+            this.meta.currentScope.updateFunction(
+                node.arguments[i].name, wantedType
+            );
+            actualType = wantedType;
+        } else {
+            actualType = this.meta.verifyNode(node.arguments[i]);
+        }
+
         if (!actualType) {
             return null;
         }
