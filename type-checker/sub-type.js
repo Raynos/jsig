@@ -94,6 +94,10 @@ function checkTypeLiteralSubType(node, parent, child) {
         if (child.name !== name) {
             return reportTypeMisMatch(node, parent, child);
         }
+    } else if (name === 'Boolean') {
+        if (child.name !== name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
     } else if (name === 'Error') {
         if (child.name !== name) {
             return reportTypeMisMatch(node, parent, child);

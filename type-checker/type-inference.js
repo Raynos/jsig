@@ -72,6 +72,8 @@ function inferLiteral(node) {
         return JsigAST.value('null');
     } else if (Object.prototype.toString.call(value) === '[object RegExp]') {
         return JsigAST.literal('RegExp');
+    } else if (typeof value === 'boolean') {
+        return JsigAST.literal('Boolean');
     } else {
         throw new Error('not recognised literal');
     }
