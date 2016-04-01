@@ -244,6 +244,21 @@ function verifyThisExpression(node) {
     var funcScope = this.meta.currentScope.getFunctionScope();
     assert(funcScope,
         'cannot access `this` outside function');
+
+    if (!funcScope.thisValueType) {
+        var funcName = this.meta.currentScope.funcName;
+        var funcType = this.meta.currentScope.funcType;
+
+        this.meta.addError(Errors.NonExistantThis({
+            funcName: funcName,
+            funcType: funcType ?
+                this.meta.serializeType(funcType) : null,
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
+    }
+
     assert(funcScope.thisValueType,
         'cannot type inference for `this`');
 

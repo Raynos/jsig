@@ -216,4 +216,14 @@ Errors.NonObjectFieldAccess = TypedError({
     line: null
 });
 
+Errors.NonExistantThis = TypedError({
+    type: 'jsig.verify.non-existant-this',
+    message: '@{line}: Cannot access `this` inside function {funcName}. ' +
+        'Function type: {funcType} does not have thisType.',
+    funcName: null,
+    funcType: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

@@ -212,6 +212,22 @@ test('treat this value as a string', function t(assert) {
     assert.end();
 });
 
+test('this type is required in method definition', function t(assert) {
+    var file = getFile('bad-accessing-this-without-definition.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 1, 'expected 1 error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-existant-this');
+    assert.equal(err.funcName, '_sendRequest');
+    assert.equal(err.funcType, '(foo: String) => void');
+    assert.equal(err.line, 14);
+
+    assert.end();
+});
+
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);
 }

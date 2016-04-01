@@ -329,6 +329,7 @@ function FunctionScope(parent, funcName, funcNode) {
     this.funcName = funcName;
     this.returnValueType = null;
     this.thisValueType = null;
+    this.funcType = null;
     this.isConstructor = /[A-Z]/.test(funcName[0]);
 
     this.knownFields = [];
@@ -350,6 +351,7 @@ function loadTypes(funcNode, typeDefn) {
 
     this.thisValueType = typeDefn.thisArg;
     this.returnValueType = typeDefn.result;
+    this.funcType = typeDefn;
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
