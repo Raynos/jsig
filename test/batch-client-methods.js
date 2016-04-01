@@ -31,6 +31,17 @@ test('declare export after assignment to prototype', function t(assert) {
     assert.end();
 });
 
+test('can declare methods using function expression', function t(assert) {
+    var file = getFile('good-assign-method-as-func-expression.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta');
+    assert.equal(meta.errors.length, 0, 'expected no errors');
+    assert.ok(meta.moduleExportsType, 'expected export type');
+
+    assert.end();
+});
+
 test('Assign method which has too many args', function t(assert) {
     var file = getFile('bad-assigning-method-which-has-too-many-args.js');
 

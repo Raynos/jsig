@@ -69,6 +69,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyUnaryExpression(node);
     } else if (node.type === 'LogicalExpression') {
         return this.verifyLogicalExpression(node);
+    } else if (node.type === 'FunctionExpression') {
+        return this.verifyFunctionExpression(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -718,6 +720,23 @@ function verifyLogicalExpression(node) {
     return defn.result;
 };
 
+ASTVerifier.prototype.verifyFunctionExpression =
+function verifyFunctionExpression(node) {
+    var potentialType = this.meta.currentScope.currentAssignmentType;
+    if (!potentialType) {
+        var err = Errors.UnTypedFunctionFound({
+            funcName: node.id.name,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return;
+    }
+
+    this._checkFunctionType(node, potentialType);
+    return potentialType;
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
@@ -952,6 +971,8 @@ function _createNonExistantFieldError(node, propName) {
     } else if (node.object.type === 'Identifier') {
         objName = node.object.name;
     } else if (node.object.type === 'MemberExpression') {
+        objName = this.meta.serializeAST(node.object);
+    } else if (node.object.type === 'CallExpression') {
         objName = this.meta.serializeAST(node.object);
     } else {
         assert(false, 'unknown object type');
