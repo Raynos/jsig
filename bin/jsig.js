@@ -114,7 +114,7 @@ function getFailingLines(checker, err) {
             TermColor.red(failLine.slice(startColumn, failLine.length))
         );
 
-        for (var i = startLine + 1; i < endLine - 1; i++) {
+        for (var i = startLine + 1; i < endLine; i++) {
             segments.push(
                 String(i) + '. ' + TermColor.red(meta.sourceLines[i])
             );
