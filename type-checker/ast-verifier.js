@@ -241,11 +241,9 @@ function verifyMemberExpression(node) {
 
 ASTVerifier.prototype.verifyThisExpression =
 function verifyThisExpression(node) {
-    var funcScope = this.meta.currentScope.getFunctionScope();
-    assert(funcScope,
-        'cannot access `this` outside function');
+    var thisType = this.meta.currentScope.getThisType();
 
-    if (!funcScope.thisValueType) {
+    if (!thisType) {
         var funcName = this.meta.currentScope.funcName;
         var funcType = this.meta.currentScope.funcType;
 
@@ -259,10 +257,7 @@ function verifyThisExpression(node) {
         return null;
     }
 
-    assert(funcScope.thisValueType,
-        'cannot type inference for `this`');
-
-    return funcScope.thisValueType;
+    return thisType;
 };
 
 ASTVerifier.prototype.verifyIdentifier =
@@ -812,7 +807,7 @@ function checkFunctionType(node, defn) {
 
 ASTVerifier.prototype._checkHiddenClass =
 function _checkHiddenClass(node) {
-    var thisType = this.meta.currentScope.thisValueType;
+    var thisType = this.meta.currentScope.getThisType();
     var knownFields = this.meta.currentScope.knownFields;
     var protoFields = this.meta.currentScope.getPrototypeFields();
 

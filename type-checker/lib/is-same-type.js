@@ -4,10 +4,14 @@ var assert = require('assert');
 
 module.exports = isSameType;
 
-/*eslint complexity: 0*/
+/*eslint complexity: 0, max-statements: [2,60]*/
 function isSameType(left, right) {
     if (left.type !== right.type) {
         return false;
+    }
+
+    if (left === right) {
+        return true;
     }
 
     var i = 0;
@@ -63,6 +67,24 @@ function isSameType(left, right) {
         return true;
     } else if (left.type === 'valueLiteral') {
         return left.name === right.name;
+    } else if (left.type === 'function') {
+        if (left.args.length !== right.args.length) {
+            return false;
+        }
+
+        for (i = 0; i < left.args.length; i++) {
+            if (!isSameType(left.args[i], right.args[i])) {
+                return false;
+            }
+        }
+
+        if (left.thisArg !== right.thisArg) {
+            return false;
+        }
+
+        if (left.result !== right.result) {
+            return false;
+        }
     } else {
         assert(false, 'isSameType unexpected type: ' + left.type);
     }

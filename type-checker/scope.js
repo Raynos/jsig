@@ -46,15 +46,6 @@ BaseScope.prototype.getVar = function getVar(id) {
         this.parent.getVar(id);
 };
 
-BaseScope.prototype.restrictType = function restrictType(id, type) {
-    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
-
-    this.typeRestrictions[id] = {
-        type: 'restriction',
-        defn: type
-    };
-};
-
 BaseScope.prototype.enterAssignment =
 function enterAssignment(leftType) {
     this.currentAssignmentType = leftType;
@@ -336,7 +327,7 @@ function FunctionScope(parent, funcName, funcNode) {
 
     this.funcName = funcName;
     this.returnValueType = null;
-    this.thisValueType = null;
+    this._thisValueType = null;
     this.funcType = null;
     this.isConstructor = /[A-Z]/.test(funcName[0]);
 
@@ -357,9 +348,14 @@ function loadTypes(funcNode, typeDefn) {
         this.addVar(param.name, argType);
     }
 
-    this.thisValueType = typeDefn.thisArg;
+    this._thisValueType = typeDefn.thisArg;
     this.returnValueType = typeDefn.result;
     this.funcType = typeDefn;
+};
+
+FunctionScope.prototype.getThisType =
+function getThisType() {
+    return this._thisValueType;
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
@@ -425,8 +421,15 @@ function updateVar() {
 function BranchScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'branch';
+
+    this._restrictedThisValueType = null;
 }
 util.inherits(BranchScope, BaseScope);
+
+BranchScope.prototype.getThisType =
+function getThisType() {
+    return this._restrictedThisValueType || this.parent.getThisType();
+};
 
 BranchScope.prototype.getFunctionScope =
 function getFunctionScope() {
@@ -454,4 +457,18 @@ function updateVar(id, typeDefn) {
 BranchScope.prototype.getFunction =
 function getFunction(id) {
     return this.parent.getFunction(id);
+};
+
+BaseScope.prototype.restrictType = function restrictType(id, type) {
+    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
+
+    if (id === 'this') {
+        this._restrictedThisValueType = type;
+        return;
+    }
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
 };

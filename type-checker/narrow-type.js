@@ -1,6 +1,6 @@
 'use strict';
 
-// var assert = require('assert');
+var assert = require('assert');
 
 var JsigAST = require('../ast.js');
 
@@ -61,6 +61,49 @@ function narrowLogicalExpression(node, ifBranch, elseBranch) {
 
 NarrowType.prototype.narrowMemberExpression =
 function narrowMemberExpression(node, ifBranch, elseBranch) {
+    // targetType that needs mutation
+    var targetType = this.meta.verifyNode(node.object);
+
+    var objectName;
+    if (node.object.type === 'Identifier') {
+        objectName = node.object.name;
+    } else if (node.object.type === 'ThisExpression') {
+        objectName = 'this';
+    } else {
+        assert(false, 'object must be ref');
+    }
+
+    // Type of field itself
+    var fieldType = this.meta.verifyNode(node);
+
+    assert(node.property.type === 'Identifier', 'property must be field');
+    var fieldName = node.property.name;
+
+    var ifType = getUnionWithoutBool(fieldType, true);
+    var elseType = getUnionWithoutBool(fieldType, false);
+
+    var ifPairs = [];
+    var elsePairs = [];
+
+    assert(targetType.type === 'object');
+    for (var i = 0; i < targetType.keyValues.length; i++) {
+        var pair = targetType.keyValues[i];
+        if (pair.key !== fieldName) {
+            ifPairs.push(JsigAST.keyValue(pair.key, pair.value));
+            elsePairs.push(JsigAST.keyValue(pair.key, pair.value));
+            continue;
+        }
+
+        ifPairs.push(JsigAST.keyValue(pair.key, ifType));
+        elsePairs.push(JsigAST.keyValue(pair.key, elseType));
+    }
+
+    var ifObjectType = JsigAST.object(ifPairs);
+    var elseObjectType = JsigAST.object(elsePairs);
+
+    ifBranch.restrictType(objectName, ifObjectType);
+    elseBranch.restrictType(objectName, elseObjectType);
+
     // TODO: support nullable field check
 };
 

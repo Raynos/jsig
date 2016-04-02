@@ -2,5 +2,6 @@
 type TTimer : {}
 
 timers : {
-    setTimeout : (fn: Function, delay: Number) => TTimer
+    setTimeout : (fn: Function, delay: Number) => TTimer,
+    clearTimeout : (timer: TTimer) => void
 }
