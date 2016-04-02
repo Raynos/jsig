@@ -261,6 +261,14 @@ function loadLanguageIdentifiers() {
         result: JsigAST.literal('Boolean')
     }));
 
+    this._addOperator('!==', JsigAST.functionType({
+        args: [
+            JsigAST.literal('Boolean:Any', true),
+            JsigAST.literal('Boolean:Any', true)
+        ],
+        result: JsigAST.literal('Boolean')
+    }));
+
     this._addOperator('||', JsigAST.functionType({
         args: [
             JsigAST.literal('Boolean:Any', true),
