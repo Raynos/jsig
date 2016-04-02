@@ -2,7 +2,9 @@
 
 From scratch type-checker
 
-# progress
+# progress ( 0.1.0 )
+
+The `v0.1.0` tag was cut. I skipped on a few tests...
 
  - [x] type check constructor
  - [x] type check method definition
@@ -12,11 +14,16 @@ From scratch type-checker
  - [ ] write more module system tests
  - [x] create binary with pretty errors.
 
-# later
+# progress ( 0.2.0 )
+
+The `v0.2.0` will be cut once a full reference library type checks
 
  - [x] define type definitions for npm modules
  - [ ] write more type definition tests
  - [ ] support more JavaScript features.
+ - [ ] basic support for nullables
+ - [ ] basic support for if branches and flow analysis
+ - [ ] basic support for generics
 
 # Stability status: Experimental
 
