@@ -171,18 +171,22 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     }
 
     if (this.knownGenericTypes[ast.name]) {
-        var isSub = this.meta.isSubType(
+        var subTypeError = this.meta.checkSubType(
             referenceNode, this.knownGenericTypes[ast.name], newType
         );
-        if (!isSub) {
-            isSub = this.meta.isSubType(
+        if (subTypeError) {
+            var isSub = this.meta.isSubType(
                 referenceNode, newType, this.knownGenericTypes[ast.name]
             );
-            this.knownGenericTypes[ast.name] = newType;
+            if (isSub) {
+                this.knownGenericTypes[ast.name] = newType;
+            }
         }
-        if (!isSub) {
+        if (subTypeError && !isSub) {
+            this.meta.addError(subTypeError);
+            // return null;
             // TODO: bug and shit
-            assert(false, 'could not resolve generics');
+            // assert(false, 'could not resolve generics');
         }
     } else {
         this.knownGenericTypes[ast.name] = newType;
