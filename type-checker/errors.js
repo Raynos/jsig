@@ -145,6 +145,16 @@ Errors.UnTypedFunctionFound = TypedError({
     line: null
 });
 
+Errors.UnTypedFunctionCall = TypedError({
+    type: 'jsig.verify.untyped-function-call',
+    message: '@{line}: Expected to know type of function: {funcName}. ' +
+        'Instead found callsite of untyped function: {callExpression}.',
+    funcName: null,
+    callExpression: null,
+    loc: null,
+    line: null
+});
+
 Errors.CallingNewOnPlainFunction = TypedError({
     type: 'jsig.verify.calling-new-on-plain-function',
     message: '@{line}: Cannot call `new` on plain function {funcName}. ' +

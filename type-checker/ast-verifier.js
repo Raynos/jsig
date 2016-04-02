@@ -325,8 +325,16 @@ function verifyCallExpression(node) {
             defn = this.meta.inferType(node);
         }
 
-        assert(defn, 'do not support type inference caller(): ' +
-            node.callee.name);
+        if (!defn) {
+            var err = Errors.UnTypedFunctionCall({
+                funcName: node.callee.name,
+                callExpression: this.meta.serializeAST(node.callee),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
     } else {
         defn = this.verifyNode(node.callee);
         if (!defn) {
@@ -1039,19 +1047,19 @@ function resolvePath(possiblePath, dirname) {
     }
 }
 
-// hoisting function declarations to the top makes the tree
+// hoisting function declarations to the bottom makes the tree
 // order algorithm simpler
 function hoistFunctionDeclaration(nodes) {
     var declarations = [];
     for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].type === 'FunctionDeclaration') {
+        if (nodes[i].type !== 'FunctionDeclaration') {
             declarations.push(nodes[i]);
         }
     }
 
     for (i = 0; i < nodes.length; i++) {
-        if (nodes[i].type !== 'FunctionDeclaration') {
-            declarations.unshift(nodes[i]);
+        if (nodes[i].type === 'FunctionDeclaration') {
+            declarations.push(nodes[i]);
         }
     }
 
