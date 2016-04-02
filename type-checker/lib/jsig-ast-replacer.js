@@ -2,8 +2,9 @@
 
 module.exports = JsigASTReplacer;
 
-function JsigASTReplacer(replacer) {
+function JsigASTReplacer(replacer, neverRaw) {
     this.replacer = replacer;
+    this.neverRaw = Boolean(neverRaw);
 }
 
 /*eslint complexity: [2, 50], max-statements: [2, 120]*/
@@ -27,7 +28,7 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
         ast.statements = newStatements;
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeDeclaration') {
         stack.push('typeExpression');
@@ -35,7 +36,7 @@ function inlineReferences(ast, rawAst, stack) {
             ast.typeExpression, rawAst.typeExpression, stack
         );
         stack.pop();
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return null;
     } else if (ast.type === 'assignment') {
         stack.push('typeExpression');
@@ -43,7 +44,7 @@ function inlineReferences(ast, rawAst, stack) {
             ast.typeExpression, rawAst.typeExpression, stack
         );
         stack.pop();
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'function') {
         stack.push('args');
@@ -71,11 +72,11 @@ function inlineReferences(ast, rawAst, stack) {
             stack.pop();
         }
 
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeLiteral') {
         if (ast.builtin) {
-            ast._raw = ast._raw || rawAst;
+            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
 
@@ -95,7 +96,7 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
 
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'object') {
         stack.push('keyValues');
@@ -108,13 +109,13 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
 
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'keyValue') {
         stack.push('value');
         ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
         stack.pop();
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'unionType') {
         stack.push('unions');
@@ -127,13 +128,13 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
 
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'valueLiteral') {
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'comment') {
-        ast._raw = ast._raw || rawAst;
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'import') {
         return this.replacer.replace(ast, rawAst, stack);
