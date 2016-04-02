@@ -166,7 +166,9 @@ function checkSubType(node, leftType, rightType) {
 
 ProgramMeta.prototype.isSubType =
 function isSubType(node, leftType, rightType) {
-    return !this.subType.checkSubType(node, leftType, rightType);
+    var e = this.subType.checkSubType(node, leftType, rightType);
+    // console.log('e', e);
+    return !e;
 };
 
 /*
