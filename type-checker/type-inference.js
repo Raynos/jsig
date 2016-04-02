@@ -171,7 +171,7 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     }
 
     if (this.knownGenericTypes[ast.name]) {
-        var subTypeError = this.meta.checkSubType(
+        var subTypeError = this.meta.checkSubTypeRaw(
             referenceNode, this.knownGenericTypes[ast.name], newType
         );
         if (subTypeError) {
@@ -180,9 +180,10 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
             );
             if (isSub) {
                 this.knownGenericTypes[ast.name] = newType;
+                subTypeError = null;
             }
         }
-        if (subTypeError && !isSub) {
+        if (subTypeError) {
             this.meta.addError(subTypeError);
             // return null;
             // TODO: bug and shit
