@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 
+var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 var JsigAST = require('../ast.js');
 
 module.exports = NarrowType;
@@ -106,42 +107,3 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
 
     // TODO: support nullable field check
 };
-
-function getUnionWithoutBool(type, truthy) {
-    if (type.type !== 'unionType') {
-        return type;
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (
-            (truthy && !isAlwaysFalsey(t)) ||
-            (!truthy && !isAlwaysTruthy(t))
-        ) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions, type.label);
-}
-
-// handle more literals like 0 or "" or false
-function isAlwaysTruthy(t) {
-    return !(
-        (t.type === 'valueLiteral' && t.name === 'undefined') ||
-        (t.type === 'valueLiteral' && t.name === 'null') ||
-        (t.type === 'typeLiteral' && t.name === 'String') ||
-        (t.type === 'typeLiteral' && t.name === 'Boolean') ||
-        (t.type === 'typeLiteral' && t.name === 'Number')
-    );
-}
-
-function isAlwaysFalsey(t) {
-    return (t.type === 'valueLiteral' && t.name === 'undefined') ||
-        (t.type === 'valueLiteral' && t.name === 'null');
-}

@@ -13,6 +13,7 @@ var JsigAST = require('../ast.js');
 var serialize = require('../serialize.js');
 var Errors = require('./errors.js');
 var isSameType = require('./lib/is-same-type.js');
+var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
@@ -726,17 +727,41 @@ function verifyLogicalExpression(node) {
         return null;
     }
 
-    var token = this.meta.getOperator(node.operator);
-    assert(token, 'do not support unknown operator: ' + node.operator);
+    if (node.operator !== '||' && node.operator !== '&&') {
+        var token = this.meta.getOperator(node.operator);
+        assert(token, 'do not support unknown operator: ' + node.operator);
 
-    var defn = token.defn;
-    assert(defn.args.length === 2,
-        'expected type defn args to be two');
+        var defn = token.defn;
+        assert(defn.args.length === 2,
+            'expected type defn args to be two');
 
-    this.meta.checkSubType(node.left, defn.args[0], leftType);
-    this.meta.checkSubType(node.right, defn.args[1], rightType);
+        this.meta.checkSubType(node.left, defn.args[0], leftType);
+        this.meta.checkSubType(node.right, defn.args[1], rightType);
 
-    return defn.result;
+        return defn.result;
+    }
+
+    var t1;
+    var t2;
+    if (node.operator === '||') {
+        t1 = getUnionWithoutBool(leftType, true);
+        t2 = rightType;
+    } else if (node.operator === '&&') {
+        t1 = getUnionWithoutBool(leftType, false);
+        t2 = rightType;
+    } else {
+        assert(false, 'unimplemented operator');
+    }
+
+    if (!t1) {
+        return t2;
+    }
+
+    if (isSameType(t1, t2)) {
+        return t1;
+    }
+
+    return JsigAST.union([t1, t2]);
 };
 
 ASTVerifier.prototype.verifyFunctionExpression =
