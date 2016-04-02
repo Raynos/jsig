@@ -465,12 +465,13 @@ function verifyReturnStatement(node) {
     } else {
         defn = this.meta.verifyNode(node.argument);
     }
-    assert(defn, 'cannot inference return type');
 
     var funcScope = this.meta.currentScope.getFunctionScope();
     assert(funcScope, 'return must be within a function scope');
 
-    funcScope.markReturnType(defn, node);
+    if (defn) {
+        funcScope.markReturnType(defn, node);
+    }
     return defn;
 };
 
