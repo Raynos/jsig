@@ -27,25 +27,28 @@ function checkSubType(node, parent, child) {
     assert(parent && parent.type, 'parent must have a type');
     assert(child && child.type, 'child must have a type');
 
-    if (parent === child) {
-        return null;
-    }
+    var result;
 
-    if (parent.type === 'typeLiteral') {
-        return this.checkTypeLiteralSubType(node, parent, child);
+    if (parent === child) {
+        result = null;
+    } else if (parent.type === 'typeLiteral') {
+        result = this.checkTypeLiteralSubType(node, parent, child);
     } else if (parent.type === 'genericLiteral') {
-        return this.checkGenericLiteralSubType(node, parent, child);
+        result = this.checkGenericLiteralSubType(node, parent, child);
     } else if (parent.type === 'function') {
-        return this.checkFunctionSubType(node, parent, child);
+        result = this.checkFunctionSubType(node, parent, child);
     } else if (parent.type === 'object') {
-        return this.checkObjectSubType(node, parent, child);
+        result = this.checkObjectSubType(node, parent, child);
     } else if (parent.type === 'valueLiteral') {
-        return this.checkValueLiteralSubType(node, parent, child);
+        result = this.checkValueLiteralSubType(node, parent, child);
     } else if (parent.type === 'unionType') {
-        return this.checkUnionSubType(node, parent, child);
+        result = this.checkUnionSubType(node, parent, child);
     } else {
         throw new Error('not implemented sub type: ' + parent.type);
     }
+
+    assert(typeof result !== 'boolean', 'must return error or null');
+    return result;
 };
 
 /*eslint complexity: [2, 30]*/
