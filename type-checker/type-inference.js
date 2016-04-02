@@ -130,9 +130,10 @@ function resolveGeneric(funcType, node) {
         'can only resolve generic with callee node');
 
     var genericReplacer = new JsigASTGenericTable(this.meta, funcType, node);
-    var replacer = new JsigASTReplacer(genericReplacer);
+    var replacer = new JsigASTReplacer(genericReplacer, true);
 
     var copyFunc = JSON.parse(JSON.stringify(funcType));
+    copyFunc._raw = null;
     copyFunc = replacer.inlineReferences(copyFunc, funcType);
 
     return copyFunc;
@@ -171,12 +172,14 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     }
 
     if (this.knownGenericTypes[ast.name]) {
+        var oldType = this.knownGenericTypes[ast.name];
         var subTypeError = this.meta.checkSubTypeRaw(
-            referenceNode, this.knownGenericTypes[ast.name], newType
+            referenceNode, oldType, newType
         );
+
         if (subTypeError) {
             var isSub = this.meta.isSubType(
-                referenceNode, newType, this.knownGenericTypes[ast.name]
+                referenceNode, newType, oldType
             );
             if (isSub) {
                 this.knownGenericTypes[ast.name] = newType;
@@ -192,8 +195,6 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     } else {
         this.knownGenericTypes[ast.name] = newType;
     }
-
-    rawAst._raw = newType;
 
     return newType;
 };
