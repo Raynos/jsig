@@ -6,20 +6,27 @@ module.exports = isSameType;
 
 /*eslint complexity: 0, max-statements: [2,60]*/
 function isSameType(left, right) {
-    if (left.type !== right.type) {
-        return false;
-    }
-
     if (left === right) {
         return true;
+    }
+
+    if (left.type !== right.type) {
+        // console.log('EARLY BAIL');
+        return false;
     }
 
     var i = 0;
 
     if (left.type === 'typeLiteral') {
-        return left.name === right.name;
+        if (left.name !== right.name) {
+            // console.log('LITERAL MISMATCH');
+            return false;
+        }
+
+        return true;
     } else if (left.type === 'object') {
         if (left.keyValues.length !== right.keyValues.length) {
+            // console.log('OBJECT KEYS');
             return false;
         }
 
@@ -28,6 +35,7 @@ function isSameType(left, right) {
             var r = right.keyValues[i];
 
             if (l.key !== r.key) {
+                // console.log('WEIRD KEYS');
                 return false;
             }
 
@@ -43,6 +51,7 @@ function isSameType(left, right) {
         }
 
         if (left.generics.length !== right.generics.length) {
+            // console.log('GENERICS KEYS');
             return false;
         }
 
@@ -55,6 +64,7 @@ function isSameType(left, right) {
         return true;
     } else if (left.type === 'unionType') {
         if (left.unions.length !== right.unions.length) {
+            // console.log('UNIONS WEIRD');
             return false;
         }
 
@@ -66,9 +76,15 @@ function isSameType(left, right) {
 
         return true;
     } else if (left.type === 'valueLiteral') {
-        return left.name === right.name;
+        if (left.name !== right.name) {
+            // console.log('VALUE WEIRD');
+            return false;
+        }
+
+        return true;
     } else if (left.type === 'function') {
         if (left.args.length !== right.args.length) {
+            // console.log('ARGS WEIRD');
             return false;
         }
 
@@ -78,13 +94,15 @@ function isSameType(left, right) {
             }
         }
 
-        if (left.thisArg !== right.thisArg) {
+        if (!isSameType(left.thisArg, right.thisArg)) {
             return false;
         }
 
-        if (left.result !== right.result) {
+        if (!isSameType(left.result, right.result)) {
             return false;
         }
+
+        return true;
     } else {
         assert(false, 'isSameType unexpected type: ' + left.type);
     }
