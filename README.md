@@ -21,6 +21,7 @@ The `v0.2.0` will be cut once a full reference library type checks
  - [x] define type definitions for npm modules
  - [ ] write more type definition tests
  - [ ] support more JavaScript features.
+ - [ ] basic support for logic expressions.
  - [ ] basic support for nullables
  - [ ] basic support for if branches and flow analysis
  - [ ] basic support for generics
