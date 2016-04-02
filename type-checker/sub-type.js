@@ -90,6 +90,10 @@ function checkTypeLiteralSubType(node, parent, child) {
         if (child.name !== name) {
             return new Error('[Internal] Not a void');
         }
+    } else if (name === 'RegExp') {
+        if (child.name !== name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
     } else if (name === 'Number') {
         if (child.name !== name) {
             return reportTypeMisMatch(node, parent, child);

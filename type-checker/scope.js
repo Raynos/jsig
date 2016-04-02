@@ -138,6 +138,13 @@ function loadLanguageIdentifiers() {
         })
     }));
 
+    this._addVar('Math', JsigAST.object({
+        'floor': JsigAST.functionType({
+            args: [JsigAST.literal('Number')],
+            result: JsigAST.literal('Number')
+        })
+    }));
+
     this._addVar('parseInt', JsigAST.functionType({
         args: [JsigAST.literal('String'), JsigAST.literal('Number')],
         result: JsigAST.literal('Number')
@@ -197,6 +204,11 @@ function loadLanguageIdentifiers() {
                 JsigAST.literal('Array'),
                 [JsigAST.literal('String')]
             )
+        }),
+        'replace': JsigAST.functionType({
+            thisArg: JsigAST.literal('String'),
+            args: [JsigAST.literal('RegExp'), JsigAST.literal('String')],
+            result: JsigAST.literal('String')
         })
     }));
 
@@ -218,6 +230,11 @@ function loadLanguageIdentifiers() {
         result: JsigAST.literal('Number')
     }));
 
+    this._addOperator('/', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Number')
+    }));
+
     this._addOperator('%', JsigAST.functionType({
         args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
         result: JsigAST.literal('Number')
@@ -229,6 +246,21 @@ function loadLanguageIdentifiers() {
     }));
 
     this._addOperator('<', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('<=', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('>', JsigAST.functionType({
+        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
+        result: JsigAST.literal('Boolean')
+    }));
+
+    this._addOperator('>=', JsigAST.functionType({
         args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
         result: JsigAST.literal('Boolean')
     }));
@@ -270,6 +302,14 @@ function loadLanguageIdentifiers() {
     }));
 
     this._addOperator('||', JsigAST.functionType({
+        args: [
+            JsigAST.literal('Boolean:Any', true),
+            JsigAST.literal('Boolean:Any', true)
+        ],
+        result: JsigAST.literal('Boolean:Any')
+    }));
+
+    this._addOperator('&&', JsigAST.functionType({
         args: [
             JsigAST.literal('Boolean:Any', true),
             JsigAST.literal('Boolean:Any', true)
