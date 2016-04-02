@@ -1,4 +1,4 @@
-
+-- vim: set ft=Haskell:
 type TTimer : {}
 type TFS : {
     readFile: (
