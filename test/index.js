@@ -1,5 +1,6 @@
 'use strict';
 
+require('./parser/index.js');
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
 require('./batch-client-new.js');
