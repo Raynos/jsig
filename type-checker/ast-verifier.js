@@ -1045,7 +1045,10 @@ function _getTypeFromRequire(node) {
         return externDefn.defn;
     }
 
-    var fileName = resolvePath(depPath, this.folderName);
+    var fileName = this._resolvePath(node, depPath, this.folderName);
+    if (!fileName) {
+        return null;
+    }
 
     var otherMeta = this.checker.getOrCreateMeta(fileName);
     if (!otherMeta) {
@@ -1055,7 +1058,8 @@ function _getTypeFromRequire(node) {
     return otherMeta.moduleExportsType;
 };
 
-function resolvePath(possiblePath, dirname) {
+ASTVerifier.prototype._resolvePath =
+function resolvePath(node, possiblePath, dirname) {
     if (possiblePath[0] === path.sep) {
         // is absolute path
         return possiblePath;
@@ -1063,10 +1067,15 @@ function resolvePath(possiblePath, dirname) {
         // is relative path
         return path.resolve(dirname, possiblePath);
     } else {
-        // require lookup semantics...
-        assert(false, 'node_modules lookup not implemented: ' + possiblePath);
+        // TODO: search for type defintions inside node_modules/*
+        this.meta.addError(Errors.MissingDefinition({
+            moduleName: possiblePath,
+            line: node.loc.start.line,
+            loc: node.loc
+        }));
+        return null;
     }
-}
+};
 
 // hoisting function declarations to the bottom makes the tree
 // order algorithm simpler

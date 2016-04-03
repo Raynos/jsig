@@ -236,4 +236,13 @@ Errors.NonExistantThis = TypedError({
     line: null
 });
 
+Errors.MissingDefinition = TypedError({
+    type: 'jsig.verify.missing-definition',
+    message: '@{line}: Cannot find external definition for ' +
+        'module: {moduleName}.',
+    moduleName: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;
