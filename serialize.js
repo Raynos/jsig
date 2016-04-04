@@ -74,8 +74,17 @@ function serializeTypeDeclaration(node, opts) {
 }
 
 function serializeAssignment(node, opts) {
-    return node.identifier + ' : ' +
+    var str = node.identifier + ' : ' +
         serialize(node.typeExpression, opts);
+
+    if (str.length <= 65) {
+        return str;
+    }
+
+    return node.identifier + ' :\n' + spaces(opts.indent + 1) +
+        serialize(node.typeExpression, extend(opts, {
+            indent: opts.indent + 1
+        }));
 }
 
 function serializeImportStatement(node, opts) {
@@ -239,7 +248,10 @@ function serializeFunctionType(node, opts) {
     }
     var argStr = argStrs.join(', ');
 
-    if (argStrs.join(', ').split('\n')[0].length > 65) {
+    var resultStr = serialize(node.result, opts);
+    var possibleStr = str + argStrs.join(', ') + ') => ' + resultStr;
+
+    if (possibleStr.split('\n')[0].length > 65) {
         var offset = '\n' + spaces(opts.indent + 1);
         argStrs = [];
         for (i = 0; i < argNodes.length; i++) {
@@ -251,8 +263,7 @@ function serializeFunctionType(node, opts) {
         argStr += spaces(opts.indent);
     }
 
-    str += argStr + ') => ' +
-        serialize(node.result, opts);
+    str += argStr + ') => ' + resultStr;
 
     return str;
 }
@@ -279,7 +290,9 @@ function serializeTuple(node, opts) {
 }
 
 function serializeRenamedLiteral(node, opts) {
-    return serializeLabel(node, opts) + ' ' +
+    var label = serializeLabel(node, opts);
+
+    return label + spaces(opts.indent) +
         serialize(node.original) + ' as ' + node.name;
 }
 
