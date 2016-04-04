@@ -3,11 +3,14 @@
 var esprima = require('esprima');
 var fs = require('fs');
 var path = require('path');
+var assert = require('assert');
 
 var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
+
+var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
 
 compile.TypeChecker = TypeChecker;
 
@@ -43,11 +46,26 @@ TypeChecker.prototype.countErrors = function countErrors() {
 
 TypeChecker.prototype.checkProgram =
 function checkProgram() {
-    this.globalScope.loadLanguageIdentifiers();
+    this.loadLanguageIdentifiers();
     this.preloadDefinitions();
 
     var meta = this.getOrCreateMeta(this.entryFile);
     this.moduleExportsType = meta.moduleExportsType;
+};
+
+TypeChecker.prototype.loadLanguageIdentifiers =
+function loadLanguageIdentifiers() {
+    var headerFile = this.getOrCreateHeaderFile(operatorsFile);
+    assert(this.errors.length === 0, 'must be no errors');
+    assert(headerFile, 'must be able to load operators');
+
+    var assignments = headerFile.getResolvedAssignments();
+    for (var i = 0; i < assignments.length; i++) {
+        var a = assignments[i];
+        this.globalScope._addOperator(a.identifier, a.typeExpression);
+    }
+
+    this.globalScope.loadLanguageIdentifiers();
 };
 
 TypeChecker.prototype.getOrCreateHeaderFile =

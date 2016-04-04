@@ -212,69 +212,6 @@ function loadLanguageIdentifiers() {
         })
     }));
 
-    this._addOperator('+',
-        JsigAST.union([
-            JsigAST.functionType({
-                args: [JsigAST.literal('String'), JsigAST.literal('String')],
-                result: JsigAST.literal('String')
-            }),
-            JsigAST.functionType({
-                args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-                result: JsigAST.literal('Number')
-            })
-        ])
-    );
-
-    this._addOperator('*', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('/', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('%', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('-', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('<', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('<=', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('>', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('>=', JsigAST.functionType({
-        args: [JsigAST.literal('Number'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Boolean')
-    }));
-
-    this._addOperator('++', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
-    this._addOperator('--', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
     this._addOperator('!', JsigAST.functionType({
         args: [JsigAST.literal('Boolean:Any', true)],
         result: JsigAST.literal('Boolean')

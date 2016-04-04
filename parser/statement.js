@@ -36,8 +36,10 @@ var importStatement = lexemes.importWord
             });
     });
 
-var assignment = lexemes.identifier
+var assignment = lexemes.assignmentIdentifier
     .chain(function captureIdentifier(identifier) {
+        identifier = identifier.replace(/\\\-/g, '-');
+
         return lexemes.labelSeperator
             .then(typeDefinition)
             .map(function toAssignment(type) {
