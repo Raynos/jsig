@@ -43,6 +43,7 @@ function addVar(id, typeDefn) {
 };
 
 BaseScope.prototype.getVar = function getVar(id) {
+    // console.log('getVar(', id, ',', this.writableTokenLookup, ')');
     if (this.writableTokenLookup) {
         return this.identifiers[id] || this.parent.getVar(id);
     }
@@ -340,6 +341,17 @@ FunctionScope.prototype.updateVar =
 function updateVar() {
 };
 
+FunctionScope.prototype.restrictType = function restrictType(id, type) {
+    // TODO: gaurd against weird restrictions? ...
+    assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
+    assert(id !== 'this', 'cannot restrict this');
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
+};
+
 function BranchScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'branch';
@@ -386,8 +398,7 @@ function updateFunction(id, defn) {
     return this.parent.updateFunction(id, defn);
 };
 
-BaseScope.prototype.restrictType = function restrictType(id, type) {
-
+BranchScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
 
@@ -401,3 +412,4 @@ BaseScope.prototype.restrictType = function restrictType(id, type) {
         defn: type
     };
 };
+

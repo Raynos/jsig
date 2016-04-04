@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var program = require('../../parser/program.js');
-var Parsimmon = require('parsimmon');
 
 module.exports = readJSigAST;
 

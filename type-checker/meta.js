@@ -47,8 +47,8 @@ function ProgramMeta(checker, ast, fileName, source) {
 }
 
 ProgramMeta.prototype.serializeType =
-function serializeType(type) {
-    return serialize(type);
+function serializeType(type, opts) {
+    return serialize(type, opts);
 };
 
 ProgramMeta.prototype.serializeAST =
