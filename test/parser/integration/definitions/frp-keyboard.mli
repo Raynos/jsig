@@ -15,7 +15,10 @@ type NativeKeyboard : {
     keyDown: Observ<keyCode: KeyCode>,
     lastPressed: Observ<keyCode: KeyCode>,
     directions: (
-        up: KeyCode, down: KeyCode, left: KeyCode, right: KeyCode
+        up: KeyCode,
+        down: KeyCode,
+        left: KeyCode,
+        right: KeyCode
     ) => Observ<Coord>
 }
 

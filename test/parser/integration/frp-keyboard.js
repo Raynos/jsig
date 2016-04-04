@@ -8,9 +8,12 @@ var path = require('path');
 
 var parse = require('../../../parser.js');
 var AST = require('../../../ast.js');
+var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions', 'frp-keyboard.mli');
 var content = fs.readFileSync(uri, 'utf8');
+
+/*eslint array-bracket-spacing: 0*/
 
 var ASTFixture = AST.program([
     AST.importStatement('observ', [ AST.literal('Observ') ]),
@@ -96,7 +99,7 @@ var ASTFixture = AST.program([
     }))
 ]);
 
-test('the frp-keyboard type definition', function (assert) {
+test('the frp-keyboard type definition', function t(assert) {
     var result = parse(content);
 
     // showDiff(result, ASTFixture)
@@ -105,3 +108,14 @@ test('the frp-keyboard type definition', function (assert) {
     assert.end();
 });
 
+test('serialize is idempotent', function t(assert) {
+    var tree = parse(content);
+    var text = serialize(tree);
+
+    var rawLines = content.split('\n');
+    var newLines = text.split('\n');
+
+    assert.deepEqual(rawLines, newLines);
+
+    assert.end();
+});

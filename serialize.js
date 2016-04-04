@@ -45,10 +45,17 @@ function serializeProgram(node, opts) {
 
     var text = tokens[0];
     var isImport = node.statements[0].type === 'import';
+    var oneLineType = node.statements[0].type === 'typeDeclaration' &&
+        tokens[0].indexOf('\n') === -1;
+
     for (i = 1; i < tokens.length; i++) {
         isImport = node.statements[i].type === 'import';
-        text += isImport ? '\n' : '\n\n';
+
+        text += (isImport || oneLineType) ? '\n' : '\n\n';
         text += tokens[i];
+
+        oneLineType = node.statements[i].type === 'typeDeclaration' &&
+            tokens[i].indexOf('\n') === -1;
     }
 
     if (tokens.length > 1) {
