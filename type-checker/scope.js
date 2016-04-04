@@ -173,27 +173,27 @@ function loadLanguageIdentifiers() {
     }));
 
     this._addOperator('!', JsigAST.functionType({
-        args: [JsigAST.literal('Boolean:Any', true)],
+        args: [JsigAST.literal('%Boolean%%Any', true)],
         result: JsigAST.literal('Boolean')
     }));
 
     this._addOperator('void', JsigAST.functionType({
-        args: [JsigAST.literal('Boolean:Any', true)],
+        args: [JsigAST.literal('%Boolean%%Any', true)],
         result: JsigAST.literal('void')
     }));
 
     this._addOperator('===', JsigAST.functionType({
         args: [
-            JsigAST.literal('Boolean:Any', true),
-            JsigAST.literal('Boolean:Any', true)
+            JsigAST.literal('%Boolean%%Any', true),
+            JsigAST.literal('%Boolean%%Any', true)
         ],
         result: JsigAST.literal('Boolean')
     }));
 
     this._addOperator('!==', JsigAST.functionType({
         args: [
-            JsigAST.literal('Boolean:Any', true),
-            JsigAST.literal('Boolean:Any', true)
+            JsigAST.literal('%Boolean%%Any', true),
+            JsigAST.literal('%Boolean%%Any', true)
         ],
         result: JsigAST.literal('Boolean')
     }));

@@ -60,7 +60,7 @@ function checkTypeLiteralSubType(node, parent, child) {
 
     if (parent.name === 'Any:ModuleExports') {
         return null;
-    } else if (parent.name === 'Boolean:Any') {
+    } else if (parent.name === '%Boolean%%Any') {
         return null;
     } else if (parent.name === 'void:Any') {
         return null;
