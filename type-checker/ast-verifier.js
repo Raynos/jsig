@@ -875,7 +875,7 @@ function _checkReturnType(node) {
     var err;
 
     // If we never inferred the return type then it may or may not return
-    if (expected.type === 'typeLiteral' && expected.name === 'void:Any') {
+    if (expected.type === 'typeLiteral' && expected.name === '%void%%Any') {
         return;
     }
 

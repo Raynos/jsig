@@ -40,7 +40,7 @@ function inferCallExpression(node) {
         argTypes.push(this.meta.verifyNode(args[i]));
     }
 
-    var returnType = JsigAST.literal('void:Any', true);
+    var returnType = JsigAST.literal('%void%%Any', true);
     if (this.meta.currentScope.currentAssignmentType) {
         returnType = this.meta.currentScope.currentAssignmentType;
     }
