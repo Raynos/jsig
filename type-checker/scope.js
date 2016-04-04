@@ -246,7 +246,9 @@ util.inherits(FunctionScope, BaseScope);
 
 FunctionScope.prototype.loadTypes =
 function loadTypes(funcNode, typeDefn) {
-    for (var i = 0; i < funcNode.params.length; i++) {
+    var len = Math.min(typeDefn.args.length, funcNode.params.length);
+
+    for (var i = 0; i < len; i++) {
         var param = funcNode.params[i];
         var argType = typeDefn.args[i];
 

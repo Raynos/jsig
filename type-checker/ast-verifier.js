@@ -76,6 +76,10 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyContinueStatement(node);
     } else if (node.type === 'ThrowStatement') {
         return this.verifyThrowStatement(node);
+    } else if (node.type === 'ConditionalExpression') {
+        return this.verifyConditionalExpression(node);
+    } else if (node.type === 'WhileStatement') {
+        return this.verifyWhileStatement(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -358,7 +362,7 @@ function verifyCallExpression(node) {
         err = Errors.TooFewArgsInCall({
             funcName: this.meta.serializeAST(node.callee),
             actualArgs: node.arguments.length,
-            expectedArgs: defn.args.length,
+            expectedArgs: minArgs,
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -544,6 +548,13 @@ function verifyNewExpression(node) {
         return null;
     }
 
+    var minArgs = fnType.args.length;
+    for (var i = 0; i < fnType.args.length; i++) {
+        if (fnType.args[i].optional) {
+            minArgs--;
+        }
+    }
+
     if (node.arguments.length > fnType.args.length) {
         err = Errors.TooManyArgsInNewExpression({
             funcName: node.callee.name,
@@ -553,11 +564,11 @@ function verifyNewExpression(node) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-    } else if (node.arguments.length < fnType.args.length) {
+    } else if (node.arguments.length < minArgs) {
         err = Errors.TooFewArgsInNewExpression({
             funcName: node.callee.name,
             actualArgs: node.arguments.length,
-            expectedArgs: fnType.args.length,
+            expectedArgs: minArgs,
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -565,7 +576,7 @@ function verifyNewExpression(node) {
     }
 
     var minLength = Math.min(fnType.args.length, node.arguments.length);
-    for (var i = 0; i < minLength; i++) {
+    for (i = 0; i < minLength; i++) {
         var wantedType = fnType.args[i];
         var actualType = this.meta.verifyNode(node.arguments[i]);
         if (!actualType) {
@@ -679,6 +690,10 @@ function verifyIfStatement(node) {
         var name = keys[i];
         var ifType = ifBranch.typeRestrictions[name];
         var elseType = elseBranch.typeRestrictions[name];
+
+        if (!ifType || !elseType) {
+            continue;
+        }
 
         if (isSameType(ifType.defn, elseType.defn)) {
             this.meta.currentScope.restrictType(name, ifType.defn);
@@ -798,8 +813,33 @@ function verifyThrowStatement(node) {
         return null;
     }
     // TODO assert argType is Error
+    console.warn('must assert argType is Error');
 
     return null;
+};
+
+ASTVerifier.prototype.verifyConditionalExpression =
+function verifyConditionalExpression(node) {
+    this.meta.verifyNode(node.test);
+
+    var left = this.meta.verifyNode(node.consequent);
+    if (!left) {
+        return null;
+    }
+
+    var right = this.meta.verifyNode(node.alternate);
+    if (!right) {
+        return null;
+    }
+
+    return JsigAST.union([left, right]);
+};
+
+ASTVerifier.prototype.verifyWhileStatement =
+function verifyWhileStatement(node) {
+    this.meta.verifyNode(node.test);
+
+    this.meta.verifyNode(node.body);
 };
 
 ASTVerifier.prototype._checkFunctionType =

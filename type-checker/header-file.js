@@ -131,5 +131,12 @@ function getResolvedAssignments() {
         return null;
     }
 
-    return this.resolvedJsigAst.statements;
+    var statements = [];
+    for (var i = 0; i < this.resolvedJsigAst.statements.length; i++) {
+        if (this.resolvedJsigAst.statements[i].type === 'assignment') {
+            statements.push(this.resolvedJsigAst.statements[i]);
+        }
+    }
+
+    return statements;
 };
