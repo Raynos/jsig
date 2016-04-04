@@ -149,7 +149,7 @@ function checkGenericLiteralSubType(node, parent, child) {
     if (parent.value.name === 'Array' &&
         parent.value.builtin &&
         child.type === 'typeLiteral' &&
-        child.name === '%%Array%Empty'
+        child.name === '%Array%%Empty'
     ) {
         return null;
     }
