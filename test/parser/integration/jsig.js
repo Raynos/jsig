@@ -4,17 +4,20 @@ var test = require('tape');
 var fs = require('fs');
 var path = require('path');
 
-// var showDiff = require('../lib/show-diff.js')
+// var showDiff = require('../lib/show-diff.js');
 
 var parse = require('../../../parser.js');
 var AST = require('../../../ast.js');
+var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions', 'jsig.mli');
 var content = fs.readFileSync(uri, 'utf8');
 
+/*eslint array-bracket-spacing: 0*/
+
 var ASTFixture = AST.program([
     AST.typeDeclaration('GenericE', AST.object({
-        'type': AST.value('"genericLiteral"', 'string'),
+        'type': AST.value('\'genericLiteral\'', 'string'),
         'value': AST.literal('TypeExpression'),
         'generics': AST.generic(
             AST.literal('Array'),
@@ -27,7 +30,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('FunctionE', AST.object({
-        'type': AST.value('"function"', 'string'),
+        'type': AST.value('\'function\'', 'string'),
         'args': AST.generic(
             AST.literal('Array'),
             [ AST.literal('TypeExpression') ]
@@ -44,7 +47,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('ValueE', AST.object({
-        'type': AST.value('"valueLiteral"', 'string'),
+        'type': AST.value('\'valueLiteral\'', 'string'),
         'value': AST.literal('String'),
         'name': AST.literal('String'),
         'label': AST.union([
@@ -54,7 +57,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('LiteralE', AST.object({
-        'type': AST.value('"typeLiteral"', 'string'),
+        'type': AST.value('\'typeLiteral\'', 'string'),
         'name': AST.literal('String'),
         'builtin': AST.literal('Boolean'),
         'label': AST.union([
@@ -64,7 +67,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('UnionE', AST.object({
-        'type': AST.value('"unionType"', 'string'),
+        'type': AST.value('\'unionType\'', 'string'),
         'unions': AST.generic(
             AST.literal('Array'),
             [ AST.literal('TypeExpression') ]
@@ -76,7 +79,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('IntersectionE', AST.object({
-        'type': AST.value('"intersectionType"', 'string'),
+        'type': AST.value('\'intersectionType\'', 'string'),
         'intersections': AST.generic(
             AST.literal('Array'),
             [ AST.literal('TypeExpression') ]
@@ -88,13 +91,13 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('KeyValue', AST.object({
-        'type': AST.value('"keyValue"', 'string'),
+        'type': AST.value('\'keyValue\'', 'string'),
         'key': AST.literal('String'),
         'value': AST.literal('TypeExpression'),
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('ObjectE', AST.object({
-        'type': AST.value('"object"', 'string'),
+        'type': AST.value('\'object\'', 'string'),
         'keyValues': AST.generic(
             AST.literal('Array'),
             [ AST.literal('KeyValue') ]
@@ -106,7 +109,7 @@ var ASTFixture = AST.program([
         'optional': AST.literal('Boolean')
     })),
     AST.typeDeclaration('TupleE', AST.object({
-        'type': AST.value('"tuple"', 'string'),
+        'type': AST.value('\'tuple\'', 'string'),
         'values': AST.generic(
             AST.literal('Array'),
             [ AST.literal('TypeExpression') ]
@@ -128,12 +131,12 @@ var ASTFixture = AST.program([
         AST.literal('IntersectionE')
     ])),
     AST.typeDeclaration('Assignment', AST.object({
-        'type': AST.value('"assignment"', 'string'),
+        'type': AST.value('\'assignment\'', 'string'),
         'identifier': AST.literal('String'),
         'typeExpression': AST.literal('TypeExpression')
     })),
     AST.typeDeclaration('TypeDeclaration', AST.object({
-        'type': AST.value('"typeDeclaration"', 'string'),
+        'type': AST.value('\'typeDeclaration\'', 'string'),
         'identifier': AST.literal('String'),
         'typeExpression': AST.literal('TypeExpression'),
         'generics': AST.generic(
@@ -142,7 +145,7 @@ var ASTFixture = AST.program([
         )
     })),
     AST.typeDeclaration('Import', AST.object({
-        'type': AST.value('"import"', 'string'),
+        'type': AST.value('\'import\'', 'string'),
         'dependency': AST.literal('String'),
         'types': AST.generic(
             AST.literal('Array'),
@@ -155,7 +158,7 @@ var ASTFixture = AST.program([
         AST.literal('Assignment')
     ])),
     AST.typeDeclaration('Program', AST.object({
-        'type': AST.value('"program"', 'string'),
+        'type': AST.value('\'program\'', 'string'),
         'statements': AST.generic(
             AST.literal('Array'),
             [ AST.literal('Statement') ]
@@ -323,7 +326,7 @@ var ASTFixture = AST.program([
                 }, 'opts', { optional: true })
             ],
             result: AST.literal('TupleE')
-        }),
+        })
     })),
     AST.assignment('jsig/ast', AST.literal('AST')),
     AST.assignment('jsig/parser', AST.functionType({
@@ -332,12 +335,23 @@ var ASTFixture = AST.program([
     }))
 ]);
 
-test('the jsig type definition', function (assert) {
+test('the jsig type definition', function t(assert) {
     var result = parse(content);
 
-//    showDiff(result, ASTFixture)
+   // showDiff(result, ASTFixture)
     assert.deepEqual(result, ASTFixture);
 
     assert.end();
 });
 
+test('serialize is idempotent', function t(assert) {
+    var tree = parse(content);
+    var text = serialize(tree);
+
+    var rawLines = content.split('\n');
+    var newLines = text.split('\n');
+
+    assert.deepEqual(rawLines, newLines);
+
+    assert.end();
+});

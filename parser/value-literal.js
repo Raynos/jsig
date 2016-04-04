@@ -8,9 +8,11 @@ var AST = require('../ast.js');
 var valueLiterals = Parsimmon.alt(
     valueLiteral('string', lexemes.quote
         .then(lexemes.notAQuote)
-        .skip(lexemes.quote)
-        .map(function toString(str) {
-            return '"' + str + '"';
+        .chain(function captureString(str) {
+            return lexemes.quote
+                .map(function toString(quote) {
+                    return quote + str + quote;
+                });
         })),
     valueLiteral('number', lexemes.number),
     valueLiteral('null', lexemes.nullWord),

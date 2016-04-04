@@ -1,5 +1,5 @@
 type GenericE : {
-    type: "genericLiteral",
+    type: 'genericLiteral',
     value: TypeExpression,
     generics: Array<TypeExpression>,
     label: String | null,
@@ -7,7 +7,7 @@ type GenericE : {
 }
 
 type FunctionE : {
-    type: "function",
+    type: 'function',
     args: Array<TypeExpression>,
     result: TypeExpression,
     thisArg: TypeExpression | null,
@@ -16,7 +16,7 @@ type FunctionE : {
 }
 
 type ValueE : {
-    type: "valueLiteral",
+    type: 'valueLiteral',
     value: String,
     name: String,
     label: String | null,
@@ -24,7 +24,7 @@ type ValueE : {
 }
 
 type LiteralE : {
-    type: "typeLiteral",
+    type: 'typeLiteral',
     name: String,
     builtin: Boolean,
     label: String | null,
@@ -32,35 +32,35 @@ type LiteralE : {
 }
 
 type UnionE : {
-    type: "unionType",
+    type: 'unionType',
     unions: Array<TypeExpression>,
     label: String | null,
     optional: Boolean
 }
 
 type IntersectionE : {
-    type: "intersectionType",
+    type: 'intersectionType',
     intersections: Array<TypeExpression>,
     label: String | null,
     optional: Boolean
 }
 
 type KeyValue : {
-    type: "keyValue",
+    type: 'keyValue',
     key: String,
     value: TypeExpression,
     optional: Boolean
 }
 
 type ObjectE : {
-    type: "object",
+    type: 'object',
     keyValues: Array<KeyValue>,
     label: String | null,
     optional: Boolean
 }
 
 type TupleE : {
-    type: "tuple",
+    type: 'tuple',
     values: Array<TypeExpression>,
     label: String | null,
     optional: Boolean
@@ -70,28 +70,27 @@ type TypeExpression : ObjectE | UnionE | LiteralE | FunctionE |
     ValueE | GenericE | TupleE | IntersectionE
 
 type Assignment : {
-    type: "assignment",
+    type: 'assignment',
     identifier: String,
     typeExpression: TypeExpression
 }
 
 type TypeDeclaration : {
-    type: "typeDeclaration",
+    type: 'typeDeclaration',
     identifier: String,
     typeExpression: TypeExpression,
     generics: Array<LiteralE>
 }
 
 type Import : {
-    type: "import",
+    type: 'import',
     dependency: String,
     types: Array<LiteralE>
 }
 
 type Statement : Import | TypeDeclaration | Assignment
-
 type Program : {
-    type: "program",
+    type: 'program',
     statements: Array<Statement>
 }
 
@@ -104,15 +103,21 @@ type AST : {
         keyValues: Array<KeyValue> | Object<String, TypeExpression>,
         label?: String
     ) => ObjectE,
-    union: (Array<TypeExpression>, label?: String, opts?: {
-        optional: Boolean
-    }) => UnionE,
-    intersection: (Array<TypeExpression>, label?: String, opts?: {
-        optional: Boolean
-    }) => IntersectionE,
-    literal: (String, builtin?: String, opts?: {
-        optional: Boolean
-    }) => LiteralE,
+    union: (
+        Array<TypeExpression>,
+        label?: String,
+        opts?: { optional: Boolean }
+    ) => UnionE,
+    intersection: (
+        Array<TypeExpression>,
+        label?: String,
+        opts?: { optional: Boolean }
+    ) => IntersectionE,
+    literal: (
+        String,
+        builtin?: String,
+        opts?: { optional: Boolean }
+    ) => LiteralE,
     keyValue: (String, TypeExpression) => KeyValue,
     value: (String, name: String, label?: String) => ValueE,
     functionType: (opts: {
@@ -127,9 +132,11 @@ type AST : {
         generics: Array<TypeExpression>,
         label?: String
     ) => GenericE,
-    tuple: (Array<TypeExpression>, label?: String, opts?: {
-        optional: Boolean
-    }) => TupleE
+    tuple: (
+        Array<TypeExpression>,
+        label?: String,
+        opts?: { optional: Boolean }
+    ) => TupleE
 }
 
 jsig/ast : AST

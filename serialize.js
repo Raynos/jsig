@@ -178,8 +178,10 @@ function prettyFormatList(labelStr, tokens, seperator, opts) {
 
         if (len < 65) {
             parts[lastIndex] += token + seperator;
-            return parts;
+            continue;
         }
+
+        parts[lastIndex] = last.substr(0, last.length - 1);
 
         if (opts.lineStart) {
             opts.lineStart = 0;
@@ -191,7 +193,7 @@ function prettyFormatList(labelStr, tokens, seperator, opts) {
 
     var str = labelStr + parts.join('\n');
     // remove extra {seperator} at the end
-    return str.substr(0, str.length - 1);
+    return str.substr(0, str.length - seperator.length);
 }
 
 function serializeUnion(node, opts) {
@@ -206,6 +208,7 @@ function serializeUnion(node, opts) {
     if (str.split('\n')[0].length > 65) {
         str = prettyFormatList(labelStr, nodes, ' | ', opts);
     }
+
 
     return str;
 }
