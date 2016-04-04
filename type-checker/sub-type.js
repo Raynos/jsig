@@ -117,7 +117,7 @@ function checkTypeLiteralSubType(node, parent, child) {
 SubTypeChecker.prototype.checkValueLiteralSubType =
 function checkValueLiteralSubType(node, parent, child) {
     if (parent.name === 'null' && child.type === 'typeLiteral' &&
-        child.builtin && child.name === 'Null:Default'
+        child.builtin && child.name === '%Null%%Default'
     ) {
         return null;
     }

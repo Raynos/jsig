@@ -175,7 +175,7 @@ function verifyAssignmentExpression(node) {
     }
 
     var isDefault = leftType.type === 'typeLiteral' &&
-        leftType.builtin && leftType.name === 'Null:Default';
+        leftType.builtin && leftType.name === '%Null%%Default';
 
     if (!isDefault) {
         this.meta.checkSubType(node, leftType, rightType);
@@ -593,7 +593,7 @@ function verifyVariableDeclaration(node) {
     }
 
     if (type.type === 'valueLiteral' && type.name === 'null') {
-        type = JsigAST.literal('Null:Default', true);
+        type = JsigAST.literal('%Null%%Default', true);
     }
 
     this.meta.currentScope.addVar(id, type);
