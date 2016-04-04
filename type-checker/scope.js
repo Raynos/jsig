@@ -387,7 +387,9 @@ function updateFunction(id, defn) {
 };
 
 BaseScope.prototype.restrictType = function restrictType(id, type) {
-    assert(!this.typeRestrictions[id], 'cannot double restict type: ' + id);
+
+    // TODO: gaurd against weird restrictions? ...
+    // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
 
     if (id === 'this') {
         this._restrictedThisValueType = type;

@@ -11,6 +11,11 @@ function clone(typeDefn) {
         return JsigAST.object(typeDefn.keyValues, typeDefn.label, {
             optional: typeDefn.optional
         });
+    } else if (typeDefn.type === 'typeLiteral') {
+        return JsigAST.literal(typeDefn.name, typeDefn.builtin, {
+            label: typeDefn.label,
+            optional: typeDefn.optional
+        });
     } else {
         assert(false, 'not implemented clone: ' + typeDefn.type);
     }
