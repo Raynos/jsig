@@ -2,7 +2,9 @@
 
 var assert = require('assert');
 var util = require('util');
+
 var JsigAST = require('../ast.js');
+var cloneAST = require('./lib/clone-ast.js');
 
 var moduleType = JsigAST.object({
     exports: JsigAST.literal('%Any%%ModuleExports', true)
@@ -30,6 +32,7 @@ function BaseScope(parent) {
 BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
     assert(typeDefn, 'addVar() must have typeDefn');
+    assert(!typeDefn.optional, 'cannot add optional type');
 
     var token = {
         type: 'variable',
@@ -251,6 +254,18 @@ function loadTypes(funcNode, typeDefn) {
     for (var i = 0; i < len; i++) {
         var param = funcNode.params[i];
         var argType = typeDefn.args[i];
+
+        if (argType.optional) {
+            argType = cloneAST(argType);
+            argType.optional = false;
+            if (argType.label) {
+                argType.label = argType.label.substr(0, argType.label - 1);
+            }
+
+            argType = JsigAST.union([
+                argType, JsigAST.value('undefined')
+            ]);
+        }
 
         this.addVar(param.name, argType);
     }

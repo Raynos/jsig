@@ -735,28 +735,31 @@ function verifyUnaryExpression(node) {
 
 ASTVerifier.prototype.verifyLogicalExpression =
 function verifyLogicalExpression(node) {
+    assert(node.operator === '||' || node.operator === '&&',
+        'only || and && are supported as logical operators');
+
+    var ifBranch = this.meta.allocateBranchScope();
+    var elseBranch = this.meta.allocateBranchScope();
+
     var leftType = this.meta.verifyNode(node.left);
     if (!leftType) {
         return null;
     }
 
-    var rightType = this.meta.verifyNode(node.right);
-    if (!rightType) {
-        return null;
+    this.meta.narrowType(node.left, ifBranch, elseBranch);
+
+    if (node.operator === '&&') {
+        this.meta.enterBranchScope(ifBranch);
+    } else if (node.operator === '||') {
+        this.meta.enterBranchScope(elseBranch);
+    } else {
+        assert(false, 'unsupported logical operator');
     }
 
-    if (node.operator !== '||' && node.operator !== '&&') {
-        var token = this.meta.getOperator(node.operator);
-        assert(token, 'do not support unknown operator: ' + node.operator);
-
-        var defn = token.defn;
-        assert(defn.args.length === 2,
-            'expected type defn args to be two');
-
-        this.meta.checkSubType(node.left, defn.args[0], leftType);
-        this.meta.checkSubType(node.right, defn.args[1], rightType);
-
-        return defn.result;
+    var rightType = this.meta.verifyNode(node.right);
+    this.meta.exitBranchScope();
+    if (!rightType) {
+        return null;
     }
 
     var t1;
@@ -1039,6 +1042,7 @@ function _findPropertyInType(node, jsigType, propertyName) {
     for (var i = 0; i < jsigType.keyValues.length; i++) {
         var keyValue = jsigType.keyValues[i];
         if (keyValue.key === propertyName) {
+            // TODO: handle optional fields
             return keyValue.value;
         }
     }
