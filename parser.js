@@ -4,11 +4,12 @@ var Parsimmon = require('parsimmon');
 var program = require('./parser/program.js');
 
 function parse(content, cb) {
-    var res =  program.parse(content);
+    var res = program.parse(content);
 
     if (res.status) {
         if (cb) {
             cb(null, res.value);
+            return res.value;
         }
         return res.value;
     }

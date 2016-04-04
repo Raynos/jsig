@@ -14,6 +14,8 @@ var uri = path.join(__dirname, 'definitions',
     'continuable-mongo.mli');
 var content = fs.readFileSync(uri, 'utf8');
 
+/*eslint array-bracket-spacing: 0*/
+
 var ASTFixture = AST.program([
     AST.importStatement('node.jsig', [
         AST.literal('Stream')

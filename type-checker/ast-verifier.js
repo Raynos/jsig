@@ -350,7 +350,6 @@ function verifyCallExpression(node) {
         }
     }
 
-    var err;
     if (node.arguments.length < minArgs) {
         err = Errors.TooFewArgsInCall({
             funcName: this.meta.serializeAST(node.callee),
@@ -774,7 +773,7 @@ function verifyFunctionExpression(node) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-        return;
+        return null;
     }
 
     this._checkFunctionType(node, potentialType);
