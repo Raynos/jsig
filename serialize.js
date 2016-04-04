@@ -15,7 +15,8 @@ var serializers = {
     valueLiteral: serializeValue,
     function: serializeFunctionType,
     genericLiteral: serializeGeneric,
-    tuple: serializeTuple
+    tuple: serializeTuple,
+    renamedLiteral: serializeRenamedLiteral
 };
 
 module.exports = serialize;
@@ -41,7 +42,20 @@ function serializeProgram(node, opts) {
     for (var i = 0; i < node.statements.length; i++) {
         tokens.push(serialize(node.statements[i], opts));
     }
-    return tokens.join('\n\n');
+
+    var text = tokens[0];
+    var isImport = node.statements[0].type === 'import';
+    for (i = 1; i < tokens.length; i++) {
+        isImport = node.statements[i].type === 'import';
+        text += isImport ? '\n' : '\n\n';
+        text += tokens[i];
+    }
+
+    if (tokens.length > 1) {
+        text += '\n';
+    }
+
+    return text;
 }
 
 function serializeTypeDeclaration(node, opts) {
@@ -65,13 +79,31 @@ function serializeAssignment(node, opts) {
 }
 
 function serializeImportStatement(node, opts) {
-    var tokens = [];
-    for (var i = 0; i < node.types.length; i++) {
-        tokens.push(serialize(node.types[i], opts));
+    var tokens;
+
+    if (node.types.length <= 1) {
+        tokens = [];
+        for (var i = 0; i < node.types.length; i++) {
+            tokens.push(serialize(node.types[i]));
+        }
+
+        var content = 'import { ' + tokens.join(', ') +
+            ' } from "' + node.dependency + '"';
+
+        if (content.length < 65 && content.indexOf('\n') === -1) {
+            return content;
+        }
     }
 
-    return 'import { ' + tokens.join(', ') +
-        ' } from "' + node.dependency + '"';
+    tokens = [];
+    for (i = 0; i < node.types.length; i++) {
+        tokens.push(serialize(node.types[i], extend(opts, {
+            indent: opts.indent + 1
+        })));
+    }
+
+    return 'import {\n' + tokens.join(',\n') + '\n' +
+        spaces(opts.indent) + '} from "' + node.dependency + '"';
 }
 
 function serializeLabel(node) {
@@ -244,6 +276,11 @@ function serializeTuple(node, opts) {
 
     return serializeLabel(node, opts) +
         '[' + nodes.join(', ') + ']';
+}
+
+function serializeRenamedLiteral(node, opts) {
+    return serializeLabel(node, opts) + ' ' +
+        serialize(node.original) + ' as ' + node.name;
 }
 
 function spaces(n) {
