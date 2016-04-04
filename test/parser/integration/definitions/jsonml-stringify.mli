@@ -1,16 +1,10 @@
 type JsonMLSelector : String
 type JsonMLTextContent : String
-type JsonMLRawContent : {
-    raw: String
-}
-type JsonMLFragment : {
-    fragment: Array<JsonML>
-}
-
+type JsonMLRawContent : { raw: String }
+type JsonMLFragment : { fragment: Array<JsonML> }
 type JsonMLAttributeKey : String
 type JsonMLAttributeValue : String | Number | Boolean
 type JsonMLAttrs : Object<JsonMLAttributeKey, JsonMLAttributeValue>
-
 type MaybeJsonML :
     JsonMLTextContent |
     JsonMLRawContent |
@@ -26,15 +20,9 @@ type MaybeJsonML :
     [JsonMLSelector, JsonMLAttrs, { fragment: Array<MaybeJsonML> }] |
     [JsonMLSelector, JsonMLAttrs, JsonMLRawContent]
 
-type JsonML :
-    JsonMLTextContent |
-    JsonMLFragment |
+type JsonML : JsonMLTextContent | JsonMLFragment |
     JsonMLRawContent |
-    [
-        JsonMLSelector,
-        JsonMLAttrs,
-        Array<JsonML>
-    ]
+    [JsonMLSelector, JsonMLAttrs, Array<JsonML>]
 
 jsonml-stringify : (jsonml: JsonML, opts?: Object) => String
 

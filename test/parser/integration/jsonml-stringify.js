@@ -6,6 +6,7 @@ var path = require('path');
 
 var parse = require('../../../parser.js');
 var AST = require('../../../ast.js');
+var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions',
     'jsonml-stringify.mli');
@@ -156,6 +157,18 @@ test('the jsonml-stringify type definition', function t(assert) {
 
     // showDiff(result, ASTFixture);
     assert.deepEqual(result, ASTFixture);
+
+    assert.end();
+});
+
+test('serialize is idempotent', function t(assert) {
+    var tree = parse(content);
+    var text = serialize(tree);
+
+    var rawLines = content.split('\n');
+    var newLines = text.split('\n');
+
+    assert.deepEqual(rawLines, newLines);
 
     assert.end();
 });

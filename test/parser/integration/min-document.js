@@ -8,9 +8,12 @@ var path = require('path');
 
 var parse = require('../../../parser.js');
 var AST = require('../../../ast.js');
+var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions', 'min-document.mli');
 var content = fs.readFileSync(uri, 'utf8');
+
+/*eslint array-bracket-spacing: 0*/
 
 var ASTFixture = AST.program([
     AST.typeDeclaration('DOMText', AST.object({
@@ -267,7 +270,7 @@ var ASTFixture = AST.program([
     AST.assignment('min-document', AST.literal('Document'))
 ]);
 
-test('the min-document type definition', function (assert) {
+test('the min-document type definition', function t(assert) {
     var result = parse(content);
 
     // showDiff(result, ASTFixture)
@@ -276,3 +279,14 @@ test('the min-document type definition', function (assert) {
     assert.end();
 });
 
+test('serialize is idempotent', function t(assert) {
+    var tree = parse(content);
+    var text = serialize(tree);
+
+    var rawLines = content.split('\n');
+    var newLines = text.split('\n');
+
+    assert.deepEqual(rawLines, newLines);
+
+    assert.end();
+});

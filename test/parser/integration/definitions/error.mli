@@ -17,10 +17,9 @@ type ValidationError : {
 
 error/option : (String, T) => OptionError<T>
 
-error/typed :
-    (args: {
-        message: String,
-        type: String
-    }) => (opts: Object) => TypedError<String>
+error/typed : (args: {
+    message: String,
+    type: String
+}) => (opts: Object) => TypedError<String>
 
 error/validation : (Array<Error>) => ValidationError

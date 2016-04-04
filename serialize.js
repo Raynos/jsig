@@ -51,7 +51,12 @@ function serializeProgram(node, opts) {
     for (i = 1; i < tokens.length; i++) {
         isImport = node.statements[i].type === 'import';
 
-        text += (isImport || oneLineType) ? '\n' : '\n\n';
+        var sequentialStatements = (
+            isImport ||
+            (oneLineType && node.statements[i].type === 'typeDeclaration')
+        );
+
+        text += sequentialStatements ? '\n' : '\n\n';
         text += tokens[i];
 
         oneLineType = node.statements[i].type === 'typeDeclaration' &&
@@ -73,18 +78,20 @@ function serializeTypeDeclaration(node, opts) {
 
     var generics = tokens.length ?
         '<' + tokens.join(', ') + '>' : '';
-    var str = 'type ' + node.identifier + generics + ' : ';
+    var str = 'type ' + node.identifier + generics;
 
-    return str + serialize(node.typeExpression, extend(opts, {
+    var decl = serialize(node.typeExpression, extend(opts, {
         lineStart: str.length
     }));
+
+    return str + (decl[0] === '\n' ? ' :' : ' : ') + decl;
 }
 
 function serializeAssignment(node, opts) {
     var str = node.identifier + ' : ' +
         serialize(node.typeExpression, opts);
 
-    if (str.length <= 65) {
+    if (str.split('\n')[0].length <= 65) {
         return str;
     }
 
@@ -206,9 +213,20 @@ function serializeUnion(node, opts) {
 
     /* heuristic. Split across multiple lines if too long */
     if (str.split('\n')[0].length > 65) {
-        str = prettyFormatList(labelStr, nodes, ' | ', opts);
+        if (nodes.length < 10) {
+            str = prettyFormatList(labelStr, nodes, ' | ', opts);
+        } else {
+            nodes = [];
+            for (i = 0; i < node.unions.length; i++) {
+                var text = spaces(opts.indent + 1) +
+                    serialize(node.unions[i], extend(opts, {
+                        indent: opts.indent + 1
+                    }));
+                nodes.push(text);
+            }
+            str = '\n' + nodes.join(' |\n');
+        }
     }
-
 
     return str;
 }

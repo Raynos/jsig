@@ -3,7 +3,6 @@ type DOMText : {
     type: "DOMTextNode",
     length: Number,
     nodeType: 3,
-
     toString: (this: DOMText) => String,
     replaceChild: (
         this: DOMText,
@@ -15,7 +14,6 @@ type DOMText : {
 
 type DOMNode : DOMText | DOMElement | DocumentFragment
 type DOMChild : DOMText | DOMElement
-
 type DOMElement : {
     tagName: String,
     className: String,
@@ -27,13 +25,8 @@ type DOMElement : {
     nodeType: 1,
     ownerDocument: null | Document,
     namespaceURI: null | String,
-
     appendChild: (this: DOMElement, child: DOMChild) => DOMChild,
-    replaceChild:(
-        this: DOMElement,
-        elem: DOMChild,
-        needle: DOMChild
-    ) => DOMChild,
+    replaceChild: (this: DOMElement, elem: DOMChild, needle: DOMChild) => DOMChild,
     removeChild: (this: DOMElement, child: DOMChild) => DOMChild,
     insertBefore: (
         this: DOMElement,
@@ -53,7 +46,6 @@ type DocumentFragment : {
     nodeType: 11,
     nodeName: "#document-fragment",
     ownerDocument: Document | null,
-
     appendChild: (this: DocumentFragment, child: DOMChild) => DOMChild,
     replaceChild: (
         this: DocumentFragment,
@@ -67,7 +59,6 @@ type DocumentFragment : {
 type Document : {
     body: DOMElement,
     documentElement: DOMElement,
-
     createTextNode: (this: Document, value: String) => DOMText,
     createElement: (this: Document, tagName: String) => DOMElement,
     createElementNS: (
@@ -88,7 +79,6 @@ type Event : {
     type: String,
     bubbles: Boolean,
     cancelable: Boolean,
-
     initEvent: (
         this: Event,
         type: String,
@@ -97,16 +87,8 @@ type Event : {
     ) => void
 }
 
-type addEventListener : (
-    this: DOMElement,
-    type: String,
-    listener: Listener
-) => void
-
-type dispatchEvent : (
-    this: DOMElement,
-    ev: Event
-) => void
+type addEventListener : (this: DOMElement, type: String, listener: Listener) => void
+type dispatchEvent : (this: DOMElement, ev: Event) => void
 
 min-document/event/add-event-listener : addEventListener
 
