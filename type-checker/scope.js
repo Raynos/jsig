@@ -129,7 +129,7 @@ function loadLanguageIdentifiers() {
     this._addVar('Object', JsigAST.object({
         'create': JsigAST.functionType({
             args: [JsigAST.value('null')],
-            result: JsigAST.literal('Object:Empty', true)
+            result: JsigAST.literal('%Object%%Empty', true)
         }),
         'keys': JsigAST.functionType({
             args: [JsigAST.generic(
