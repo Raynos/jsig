@@ -72,6 +72,10 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyLogicalExpression(node);
     } else if (node.type === 'FunctionExpression') {
         return this.verifyFunctionExpression(node);
+    } else if (node.type === 'ContinueStatement') {
+        return this.verifyContinueStatement(node);
+    } else if (node.type === 'ThrowStatement') {
+        return this.verifyThrowStatement(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -780,6 +784,24 @@ function verifyFunctionExpression(node) {
     return potentialType;
 };
 
+ASTVerifier.prototype.verifyContinueStatement =
+function verifyContinueStatement(node) {
+    assert(node.label === null, 'do not support goto');
+
+    return null;
+};
+
+ASTVerifier.prototype.verifyThrowStatement =
+function verifyThrowStatement(node) {
+    var argType = this.meta.verifyNode(node.argument);
+    if (argType === null) {
+        return null;
+    }
+    // TODO assert argType is Error
+
+    return null;
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
@@ -931,7 +953,9 @@ function _checkVoidReturnType(node) {
         return;
     }
 
-    assert(returnType.type === 'typeLiteral' && returnType.name === 'void',
+    // console.log('?', this.meta.serializeType(returnType));
+    assert(returnType.type === 'typeLiteral' &&
+        (returnType.name === 'void' || returnType.name === '%void%%Any'),
         'expected Constructor to have no return void');
 };
 

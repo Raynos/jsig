@@ -76,6 +76,9 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
 
     // Type of field itself
     var fieldType = this.meta.verifyNode(node);
+    if (!fieldType) {
+        return null;
+    }
 
     assert(node.property.type === 'Identifier', 'property must be field');
     var fieldName = node.property.name;

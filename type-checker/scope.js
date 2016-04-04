@@ -29,6 +29,8 @@ function BaseScope(parent) {
 
 BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
+    assert(typeDefn, 'addVar() must have typeDefn');
+
     var token = {
         type: 'variable',
         defn: typeDefn
@@ -360,6 +362,11 @@ function updateVar(id, typeDefn) {
 BranchScope.prototype.getFunction =
 function getFunction(id) {
     return this.parent.getFunction(id);
+};
+
+BranchScope.prototype.updateFunction =
+function updateFunction(id, defn) {
+    return this.parent.updateFunction(id, defn);
 };
 
 BaseScope.prototype.restrictType = function restrictType(id, type) {

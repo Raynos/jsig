@@ -37,7 +37,12 @@ function inferCallExpression(node) {
 
     var argTypes = [];
     for (var i = 0; i < args.length; i++) {
-        argTypes.push(this.meta.verifyNode(args[i]));
+        var funcArg = this.meta.verifyNode(args[i]);
+        if (!funcArg) {
+            return null;
+        }
+
+        argTypes.push(funcArg);
     }
 
     var returnType = JsigAST.literal('%void%%Any', true);
