@@ -84,7 +84,7 @@ function inferArrayExpression(node) {
     var elems = node.elements;
 
     if (elems.length === 0) {
-        return JsigAST.literal('Array:Empty', true);
+        return JsigAST.literal('%Array%%Empty', true);
     }
 
     var type = null;
