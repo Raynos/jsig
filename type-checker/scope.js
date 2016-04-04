@@ -5,7 +5,7 @@ var util = require('util');
 var JsigAST = require('../ast.js');
 
 var moduleType = JsigAST.object({
-    exports: JsigAST.literal('Any:ModuleExports', true)
+    exports: JsigAST.literal('%Any%%ModuleExports', true)
 });
 moduleType.isNodeModuleToken = true;
 

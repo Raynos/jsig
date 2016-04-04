@@ -151,7 +151,7 @@ function verifyAssignmentExpression(node) {
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getFunction(node.right.name)
     ) {
-        if (leftType.name === 'Any:ModuleExports') {
+        if (leftType.name === '%Any%%ModuleExports') {
             this.meta.addError(Errors.UnknownModuleExports({
                 funcName: node.right.name,
                 loc: node.loc,
@@ -185,7 +185,7 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.updateVar(node.left.name, rightType);
     }
 
-    if (leftType.name === 'Any:ModuleExports') {
+    if (leftType.name === '%Any%%ModuleExports') {
         assert(node.right.type === 'Identifier',
             'export must be identifier');
 

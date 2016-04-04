@@ -58,7 +58,7 @@ function checkTypeLiteralSubType(node, parent, child) {
         throw new Error('not implemented, sub type for non-builtin');
     }
 
-    if (parent.name === 'Any:ModuleExports') {
+    if (parent.name === '%Any%%ModuleExports') {
         return null;
     } else if (parent.name === '%Boolean%%Any') {
         return null;
