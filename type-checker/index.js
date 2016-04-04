@@ -11,6 +11,7 @@ var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
 
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
+var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
 
 compile.TypeChecker = TypeChecker;
 
@@ -55,15 +56,29 @@ function checkProgram() {
 
 TypeChecker.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {
-    var headerFile = this.getOrCreateHeaderFile(operatorsFile);
+    var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile);
     assert(this.errors.length === 0, 'must be no errors');
-    assert(headerFile, 'must be able to load operators');
+    assert(opHeaderFile, 'must be able to load operators');
 
-    var assignments = headerFile.getResolvedAssignments();
+    var assignments = opHeaderFile.getResolvedAssignments();
     for (var i = 0; i < assignments.length; i++) {
         var a = assignments[i];
         this.globalScope._addOperator(a.identifier, a.typeExpression);
     }
+
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
+    assert(this.errors.length === 0, 'must be no errors');
+    assert(es5HeaderFile, 'must be able to load es5');
+
+    assignments = es5HeaderFile.getResolvedAssignments();
+    for (i = 0; i < assignments.length; i++) {
+        a = assignments[i];
+        this.globalScope._addVar(a.identifier, a.typeExpression);
+    }
+
+    this.globalScope._addVirtualType(
+        'TString', es5HeaderFile.getToken('TString')
+    );
 
     this.globalScope.loadLanguageIdentifiers();
 };

@@ -126,30 +126,6 @@ GlobalScope.prototype._addVirtualType = function _addVirtualType(id, typeDefn) {
 
 GlobalScope.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {
-    this._addVar('String', JsigAST.functionType({
-        args: [JsigAST.literal('Number')],
-        result: JsigAST.literal('String')
-    }));
-
-    this._addVar('Date', JsigAST.object({
-        'now': JsigAST.functionType({
-            args: [],
-            result: JsigAST.literal('Number')
-        })
-    }));
-
-    this._addVar('Math', JsigAST.object({
-        'floor': JsigAST.functionType({
-            args: [JsigAST.literal('Number')],
-            result: JsigAST.literal('Number')
-        })
-    }));
-
-    this._addVar('parseInt', JsigAST.functionType({
-        args: [JsigAST.literal('String'), JsigAST.literal('Number')],
-        result: JsigAST.literal('Number')
-    }));
-
     this._addVar('Object', JsigAST.object({
         'create': JsigAST.functionType({
             args: [JsigAST.value('null')],
@@ -193,22 +169,6 @@ function loadLanguageIdentifiers() {
                 [JsigAST.literal('T')]
             ),
             generics: [JsigAST.literal('T')]
-        })
-    }));
-
-    this._addVirtualType('TString', JsigAST.object({
-        'split': JsigAST.functionType({
-            thisArg: JsigAST.literal('String'),
-            args: [JsigAST.literal('String')],
-            result: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('String')]
-            )
-        }),
-        'replace': JsigAST.functionType({
-            thisArg: JsigAST.literal('String'),
-            args: [JsigAST.literal('RegExp'), JsigAST.literal('String')],
-            result: JsigAST.literal('String')
         })
     }));
 

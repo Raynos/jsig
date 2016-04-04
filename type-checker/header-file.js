@@ -36,6 +36,11 @@ HeaderFile.prototype.replace = function replace(ast, rawAst) {
     }
 };
 
+HeaderFile.prototype.getToken =
+function getToken(name) {
+    return this.indexTable[name];
+};
+
 HeaderFile.prototype.replaceTypeLiteral =
 function replaceTypeLiteral(ast, rawAst) {
     var name = ast.name;
