@@ -14,7 +14,7 @@ var lexemes = {
     ),
     moduleName: lexeme(Parsimmon.regex(/[a-z0-9\-\/\.]+/i)),
     labelName: lexeme(Parsimmon.regex(/[a-z0-9_\?]+/i)),
-    typeName: lexeme(Parsimmon.regex(/[a-z]+/i)),
+    typeName: lexeme(Parsimmon.regex(/[a-z%]+/i)),
     labelSeperator: lexeme(Parsimmon.string(':')),
     comma: lexeme(Parsimmon.string(',')),
     openAngularBrace: lexeme(Parsimmon.string('<')),

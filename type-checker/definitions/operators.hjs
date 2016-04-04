@@ -22,3 +22,11 @@
 ++ : (Number) => Number
 
 \-\- : (Number) => Number
+
+! : (%Boolean%%Any) => Boolean
+
+void : (%Boolean%%Any) => void
+
+=== : (%Boolean%%Any, %Boolean%%Any) => Boolean
+
+!== : (%Boolean%%Any, %Boolean%%Any) => Boolean
