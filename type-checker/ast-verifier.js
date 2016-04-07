@@ -490,15 +490,23 @@ function verifyBinaryExpression(node) {
 
 ASTVerifier.prototype.verifyReturnStatement =
 function verifyReturnStatement(node) {
+    var funcScope = this.meta.currentScope.getFunctionScope();
+    assert(funcScope, 'return must be within a function scope');
+
     var defn;
     if (node.argument === null) {
         defn = JsigAST.literal('void');
     } else {
+        var expectedReturnValueType = funcScope.returnValueType;
+        if (expectedReturnValueType) {
+            this.meta.currentScope
+                .enterReturnStatement(expectedReturnValueType);
+        }
         defn = this.meta.verifyNode(node.argument);
+        if (expectedReturnValueType) {
+            this.meta.currentScope.exitReturnStatement();
+        }
     }
-
-    var funcScope = this.meta.currentScope.getFunctionScope();
-    assert(funcScope, 'return must be within a function scope');
 
     if (defn) {
         funcScope.markReturnType(defn, node);

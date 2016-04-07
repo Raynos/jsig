@@ -46,8 +46,10 @@ function inferCallExpression(node) {
     }
 
     var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
-    if (this.meta.currentScope.currentAssignmentType) {
-        returnType = this.meta.currentScope.currentAssignmentType;
+    if (this.meta.currentScope.getAssignmentType()) {
+        returnType = this.meta.currentScope.getAssignmentType();
+    } else if (this.meta.currentScope.getReturnExpressionType()) {
+        returnType = this.meta.currentScope.getReturnExpressionType();
     }
 
     // TODO: infer this arg based on method calls

@@ -57,6 +57,11 @@ function enterAssignment(leftType) {
     this.currentAssignmentType = leftType;
 };
 
+BaseScope.prototype.getAssignmentType =
+function getAssignmentType() {
+    return this.currentAssignmentType;
+};
+
 BaseScope.prototype.exitAssignment =
 function exitAssignment() {
     this.currentAssignmentType = null;
@@ -257,6 +262,8 @@ function FunctionScope(parent, funcName, funcNode) {
     this.returnStatementASTNode = null;
     this.funcASTNode = funcNode;
     this.writableTokenLookup = false;
+
+    this.returnExpressionType = null;
 }
 util.inherits(FunctionScope, BaseScope);
 
@@ -364,6 +371,21 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
     };
 };
 
+FunctionScope.prototype.enterReturnStatement =
+function enterReturnStatement(type) {
+    this.returnExpressionType = type;
+};
+
+FunctionScope.prototype.getReturnExpressionType =
+function getReturnExpressionType() {
+    return this.returnExpressionType;
+};
+
+FunctionScope.prototype.exitReturnStatement =
+function exitReturnStatement() {
+    this.returnExpressionType = null;
+};
+
 function BranchScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'branch';
@@ -425,3 +447,17 @@ BranchScope.prototype.restrictType = function restrictType(id, type) {
     };
 };
 
+BranchScope.prototype.enterReturnStatement =
+function enterReturnStatement(type) {
+    return this.parent.enterReturnStatement(type);
+};
+
+BranchScope.prototype.getReturnExpressionType =
+function getReturnExpressionType() {
+    return this.parent.getReturnExpressionType();
+};
+
+BranchScope.prototype.exitReturnStatement =
+function exitReturnStatement() {
+    this.parent.exitReturnStatement();
+};
