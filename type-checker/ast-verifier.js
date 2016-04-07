@@ -940,7 +940,9 @@ function _checkReturnType(node) {
     var err;
 
     // If we never inferred the return type then it may or may not return
-    if (expected.type === 'typeLiteral' && expected.name === '%void%%Any') {
+    if (expected.type === 'typeLiteral' &&
+        expected.name === '%void%%UnknownReturn'
+    ) {
         return;
     }
 
@@ -997,9 +999,10 @@ function _checkVoidReturnType(node) {
     }
 
     // console.log('?', this.meta.serializeType(returnType));
-    assert(returnType.type === 'typeLiteral' &&
-        (returnType.name === 'void' || returnType.name === '%void%%Any'),
-        'expected Constructor to have no return void');
+    assert(returnType.type === 'typeLiteral' && (
+        returnType.name === 'void' ||
+        returnType.name === '%void%%UnknownReturn'
+    ), 'expected Constructor to have no return void');
 };
 
 ASTVerifier.prototype._findPropertyInType =
