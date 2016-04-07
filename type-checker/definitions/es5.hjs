@@ -1,3 +1,7 @@
+type Error : {
+    message: String,
+    stack: String
+}
 
 --type TArray : {
 --    length: Number,
@@ -6,11 +10,15 @@
 --}
 
 type TString : {
+    length: Number,
     split: (this: String, String) => Array<String>,
-    replace: (this: String, RegExp, String) => String
+    replace: (this: String, RegExp, String) => String,
+    indexOf: (this: String, String) => Number
 }
 
 String : (Number) => String
+
+Error : (this: Error, String) => void
 
 Date : {
     now: () => Number

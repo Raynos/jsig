@@ -30,7 +30,7 @@ test('foo : Error', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
-        builtin: true,
+        builtin: false,
         label: null,
         optional: false,
         name: 'Error',

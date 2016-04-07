@@ -4,6 +4,7 @@
         "global": true
     },
     "rules": {
+        "dot-notation": 0,
         "spaced-comment": 0,
         "no-console": 0,
         "max-statements": [2, 40],

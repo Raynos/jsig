@@ -7,7 +7,6 @@ var builtinTypes = [
     'void',
     'Boolean',
     'Array',
-    'Error',
     'Function',
     'RegExp',
     '%Boolean%%Any'

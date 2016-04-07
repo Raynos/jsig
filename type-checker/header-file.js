@@ -41,9 +41,15 @@ function getToken(name) {
     return this.indexTable[name];
 };
 
+/*eslint dot-notation: 0*/
 HeaderFile.prototype.replaceTypeLiteral =
 function replaceTypeLiteral(ast, rawAst) {
     var name = ast.name;
+
+    if (name === 'Error' && !this.indexTable['Error']) {
+        this.checker.loadJavaScriptIntoIndexTable(this.indexTable);
+    }
+
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {
         this.errors.push(UnknownLiteralError({

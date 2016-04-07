@@ -83,6 +83,16 @@ function loadLanguageIdentifiers() {
     this.globalScope.loadLanguageIdentifiers();
 };
 
+TypeChecker.prototype.loadJavaScriptIntoIndexTable =
+function loadJavaScriptIntoIndexTable(indexTable) {
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
+    assert(this.errors.length === 0, 'must be no errors');
+    assert(es5HeaderFile, 'must be able to load es5');
+
+    es5HeaderFile.resolveReferences();
+    indexTable['Error'] = es5HeaderFile.indexTable['Error'];
+};
+
 TypeChecker.prototype.getOrCreateHeaderFile =
 function getOrCreateHeaderFile(fileName) {
     if (this.headerFiles[fileName]) {
