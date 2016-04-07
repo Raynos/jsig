@@ -23,10 +23,10 @@
 
 \-\- : (Number) => Number
 
-! : (%Boolean%%Any) => Boolean
+! : (%Boolean%%Mixed) => Boolean
 
-void : (%Boolean%%Any) => void
+void : (%Boolean%%Mixed) => void
 
-=== : (%Boolean%%Any, %Boolean%%Any) => Boolean
+=== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
 
-!== : (%Boolean%%Any, %Boolean%%Any) => Boolean
+!== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
