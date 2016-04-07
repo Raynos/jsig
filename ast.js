@@ -71,6 +71,7 @@ function object(keyValues, label, opts) {
         keyValues: keyValues,
         label: label || null,
         optional: opts.optional || false,
+        open: opts.open || false,
         _raw: null
     };
 }

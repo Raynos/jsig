@@ -26,11 +26,20 @@ var typeKeyValue = objectKey
 
 var typeKeyValues = join(typeKeyValue, lexemes.comma);
 
+var rowType = lexemes.comma
+    .then(lexemes.rowTypeVariable)
+    .times(0, 1);
+
 var typeObject = lexemes.openCurlyBrace
     .then(typeKeyValues)
-    .skip(lexemes.closeCurlyBrace)
-    .map(function toObject(values) {
-        return AST.object(values);
+    .chain(function captureValues(values) {
+        return rowType
+            .skip(lexemes.closeCurlyBrace)
+            .map(function toObject(rowTypes) {
+                return AST.object(values, null, {
+                    open: rowTypes.length === 1
+                });
+            });
     });
 
 module.exports = typeObject;

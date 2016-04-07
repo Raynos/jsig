@@ -1,6 +1,7 @@
 type Error : {
     message: String,
-    stack: String
+    stack: String,
+    ..R
 }
 
 --type TArray : {

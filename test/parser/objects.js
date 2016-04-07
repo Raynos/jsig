@@ -26,6 +26,7 @@ test('foo : { text: String }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        open: false,
         label: null,
         optional: false,
         _raw: null
@@ -72,6 +73,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        open: false,
         label: null,
         optional: false,
         _raw: null
@@ -111,6 +113,7 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
                     optional: false,
                     _raw: null
                 }],
+                open: false,
                 label: null,
                 optional: false,
                 _raw: null
@@ -118,6 +121,7 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        open: false,
         label: null,
         optional: false,
         _raw: null
@@ -148,6 +152,38 @@ test('foo : { bar?: Baz }', function t(assert) {
             optional: true,
             _raw: null
         }],
+        open: false,
+        label: null,
+        optional: false,
+        _raw: null
+    });
+
+    assert.end();
+});
+
+test('foo : { bar: Baz, ..R }', function t(assert) {
+    var content = 'foo : { bar: Baz, ..R }';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'object',
+        keyValues: [{
+            type: 'keyValue',
+            key: 'bar',
+            value: {
+                type: 'typeLiteral',
+                builtin: false,
+                optional: false,
+                label: null,
+                name: 'Baz',
+                _raw: null
+            },
+            optional: false,
+            _raw: null
+        }],
+        open: true,
         label: null,
         optional: false,
         _raw: null

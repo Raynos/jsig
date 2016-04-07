@@ -44,6 +44,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        open: false,
         label: null,
         optional: false,
         _raw: null
