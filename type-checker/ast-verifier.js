@@ -595,16 +595,20 @@ function verifyVariableDeclaration(node) {
         'only support single declaration');
 
     var decl = node.declarations[0];
-    assert(decl.init, 'declaration must have init value');
 
     var id = decl.id.name;
     var token = this.meta.currentScope.getVar(id);
     assert(!token, 'shadowing variables not supported');
 
-    var type = this.meta.verifyNode(decl.init);
-    if (!type) {
-        this.meta.currentScope.addUnknownVar(id);
-        return null;
+    var type;
+    if (decl.init) {
+        type = this.meta.verifyNode(decl.init);
+        if (!type) {
+            this.meta.currentScope.addUnknownVar(id);
+            return null;
+        }
+    } else {
+        type = JsigAST.literal('%Void%%Uninitialized', true);
     }
 
     if (type.type === 'valueLiteral' && type.name === 'null') {
