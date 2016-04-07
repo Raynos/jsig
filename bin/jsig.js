@@ -10,6 +10,9 @@ var TermColor = require('term-color');
 
 var compile = require('../type-checker/');
 
+var STRAIGHT_LINE = '-----------------------------------------' +
+    '------------------------';
+
 /*eslint no-process-exit: 0*/
 module.exports = main;
 
@@ -81,11 +84,11 @@ function prettyPrintError(checker, error, opts) {
     }
 
     if (Array.isArray(error.originalErrors)) {
-        log(opts.prefix, '--------------------');
-        log(opts.prefix, '    Error caused by: ');
+        var nestedPrefix = opts.prefix + '    ';
+        log(nestedPrefix, STRAIGHT_LINE);
+        log(nestedPrefix, 'Error caused by: ');
         log('', '');
 
-        var nestedPrefix = opts.prefix + '    ';
         for (var j = 0; j < error.originalErrors.length; j++) {
             prettyPrintError(checker, error.originalErrors[j], {
                 prefix: nestedPrefix,
