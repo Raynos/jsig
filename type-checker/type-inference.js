@@ -45,7 +45,7 @@ function inferCallExpression(node) {
         argTypes.push(funcArg);
     }
 
-    var returnType = JsigAST.literal('%void%%UnknownReturn', true);
+    var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
     if (this.meta.currentScope.currentAssignmentType) {
         returnType = this.meta.currentScope.currentAssignmentType;
     }

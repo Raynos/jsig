@@ -62,7 +62,7 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     } else if (parent.name === '%Boolean%%Any') {
         return null;
-    } else if (parent.name === '%void%%UnknownReturn') {
+    } else if (parent.name === '%Void%%UnknownReturn') {
         return null;
     } else if (parent.name === 'Function' && child.type === 'function') {
         return null;

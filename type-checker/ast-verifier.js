@@ -945,7 +945,7 @@ function _checkReturnType(node) {
 
     // If we never inferred the return type then it may or may not return
     if (expected.type === 'typeLiteral' &&
-        expected.name === '%void%%UnknownReturn'
+        expected.name === '%Void%%UnknownReturn'
     ) {
         return;
     }
@@ -1005,7 +1005,7 @@ function _checkVoidReturnType(node) {
     // console.log('?', this.meta.serializeType(returnType));
     assert(returnType.type === 'typeLiteral' && (
         returnType.name === 'void' ||
-        returnType.name === '%void%%UnknownReturn'
+        returnType.name === '%Void%%UnknownReturn'
     ), 'expected Constructor to have no return void');
 };
 
