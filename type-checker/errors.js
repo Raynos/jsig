@@ -245,4 +245,36 @@ Errors.MissingDefinition = TypedError({
     line: null
 });
 
+Errors.TypeClassMismatch = TypedError({
+    type: 'jsig.sub-type.type-class-mismatch',
+    message: '@{line}: Got unexpected type class. ' +
+        'Expected {expected} but got {actual}',
+    expected: null,
+    actual: null,
+    loc: null,
+    line: null
+});
+
+Errors.UnionTypeClassMismatch = TypedError({
+    type: 'jsig.sub-type.union-type-class-mismatch',
+    message: '@{line}: Got unexpected type for union. ' +
+        'Expected {expected} but got {actual}',
+    expected: null,
+    actual: null,
+    loc: null,
+    line: null
+});
+
+Errors.IncorrectFieldCount = TypedError({
+    type: 'jsig.sub-type.unexpected-field-count',
+    message: '@{line}: Got unexpected number of fields. ' +
+        'Expected {expectedFields} fields but found {actualFields} fields.',
+    actual: null,
+    expected: null,
+    actualFields: null,
+    expectedFields: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

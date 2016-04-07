@@ -1,19 +1,9 @@
 'use strict';
 
-var TypedError = require('error/typed');
 var assert = require('assert');
 
+var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
-
-var TypeClassMismatch = TypedError({
-    type: 'jsig.sub-type.type-class-mismatch',
-    message: '@{line}: Got unexpected type class. ' +
-        'Expected {expected} but got {actual}',
-    expected: null,
-    actual: null,
-    loc: null,
-    line: null
-});
 
 module.exports = SubTypeChecker;
 
@@ -226,7 +216,15 @@ function checkObjectSubType(node, parent, child) {
     }
 
     if (parent.keyValues.length !== child.keyValues.length) {
-        throw new Error('[Internal] object key pairs mismatch');
+        return Errors.IncorrectFieldCount({
+            expected: serialize(parent._raw || parent),
+            expectedFields: parent.keyValues.length,
+            actual: serialize(child._raw || child),
+            actualFields: child.keyValues.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        // throw new Error('[Internal] object key pairs mismatch');
     }
 
     var err;
@@ -254,6 +252,8 @@ function checkUnionSubType(node, parent, child) {
     var childUnions = child.type === 'unionType' ? child.unions : [child];
 
     var err;
+    var possibleErrors = [];
+    var errors = [];
     for (var j = 0; j < childUnions.length; j++) {
         var isBad = true;
 
@@ -263,16 +263,35 @@ function checkUnionSubType(node, parent, child) {
             );
             if (!err) {
                 isBad = false;
+            } else {
+                possibleErrors.push(err);
+            }
+        }
+
+        if (isBad) {
+            for (var k = 0; k < possibleErrors.length; k++) {
+                errors.push(possibleErrors[k]);
             }
         }
     }
 
-    // Find all errors?
-    return isBad ? err : null;
+    if (!isBad) {
+        return null;
+    }
+
+    var finalErr = Errors.UnionTypeClassMismatch({
+        expected: serialize(parent._raw || parent),
+        actual: serialize(child._raw || child),
+        loc: node.loc,
+        line: node.loc.start.line
+    })
+
+    finalErr.originalErrors = errors;
+    return finalErr;
 };
 
 function reportTypeMisMatch(node, parent, child) {
-    return TypeClassMismatch({
+    return Errors.TypeClassMismatch({
         expected: serialize(parent._raw || parent),
         actual: serialize(child._raw || child),
         loc: node.loc,

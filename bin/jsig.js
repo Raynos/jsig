@@ -44,27 +44,15 @@ function main(args) {
 
     for (var i = 0; i < checker.errors.length; i++) {
         var error = checker.errors[i];
-        assert(error.fileName, 'error must have fileName');
 
+        assert(error.fileName, 'error must have fileName');
         var relativePath = path.relative(process.cwd(), error.fileName);
 
         console.log(TermColor.underline(relativePath));
-        console.log('Found error: ' + TermColor.cyan(error.type));
-        console.log(error.message);
 
-        if (error.loc) {
-            var failingLines = getFailingLines(checker, error);
-
-            console.log('');
-            console.log(failingLines);
-            console.log('');
-        }
-
-        if (error.type === 'jsig.sub-type.type-class-mismatch') {
-            console.log('Expected : ' + TermColor.green(error.expected));
-            console.log('Actual   : ' + TermColor.red(error.actual));
-            console.log('');
-        }
+        prettyPrintError(checker, error, {
+            prefix: ''
+        });
     }
 
     var word = checker.errors.length === 1 ? 'error' : 'errors';
@@ -72,6 +60,44 @@ function main(args) {
     console.log('');
 
     process.exit(1);
+}
+
+function prettyPrintError(checker, error, opts) {
+    log(opts.prefix, 'Found error: ' + TermColor.cyan(error.type));
+    log(opts.prefix, error.message);
+    log('', '');
+
+    if (opts.showLoc !== false && error.loc) {
+        var failingLines = getFailingLines(checker, error);
+
+        log(opts.prefix, failingLines);
+        log('', '');
+    }
+
+    if (error.type.indexOf('jsig.sub-type') === 0) {
+        log(opts.prefix, 'Expected : ' + TermColor.green(error.expected));
+        log(opts.prefix, 'Actual   : ' + TermColor.red(error.actual));
+        log('', '');
+    }
+
+    if (Array.isArray(error.originalErrors)) {
+        log(opts.prefix, '--------------------');
+        log(opts.prefix, '    Error caused by: ');
+        log('', '');
+
+        var nestedPrefix = opts.prefix + '    ';
+        for (var j = 0; j < error.originalErrors.length; j++) {
+            prettyPrintError(checker, error.originalErrors[j], {
+                prefix: nestedPrefix,
+                showLoc: false
+            });
+            log('', '');
+        }
+    }
+}
+
+function log(prefix, line) {
+    console.log(prefix + line);
 }
 
 function getFailingLines(checker, err) {
