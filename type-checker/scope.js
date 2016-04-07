@@ -31,6 +31,7 @@ function BaseScope(parent) {
 
 BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
+    assert(!this.identifiers[id], 'identifier must not exist');
     assert(typeDefn, 'addVar() must have typeDefn');
     assert(!typeDefn.optional, 'cannot add optional type');
 
