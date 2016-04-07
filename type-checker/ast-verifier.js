@@ -14,6 +14,7 @@ var serialize = require('../serialize.js');
 var Errors = require('./errors.js');
 var isSameType = require('./lib/is-same-type.js');
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
+var updateObject = require('./lib/update-object.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
@@ -182,15 +183,37 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
-    var isDefault = leftType.type === 'typeLiteral' &&
-        leftType.builtin && leftType.name === '%Null%%Default';
+    var isNullDefault = (
+        leftType.type === 'typeLiteral' &&
+        leftType.builtin && leftType.name === '%Null%%Default'
+    );
+    var isOpenField = (
+        leftType.type === 'typeLiteral' &&
+        leftType.builtin && leftType.name === '%Mixed%%OpenField'
+    );
 
-    if (!isDefault) {
+    var canGrow = isNullDefault || isOpenField;
+    if (!canGrow) {
         this.meta.checkSubType(node, leftType, rightType);
     }
 
     if (node.left.type === 'Identifier') {
-        this.meta.currentScope.updateVar(node.left.name, rightType);
+        this.meta.currentScope.updateRestriction(node.left.name, rightType);
+    }
+    if (isOpenField && node.left.type === 'MemberExpression' &&
+        node.left.property.type === 'Identifier'
+    ) {
+        var propertyName = node.left.property.name;
+
+        assert(node.left.object.type === 'Identifier');
+        var targetType = this.meta.verifyNode(node.left.object);
+        var newObjType = updateObject(
+            targetType, [propertyName], rightType
+        );
+
+        this.meta.currentScope.forceUpdateVar(
+            node.left.object.name, newObjType
+        );
     }
 
     if (leftType.name === '%Any%%ModuleExports') {
@@ -1052,6 +1075,10 @@ function _findPropertyInType(node, jsigType, propertyName) {
             // TODO: handle optional fields
             return keyValue.value;
         }
+    }
+
+    if (jsigType.open) {
+        return JsigAST.literal('%Mixed%%OpenField', true);
     }
 
     var err = this._createNonExistantFieldError(node, propertyName);

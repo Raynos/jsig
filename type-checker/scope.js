@@ -91,6 +91,18 @@ function getUnknownVar(id) {
     return this.unknownIdentifiers[id];
 };
 
+BaseScope.prototype.forceUpdateVar =
+function forceUpdateVar(id, typeDefn) {
+    assert(this.identifiers[id], 'identifier must already exist');
+
+    var token = {
+        type: 'variable',
+        defn: typeDefn
+    };
+    this.identifiers[id] = token;
+    return token;
+};
+
 function GlobalScope() {
     this.type = 'global';
 
@@ -337,8 +349,8 @@ function getFunctionScope() {
     return this;
 };
 
-FunctionScope.prototype.updateVar =
-function updateVar() {
+FunctionScope.prototype.updateRestriction =
+function updateRestriction() {
 };
 
 FunctionScope.prototype.restrictType = function restrictType(id, type) {
@@ -375,8 +387,8 @@ function getFunctionScope() {
     return parent;
 };
 
-BranchScope.prototype.updateVar =
-function updateVar(id, typeDefn) {
+BranchScope.prototype.updateRestriction =
+function updateRestriction(id, typeDefn) {
     var restriction = this.typeRestrictions[id];
     if (!restriction) {
         return;

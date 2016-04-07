@@ -284,7 +284,7 @@ function checkUnionSubType(node, parent, child) {
         actual: serialize(child._raw || child),
         loc: node.loc,
         line: node.loc.start.line
-    })
+    });
 
     finalErr.originalErrors = errors;
     return finalErr;
