@@ -3,7 +3,7 @@
 var assert = require('assert');
 
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
-var JsigAST = require('../ast.js');
+var updateObject = require('./lib/update-object.js');
 
 module.exports = NarrowType;
 
@@ -142,28 +142,3 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     // TODO: support nullable field check
 };
 
-function updateObject(targetType, keyPath, value) {
-    assert(targetType.type === 'object');
-
-    var pairs = [];
-    for (var i = 0; i < targetType.keyValues.length; i++) {
-        var pair = targetType.keyValues[i];
-        var fieldName = keyPath[0];
-
-        if (pair.key !== fieldName) {
-            pairs.push(JsigAST.keyValue(pair.key, pair.value));
-            continue;
-        }
-
-        var fieldValue;
-        if (keyPath.length === 1) {
-            fieldValue = value;
-        } else {
-            fieldValue = updateObject(pair.value, keyPath.slice(1), value);
-        }
-
-        pairs.push(JsigAST.keyValue(pair.key, fieldValue));
-    }
-
-    return JsigAST.object(pairs);
-}
