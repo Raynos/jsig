@@ -16,6 +16,10 @@ function clone(typeDefn) {
             label: typeDefn.label,
             optional: typeDefn.optional
         });
+    } else if (typeDefn.type === 'unionType') {
+        return JsigAST.union(typeDefn.unions, typeDefn.label, {
+            optional: typeDefn.optional
+        });
     } else {
         assert(false, 'not implemented clone: ' + typeDefn.type);
     }

@@ -210,6 +210,7 @@ function verifyAssignmentExpression(node) {
         var newObjType = updateObject(
             targetType, [propertyName], rightType
         );
+        newObjType.open = targetType.open;
 
         this.meta.currentScope.forceUpdateVar(
             node.left.object.name, newObjType
