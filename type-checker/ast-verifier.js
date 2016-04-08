@@ -461,29 +461,52 @@ function verifyBinaryExpression(node) {
     var defn;
     var correctDefn = unions[0];
     var isBad = true;
+    var errors = [];
     for (var i = 0; i < unions.length; i++) {
         defn = unions[i];
 
         assert(defn.args.length === 2,
             'expected type defn args to be two');
 
-        var isLeft = this.meta.isSubType(node.left, defn.args[0], leftType);
-        var isRight = this.meta.isSubType(node.right, defn.args[1], rightType);
+        var leftError = this.meta.checkSubTypeRaw(
+            node.left, defn.args[0], leftType
+        );
+        var rightError = this.meta.checkSubTypeRaw(
+            node.right, defn.args[1], rightType
+        );
 
-        if (isLeft && isRight) {
+        if (!leftError && !rightError) {
             correctDefn = defn;
             isBad = false;
+        } else {
+            if (leftError) {
+                errors.push(leftError);
+            }
+            if (rightError) {
+                errors.push(rightError);
+            }
         }
     }
 
     // TODO: better error message UX
     if (isBad) {
-        for (i = 0; i < unions.length; i++) {
-            defn = unions[i];
+        var finalErr = Errors.UnionOperatorCallMismatch({
+            expected: serialize(token.defn),
+            actual: serialize(JsigAST.tuple([leftType, rightType])),
+            operator: node.operator,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
 
-            this.meta.checkSubType(node.left, defn.args[0], leftType);
-            this.meta.checkSubType(node.right, defn.args[1], rightType);
-        }
+        finalErr.originalErrors = errors;
+        this.meta.addError(finalErr);
+
+        // for (i = 0; i < unions.length; i++) {
+        //     defn = unions[i];
+
+        //     this.meta.checkSubType(node.left, defn.args[0], leftType);
+        //     this.meta.checkSubType(node.right, defn.args[1], rightType);
+        // }
     }
 
     return correctDefn.result;
@@ -869,6 +892,10 @@ function verifyConditionalExpression(node) {
     var right = this.meta.verifyNode(node.alternate);
     if (!right) {
         return null;
+    }
+
+    if (isSameType(left, right)) {
+        return left;
     }
 
     return JsigAST.union([left, right]);
