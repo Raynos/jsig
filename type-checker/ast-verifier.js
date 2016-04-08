@@ -878,7 +878,15 @@ ASTVerifier.prototype.verifyWhileStatement =
 function verifyWhileStatement(node) {
     this.meta.verifyNode(node.test);
 
+    var ifBranch = this.meta.allocateBranchScope();
+    var elseBranch = this.meta.allocateBranchScope();
+
+    // TODO: check things ?
+    this.meta.narrowType(node.test, ifBranch, elseBranch);
+
+    this.meta.enterBranchScope(ifBranch);
     this.meta.verifyNode(node.body);
+    this.meta.exitBranchScope();
 };
 
 ASTVerifier.prototype._checkFunctionType =
