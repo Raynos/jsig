@@ -88,25 +88,43 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
 
 ASTVerifier.prototype.verifyProgram =
 function verifyProgram(node) {
-    node.body = hoistFunctionDeclaration(node.body);
+    var parts = splitFunctionDeclaration(node.body);
 
     this.meta.setModuleExportsNode(node);
 
     this.meta.loadHeaderFile();
 
     var i = 0;
-    for (i = 0; i < node.body.length; i++) {
-        if (node.body[i].type === 'FunctionDeclaration') {
-            var name = node.body[i].id.name;
+    for (i = 0; i < parts.functions.length; i++) {
+        var name = parts.functions[i].id.name;
 
-            if (!this.meta.currentScope.getVar(name)) {
-                this.meta.currentScope.addFunction(name, node.body[i]);
-            }
+        if (!this.meta.currentScope.getVar(name)) {
+            this.meta.currentScope.addFunction(name, parts.functions[i]);
         }
     }
 
-    for (i = 0; i < node.body.length; i++) {
-        this.meta.verifyNode(node.body[i]);
+    for (i = 0; i < parts.statements.length; i++) {
+        this.meta.verifyNode(parts.statements[i]);
+    }
+
+    var functions = parts.functions;
+    do {
+        var unknownFuncs = [];
+        for (i = 0; i < functions.length; i++) {
+            var func = functions[i];
+            if (!this.meta.currentScope.getVar(func.id.name)) {
+                unknownFuncs.push(func);
+                continue;
+            }
+            this.meta.verifyNode(func);
+        }
+
+        var gotSmaller = unknownFuncs.length < functions.length;
+        functions = unknownFuncs;
+    } while (gotSmaller);
+
+    for (i = 0; i < functions.length; i++) {
+        this.meta.verifyNode(functions[i]);
     }
 };
 
@@ -1221,20 +1239,24 @@ function resolvePath(node, possiblePath, dirname) {
 
 // hoisting function declarations to the bottom makes the tree
 // order algorithm simpler
-function hoistFunctionDeclaration(nodes) {
-    var declarations = [];
+function splitFunctionDeclaration(nodes) {
+    var result = {
+        functions: [],
+        statements: []
+    };
+
     for (var i = 0; i < nodes.length; i++) {
         if (nodes[i].type !== 'FunctionDeclaration') {
-            declarations.push(nodes[i]);
+            result.statements.push(nodes[i]);
         }
     }
 
     for (i = 0; i < nodes.length; i++) {
         if (nodes[i].type === 'FunctionDeclaration') {
-            declarations.push(nodes[i]);
+            result.functions.push(nodes[i]);
         }
     }
 
-    return declarations;
+    return result;
 }
 

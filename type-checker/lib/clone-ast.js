@@ -9,7 +9,8 @@ module.exports = clone;
 function clone(typeDefn) {
     if (typeDefn.type === 'object') {
         return JsigAST.object(typeDefn.keyValues, typeDefn.label, {
-            optional: typeDefn.optional
+            optional: typeDefn.optional,
+            open: typeDefn.open
         });
     } else if (typeDefn.type === 'typeLiteral') {
         return JsigAST.literal(typeDefn.name, typeDefn.builtin, {
