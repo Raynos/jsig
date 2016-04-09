@@ -20,6 +20,21 @@ function clone(typeDefn) {
         return JsigAST.union(typeDefn.unions, typeDefn.label, {
             optional: typeDefn.optional
         });
+    } else if (typeDefn.type === 'function') {
+        return JsigAST.functionType({
+            args: typeDefn.args,
+            result: typeDefn.result,
+            thisArg: typeDefn.thisArg,
+            label: typeDefn.label,
+            optional: typeDefn.optional,
+            generics: typeDefn.generics
+        });
+    } else if (typeDefn.type === 'genericLiteral') {
+        return JsigAST.generic(
+            typeDefn.value,
+            typeDefn.generics,
+            typeDefn.label
+        );
     } else {
         assert(false, 'not implemented clone: ' + typeDefn.type);
     }

@@ -144,7 +144,7 @@ test('assigning result of method to wrong type', function t(assert) {
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.line, 21);
     assert.equal(err.expected, 'String');
-    assert.equal(err.actual, 'this: TOutPendingBucket');
+    assert.equal(err.actual, 'TOutPendingBucket');
 
     assert.end();
 });

@@ -489,7 +489,11 @@ function verifyBinaryExpression(node) {
     }
 
     // TODO: better error message UX
-    if (isBad) {
+    if (isBad && unions.length === 1) {
+        for (var j = 0; j < errors.length; j++) {
+            this.meta.addError(errors[j]);
+        }
+    } else if (isBad && unions.length > 1) {
         var finalErr = Errors.UnionOperatorCallMismatch({
             expected: serialize(token.defn),
             actual: serialize(JsigAST.tuple([leftType, rightType])),
@@ -500,13 +504,6 @@ function verifyBinaryExpression(node) {
 
         finalErr.originalErrors = errors;
         this.meta.addError(finalErr);
-
-        // for (i = 0; i < unions.length; i++) {
-        //     defn = unions[i];
-
-        //     this.meta.checkSubType(node.left, defn.args[0], leftType);
-        //     this.meta.checkSubType(node.right, defn.args[1], rightType);
-        // }
     }
 
     return correctDefn.result;

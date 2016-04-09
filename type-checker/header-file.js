@@ -5,6 +5,7 @@ var path = require('path');
 var TypedError = require('error/typed');
 
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
+var cloneJSIG = require('./lib/clone-ast.js');
 
 var UnknownLiteralError = TypedError({
     type: 'jsig.header-file.unknown-literal',
@@ -55,9 +56,13 @@ function replaceTypeLiteral(ast, rawAst) {
         this.errors.push(UnknownLiteralError({
             literal: name
         }));
-    } else {
-        typeDefn._raw = rawAst;
+        return null;
     }
+    typeDefn = cloneJSIG(typeDefn);
+
+    typeDefn.label = ast.label;
+    typeDefn.optional = ast.optional;
+    typeDefn._raw = rawAst;
 
     return typeDefn;
 };
