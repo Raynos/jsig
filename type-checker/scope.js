@@ -100,6 +100,7 @@ function getUnknownVar(id) {
 BaseScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
     assert(this.identifiers[id], 'identifier must already exist');
+    assert(typeDefn, 'cannot force update to null');
 
     var token = {
         type: 'variable',
@@ -365,6 +366,7 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
     assert(id !== 'this', 'cannot restrict this');
+    assert(type, 'cannot restrictType to null');
 
     this.typeRestrictions[id] = {
         type: 'restriction',
@@ -437,6 +439,8 @@ BranchScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
 
+
+    assert(type, 'cannot restrict to null');
     if (id === 'this') {
         this._restrictedThisValueType = type;
         return;

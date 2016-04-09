@@ -8,6 +8,7 @@ module.exports = updateObject;
 
 function updateObject(targetType, keyPath, newValue) {
     assert(targetType.type === 'object');
+    assert(newValue, 'newValue cannot be null');
 
     var pairs = [];
     var addedField = false;

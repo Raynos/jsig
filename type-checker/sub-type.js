@@ -229,6 +229,8 @@ function checkObjectSubType(node, parent, child) {
 
     var err;
     for (var i = 0; i < parent.keyValues.length; i++) {
+        // TODO: check key names...
+
         err = this.checkSubType(
             node, parent.keyValues[i].value, child.keyValues[i].value
         );

@@ -46,11 +46,15 @@ function narrowIdentifier(node, ifBranch, elseBranch) {
 
     if (ifBranch) {
         var ifType = getUnionWithoutBool(type, true);
-        ifBranch.restrictType(node.name, ifType);
+        if (ifType) {
+            ifBranch.restrictType(node.name, ifType);
+        }
     }
     if (elseBranch) {
         var elseType = getUnionWithoutBool(type, false);
-        elseBranch.restrictType(node.name, elseType);
+        if (elseType) {
+            elseBranch.restrictType(node.name, elseType);
+        }
     }
 };
 
@@ -127,13 +131,13 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     // targetType that needs mutation
     var targetType = this.meta.verifyNode(parent);
 
-    if (ifBranch) {
+    if (ifBranch && ifType) {
         var ifObjectType = updateObject(
             targetType, keyPath.slice(1), ifType
         );
         ifBranch.restrictType(keyPath[0], ifObjectType);
     }
-    if (elseBranch) {
+    if (elseBranch && elseType) {
         var elseObjectType = updateObject(
             targetType, keyPath.slice(1), elseType
         );

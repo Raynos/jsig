@@ -77,7 +77,7 @@ function prettyPrintError(checker, error, opts) {
         log('', '');
     }
 
-    if (error.type.indexOf('jsig.sub-type') === 0) {
+    if (error.type && error.type.indexOf('jsig.sub-type') === 0) {
         log(opts.prefix, 'Expected : ' + TermColor.green(error.expected));
         log(opts.prefix, 'Actual   : ' + TermColor.red(error.actual));
         log('', '');
