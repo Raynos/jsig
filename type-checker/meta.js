@@ -222,6 +222,7 @@ function enterFunctionScope(funcNode, typeDefn) {
     );
     funcScope.loadTypes(funcNode, typeDefn);
 
+    this.currentScope.addFunctionScope(funcScope);
     this.currentScope = funcScope;
 };
 

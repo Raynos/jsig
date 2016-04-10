@@ -25,6 +25,7 @@ function BaseScope(parent) {
     this.identifiers = Object.create(null);
     this.unknownIdentifiers = Object.create(null);
     this.typeRestrictions = Object.create(null);
+    this.functionScopes = Object.create(null);
     this.currentAssignmentType = null;
     this.writableTokenLookup = false;
 }
@@ -223,7 +224,8 @@ function addFunction(id, node) {
 
     this.untypedFunctions[id] = {
         type: 'untyped-function',
-        node: node
+        node: node,
+        currentScope: this
     };
 };
 
@@ -249,6 +251,22 @@ function addPrototypeField(id, fieldName, typeDefn) {
     }
 
     this.prototypes[id].fields[fieldName] = typeDefn;
+};
+
+FileScope.prototype.addFunctionScope =
+function addFunctionScope(funcScope) {
+    assert(!this.functionScopes[funcScope.funcName],
+        'cannot add function twice: ' + funcScope.funcName);
+
+    this.functionScopes[funcScope.funcName] = {
+        funcScope: funcScope,
+        currentScope: this
+    };
+};
+
+FileScope.prototype.getKnownFunctionInfo =
+function getKnownFunctionInfo(funcName) {
+    return this.functionScopes[funcName];
 };
 
 function FunctionScope(parent, funcName, funcNode) {
@@ -311,7 +329,8 @@ FunctionScope.prototype.addFunction = function addFunction(id, node) {
 
     this.untypedFunctions[id] = {
         type: 'untyped-function',
-        node: node
+        node: node,
+        currentScope: this
     };
 };
 
@@ -389,6 +408,23 @@ function exitReturnStatement() {
     this.returnExpressionType = null;
 };
 
+FunctionScope.prototype.addFunctionScope =
+function addFunctionScope(funcScope) {
+    assert(!this.functionScopes[funcScope.funcName],
+        'cannot add function twice: ' + funcScope.funcName);
+
+    this.functionScopes[funcScope.funcName] = {
+        funcScope: funcScope,
+        currentScope: this
+    };
+};
+
+FunctionScope.prototype.getKnownFunctionInfo =
+function getKnownFunctionInfo(funcName) {
+    return this.functionScopes[funcName] ||
+        this.parent.getKnownFunctionInfo(funcName);
+};
+
 function BranchScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'branch';
@@ -464,4 +500,9 @@ function getReturnExpressionType() {
 BranchScope.prototype.exitReturnStatement =
 function exitReturnStatement() {
     this.parent.exitReturnStatement();
+};
+
+BranchScope.prototype.getKnownFunctionInfo =
+function getKnownFunctionInfo(funcName) {
+    return this.parent.getKnownFunctionInfo(funcName);
 };
