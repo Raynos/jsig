@@ -9,6 +9,7 @@ var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
 var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
+var prettyPrintErrors = require('./lib/pretty-errors.js');
 
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
 var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
@@ -24,6 +25,8 @@ function compile(fileName, options) {
 }
 
 function TypeChecker(entryFile, options) {
+    options = options || {};
+
     this.entryFile = entryFile;
 
     this.globalScope = new GlobalScope();
@@ -31,7 +34,7 @@ function TypeChecker(entryFile, options) {
     this.headerFiles = Object.create(null);
     this.definitions = Object.create(null);
 
-    this.definitionsFolder = options ? options.definitions : null;
+    this.definitionsFolder = options.definitions || null;
 
     this.errors = [];
     this.moduleExportsType = null;
@@ -43,6 +46,11 @@ TypeChecker.prototype.addError = function addError(err) {
 
 TypeChecker.prototype.countErrors = function countErrors() {
     return this.errors.length;
+};
+
+TypeChecker.prototype.prettyPrintAllErrors =
+function prettyPrintAllErrors() {
+    return prettyPrintErrors(this);
 };
 
 TypeChecker.prototype.checkProgram =
