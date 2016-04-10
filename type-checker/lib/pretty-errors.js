@@ -48,7 +48,7 @@ function prettyPrintError(checker, error, opts) {
         parts.push('');
     }
 
-    if (error.type && error.type.indexOf('jsig.sub-type') === 0) {
+    if (error.expected && error.actual) {
         parts.push(opts.prefix +
             'Expected : ' + TermColor.green(error.expected));
         parts.push(opts.prefix +

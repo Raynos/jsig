@@ -287,4 +287,14 @@ Errors.IncorrectFieldCount = TypedError({
     line: null
 });
 
+Errors.NonGenericPropertyLookup = TypedError({
+    type: 'jsig.verify.non-generic-property-lookup',
+    message: '@{line}: Cannot lookup field in non-generic value. ' +
+        'Expected {expected} type but got {actual} type.',
+    actual: null,
+    expected: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

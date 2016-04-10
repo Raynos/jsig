@@ -1148,6 +1148,18 @@ function _findPropertyInType(node, jsigType, propertyName) {
 ASTVerifier.prototype._findTypeInContainer =
 function _findTypeInContainer(node, objType, propType) {
     var valueType;
+
+    if (objType.type !== 'genericLiteral') {
+        this.meta.addError(Errors.NonGenericPropertyLookup({
+            expected: 'Array<T> | Object<K, V>',
+            actual: this.meta.serializeType(objType),
+            propType: this.meta.serializeType(propType),
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
+    }
+
     if (objType.value.name === 'Array') {
         this.meta.checkSubType(node, ARRAY_KEY_TYPE, propType);
 
