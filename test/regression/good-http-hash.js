@@ -57,6 +57,7 @@ function get(pathname) {
     return new RouteResult(hash, params, splat);
 }
 
+/*eslint complexity: 0*/
 function set(pathname, handler) {
     var pathSegments = pathname.split('/');
     var hash = this._hash;
