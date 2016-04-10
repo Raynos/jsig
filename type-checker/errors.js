@@ -297,4 +297,14 @@ Errors.NonGenericPropertyLookup = TypedError({
     line: null
 });
 
+Errors.InvalidThrowStatement = TypedError({
+    type: 'jsig.verify.invalid-throw-statement',
+    message: '@{line}: A throw statement must throw an actual error. ' +
+        'Expected {expected} tyoe but got {actual} type.',
+    actual: null,
+    expected: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

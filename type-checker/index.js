@@ -80,8 +80,16 @@ function loadLanguageIdentifiers() {
     assert(es5HeaderFile, 'must be able to load es5');
 
     assignments = es5HeaderFile.getResolvedAssignments();
+
     for (i = 0; i < assignments.length; i++) {
         a = assignments[i];
+
+        if (a.identifier === 'Error') {
+            // Must know that in ES5 the new Error() constructor
+            // brands the result as an Error instance.
+            a.typeExpression.brand = 'Error';
+        }
+
         this.globalScope._addVar(a.identifier, a.typeExpression);
     }
 

@@ -10,6 +10,7 @@ function clone(typeDefn) {
     if (typeDefn.type === 'object') {
         return JsigAST.object(typeDefn.keyValues, typeDefn.label, {
             optional: typeDefn.optional,
+            brand: typeDefn.brand,
             open: typeDefn.open
         });
     } else if (typeDefn.type === 'typeLiteral') {
@@ -27,6 +28,7 @@ function clone(typeDefn) {
             result: typeDefn.result,
             thisArg: typeDefn.thisArg,
             label: typeDefn.label,
+            brand: typeDefn.brand,
             optional: typeDefn.optional,
             generics: typeDefn.generics
         });

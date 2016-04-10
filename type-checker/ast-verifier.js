@@ -15,6 +15,7 @@ var Errors = require('./errors.js');
 var isSameType = require('./lib/is-same-type.js');
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 var updateObject = require('./lib/update-object.js');
+var cloneJSIG = require('./lib/clone-ast.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
@@ -238,6 +239,7 @@ function verifyAssignmentExpression(node) {
             targetType, [propertyName], rightType
         );
         newObjType.open = targetType.open;
+        newObjType.brand = targetType.brand;
 
         this.meta.currentScope.forceUpdateVar(
             node.left.object.name, newObjType
@@ -665,7 +667,12 @@ function verifyNewExpression(node) {
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
 
-    return fnType.thisArg;
+    var thisArg = fnType.thisArg;
+    thisArg = cloneJSIG(thisArg);
+    thisArg.brand = fnType.brand;
+    thisArg._raw = fnType.thisArg._raw;
+
+    return thisArg;
 };
 
 ASTVerifier.prototype.verifyVariableDeclaration =
@@ -898,8 +905,15 @@ function verifyThrowStatement(node) {
     if (argType === null) {
         return null;
     }
-    // TODO assert argType is Error
-    console.warn('must assert argType is Error');
+
+    if (argType.brand !== 'Error') {
+        this.meta.addError(Errors.InvalidThrowStatement({
+            expected: 'Error',
+            actual: this.meta.serializeType(argType),
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+    }
 
     return null;
 };
