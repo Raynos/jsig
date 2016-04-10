@@ -110,6 +110,10 @@ function forceUpdateVar(id, typeDefn) {
     return token;
 };
 
+BaseScope.prototype.updateRestriction =
+function updateRestriction() {
+};
+
 function GlobalScope() {
     this.type = 'global';
 
@@ -356,10 +360,6 @@ function markReturnType(defn, node) {
 FunctionScope.prototype.getFunctionScope =
 function getFunctionScope() {
     return this;
-};
-
-FunctionScope.prototype.updateRestriction =
-function updateRestriction() {
 };
 
 FunctionScope.prototype.restrictType = function restrictType(id, type) {
