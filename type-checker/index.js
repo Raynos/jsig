@@ -28,6 +28,7 @@ function TypeChecker(entryFile, options) {
     options = options || {};
 
     this.entryFile = entryFile;
+    this.files = options.files || {};
 
     this.globalScope = new GlobalScope();
     this.metas = Object.create(null);
@@ -138,7 +139,11 @@ function getOrCreateMeta(fileName) {
         return this.metas[fileName];
     }
 
-    var source = fs.readFileSync(fileName, 'utf8');
+    var source = this.files[fileName];
+    if (!source) {
+        source = fs.readFileSync(fileName, 'utf8');
+    }
+
     var ast = esprima.parse(source, {
         loc: true
     });
