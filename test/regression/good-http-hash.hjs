@@ -1,0 +1,39 @@
+type TRouteResult : {
+    handler: null,
+    splat: null,
+    params: Object,
+    src: String | null
+}
+
+type TRouteNode : {
+    parent: TRouteNode | null,
+    segment: String,
+    handler: null,
+    staticPaths: Object,
+    variablePaths: TRouteNode | null,
+    isSplat: Boolean,
+    src: String | null
+}
+
+type THttpHash : {
+    _hash: TRouteNode,
+
+    get : (this: THttpHash, pathname: String) => TRouteResult,
+    set : (this: THttpHash, pathname: String, handler: null) => void
+}
+
+HttpHash : (this: THttpHash) => void
+
+RouteNode : (
+    this: TRouteNode,
+    parent: TRouteNode | null,
+    segment: String,
+    isSplat?: Boolean
+) => void
+
+RouteResult : (
+    this: TRouteResult,
+    node: TRouteNode,
+    params: Object,
+    splat: null
+) => void
