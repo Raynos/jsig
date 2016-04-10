@@ -27,6 +27,7 @@ test('foo : { text: String }', function t(assert) {
             _raw: null
         }],
         open: false,
+        brand: 'Object',
         label: null,
         optional: false,
         _raw: null
@@ -73,6 +74,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        brand: 'Object',
         open: false,
         label: null,
         optional: false,
@@ -113,6 +115,7 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
                     optional: false,
                     _raw: null
                 }],
+                brand: 'Object',
                 open: false,
                 label: null,
                 optional: false,
@@ -121,6 +124,7 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        brand: 'Object',
         open: false,
         label: null,
         optional: false,
@@ -152,6 +156,7 @@ test('foo : { bar?: Baz }', function t(assert) {
             optional: true,
             _raw: null
         }],
+        brand: 'Object',
         open: false,
         label: null,
         optional: false,
@@ -183,6 +188,7 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
             optional: false,
             _raw: null
         }],
+        brand: 'Object',
         open: true,
         label: null,
         optional: false,

@@ -439,7 +439,6 @@ BranchScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
 
-
     assert(type, 'cannot restrict to null');
     if (id === 'this') {
         this._restrictedThisValueType = type;

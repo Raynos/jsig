@@ -36,6 +36,7 @@ test('foo : (String, Number) => Object', function t(assert) {
             optional: false,
             _raw: null
         },
+        brand: 'Object',
         generics: [],
         _raw: null,
         label: null,
@@ -64,6 +65,7 @@ test('foo : () => CustomType', function t(assert) {
                 name: 'CustomType',
                 _raw: null
             },
+            brand: 'Object',
             generics: [],
             _raw: null,
             label: null,
@@ -93,6 +95,7 @@ test('foo : (tagName: String) => void', function t(assert) {
                 _raw: null
             }],
             thisArg: null,
+            brand: 'Object',
             generics: [],
             _raw: null,
             result: {
@@ -137,6 +140,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
                 name: 'DOMText',
                 _raw: null
             },
+            brand: 'Object',
             result: {
                 type: 'typeLiteral',
                 builtin: true,
@@ -181,6 +185,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 _raw: null
             }],
             thisArg: null,
+            brand: 'Object',
             result: {
                 type: 'typeLiteral',
                 builtin: false,

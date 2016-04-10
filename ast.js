@@ -72,6 +72,7 @@ function object(keyValues, label, opts) {
         label: label || null,
         optional: opts.optional || false,
         open: opts.open || false,
+        brand: opts.brand || 'Object',
         _raw: null
     };
 }
@@ -155,6 +156,7 @@ function functionType(opts) {
         label: opts.label || null,
         optional: opts.optional || false,
         generics: opts.generics || [],
+        brand: opts.brand || 'Object',
         _raw: null
     };
 }

@@ -111,6 +111,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             _raw: null
         },
         generics: [],
+        brand: 'Object',
         thisArg: null,
         label: null,
         optional: false,
