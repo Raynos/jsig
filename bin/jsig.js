@@ -27,7 +27,7 @@ function main(args) {
         return process.exit(0);
     }
 
-    console.error(checker.prettyPrintAllErrors());
+    console.log(checker.prettyPrintAllErrors());
     process.exit(1);
 }
 
