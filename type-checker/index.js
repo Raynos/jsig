@@ -36,6 +36,7 @@ function TypeChecker(entryFile, options) {
     this.definitions = Object.create(null);
 
     this.definitionsFolder = options.definitions || null;
+    this.globalsFile = options.globalsFile || null;
 
     this.errors = [];
     this.moduleExportsType = null;
@@ -58,6 +59,7 @@ TypeChecker.prototype.checkProgram =
 function checkProgram() {
     this.loadLanguageIdentifiers();
     this.preloadDefinitions();
+    this.preloadGlobals();
 
     var meta = this.getOrCreateMeta(this.entryFile);
     this.moduleExportsType = meta.moduleExportsType;
@@ -196,5 +198,23 @@ function preloadDefinitions() {
             var a = assignments[j];
             this._addDefinition(a.identifier, a.typeExpression);
         }
+    }
+};
+
+TypeChecker.prototype.preloadGlobals =
+function preloadGlobals() {
+    if (!this.globalsFile) {
+        return;
+    }
+
+    var headerFile = this.getOrCreateHeaderFile(this.globalsFile);
+    if (!headerFile) {
+        return;
+    }
+
+    var assignments = headerFile.getResolvedAssignments();
+    for (var i = 0; i < assignments.length; i++) {
+        var a = assignments[i];
+        this.globalScope._addVar(a.identifier, a.typeExpression);
     }
 };

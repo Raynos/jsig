@@ -20,7 +20,8 @@ function main(args) {
 
     var sourceFile = path.resolve(process.cwd(), fileName);
     var checker = compile(sourceFile, {
-        definitions: args.definitions || null
+        definitions: args.definitions || null,
+        globalsFile: args.globals || null
     });
     if (checker.errors.length === 0) {
         console.log('No type errors');

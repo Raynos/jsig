@@ -334,6 +334,10 @@ function verifyIdentifier(node) {
         return token.defn;
     }
 
+    if (node.name === 'global') {
+        return this.meta.currentScope.getGlobalType();
+    }
+
     var isUnknown = Boolean(this.meta.currentScope.getUnknownVar(node.name));
 
     if (isUnknown) {

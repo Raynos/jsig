@@ -115,6 +115,11 @@ BaseScope.prototype.updateRestriction =
 function updateRestriction() {
 };
 
+BaseScope.prototype.getGlobalType =
+function getGlobalType() {
+    return this.parent.getGlobalType();
+};
+
 function GlobalScope() {
     this.type = 'global';
 
@@ -152,6 +157,20 @@ GlobalScope.prototype._addVirtualType = function _addVirtualType(id, typeDefn) {
         type: 'virtual-type',
         defn: typeDefn
     };
+};
+
+GlobalScope.prototype.getGlobalType =
+function getGlobalType() {
+    var props = Object.keys(this.identifiers);
+    var keyValues = {};
+
+    for (var i = 0; i < props.length; i++) {
+        keyValues[props[i]] = this.identifiers[props[i]].defn;
+    }
+
+    // console.log('?', keyValues);
+
+    return JsigAST.object(keyValues);
 };
 
 GlobalScope.prototype.loadLanguageIdentifiers =
