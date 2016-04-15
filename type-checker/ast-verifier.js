@@ -710,10 +710,9 @@ function verifyForStatement(node) {
     this.meta.verifyNode(node.init);
     var testType = this.meta.verifyNode(node.test);
 
-    assert(testType && testType.type === 'typeLiteral' &&
-        testType.name === 'Boolean',
-        'for loop condition statement must be a Boolean expression'
-    );
+    assert(!testType || (
+        testType.type === 'typeLiteral' && testType.name === 'Boolean'
+    ), 'for loop condition statement must be a Boolean expression');
 
     this.meta.verifyNode(node.update);
     this.meta.verifyNode(node.body);
