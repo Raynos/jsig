@@ -683,8 +683,8 @@ function verifyVariableDeclaration(node) {
     var decl = node.declarations[0];
 
     var id = decl.id.name;
-    var token = this.meta.currentScope.getVar(id);
-    assert(!token, 'shadowing variables not supported');
+    // var token = this.meta.currentScope.getVar(id);
+    // assert(!token, 'shadowing variables not supported');
 
     var type;
     if (decl.init) {
