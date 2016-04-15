@@ -1,0 +1,5 @@
+
+console : {
+    log: (String, meta?: Object) => void,
+    error: (String, meta?: Object) => void
+}

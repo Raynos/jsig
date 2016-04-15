@@ -1,5 +1,0 @@
-
-console : {
-    log: (String, Object) => void,
-    error: (String, Object) => void
-}

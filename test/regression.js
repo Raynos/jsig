@@ -6,7 +6,7 @@ var path = require('path');
 var compile = require('../type-checker/');
 
 var procWatcherDir = path.join(__dirname, 'regression');
-var definitionsDir = path.join(__dirname, 'definitions');
+var definitionsDir = path.join(__dirname, 'lib', 'definitions');
 
 test('regression: ProcWatcher', function t(assert) {
     var file = getFile('good-proc-watcher.js');
