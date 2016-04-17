@@ -37,6 +37,60 @@ report pretty errors and sometimes it just aborts.
 This project is only interesting if you actually want to implement
 or contribute to a type checker.
 
+# Motivation
+
+JSIG started as a tool for documenting your projects and libraries
+in a human readable way, as an alternative to jsdoc.
+
+This was great for documentation but suffered from the staleness
+problem which can be best addressed by having a tool that verifies
+the documentation and the source code agree, a type checker.
+
+The JSIG type checker is designed to work on existing ES5 code
+without having to fix anything other then type errors. This means
+full support for constructor function and type inference to verify
+all of the code.
+
+Currently the JSIG type checker relies on external type definitions
+in header files. Generally you will only have type definitions
+for anything exported by a module and the rest of the module will
+be checked through type inference
+
+## Why not Typescript ?
+
+JSIG is solving a slightly different set of issues
+
+ - Human readable documentation for a module
+ - Type checking for existing code bases.
+ - Fully support ES5.
+ - No runtime overhead
+ - No compile step, no source maps.
+
+Typescript provides a great type system and has stellar IDE support.
+However it only supports TypeScript, a superset of ES6. It also
+comes with a full compiler and can add runtime overhead. Typescript
+does not work on existing ES5 code without converting to ES6.
+
+JSIG offers a different approach by taking an existing vanilla
+codebase and annotating it within header files that do not effect
+your production code in any way or form.
+
+## Why not Flow ?
+
+Flow has similar, but slightly different issues. It does have a 
+working comment mode that can be used on existing JavaScript without
+a compile step or runtime overhead.
+
+However the type system doesn't have proper support for ES5 and
+in practice the type system is too optional/gradual and allows
+for accidentally leaving strictness holes. When using external
+declarations or relying on call site inference, sometimes a
+function is unused and unchecked.
+
+JSIG takes a different approach by focusing on ES5 and external
+annotations as a first class citizen. JSIG also heavily relies
+on inference but will complain if it cannot safely infer something.
+
 # Hello world example
 
 There is a small hello world example that shows inference.
