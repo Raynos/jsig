@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
+var isSameType = require('./lib/is-same-type.js');
 
 module.exports = SubTypeChecker;
 
@@ -159,9 +160,9 @@ function checkGenericLiteralSubType(node, parent, child) {
         return reportTypeMisMatch(node, parent, child);
     }
 
-    var err = this.checkSubType(node, parent.value, child.value);
-    if (err) {
-        return err;
+    var isSame = isSameType(parent.value, child.value);
+    if (!isSame) {
+        return reportTypeMisMatch(node, parent, child);
     }
 
     if (parent.generics.length !== child.generics.length) {
@@ -169,10 +170,9 @@ function checkGenericLiteralSubType(node, parent, child) {
     }
 
     for (var i = 0; i < parent.generics.length; i++) {
-        err = this.checkSubType(
-            node, parent.generics[i], child.generics[i]
-        );
-        if (err) {
+        isSame = isSameType(parent.generics[i], child.generics[i]);
+
+        if (!isSame) {
             return reportTypeMisMatch(node, parent, child);
         }
     }

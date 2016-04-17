@@ -31,7 +31,7 @@ JSIGSnippet.test('generics disallow multiple types', function m() {/*
     assert.end();
 });
 
-JSIGSnippet.test('generics support unions', function m() {/*
+JSIGSnippet.test('generics support unions on read', function m() {/*
     var foo = [];
 
     foo.push("" || null);
@@ -46,6 +46,33 @@ JSIGSnippet.test('generics support unions', function m() {/*
     assert.equal(err.line, 5);
     assert.equal(err.fieldName, 'split');
     assert.equal(err.unionType, 'String | null');
+
+    assert.end();
+});
+
+JSIGSnippet.test('generics support unions on write', function m() {/*
+    var foo = ["" || null];
+
+    foo.push("bar");
+    foo.push(null);
+*/}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('disallow writing supertypes into generics', function m() {/*
+    var foo = [""];
+
+    foo.push("" || null);
+*/}, function t(snippet, assert) {
+    var meta = snippet.compile();
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err.line, 3);
+    assert.equal(err.expected, 'Array<String | null>');
+    assert.equal(err.actual, 'Array<String>');
 
     assert.end();
 });
