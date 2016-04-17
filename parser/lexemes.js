@@ -36,7 +36,11 @@ var lexemes = {
     openBrace: lexeme(Parsimmon.string('(')),
     closeBrace: lexeme(Parsimmon.string(')')),
     commentStart: Parsimmon.string('--'),
-    nonNewLine: Parsimmon.regex(/[^\n]/)
+    altCommentStart: Parsimmon.string('//'),
+    nonNewLine: Parsimmon.regex(/[^\n]/),
+    blockCommentStart: Parsimmon.string('/*'),
+    nonBlockCommentEnd: Parsimmon.regex(/(\*(?!\/)|[^*])/),
+    blockCommentEnd: Parsimmon.string('*/')
 };
 
 lexemes.label = lexemes.labelName

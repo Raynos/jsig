@@ -53,11 +53,26 @@ var commentStatement = lexemes.commentStart
         return AST.comment('--' + text.join(''));
     });
 
+var altCommentStatement = lexemes.altCommentStart
+    .then(lexemes.nonNewLine.many())
+    .map(function comment(text) {
+        return AST.comment('//' + text.join(''));
+    });
+
+var blockCommentStatement = lexemes.blockCommentStart
+    .then(lexemes.nonBlockCommentEnd.many())
+    .skip(lexemes.blockCommentEnd)
+    .map(function comment(text) {
+        return AST.comment('/*' + text.join('') + '*/');
+    });
+
 var statement = Parsimmon.alt(
+    commentStatement,
+    altCommentStatement,
+    blockCommentStatement,
     importStatement,
     assignment,
-    typeDeclaration,
-    commentStatement
+    typeDeclaration
 );
 
 module.exports = statement;

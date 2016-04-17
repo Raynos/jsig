@@ -1,4 +1,11 @@
 -- vim: set ft=Haskell:
+
+// Add a comment here
+
+/* this is a 
+block comment here
+yes it is */
+
 type TRouteResult : {
     handler: null,
     splat: null,
