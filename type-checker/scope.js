@@ -173,7 +173,10 @@ function loadLanguageIdentifiers() {
                 JsigAST.literal('Array'),
                 [JsigAST.literal('String')]
             ),
-            generics: [JsigAST.literal('K'), JsigAST.literal('V')]
+            generics: [
+                JsigAST.locationLiteral('K', ['args', 0, 'generics', 0]),
+                JsigAST.locationLiteral('V', ['args', 0, 'generics', 1])
+            ]
         })
     }));
 
@@ -186,7 +189,10 @@ function loadLanguageIdentifiers() {
             ),
             args: [JsigAST.literal('T')],
             result: JsigAST.literal('Number'),
-            generics: [JsigAST.literal('T')]
+            generics: [
+                JsigAST.locationLiteral('T', ['thisArg', 'generics', 0]),
+                JsigAST.locationLiteral('T', ['args', 0])
+            ]
         }),
         'slice': JsigAST.functionType({
             thisArg: JsigAST.generic(
@@ -201,7 +207,10 @@ function loadLanguageIdentifiers() {
                 JsigAST.literal('Array'),
                 [JsigAST.literal('T')]
             ),
-            generics: [JsigAST.literal('T')]
+            generics: [
+                JsigAST.locationLiteral('T', ['thisArg', 'generics', 0]),
+                JsigAST.locationLiteral('T', ['result', 'generics', 0])
+            ]
         })
     }));
 };
