@@ -265,8 +265,8 @@ Errors.UnionTypeClassMismatch = TypedError({
     line: null
 });
 
-Errors.UnionOperatorCallMismatch = TypedError({
-    type: 'jsig.sub-type.union-operator-call-mismatch',
+Errors.IntersectionOperatorCallMismatch = TypedError({
+    type: 'jsig.sub-type.intersection-operator-call-mismatch',
     message: '@{line}: Cannot call any of operators: {operator} types.',
     expected: null,
     actual: null,

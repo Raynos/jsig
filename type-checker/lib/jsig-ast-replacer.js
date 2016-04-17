@@ -130,6 +130,19 @@ function inlineReferences(ast, rawAst, stack) {
 
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
+    } else if (ast.type === 'intersectionType') {
+        stack.push('intersections');
+        for (i = 0; i < ast.intersections.length; i++) {
+            stack.push(i);
+            ast.intersections[i] = this.inlineReferences(
+                ast.intersections[i], rawAst.intersections[i]
+            );
+            stack.pop();
+        }
+        stack.pop();
+
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        return ast;
     } else if (ast.type === 'valueLiteral') {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;

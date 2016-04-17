@@ -488,15 +488,15 @@ function verifyBinaryExpression(node) {
     var token = this.meta.getOperator(node.operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
 
-    var unions = token.defn.type === 'unionType' ?
-        token.defn.unions : [token.defn];
+    var intersections = token.defn.type === 'intersectionType' ?
+        token.defn.intersections : [token.defn];
 
     var defn;
-    var correctDefn = unions[0];
+    var correctDefn = intersections[0];
     var isBad = true;
     var errors = [];
-    for (var i = 0; i < unions.length; i++) {
-        defn = unions[i];
+    for (var i = 0; i < intersections.length; i++) {
+        defn = intersections[i];
 
         assert(defn.args.length === 2,
             'expected type defn args to be two');
@@ -522,12 +522,12 @@ function verifyBinaryExpression(node) {
     }
 
     // TODO: better error message UX
-    if (isBad && unions.length === 1) {
+    if (isBad && intersections.length === 1) {
         for (var j = 0; j < errors.length; j++) {
             this.meta.addError(errors[j]);
         }
-    } else if (isBad && unions.length > 1) {
-        var finalErr = Errors.UnionOperatorCallMismatch({
+    } else if (isBad && intersections.length > 1) {
+        var finalErr = Errors.IntersectionOperatorCallMismatch({
             expected: serialize(token.defn),
             actual: serialize(JsigAST.tuple([leftType, rightType])),
             operator: node.operator,

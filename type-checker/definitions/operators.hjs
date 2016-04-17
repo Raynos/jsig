@@ -1,6 +1,6 @@
 
 + : 
-    ((String, String) => String) |
+    ((String, String) => String) &
     ((Number, Number) => Number)
 
 * : (Number, Number) => Number
