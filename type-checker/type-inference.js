@@ -107,7 +107,18 @@ function inferArrayExpression(node) {
     var elems = node.elements;
 
     if (elems.length === 0) {
-        return JsigAST.literal('%Array%%Empty', true);
+        var leftHand = this.meta.currentScope.getAssignmentType();
+        if (leftHand && leftHand.type === 'genericLiteral' &&
+            leftHand.value.type === 'typeLiteral' &&
+            leftHand.value.builtin && leftHand.value.name === 'Array'
+        ) {
+            return leftHand;
+        }
+
+        return JsigAST.generic(
+            JsigAST.literal('Array'),
+            [JsigAST.freeLiteral('T')]
+        );
     }
 
     var type = null;
@@ -159,6 +170,9 @@ function resolveGeneric(funcType, node) {
     copyFunc._raw = null;
 
     var knownGenericTypes = this._findGenericTypes(copyFunc, node);
+    if (!knownGenericTypes) {
+        return null;
+    }
 
     for (var i = 0; i < copyFunc.generics.length; i++) {
         var g = copyFunc.generics[i];
@@ -204,22 +218,28 @@ function _findGenericTypes(copyFunc, node) {
 
         if (knownGenericTypes[ast.name]) {
             var oldType = knownGenericTypes[ast.name];
+
             var subTypeError = this.meta.checkSubTypeRaw(
                 referenceNode, oldType, newType
             );
 
             if (subTypeError) {
-                var isSub = this.meta.isSubType(
-                    referenceNode, newType, oldType
-                );
+                // A free variable fits in any type.
+                var isSub = oldType.type === 'freeLiteral';
+                if (!isSub) {
+                    isSub = this.meta.isSubType(
+                        referenceNode, newType, oldType
+                    );
+                }
                 if (isSub) {
                     knownGenericTypes[ast.name] = newType;
                     subTypeError = null;
                 }
             }
+
             if (subTypeError) {
                 this.meta.addError(subTypeError);
-                // return null;
+                return null;
                 // TODO: bug and shit
                 // assert(false, 'could not resolve generics');
             }

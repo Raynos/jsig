@@ -488,6 +488,33 @@ function verifyCallExpression(node) {
         var obj = this.meta.verifyNode(node.callee.object, null);
         assert(obj, 'object of method call must have a type');
 
+        // Try to late-bound a concrete instance of a free variable
+        // in a generic.
+        if (defn.generics.length > 0 && obj.type === 'genericLiteral') {
+            var hasFreeLiteral = obj.generics[0].type === 'freeLiteral';
+            assert(defn.thisArg.type === 'genericLiteral');
+
+            if (hasFreeLiteral) {
+                var newGenerics = [];
+                assert(obj.generics.length === defn.thisArg.generics.length,
+                    'expected same number of generics');
+                for (i = 0; i < obj.generics.length; i++) {
+                    newGenerics[i] = defn.thisArg.generics[i];
+                }
+
+                var newType = JsigAST.generic(
+                    obj.value, newGenerics, obj.label
+                );
+                assert(node.callee.object.type === 'Identifier',
+                    'object must be variable reference');
+
+                this.meta.currentScope.forceUpdateVar(
+                    node.callee.object.name, newType
+                );
+                obj = newType;
+            }
+        }
+
         this.meta.checkSubType(node.callee.object, defn.thisArg, obj);
     }
 

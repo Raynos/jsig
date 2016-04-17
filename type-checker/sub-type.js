@@ -33,6 +33,8 @@ function checkSubType(node, parent, child) {
         result = this.checkValueLiteralSubType(node, parent, child);
     } else if (parent.type === 'unionType') {
         result = this.checkUnionSubType(node, parent, child);
+    } else if (parent.type === 'freeLiteral') {
+        return reportTypeMisMatch(node, parent, child);
     } else {
         throw new Error('not implemented sub type: ' + parent.type);
     }
