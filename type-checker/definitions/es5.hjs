@@ -1,3 +1,4 @@
+-- vim: set ft=Haskell:
 type Error : {
     message: String,
     stack: String,

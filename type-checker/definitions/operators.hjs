@@ -1,4 +1,4 @@
-
+-- vim: set ft=Haskell:
 + : 
     ((String, String) => String) &
     ((Number, Number) => Number)
