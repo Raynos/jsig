@@ -45,7 +45,8 @@ function checkSubType(node, parent, child) {
 SubTypeChecker.prototype.checkTypeLiteralSubType =
 function checkTypeLiteralSubType(node, parent, child) {
     if (!parent.builtin) {
-        throw new Error('not implemented, sub type for non-builtin');
+        return reportTypeMisMatch(node, parent, child);
+        // throw new Error('not implemented, sub type for non-builtin');
     }
 
     if (parent.name === '%Any%%ModuleExports') {
