@@ -76,6 +76,24 @@ test('foo : RegExp', function t(assert) {
     assert.end();
 });
 
+test('foo : Symbol', function t(assert) {
+    var content = 'foo : Symbol';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'typeLiteral',
+        name: 'Symbol',
+        label: null,
+        optional: false,
+        builtin: true,
+        _raw: null
+    });
+
+    assert.end();
+});
+
 test('foo : undefined', function t(assert) {
     var content = 'foo : undefined';
     var result = parse(content).statements[0];
