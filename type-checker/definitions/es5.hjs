@@ -2,6 +2,7 @@
 type Error : {
     message: String,
     stack: String,
+    name: String,
     ..R
 }
 
