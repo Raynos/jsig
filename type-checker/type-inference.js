@@ -107,12 +107,12 @@ function inferArrayExpression(node) {
     var elems = node.elements;
 
     if (elems.length === 0) {
-        var leftHand = this.meta.currentScope.getAssignmentType();
-        if (leftHand && leftHand.type === 'genericLiteral' &&
-            leftHand.value.type === 'typeLiteral' &&
-            leftHand.value.builtin && leftHand.value.name === 'Array'
+        var currExprType = this.meta.currentExpressionType;
+        if (currExprType && currExprType.type === 'genericLiteral' &&
+            currExprType.value.type === 'typeLiteral' &&
+            currExprType.value.builtin && currExprType.value.name === 'Array'
         ) {
-            return leftHand;
+            return currExprType;
         }
 
         return JsigAST.generic(
