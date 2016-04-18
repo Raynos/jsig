@@ -204,3 +204,48 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
 
     assert.end();
 });
+
+test('foo : <T>(a: T, b: T) => T', function t(assert) {
+    var content = 'foo : <T>(a: T, b: T) => T';
+    var result = parse(content).statements[0];
+
+    assert.deepEqual(result, {
+        type: 'assignment',
+        identifier: 'foo',
+        typeExpression: {
+            type: 'function',
+            args: [{
+                type: 'typeLiteral',
+                label: 'a',
+                builtin: false,
+                optional: false,
+                name: 'T',
+                _raw: null
+            }, {
+                type: 'typeLiteral',
+                label: 'b',
+                builtin: false,
+                optional: false,
+                name: 'T',
+                _raw: null
+            }],
+            thisArg: null,
+            brand: 'Object',
+            result: {
+                type: 'typeLiteral',
+                builtin: false,
+                optional: false,
+                label: null,
+                name: 'T',
+                _raw: null
+            },
+            generics: ['T'],
+            _raw: null,
+            optional: false,
+            label: null
+        },
+        _raw: null
+    });
+
+    assert.end();
+});
