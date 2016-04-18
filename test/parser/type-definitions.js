@@ -36,7 +36,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
             key: 'option',
             value: {
                 type: 'typeLiteral',
-                isGeneric: false,
+                isGeneric: true,
                 name: 'T',
                 builtin: false,
                 label: null,

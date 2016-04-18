@@ -47,9 +47,20 @@ function checkSubType(node, parent, child) {
 /*eslint complexity: [2, 30]*/
 SubTypeChecker.prototype.checkTypeLiteralSubType =
 function checkTypeLiteralSubType(node, parent, child) {
-    if (!parent.builtin) {
+    if (!parent.builtin && !parent.isGeneric) {
         return reportTypeMisMatch(node, parent, child);
         // throw new Error('not implemented, sub type for non-builtin');
+    }
+    if (parent.isGeneric) {
+        if (!child.isGeneric) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        if (parent.name !== child.name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        return null;
     }
 
     if (parent.name === '%Any%%ModuleExports') {

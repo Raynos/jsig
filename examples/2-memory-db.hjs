@@ -1,9 +1,9 @@
 -- vim: set ft=Haskell:
-type TDB : {
-    _values: Object<String, String>,
+type TDB<T> : {
+    _values: Object<String, T>,
 
-    get : (this: TDB, key: String) => String,
-    set : (this: TDB, key: String, value: String) => void,
+    get : <T>(this: TDB<T>, key: String, default: T) => T,
+    set : <T>(this: TDB<T>, key: String, value: T) => void,
     keys : (this: TDB) => Array<String>
 }
 

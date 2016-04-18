@@ -25,20 +25,25 @@ function FunctionNode(opts) {
 
 FunctionNode.prototype._findGenerics =
 function _findGenerics(generics) {
-    var replacer = new GenericReplacer(this);
+    var replacer = new GenericReplacer(this, generics);
     var astReplacer = new JsigASTReplacer(replacer, true);
     astReplacer.inlineReferences(this, this);
 
     return replacer.seenGenerics;
 };
 
-function GenericReplacer(node) {
+function GenericReplacer(node, generics) {
     this.node = node;
 
+    this.knownGenerics = generics;
     this.seenGenerics = [];
 }
 
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
+    if (this.knownGenerics.indexOf(ast.name) === -1) {
+        return ast;
+    }
+
     this.seenGenerics.push(new LocationLiteralNode(ast.name, stack.slice()));
 
     ast.isGeneric = true;
