@@ -4,7 +4,6 @@ var assert = require('assert');
 
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
-var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 
 module.exports = TypeInference;
 
