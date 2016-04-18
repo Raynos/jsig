@@ -10,7 +10,8 @@ var builtinTypes = [
     'Function',
     'RegExp',
     'Symbol',
-    '%Boolean%%Mixed'
+    '%Boolean%%Mixed',
+    '%Object%%Empty'
 ];
 
 module.exports = builtinTypes;

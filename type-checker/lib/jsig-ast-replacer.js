@@ -75,7 +75,7 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeLiteral') {
-        if (ast.builtin) {
+        if (ast.builtin || ast.isGeneric) {
             ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }

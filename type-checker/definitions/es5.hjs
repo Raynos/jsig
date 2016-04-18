@@ -6,11 +6,11 @@ type Error : {
     ..R
 }
 
---type TArray : {
---    length: Number,
---    push: <T>(this: Array<T>, T) => Number,
---    slice: <T>(this: Array<T>, Number, Number) => Array<T>
---}
+type TArray : {
+    length: Number,
+    push: <T>(this: Array<T>, T) => Number,
+    slice: <T>(this: Array<T>, Number, Number) => Array<T>
+}
 
 type TString : {
     length: Number,
@@ -39,8 +39,8 @@ Math : {
 
 parseInt : (String, Number) => Number
 
---Object : {
---    create: (parent: null) => %Object%%Empty,
---    keys: <K, V>(Object<K, V>) => Array<String>
---}
+Object : {
+    create: (parent: null) => %Object%%Empty,
+    keys: <K, V>(Object<K, V>) => Array<String>
+}
 
