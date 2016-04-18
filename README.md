@@ -139,7 +139,7 @@ This includes the module system and the definition files.
 
 ```
 raynos at raynos-ThinkPad-T440p  ~/projects/jsig2 on master*
-$ jsig ./examples/3-node_modules.js --definitions ./definitions/
+$ jsig ./examples/3-node_modules.js --definitions ./test/lib/definitions/
 
 examples/3-node_modules.js
 Found error: jsig.sub-type.type-class-mismatch
