@@ -5,15 +5,19 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint $(git ls-files | grep '\\.js$')",
-    "test": "npm run lint && node test/index.js"
+    "test": "npm run lint && node test/index.js",
+    "cover": "istanbul cover --report html --print detail test/index.js",
+    "view-cover": "istanbul report html && opn ./coverage/index.html"
   },
   "devDependencies": {
     "difflet": "1.0.1",
     "eslint": "1.8.0",
     "eslint-config-perf-standard": "2.1.1",
     "eslint-plugin-perf-standard": "^1.0.2",
+    "istanbul": "^0.4.3",
     "json-diff": "0.3.1",
     "multiline": "^1.0.2",
+    "opn": "^1.0.0",
     "tape": "^4.4.0",
     "tape-cluster": "^2.1.2"
   },
