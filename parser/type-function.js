@@ -15,7 +15,7 @@ var typeFunction = genericExpression.times(0, 1)
         var generics = list[0] || null;
         if (generics) {
             for (var i = 0; i < generics.length; i++) {
-                generics[0] = generics[0].name;
+                generics[i] = generics[i].name;
             }
         }
 

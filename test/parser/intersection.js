@@ -14,6 +14,7 @@ test('foo : Bar & Baz', function t(assert) {
         type: 'intersectionType',
         intersections: [{
             type: 'typeLiteral',
+            isGeneric: false,
             name: 'Bar',
             builtin: false,
             optional: false,
@@ -21,6 +22,7 @@ test('foo : Bar & Baz', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             name: 'Baz',
             builtin: false,
             optional: false,

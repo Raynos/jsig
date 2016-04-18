@@ -13,5 +13,6 @@ function LiteralTypeNode(name, builtin, opts) {
     this.builtin = builtin;
     this.label = (opts && opts.label) || null;
     this.optional = (opts && opts.optional) || false;
+    this.isGeneric = false;
     this._raw = null;
 }

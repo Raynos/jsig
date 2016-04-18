@@ -12,6 +12,7 @@ test('import { Foo } from "bar"', function t(assert) {
     assert.equal(result.dependency, 'bar');
     assert.deepEqual(result.types, [{
         type: 'typeLiteral',
+        isGeneric: false,
         name: 'Foo',
         builtin: false,
         optional: false,
@@ -30,6 +31,7 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
     assert.equal(result.dependency, 'bar');
     assert.deepEqual(result.types, [{
         type: 'typeLiteral',
+        isGeneric: false,
         name: 'Foo',
         builtin: false,
         optional: false,
@@ -37,6 +39,7 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         _raw: null
     }, {
         type: 'typeLiteral',
+        isGeneric: false,
         name: 'Bar',
         builtin: false,
         optional: false,
@@ -60,6 +63,7 @@ test('import { Foo as Bar } from "bar"', function t(assert) {
         optional: false,
         original: {
             type: 'typeLiteral',
+            isGeneric: false,
             name: 'Foo',
             builtin: false,
             optional: false,
