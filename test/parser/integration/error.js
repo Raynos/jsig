@@ -7,7 +7,7 @@ var path = require('path');
 // var showDiff = require('../lib/show-diff.js')
 
 var parse = require('../../../parser.js');
-var AST = require('../../../ast.js');
+var AST = require('../../../ast/');
 var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions', 'error.mli');
@@ -15,60 +15,70 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
+function makeLiteral(name, builtin, opts) {
+    opts = opts || {};
+    if (typeof builtin === 'string') {
+        opts.label = builtin;
+        builtin = undefined;
+    }
+
+    return AST.literal(name, builtin, opts);
+}
+
 var ASTFixture = AST.program([
     AST.typeDeclaration('OptionError', AST.object({
         'option': AST.union([
-            AST.literal('T'),
+            makeLiteral('T'),
             AST.value('null')
         ]),
-        'message': AST.literal('String'),
+        'message': makeLiteral('String'),
         'type': AST.value('"OptionError"', 'string')
-    }), [ AST.literal('T') ]),
+    }), [ makeLiteral('T') ]),
     AST.typeDeclaration('TypedError', AST.object({
-        'message': AST.literal('String'),
-        'type': AST.literal('T')
-    }), [ AST.literal('T') ]),
+        'message': makeLiteral('String'),
+        'type': makeLiteral('T')
+    }), [ makeLiteral('T') ]),
     AST.typeDeclaration('ValidationError', AST.object({
         'errors': AST.generic(
-            AST.literal('Array'),
-            [ AST.literal('Error') ]
+            makeLiteral('Array'),
+            [ makeLiteral('Error') ]
         ),
-        'message': AST.literal('String'),
+        'message': makeLiteral('String'),
         'type': AST.value('"ValidationError"', 'string')
     })),
     AST.assignment('error/option', AST.functionType({
         args: [
-            AST.literal('String'),
-            AST.literal('T')
+            makeLiteral('String'),
+            makeLiteral('T')
         ],
         result: AST.generic(
-            AST.literal('OptionError'),
-            [ AST.literal('T') ]
+            makeLiteral('OptionError'),
+            [ makeLiteral('T') ]
         )
     })),
     AST.assignment('error/typed', AST.functionType({
         args: [
             AST.object({
-                'message': AST.literal('String'),
-                'type': AST.literal('String')
+                'message': makeLiteral('String'),
+                'type': makeLiteral('String')
             }, 'args')
         ],
         result: AST.functionType({
-            args: [ AST.literal('Object', 'opts') ],
+            args: [ makeLiteral('Object', 'opts') ],
             result: AST.generic(
-                AST.literal('TypedError'),
-                [ AST.literal('String') ]
+                makeLiteral('TypedError'),
+                [ makeLiteral('String') ]
             )
         })
     })),
     AST.assignment('error/validation', AST.functionType({
         args: [
             AST.generic(
-                AST.literal('Array'),
-                [ AST.literal('Error') ]
+                makeLiteral('Array'),
+                [ makeLiteral('Error') ]
             )
         ],
-        result: AST.literal('ValidationError')
+        result: makeLiteral('ValidationError')
     }))
 ]);
 

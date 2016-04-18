@@ -5,150 +5,160 @@ var fs = require('fs');
 var path = require('path');
 
 var parse = require('../../../parser.js');
-var AST = require('../../../ast.js');
+var AST = require('../../../ast/');
 var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions',
     'jsonml-stringify.mli');
 var content = fs.readFileSync(uri, 'utf8');
 
+function makeLiteral(name, builtin, opts) {
+    opts = opts || {};
+    if (typeof builtin === 'string') {
+        opts.label = builtin;
+        builtin = undefined;
+    }
+
+    return AST.literal(name, builtin, opts);
+}
+
 var ASTFixture = AST.program([
     AST.typeDeclaration('JsonMLSelector',
-        AST.literal('String')),
+        makeLiteral('String')),
     AST.typeDeclaration('JsonMLTextContent',
-        AST.literal('String')),
+        makeLiteral('String')),
     AST.typeDeclaration('JsonMLRawContent', AST.object({
-        raw: AST.literal('String')
+        raw: makeLiteral('String')
     })),
     AST.typeDeclaration('JsonMLFragment', AST.object({
         fragment: AST.generic(
-            AST.literal('Array'),
-            [AST.literal('JsonML')]
+            makeLiteral('Array'),
+            [makeLiteral('JsonML')]
         )
     })),
     AST.typeDeclaration('JsonMLAttributeKey',
-        AST.literal('String')),
+        makeLiteral('String')),
     AST.typeDeclaration('JsonMLAttributeValue', AST.union([
-        AST.literal('String'),
-        AST.literal('Number'),
-        AST.literal('Boolean')
+        makeLiteral('String'),
+        makeLiteral('Number'),
+        makeLiteral('Boolean')
     ])),
     AST.typeDeclaration('JsonMLAttrs', AST.generic(
-        AST.literal('Object'),
+        makeLiteral('Object'),
         [
-            AST.literal('JsonMLAttributeKey'),
-            AST.literal('JsonMLAttributeValue')
+            makeLiteral('JsonMLAttributeKey'),
+            makeLiteral('JsonMLAttributeValue')
         ])
     ),
     AST.typeDeclaration('MaybeJsonML', AST.union([
-        AST.literal('JsonMLTextContent'),
-        AST.literal('JsonMLRawContent'),
+        makeLiteral('JsonMLTextContent'),
+        makeLiteral('JsonMLRawContent'),
         AST.object({
             'fragment': AST.generic(
-                AST.literal('Array'),
-                [AST.literal('MaybeJsonML')]
+                makeLiteral('Array'),
+                [makeLiteral('MaybeJsonML')]
             )
         }),
-        AST.tuple([AST.literal('JsonMLSelector')]),
+        AST.tuple([makeLiteral('JsonMLSelector')]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLRawContent')
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLRawContent')
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
+            makeLiteral('JsonMLSelector'),
             AST.object({
                 'fragment': AST.generic(
-                    AST.literal('Array'),
-                    [AST.literal('MaybeJsonML')]
+                    makeLiteral('Array'),
+                    [makeLiteral('MaybeJsonML')]
                 )
             })
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('Object')
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('Object')
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLTextContent')
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLTextContent')
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
+            makeLiteral('JsonMLSelector'),
             AST.generic(
-                AST.literal('Array'),
-                [AST.literal('MaybeJsonML')]
+                makeLiteral('Array'),
+                [makeLiteral('MaybeJsonML')]
             )
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLAttrs'),
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLAttrs'),
             AST.generic(
-                AST.literal('Array'),
-                [AST.literal('MaybeJsonML')]
+                makeLiteral('Array'),
+                [makeLiteral('MaybeJsonML')]
             )
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLAttrs'),
-            AST.literal('JsonMLTextContent')
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLAttrs'),
+            makeLiteral('JsonMLTextContent')
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLAttrs'),
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLAttrs'),
             AST.object({
                 'fragment': AST.generic(
-                    AST.literal('Array'),
-                    [AST.literal('MaybeJsonML')]
+                    makeLiteral('Array'),
+                    [makeLiteral('MaybeJsonML')]
                 )
             })
         ]),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLAttrs'),
-            AST.literal('JsonMLRawContent')
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLAttrs'),
+            makeLiteral('JsonMLRawContent')
         ])
     ])),
     AST.typeDeclaration('JsonML', AST.union([
-        AST.literal('JsonMLTextContent'),
-        AST.literal('JsonMLFragment'),
-        AST.literal('JsonMLRawContent'),
+        makeLiteral('JsonMLTextContent'),
+        makeLiteral('JsonMLFragment'),
+        makeLiteral('JsonMLRawContent'),
         AST.tuple([
-            AST.literal('JsonMLSelector'),
-            AST.literal('JsonMLAttrs'),
+            makeLiteral('JsonMLSelector'),
+            makeLiteral('JsonMLAttrs'),
             AST.generic(
-                AST.literal('Array'),
-                [AST.literal('JsonML')]
+                makeLiteral('Array'),
+                [makeLiteral('JsonML')]
             )
         ])
     ])),
     AST.assignment('jsonml-stringify', AST.functionType({
         args: [
-            AST.literal('JsonML', 'jsonml'),
-            AST.literal('Object', true, {
+            makeLiteral('JsonML', 'jsonml'),
+            makeLiteral('Object', true, {
                 label: 'opts',
                 optional: true
             })
         ],
-        result: AST.literal('String')
+        result: makeLiteral('String')
     })),
     AST.assignment('jsonml-stringify/normalize', AST.functionType({
-        args: [AST.literal('MaybeJsonML')],
-        result: AST.literal('JsonML')
+        args: [makeLiteral('MaybeJsonML')],
+        result: makeLiteral('JsonML')
     })),
     AST.assignment('jsonml-stringify/dom', AST.functionType({
-        args: [AST.literal('JsonML', 'jsonml')],
-        result: AST.literal('DOMElement')
+        args: [makeLiteral('JsonML', 'jsonml')],
+        result: makeLiteral('DOMElement')
     })),
     AST.assignment('jsonml-stringify/attrs', AST.functionType({
-        args: [AST.literal('Object', 'attributes')],
-        result: AST.literal('String')
+        args: [makeLiteral('Object', 'attributes')],
+        result: makeLiteral('String')
     })),
     AST.assignment('jsonml-stringify/unpack-selector',
         AST.functionType({
             args: [
-                AST.literal('String', 'selector'),
-                AST.literal('Object', 'attributes')
+                makeLiteral('String', 'selector'),
+                makeLiteral('Object', 'attributes')
             ],
-            result: AST.literal('String', 'tagName')
+            result: makeLiteral('String', 'tagName')
         }))
 ]);
 

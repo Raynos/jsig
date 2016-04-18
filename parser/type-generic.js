@@ -5,7 +5,7 @@ var Parsimmon = require('parsimmon');
 var typeDefinition = require('./type-definition.js');
 var lexemes = require('./lexemes.js');
 var typeLiteral = require('./type-literal.js');
-var AST = require('../ast.js');
+var AST = require('../ast/');
 var join = require('./lib/join.js');
 
 var genericExpression = lexemes.openAngularBrace

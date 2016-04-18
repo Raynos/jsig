@@ -7,7 +7,7 @@ var path = require('path');
 // var showDiff = require('../lib/show-diff.js');
 
 var parse = require('../../../parser.js');
-var AST = require('../../../ast.js');
+var AST = require('../../../ast/');
 var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions',
@@ -16,12 +16,22 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
+function makeLiteral(name, builtin, opts) {
+    opts = opts || {};
+    if (typeof builtin === 'string') {
+        opts.label = builtin;
+        builtin = undefined;
+    }
+
+    return AST.literal(name, builtin, opts);
+}
+
 var ASTFixture = AST.program([
     AST.importStatement('node.jsig', [
-        AST.literal('Stream')
+        makeLiteral('Stream')
     ]),
     AST.importStatement('continuable.jsig', [
-        AST.literal('Continuable')
+        makeLiteral('Continuable')
     ]),
     AST.importStatement('mongodb.jsig', [
         AST.renamedLiteral('MongoCursor', 'Cursor'),
@@ -33,265 +43,265 @@ var ASTFixture = AST.program([
             AST.object({
                 'toArray': AST.functionType({
                     result: AST.generic(
-                        AST.literal('Continuable'),
+                        makeLiteral('Continuable'),
                         [AST.generic(
-                            AST.literal('Array'),
-                            [AST.literal('T')]
+                            makeLiteral('Array'),
+                            [makeLiteral('T')]
                         )]
                     )
                 }),
                 'nextObject': AST.functionType({
                     result: AST.generic(
-                        AST.literal('Continuable'),
+                        makeLiteral('Continuable'),
                         [AST.union([
-                            AST.literal('T'),
+                            makeLiteral('T'),
                             AST.value('null')
                         ])
                     ])
                 }),
                 'stream': AST.functionType({
-                    result: AST.literal('Stream')
+                    result: makeLiteral('Stream')
                 })
             }),
             AST.functionType({
                 args: [AST.generic(
-                    AST.literal('Callback'),
-                    [AST.literal('MongoCursor')]
+                    makeLiteral('Callback'),
+                    [makeLiteral('MongoCursor')]
                 )],
-                result: AST.literal('void')
+                result: makeLiteral('void')
             })
         ]),
-        [AST.literal('T')]
+        [makeLiteral('T')]
     ),
     AST.typeDeclaration('Client', AST.intersection([
         AST.object({
             'close': AST.generic(
-                AST.literal('Continuable'),
-                [AST.literal('void')
+                makeLiteral('Continuable'),
+                [makeLiteral('void')
             ]),
             'collection': AST.functionType({
-                args: [AST.literal('String', 'name')],
-                result: AST.literal('Collection')
+                args: [makeLiteral('String', 'name')],
+                result: makeLiteral('Collection')
             })
         }),
         AST.functionType({
             args: [AST.generic(
-                AST.literal('Callback'),
-                [AST.literal('MongoDB')]
+                makeLiteral('Callback'),
+                [makeLiteral('MongoDB')]
             )],
-            result: AST.literal('void')
+            result: makeLiteral('void')
         })
     ])),
     AST.typeDeclaration('Collection', AST.intersection([
         AST.object({
             'find': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Cursor'),
-                    [AST.literal('T')]
+                    makeLiteral('Cursor'),
+                    [makeLiteral('T')]
                 )
             }),
             'findById': AST.functionType({
                 args: [
-                    AST.literal('String', true, {
+                    makeLiteral('String', true, {
                         label: 'id'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('T')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('T')]
                 )
             }),
             'findAndModify': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Array', true, {
+                    makeLiteral('Array', true, {
                         label: 'sort',
                         optional: true
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'doc',
                         optional: true
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('T')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('T')]
                 )
             }),
             'findAndRemove': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Array', true, {
+                    makeLiteral('Array', true, {
                         label: 'sort',
                         optional: true
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('T')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('T')]
                 )
             }),
             'findOne': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('T')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('T')]
                 )
             }),
             'insert': AST.functionType({
                 args: [
                     AST.generic(
-                        AST.literal('Array'),
-                        [AST.literal('T')],
+                        makeLiteral('Array'),
+                        [makeLiteral('T')],
                         'docs'
                     ),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
+                    makeLiteral('Continuable'),
                     [AST.generic(
-                        AST.literal('Array'),
-                        [AST.literal('T')]
+                        makeLiteral('Array'),
+                        [makeLiteral('T')]
                     )]
                 )
             }),
             'mapReduce': AST.functionType({
                 args: [
-                    AST.literal('Function', true, {
+                    makeLiteral('Function', true, {
                         label: 'map'
                     }),
-                    AST.literal('Function', true, {
+                    makeLiteral('Function', true, {
                         label: 'reduce'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('Collection')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('Collection')]
                 )
             }),
             'remove': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('Number')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('Number')]
                 )
             }),
             'update': AST.functionType({
                 args: [
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'selector'
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'doc',
                         optional: true
                     }),
-                    AST.literal('Object', true, {
+                    makeLiteral('Object', true, {
                         label: 'options',
                         optional: true
                     })
                 ],
                 result: AST.generic(
-                    AST.literal('Continuable'),
-                    [AST.literal('Number')]
+                    makeLiteral('Continuable'),
+                    [makeLiteral('Number')]
                 )
             })
         }),
         AST.functionType({
             args: [AST.generic(
-                AST.literal('Callback'),
-                [AST.literal('MongoCollection')]
+                makeLiteral('Callback'),
+                [makeLiteral('MongoCollection')]
             )],
-            result: AST.literal('void')
+            result: makeLiteral('void')
         })
-    ]), [ AST.literal('T') ]),
+    ]), [ makeLiteral('T') ]),
     AST.assignment('continuable-mongo/cursor', AST.functionType({
         args: [
             AST.generic(
-                AST.literal('Collection'),
-                [AST.literal('T')]
+                makeLiteral('Collection'),
+                [makeLiteral('T')]
             ),
-            AST.literal('Object', true, {
+            makeLiteral('Object', true, {
                 label: 'selector'
             }),
-            AST.literal('Object', true, {
+            makeLiteral('Object', true, {
                 label: 'options',
                 optional: true
             })
         ],
         result: AST.generic(
-            AST.literal('Cursor'),
-            [AST.literal('T')]
+            makeLiteral('Cursor'),
+            [makeLiteral('T')]
         )
     })),
     AST.assignment('continuable-mongo/collection',
         AST.functionType({
-            args: [AST.literal('Client')],
+            args: [makeLiteral('Client')],
             result: AST.functionType({
-                args: [AST.literal('String', true, {
+                args: [makeLiteral('String', true, {
                     label: 'collectionName'
                 })],
-                result: AST.literal('Collection')
+                result: makeLiteral('Collection')
             })
         })),
     AST.assignment('continuable-mongo', AST.functionType({
         args: [
-            AST.literal('String', true, {
+            makeLiteral('String', true, {
                 label: 'uri'
             }),
-            AST.literal('Object', true, {
+            makeLiteral('Object', true, {
                 label: 'options',
                 optional: true
             })
         ],
-        result: AST.literal('Client')
+        result: makeLiteral('Client')
     }))
 ]);
 

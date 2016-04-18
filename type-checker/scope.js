@@ -3,7 +3,7 @@
 var assert = require('assert');
 var util = require('util');
 
-var JsigAST = require('../ast.js');
+var JsigAST = require('../ast/');
 var cloneAST = require('./lib/clone-ast.js');
 
 var moduleType = JsigAST.object({

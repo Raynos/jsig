@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 
-var JsigAST = require('../../ast.js');
+var JsigAST = require('../../ast/');
 
 module.exports = updateObject;
 

@@ -3,7 +3,7 @@
 var Parsimmon = require('parsimmon');
 
 var lexemes = require('./lexemes.js');
-var AST = require('../ast.js');
+var AST = require('../ast/');
 
 var valueLiterals = Parsimmon.alt(
     valueLiteral('string', lexemes.quote

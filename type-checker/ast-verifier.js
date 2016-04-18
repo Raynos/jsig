@@ -9,7 +9,7 @@ var console = require('console');
 var assert = require('assert');
 var path = require('path');
 
-var JsigAST = require('../ast.js');
+var JsigAST = require('../ast/');
 var serialize = require('../serialize.js');
 var Errors = require('./errors.js');
 var isSameType = require('./lib/is-same-type.js');

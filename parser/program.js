@@ -2,7 +2,7 @@
 
 var Parsimmon = require('parsimmon');
 
-var AST = require('../ast.js');
+var AST = require('../ast/');
 var statement = require('./statement.js');
 
 var line = Parsimmon.optWhitespace

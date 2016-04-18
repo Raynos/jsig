@@ -7,7 +7,7 @@ var path = require('path');
 // var showDiff = require('../lib/show-diff.js')
 
 var parse = require('../../../parser.js');
-var AST = require('../../../ast.js');
+var AST = require('../../../ast/');
 var serialize = require('../../../serialize.js');
 
 var uri = path.join(__dirname, 'definitions', 'frp-keyboard.mli');
@@ -15,10 +15,20 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
+function makeLiteral(name, builtin, opts) {
+    opts = opts || {};
+    if (typeof builtin === 'string') {
+        opts.label = builtin;
+        builtin = undefined;
+    }
+
+    return AST.literal(name, builtin, opts);
+}
+
 var ASTFixture = AST.program([
-    AST.importStatement('observ', [ AST.literal('Observ') ]),
-    AST.importStatement('dom-delegator', [ AST.literal('Delegator') ]),
-    AST.typeDeclaration('KeyCode', AST.literal('Number')),
+    AST.importStatement('observ', [ makeLiteral('Observ') ]),
+    AST.importStatement('dom-delegator', [ makeLiteral('Delegator') ]),
+    AST.typeDeclaration('KeyCode', makeLiteral('Number')),
     AST.typeDeclaration('Direction', AST.union([
         AST.value('"left"', 'string'),
         AST.value('"right"', 'string'),
@@ -27,75 +37,75 @@ var ASTFixture = AST.program([
         AST.value('"void"', 'string')
     ])),
     AST.typeDeclaration('Coord', AST.object({
-        'x': AST.literal('Number'),
-        'y': AST.literal('Number'),
-        'lastPressed': AST.literal('Direction')
+        'x': makeLiteral('Number'),
+        'y': makeLiteral('Number'),
+        'lastPressed': makeLiteral('Direction')
     })),
     AST.typeDeclaration('NativeKeyboard', AST.object({
         'isDown': AST.functionType({
-            args: [ AST.literal('KeyCode', 'keyCode') ],
+            args: [ makeLiteral('KeyCode', 'keyCode') ],
             result: AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Boolean') ])
+                makeLiteral('Observ'),
+                [ makeLiteral('Boolean') ])
         }),
         'keysDown': AST.generic(
-            AST.literal('Observ'),
+            makeLiteral('Observ'),
             [
                 AST.generic(
-                    AST.literal('Array'),
-                    [ AST.literal('KeyCode', 'keyCode') ]
+                    makeLiteral('Array'),
+                    [ makeLiteral('KeyCode', 'keyCode') ]
                 )
             ]),
         'keyDown': AST.generic(
-            AST.literal('Observ'),
-            [ AST.literal('KeyCode', 'keyCode') ]),
+            makeLiteral('Observ'),
+            [ makeLiteral('KeyCode', 'keyCode') ]),
         'lastPressed': AST.generic(
-            AST.literal('Observ'),
-            [ AST.literal('KeyCode', 'keyCode') ]),
+            makeLiteral('Observ'),
+            [ makeLiteral('KeyCode', 'keyCode') ]),
         'directions': AST.functionType({
             args: [
-                AST.literal('KeyCode', 'up'),
-                AST.literal('KeyCode', 'down'),
-                AST.literal('KeyCode', 'left'),
-                AST.literal('KeyCode', 'right')
+                makeLiteral('KeyCode', 'up'),
+                makeLiteral('KeyCode', 'down'),
+                makeLiteral('KeyCode', 'left'),
+                makeLiteral('KeyCode', 'right')
             ],
             result: AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Coord') ])
+                makeLiteral('Observ'),
+                [ makeLiteral('Coord') ])
         })
     })),
     AST.typeDeclaration('Keyboard', AST.intersection([
-        AST.literal('NativeKeyboard'),
+        makeLiteral('NativeKeyboard'),
         AST.object({
             'arrows': AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Coord') ]
+                makeLiteral('Observ'),
+                [ makeLiteral('Coord') ]
             ),
             'wasd': AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Coord') ]
+                makeLiteral('Observ'),
+                [ makeLiteral('Coord') ]
             ),
             'ctrl': AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Boolean') ]
+                makeLiteral('Observ'),
+                [ makeLiteral('Boolean') ]
             ),
             'shift': AST.generic(
-                AST.literal('Observ'),
-                [ AST.literal('Boolean') ]
+                makeLiteral('Observ'),
+                [ makeLiteral('Boolean') ]
             )
         })
     ])),
     AST.assignment('frp-keyboard', AST.functionType({
         args: [],
-        result: AST.literal('Keyboard', 'cachedKeyboard')
+        result: makeLiteral('Keyboard', 'cachedKeyboard')
     })),
     AST.assignment('frp-keyboard/keyboard', AST.functionType({
-        args: [ AST.literal('Delegator') ],
-        result: AST.literal('Keyboard')
+        args: [ makeLiteral('Delegator') ],
+        result: makeLiteral('Keyboard')
     })),
     AST.assignment('frp-keyboard/native', AST.functionType({
-        args: [ AST.literal('Delegator') ],
-        result: AST.literal('NativeKeyboard')
+        args: [ makeLiteral('Delegator') ],
+        result: makeLiteral('NativeKeyboard')
     }))
 ]);
 

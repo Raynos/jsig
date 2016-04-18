@@ -3,7 +3,7 @@
 var Parsimmon = require('parsimmon');
 
 var lexemes = require('./lexemes.js');
-var AST = require('../ast.js');
+var AST = require('../ast/');
 var typeDefinition = require('./type-definition.js');
 var typeLiteral = require('./type-literal.js');
 var join = require('./lib/join.js');

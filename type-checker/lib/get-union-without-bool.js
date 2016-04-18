@@ -1,6 +1,6 @@
 'use strict';
 
-var JsigAST = require('../../ast.js');
+var JsigAST = require('../../ast/');
 
 module.exports = getUnionWithoutBool;
 
