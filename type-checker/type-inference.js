@@ -144,7 +144,10 @@ function inferObjectExpression(node) {
         assert(prop.kind === 'init', 'only support init kind');
 
         var value = this.meta.verifyNode(prop.value);
-        assert(value, 'expect value expression to have types');
+        if (!value) {
+            return null;
+        }
+
         keyValues.push(JsigAST.keyValue(prop.key.name, value));
     }
 
