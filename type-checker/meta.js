@@ -66,7 +66,7 @@ function serializeAST(ast) {
         this.sourceLines[startLine - 1].slice(ast.loc.start.column)
     ];
 
-    for (var i = startLine + 1; i < endLine - 1; i++) {
+    for (var i = startLine + 1; i < endLine; i++) {
         segments.push(this.sourceLines[i - 1]);
     }
 
