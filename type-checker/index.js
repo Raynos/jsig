@@ -119,6 +119,7 @@ function loadJavaScriptIntoIndexTable(indexTable) {
 
 TypeChecker.prototype.getOrCreateHeaderFile =
 function getOrCreateHeaderFile(fileName) {
+    fileName = path.resolve(fileName);
     if (this.headerFiles[fileName]) {
         return this.headerFiles[fileName];
     }
