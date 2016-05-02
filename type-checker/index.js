@@ -15,6 +15,7 @@ var prettyPrintErrors = require('./lib/pretty-errors.js');
 
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
 var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
+var isHeaderR = /\.hjs$/;
 
 compile.TypeChecker = TypeChecker;
 
@@ -197,6 +198,10 @@ function preloadDefinitions() {
     var files = fs.readdirSync(this.definitionsFolder);
     for (var i = 0; i < files.length; i++) {
         var fileName = path.join(this.definitionsFolder, files[i]);
+        if (!isHeaderR.test(fileName)) {
+            continue;
+        }
+
         var headerFile = this.getOrCreateHeaderFile(fileName);
         if (!headerFile) {
             continue;
