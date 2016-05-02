@@ -159,12 +159,21 @@ function resolveGeneric(funcType, node) {
     assert(node.type === 'CallExpression',
         'can only resolve generic with callee node');
 
+    // console.log('resolveGeneric()', {
+    //     type: this.meta.serializeType(funcType),
+    //     node: this.meta.serializeAST(node)
+    // });
+
     var genericReplacer = new JsigASTGenericTable(this.meta, funcType, node);
     var replacer = new JsigASTReplacer(genericReplacer, true);
 
     var copyFunc = JSON.parse(JSON.stringify(funcType));
     copyFunc._raw = null;
     copyFunc = replacer.inlineReferences(copyFunc, funcType);
+
+    if (replacer.bailed) {
+        return null;
+    }
 
     return copyFunc;
 };
@@ -173,6 +182,7 @@ function JsigASTGenericTable(meta, funcType, node) {
     this.meta = meta;
     this.funcType = funcType;
     this.node = node;
+    this.bailed = false;
     this.knownGenerics = {};
     this.knownGenericTypes = {};
 
@@ -180,6 +190,10 @@ function JsigASTGenericTable(meta, funcType, node) {
         this.knownGenerics[funcType.generics[i].name] = true;
     }
 }
+
+JsigASTGenericTable.prototype.bail = function bail() {
+    this.bailed = true;
+};
 
 JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     assert(this.knownGenerics[ast.name], 'literal must be a known generic');
@@ -189,11 +203,19 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     if (stack[0] === 'args') {
         referenceNode = this.node.arguments[stack[1]];
         newType = this.meta.verifyNode(referenceNode);
+        if (!newType) {
+            return this.bail();
+        }
+
         newType = walkProps(newType, stack, 2);
     } else if (stack[0] === 'thisArg') {
         referenceNode = this.node.callee.object;
         // TODO: this might be wrong
         newType = this.meta.verifyNode(referenceNode);
+        if (!newType) {
+            return this.bail();
+        }
+
         newType = walkProps(newType, stack, 1);
     } else {
         referenceNode = this.node;
