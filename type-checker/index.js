@@ -4,6 +4,8 @@ var esprima = require('esprima');
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
+var resolve = require('resolve');
+var process = global.process;
 
 var HeaderFile = require('./header-file.js');
 var readJSigAST = require('./lib/read-jsig-ast.js');
@@ -29,6 +31,7 @@ function TypeChecker(entryFile, options) {
 
     this.entryFile = entryFile;
     this.files = options.files || {};
+    this.basedir = process.cwd();
 
     this.globalScope = new GlobalScope();
     this.metas = Object.create(null);
@@ -145,6 +148,10 @@ function getOrCreateHeaderFile(fileName) {
 
 TypeChecker.prototype.getOrCreateMeta =
 function getOrCreateMeta(fileName) {
+    fileName = resolve.sync(fileName, {
+        basedir: this.basedir
+    });
+
     if (this.metas[fileName]) {
         return this.metas[fileName];
     }
