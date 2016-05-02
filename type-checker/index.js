@@ -150,9 +150,11 @@ function getOrCreateHeaderFile(fileName) {
 
 TypeChecker.prototype.getOrCreateMeta =
 function getOrCreateMeta(fileName) {
-    fileName = resolve.sync(fileName, {
-        basedir: this.basedir
-    });
+    if (!this.files[fileName]) {
+        fileName = resolve.sync(fileName, {
+            basedir: this.basedir
+        });
+    }
 
     if (this.metas[fileName]) {
         return this.metas[fileName];
