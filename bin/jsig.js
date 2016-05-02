@@ -25,11 +25,14 @@ function main(args) {
         globalsFile: args.globals || null
     });
 
+    /* eslint-disable no-restricted-syntax */
     try {
         checker.checkProgram();
     } catch (error) {
+    /* eslint-enable no-restricted-syntax */
         console.log(TermColor.red('Fatal Exception: '), {
-            message: error.message
+            message: error.message,
+            stackLine: error.stack.split('\n')[1]
         });
 
         var currMeta = checker.currentMeta;
