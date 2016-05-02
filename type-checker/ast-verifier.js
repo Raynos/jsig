@@ -295,6 +295,9 @@ function verifyMemberExpression(node) {
         valueType = this._findPropertyInType(node, objType, propName);
     } else {
         var propType = this.meta.verifyNode(node.property);
+        if (!propType) {
+            return null;
+        }
         valueType = this._findTypeInContainer(node, objType, propType);
     }
 
@@ -406,6 +409,9 @@ function verifyCallExpression(node) {
     if (defn.generics.length > 0) {
         // TODO: resolve generics
         defn = this.meta.resolveGeneric(defn, node);
+        if (!defn) {
+            return null;
+        }
     }
 
     var minArgs = defn.args.length;

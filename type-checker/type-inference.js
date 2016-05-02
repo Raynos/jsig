@@ -171,7 +171,7 @@ function resolveGeneric(funcType, node) {
     copyFunc._raw = null;
     copyFunc = replacer.inlineReferences(copyFunc, funcType);
 
-    if (replacer.bailed) {
+    if (genericReplacer.bailed) {
         return null;
     }
 
@@ -193,6 +193,7 @@ function JsigASTGenericTable(meta, funcType, node) {
 
 JsigASTGenericTable.prototype.bail = function bail() {
     this.bailed = true;
+    return null;
 };
 
 JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
@@ -221,6 +222,10 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
         referenceNode = this.node;
         newType = this.knownGenericTypes[ast.name];
         assert(newType, 'newType must exist in fallback');
+    }
+
+    if (!newType) {
+        return this.bail();
     }
 
     if (this.knownGenericTypes[ast.name]) {
@@ -253,6 +258,10 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
 
 function walkProps(object, stack, start) {
     for (var i = start; i < stack.length; i++) {
+        if (!object) {
+            return null;
+        }
+
         object = object[stack[i]];
     }
     return object;
