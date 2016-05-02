@@ -32,7 +32,8 @@ function main(args) {
     /* eslint-enable no-restricted-syntax */
         console.log(TermColor.red('Fatal Exception: '), {
             message: error.message,
-            stackLine: error.stack && error.stack.split('\n')[1]
+            stackLine: error.stack && error.stack.split('\n')[1],
+            rawStack: error.stack.split('\n')
         });
 
         var currMeta = checker.currentMeta;
