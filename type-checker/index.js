@@ -43,6 +43,7 @@ function TypeChecker(entryFile, options) {
 
     this.errors = [];
     this.moduleExportsType = null;
+    this.currentMeta = null;
 }
 
 TypeChecker.prototype.addError = function addError(err) {
@@ -165,9 +166,10 @@ function getOrCreateMeta(fileName) {
         loc: true
     });
     var meta = new ProgramMeta(this, ast, fileName, source);
-    meta.verify();
-
     this.metas[fileName] = meta;
+    this.currentMeta = meta;
+    meta.verify();
+    this.currentMeta = null;
     return meta;
 };
 

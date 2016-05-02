@@ -44,6 +44,8 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
     this.narrow = new NarrowType(this);
+
+    this.currentNode = null;
 }
 
 ProgramMeta.prototype.serializeType =
@@ -96,7 +98,11 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node) {
         return null;
     }
 
-    return this.verifier.verifyNode(node);
+    var parent = this.currentNode;
+    this.currentNode = node;
+    var type = this.verifier.verifyNode(node);
+    this.currentNode = parent;
+    return type;
 };
 
 ProgramMeta.prototype.inferType = function inferType(node) {
