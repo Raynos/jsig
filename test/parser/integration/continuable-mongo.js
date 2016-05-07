@@ -314,7 +314,7 @@ test('the continuable-mongo type definition', function t(assert) {
     assert.end();
 });
 
-test('serialize is idempotent', function t(assert) {
+test('serialize continualbe-mongo is idempotent', function t(assert) {
     var tree = parse(content);
     var text = serialize(tree);
 

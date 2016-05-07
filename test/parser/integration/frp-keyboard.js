@@ -118,7 +118,7 @@ test('the frp-keyboard type definition', function t(assert) {
     assert.end();
 });
 
-test('serialize is idempotent', function t(assert) {
+test('serialize frp-keyboard is idempotent', function t(assert) {
     var tree = parse(content);
     var text = serialize(tree);
 

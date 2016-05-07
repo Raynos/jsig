@@ -289,7 +289,7 @@ test('the min-document type definition', function t(assert) {
     assert.end();
 });
 
-test('serialize is idempotent', function t(assert) {
+test('serialize min-document is idempotent', function t(assert) {
     var tree = parse(content);
     var text = serialize(tree);
 
