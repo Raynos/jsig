@@ -7,7 +7,7 @@ var path = require('path');
 
 var compile = require('../type-checker/');
 
-var batchClientDir = path.join(__dirname, 'batch-client-methods');
+var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-methods');
 
 test('Working prototype method definition', function t(assert) {
     var file = getFile('good-working-prototype-method-definition.js');

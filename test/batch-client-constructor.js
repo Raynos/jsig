@@ -7,7 +7,9 @@ var path = require('path');
 
 var compile = require('../type-checker/');
 
-var batchClientDir = path.join(__dirname, 'batch-client-constructor');
+var batchClientDir = path.join(
+    __dirname, 'fixtures', 'batch-client-constructor'
+);
 
 test('Working simple constructor', function t(assert) {
     var file = getFile('good-working-simple-constructor.js');

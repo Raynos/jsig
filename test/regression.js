@@ -5,7 +5,7 @@ var path = require('path');
 
 var compile = require('../type-checker/');
 
-var procWatcherDir = path.join(__dirname, 'regression');
+var procWatcherDir = path.join(__dirname, 'fixtures', 'regression');
 var definitionsDir = path.join(__dirname, 'lib', 'definitions');
 var globalsFile = path.join(__dirname, 'lib', 'globals.hjs');
 

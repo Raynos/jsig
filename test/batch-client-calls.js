@@ -7,7 +7,7 @@ var path = require('path');
 
 var compile = require('../type-checker/');
 
-var batchClientDir = path.join(__dirname, 'batch-client-calls');
+var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-calls');
 
 test('working method calls within a closure', function t(assert) {
     var file = getFile('good-working-method-with-closure.js');
