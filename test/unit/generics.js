@@ -23,5 +23,3 @@ JSIGSnippet.test('generics disallow multiple types', function m() {/*
     // console.log('e', meta.errors);
     assert.end();
 });
-
-    // console.log('wat', snippet.programMeta.errors);

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint $(git ls-files | grep '\\.js$')",
-    "test": "npm run lint && node test/index.js",
+    "test": "npm run lint && node test/index.js && bash scripts/check_files.sh",
     "cover": "istanbul cover --report html --print detail test/index.js",
     "view-cover": "istanbul report html && opn ./coverage/index.html"
   },
