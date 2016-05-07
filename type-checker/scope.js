@@ -260,6 +260,12 @@ function updateFunction(id, typeDefn) {
     return this.addVar(id, typeDefn);
 };
 
+FileScope.prototype.revertFunction =
+function revertFunction(id, token) {
+    this.identifiers[id] = null;
+    this.untypedFunctions[id] = token;
+};
+
 FileScope.prototype.addPrototypeField =
 function addPrototypeField(id, fieldName, typeDefn) {
     if (!this.prototypes[id]) {
@@ -365,6 +371,16 @@ FunctionScope.prototype.updateFunction = function updateFunction(id, type) {
     }
 
     return this.parent.updateFunction(id, type);
+};
+
+FunctionScope.prototype.revertFunction = function revertFunction(id, token) {
+    if (this.identifiers[id]) {
+        this.identifiers[id] = null;
+        this.untypedFunctions[id] = token;
+        return;
+    }
+
+    this.parent.revertFunction(id, token);
 };
 
 FunctionScope.prototype.getPrototypeFields =
@@ -488,6 +504,11 @@ function getFunction(id) {
 BranchScope.prototype.updateFunction =
 function updateFunction(id, defn) {
     return this.parent.updateFunction(id, defn);
+};
+
+BranchScope.prototype.revertFunction =
+function revertFunction(id, token) {
+    return this.parent.revertFunction(id, token);
 };
 
 BranchScope.prototype.restrictType = function restrictType(id, type) {

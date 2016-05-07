@@ -62,18 +62,29 @@ function inferCallExpression(node) {
     });
 
     var t = this.meta.currentScope.getFunction(node.callee.name);
-    var token = this.meta.currentScope.updateFunction(
+    this.meta.currentScope.updateFunction(
         node.callee.name, funcType
     );
 
-    if (returnType.builtin && returnType.name === '%Void%%UnknownReturn') {
-        // Snap into scope of function decl
-        var oldScope = this.meta.currentScope;
-        this.meta.currentScope = t.currentScope;
-        // Evaluate func decl
-        this.meta.verifyNode(t.node);
-        this.meta.currentScope = oldScope;
+    // Snap into scope of function decl
+    var oldScope = this.meta.currentScope;
+    this.meta.currentScope = t.currentScope;
 
+    var beforeErrors = this.meta.countErrors();
+
+    // Evaluate func decl
+    this.meta.verifyNode(t.node);
+    this.meta.currentScope = oldScope;
+
+    var afterErrors = this.meta.countErrors();
+    if (beforeErrors !== afterErrors) {
+        // verifyNode() failed.
+        this.meta.currentScope.revertFunction(node.callee.name, t);
+
+        return null;
+    }
+
+    if (returnType.builtin && returnType.name === '%Void%%UnknownReturn') {
         // Grab the scope for the known function
         var funcScope = this.meta.currentScope.getKnownFunctionInfo(
             node.callee.name
@@ -84,7 +95,7 @@ function inferCallExpression(node) {
         }
     }
 
-    return token.defn;
+    return funcType;
 };
 
 TypeInference.prototype.inferLiteral =

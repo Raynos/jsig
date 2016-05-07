@@ -133,6 +133,17 @@ ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
     var funcName = node.id.name;
 
+    var err;
+    if (this.meta.currentScope.getFunction(funcName)) {
+        err = Errors.UnTypedFunctionFound({
+            funcName: funcName,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     var token;
     if (this.meta.currentScope.getKnownFunctionInfo(funcName)) {
         // throw new Error('has getKnownFunctionInfo');
@@ -143,7 +154,7 @@ function verifyFunctionDeclaration(node) {
 
     token = this.meta.currentScope.getVar(funcName);
     if (!token) {
-        var err = Errors.UnTypedFunctionFound({
+        err = Errors.UnTypedFunctionFound({
             funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
