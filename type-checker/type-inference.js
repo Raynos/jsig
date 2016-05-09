@@ -154,7 +154,14 @@ function inferObjectExpression(node) {
             return null;
         }
 
-        keyValues.push(JsigAST.keyValue(prop.key.value, value));
+        var keyName = null;
+        if (prop.key.type === 'Identifier') {
+            keyName = prop.key.name;
+        } else if (prop.key.type === 'Literal') {
+            keyName = prop.key.value;
+        }
+
+        keyValues.push(JsigAST.keyValue(keyName, value));
     }
 
     return JsigAST.object(keyValues);
