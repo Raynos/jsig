@@ -911,7 +911,12 @@ function verifyLogicalExpression(node) {
         assert(false, 'unsupported logical operator');
     }
 
-    var rightType = this.meta.verifyNode(node.right, null);
+    var exprType = null;
+    if (node.operator === '||') {
+        exprType = this.meta.currentExpressionType;
+    }
+
+    var rightType = this.meta.verifyNode(node.right, exprType);
     this.meta.exitBranchScope();
     if (!rightType) {
         return null;
