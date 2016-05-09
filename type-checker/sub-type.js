@@ -181,6 +181,26 @@ function checkGenericLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.value.name === 'Object' &&
+        parent.value.builtin &&
+        child.type === 'object' &&
+        parent.generics[0].name === 'String' &&
+        parent.generics[0].builtin
+    ) {
+        var valueType = parent.generics[1];
+
+        for (var i = 0; i < child.keyValues.length; i++) {
+            var pair = child.keyValues[i];
+
+            var err = this.checkSubType(node, valueType, pair.value);
+            if (err) {
+                return err;
+            }
+        }
+
+        return null;
+    }
+
     if (child.type !== 'genericLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }
