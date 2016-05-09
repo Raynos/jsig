@@ -208,16 +208,28 @@ function _findGenericTypes(copyFunc, node) {
         if (stack[0] === 'args') {
             referenceNode = node.arguments[stack[1]];
             newType = this.meta.verifyNode(referenceNode, null);
+            if (!newType) {
+                return null;
+            }
+
             newType = walkProps(newType, stack, 2);
         } else if (stack[0] === 'thisArg') {
             referenceNode = node.callee.object;
             // TODO: this might be wrong
             newType = this.meta.verifyNode(referenceNode, null);
+            if (!newType) {
+                return null;
+            }
+
             newType = walkProps(newType, stack, 1);
         } else {
             referenceNode = node;
             newType = knownGenericTypes[ast.name];
             assert(newType, 'newType must exist in fallback');
+        }
+
+        if (!newType) {
+            return null;
         }
 
         if (knownGenericTypes[ast.name]) {
