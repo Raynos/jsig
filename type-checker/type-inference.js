@@ -1,7 +1,6 @@
 'use strict';
 
 var assert = require('assert');
-var JSONCycle = require('json-cycle');
 
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');

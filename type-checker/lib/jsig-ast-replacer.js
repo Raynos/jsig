@@ -7,7 +7,7 @@ function JsigASTReplacer(replacer, neverRaw) {
     this.neverRaw = Boolean(neverRaw);
 }
 
-/*eslint complexity: [2, 50], max-statements: [2, 120]*/
+/*eslint complexity: [2, 80], max-statements: [2, 120]*/
 JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     var i;
