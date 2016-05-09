@@ -16,7 +16,13 @@ type TString : {
     length: Number,
     split: (this: String, String) => Array<String>,
     replace: (this: String, RegExp, String) => String,
-    indexOf: (this: String, String) => Number
+    indexOf: (this: String, String) => Number,
+    charAt : (this: String, index: Number) => String,
+    toUpperCase: (this: String) => String
+}
+
+type TObject : {
+    hasOwnProperty : <K,V>(this: Object<K,V>, key: String) => Boolean
 }
 
 type TNumber : {
