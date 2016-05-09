@@ -430,6 +430,17 @@ function verifyCallExpression(node) {
         }
     }
 
+    if (defn.type !== 'function') {
+        err = Errors.CallingNonFunctionObject({
+            objType: this.meta.serializeType(defn),
+            callExpression: this.meta.serializeAST(node.callee),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     if (defn.generics.length > 0) {
         // TODO: resolve generics
         defn = this.meta.resolveGeneric(defn, node);
