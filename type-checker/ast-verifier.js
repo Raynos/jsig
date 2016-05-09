@@ -212,9 +212,9 @@ function verifyAssignmentExpression(node) {
             return null;
         }
 
-        this.meta.currentScope.updateFunction(
-            node.right.name, leftType
-        );
+        if (!this.meta.tryUpdateFunction(node.right.name, leftType)) {
+            return null;
+        }
         rightType = leftType;
     } else {
         rightType = this.meta.verifyNode(node.right, leftType);
@@ -462,9 +462,11 @@ function verifyCallExpression(node) {
         if (node.arguments[i].type === 'Identifier' &&
             this.meta.currentScope.getFunction(node.arguments[i].name)
         ) {
-            this.meta.currentScope.updateFunction(
-                node.arguments[i].name, wantedType
-            );
+            var funcName = node.arguments[i].name;
+            if (!this.meta.tryUpdateFunction(funcName, wantedType)) {
+                return null;
+            }
+
             actualType = wantedType;
         } else {
             actualType = this.meta.verifyNode(node.arguments[i], null);

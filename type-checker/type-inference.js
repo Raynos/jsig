@@ -65,27 +65,7 @@ function inferCallExpression(node) {
         optional: false
     });
 
-    var t = this.meta.currentScope.getFunction(node.callee.name);
-    this.meta.currentScope.updateFunction(
-        node.callee.name, funcType
-    );
-
-    // Snap into scope of function decl
-    var oldScope = this.meta.currentScope;
-    this.meta.currentScope = t.currentScope;
-
-    var beforeErrors = this.meta.countErrors();
-
-    // Evaluate func decl
-    this.meta.verifyNode(t.node, null);
-    this.meta.currentScope = oldScope;
-
-    var afterErrors = this.meta.countErrors();
-
-    if (beforeErrors !== afterErrors) {
-        // verifyNode() failed.
-        this.meta.currentScope.revertFunction(node.callee.name, t);
-
+    if (!this.meta.tryUpdateFunction(node.callee.name, funcType)) {
         return null;
     }
 

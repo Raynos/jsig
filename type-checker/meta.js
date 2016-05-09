@@ -244,3 +244,27 @@ ProgramMeta.prototype.exitFunctionScope =
 function exitFunctionScope() {
     this.currentScope = this.currentScope.parent;
 };
+
+ProgramMeta.prototype.tryUpdateFunction =
+function tryUpdateFunction(name, newType) {
+    var t = this.currentScope.getFunction(name);
+    this.currentScope.updateFunction(name, newType);
+
+    // Snap into scope of function decl
+    var oldScope = this.currentScope;
+    this.currentScope = t.currentScope;
+
+    var beforeErrors = this.countErrors();
+
+    this.verifyNode(t.node, null);
+    this.currentScope = oldScope;
+
+    var afterErrors = this.countErrors();
+    if (beforeErrors !== afterErrors) {
+        // verifyNode() failed
+        this.currentScope.revertFunction(name, t);
+        return false;
+    }
+
+    return true;
+};
