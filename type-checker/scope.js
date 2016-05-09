@@ -26,7 +26,6 @@ function BaseScope(parent) {
     this.unknownIdentifiers = Object.create(null);
     this.typeRestrictions = Object.create(null);
     this.functionScopes = Object.create(null);
-    this.currentAssignmentType = null;
     this.writableTokenLookup = false;
 }
 
@@ -52,21 +51,6 @@ BaseScope.prototype.getVar = function getVar(id) {
 
     return this.typeRestrictions[id] || this.identifiers[id] ||
         this.parent.getVar(id);
-};
-
-BaseScope.prototype.enterAssignment =
-function enterAssignment(leftType) {
-    this.currentAssignmentType = leftType;
-};
-
-BaseScope.prototype.getAssignmentType =
-function getAssignmentType() {
-    return this.currentAssignmentType;
-};
-
-BaseScope.prototype.exitAssignment =
-function exitAssignment() {
-    this.currentAssignmentType = null;
 };
 
 BaseScope.prototype.getFunctionScope =
@@ -311,8 +295,6 @@ function FunctionScope(parent, funcName, funcNode) {
     this.returnStatementASTNode = null;
     this.funcASTNode = funcNode;
     this.writableTokenLookup = false;
-
-    this.returnExpressionType = null;
 }
 util.inherits(FunctionScope, BaseScope);
 
@@ -426,21 +408,6 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
         type: 'restriction',
         defn: type
     };
-};
-
-FunctionScope.prototype.enterReturnStatement =
-function enterReturnStatement(type) {
-    this.returnExpressionType = type;
-};
-
-FunctionScope.prototype.getReturnExpressionType =
-function getReturnExpressionType() {
-    return this.returnExpressionType;
-};
-
-FunctionScope.prototype.exitReturnStatement =
-function exitReturnStatement() {
-    this.returnExpressionType = null;
 };
 
 FunctionScope.prototype.addFunctionScope =

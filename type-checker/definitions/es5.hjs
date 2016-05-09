@@ -19,6 +19,10 @@ type TString : {
     indexOf: (this: String, String) => Number
 }
 
+type TNumber : {
+    toFixed : (this: Number, digits?: Number) => String
+}
+
 String : (Number) => String
 
 Boolean : (Boolean | undefined) => Boolean

@@ -105,7 +105,7 @@ function verifyProgram(node) {
     }
 
     for (i = 0; i < parts.statements.length; i++) {
-        this.meta.verifyNode(parts.statements[i]);
+        this.meta.verifyNode(parts.statements[i], null);
     }
 
     var functions = parts.functions;
@@ -117,7 +117,7 @@ function verifyProgram(node) {
                 unknownFuncs.push(func);
                 continue;
             }
-            this.meta.verifyNode(func);
+            this.meta.verifyNode(func, null);
         }
 
         var gotSmaller = unknownFuncs.length < functions.length;
@@ -125,7 +125,7 @@ function verifyProgram(node) {
     } while (gotSmaller);
 
     for (i = 0; i < functions.length; i++) {
-        this.meta.verifyNode(functions[i]);
+        this.meta.verifyNode(functions[i], null);
     }
 };
 
@@ -133,8 +133,11 @@ ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
     var funcName = node.id.name;
 
+    // console.log('verifyFunctionDeclaration', funcName);
+
     var err;
     if (this.meta.currentScope.getFunction(funcName)) {
+        // console.log('found untyped');
         err = Errors.UnTypedFunctionFound({
             funcName: funcName,
             loc: node.loc,
@@ -146,6 +149,7 @@ function verifyFunctionDeclaration(node) {
 
     var token;
     if (this.meta.currentScope.getKnownFunctionInfo(funcName)) {
+        // console.log('found known function info');
         // throw new Error('has getKnownFunctionInfo');
         token = this.meta.currentScope.getVar(funcName);
         assert(token, 'must have var for function');
@@ -170,13 +174,13 @@ function verifyFunctionDeclaration(node) {
 ASTVerifier.prototype.verifyBlockStatement =
 function verifyBlockStatement(node) {
     for (var i = 0; i < node.body.length; i++) {
-        this.meta.verifyNode(node.body[i]);
+        this.meta.verifyNode(node.body[i], null);
     }
 };
 
 ASTVerifier.prototype.verifyExpressionStatement =
 function verifyExpressionStatement(node) {
-    return this.meta.verifyNode(node.expression);
+    return this.meta.verifyNode(node.expression, null);
 };
 
 /*eslint max-statements: [2, 60]*/
@@ -184,7 +188,7 @@ ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     this.meta.currentScope.setWritableTokenLookup();
     var beforeError = this.meta.countErrors();
-    var leftType = this.meta.verifyNode(node.left);
+    var leftType = this.meta.verifyNode(node.left, null);
     var afterError = this.meta.countErrors();
     this.meta.currentScope.unsetWritableTokenLookup();
     if (!leftType) {
@@ -213,9 +217,7 @@ function verifyAssignmentExpression(node) {
         );
         rightType = leftType;
     } else {
-        this.meta.currentScope.enterAssignment(leftType);
-        rightType = this.meta.verifyNode(node.right);
-        this.meta.currentScope.exitAssignment();
+        rightType = this.meta.verifyNode(node.right, leftType);
     }
 
     if (!rightType) {
@@ -245,7 +247,7 @@ function verifyAssignmentExpression(node) {
         var propertyName = node.left.property.name;
 
         assert(node.left.object.type === 'Identifier');
-        var targetType = this.meta.verifyNode(node.left.object);
+        var targetType = this.meta.verifyNode(node.left.object, null);
         var newObjType = updateObject(
             targetType, [propertyName], rightType
         );
@@ -294,7 +296,7 @@ function verifyAssignmentExpression(node) {
 
 ASTVerifier.prototype.verifyMemberExpression =
 function verifyMemberExpression(node) {
-    var objType = this.meta.verifyNode(node.object);
+    var objType = this.meta.verifyNode(node.object, null);
     var propName = node.property.name;
 
     if (objType === null) {
@@ -305,7 +307,7 @@ function verifyMemberExpression(node) {
     if (!node.computed) {
         valueType = this._findPropertyInType(node, objType, propName);
     } else {
-        var propType = this.meta.verifyNode(node.property);
+        var propType = this.meta.verifyNode(node.property, null);
         if (!propType) {
             return null;
         }
@@ -411,7 +413,7 @@ function verifyCallExpression(node) {
             return null;
         }
     } else {
-        defn = this.verifyNode(node.callee);
+        defn = this.verifyNode(node.callee, null);
         if (!defn) {
             return null;
         }
@@ -465,7 +467,7 @@ function verifyCallExpression(node) {
             );
             actualType = wantedType;
         } else {
-            actualType = this.meta.verifyNode(node.arguments[i]);
+            actualType = this.meta.verifyNode(node.arguments[i], null);
         }
 
         if (!actualType) {
@@ -481,7 +483,7 @@ function verifyCallExpression(node) {
             'must be a method call expression');
 
         // TODO: This could be wrong...
-        var obj = this.meta.verifyNode(node.callee.object);
+        var obj = this.meta.verifyNode(node.callee.object, null);
         assert(obj, 'object of method call must have a type');
 
         this.meta.checkSubType(node.callee.object, defn.thisArg, obj);
@@ -492,12 +494,12 @@ function verifyCallExpression(node) {
 
 ASTVerifier.prototype.verifyBinaryExpression =
 function verifyBinaryExpression(node) {
-    var leftType = this.meta.verifyNode(node.left);
+    var leftType = this.meta.verifyNode(node.left, null);
     if (!leftType) {
         return null;
     }
 
-    var rightType = this.meta.verifyNode(node.right);
+    var rightType = this.meta.verifyNode(node.right, null);
     if (!rightType) {
         return null;
     }
@@ -568,15 +570,7 @@ function verifyReturnStatement(node) {
     if (node.argument === null) {
         defn = JsigAST.literal('void');
     } else {
-        var expectedReturnValueType = funcScope.returnValueType;
-        if (expectedReturnValueType) {
-            this.meta.currentScope
-                .enterReturnStatement(expectedReturnValueType);
-        }
-        defn = this.meta.verifyNode(node.argument);
-        if (expectedReturnValueType) {
-            this.meta.currentScope.exitReturnStatement();
-        }
+        defn = this.meta.verifyNode(node.argument, null);
     }
 
     if (defn) {
@@ -588,7 +582,7 @@ function verifyReturnStatement(node) {
 ASTVerifier.prototype.verifyNewExpression =
 function verifyNewExpression(node) {
     var beforeError = this.meta.countErrors();
-    var fnType = this.meta.verifyNode(node.callee);
+    var fnType = this.meta.verifyNode(node.callee, null);
     var afterError = this.meta.countErrors();
 
     if (!fnType) {
@@ -680,7 +674,7 @@ function verifyNewExpression(node) {
     var minLength = Math.min(fnType.args.length, node.arguments.length);
     for (i = 0; i < minLength; i++) {
         var wantedType = fnType.args[i];
-        var actualType = this.meta.verifyNode(node.arguments[i]);
+        var actualType = this.meta.verifyNode(node.arguments[i], null);
         if (!actualType) {
             return null;
         }
@@ -709,7 +703,7 @@ function verifyVariableDeclaration(node) {
 
     var type;
     if (decl.init) {
-        type = this.meta.verifyNode(decl.init);
+        type = this.meta.verifyNode(decl.init, null);
         if (!type) {
             this.meta.currentScope.addUnknownVar(id);
             return null;
@@ -728,20 +722,20 @@ function verifyVariableDeclaration(node) {
 
 ASTVerifier.prototype.verifyForStatement =
 function verifyForStatement(node) {
-    this.meta.verifyNode(node.init);
-    var testType = this.meta.verifyNode(node.test);
+    this.meta.verifyNode(node.init, null);
+    var testType = this.meta.verifyNode(node.test, null);
 
     assert(!testType || (
         testType.type === 'typeLiteral' && testType.name === 'Boolean'
     ), 'for loop condition statement must be a Boolean expression');
 
-    this.meta.verifyNode(node.update);
-    this.meta.verifyNode(node.body);
+    this.meta.verifyNode(node.update, null);
+    this.meta.verifyNode(node.body, null);
 };
 
 ASTVerifier.prototype.verifyUpdateExpression =
 function verifyUpdateExpression(node) {
-    var firstType = this.meta.verifyNode(node.argument);
+    var firstType = this.meta.verifyNode(node.argument, null);
     if (!firstType) {
         return null;
     }
@@ -776,7 +770,7 @@ function verifyObjectExpression(node) {
 */
 ASTVerifier.prototype.verifyIfStatement =
 function verifyIfStatement(node) {
-    this.meta.verifyNode(node.test);
+    this.meta.verifyNode(node.test, null);
 
     var ifBranch = this.meta.allocateBranchScope();
     var elseBranch = this.meta.allocateBranchScope();
@@ -786,12 +780,12 @@ function verifyIfStatement(node) {
 
     if (node.consequent) {
         this.meta.enterBranchScope(ifBranch);
-        this.meta.verifyNode(node.consequent);
+        this.meta.verifyNode(node.consequent, null);
         this.meta.exitBranchScope();
     }
     if (node.alternative) {
         this.meta.enterBranchScope(elseBranch);
-        this.meta.verifyNode(node.alternative);
+        this.meta.verifyNode(node.alternative, null);
         this.meta.exitBranchScope();
     }
 
@@ -814,8 +808,8 @@ function verifyIfStatement(node) {
 ASTVerifier.prototype.verifyUnaryExpression =
 function verifyUnaryExpression(node) {
     if (node.operator === 'delete') {
-        this.meta.verifyNode(node.argument);
-        var objectType = this.meta.verifyNode(node.argument.object);
+        this.meta.verifyNode(node.argument, null);
+        var objectType = this.meta.verifyNode(node.argument.object, null);
 
         assert(objectType.type === 'genericLiteral',
             'delete must operate on generic objects');
@@ -826,7 +820,7 @@ function verifyUnaryExpression(node) {
         return null;
     }
 
-    var firstType = this.meta.verifyNode(node.argument);
+    var firstType = this.meta.verifyNode(node.argument, null);
     if (!firstType) {
         return null;
     }
@@ -851,7 +845,7 @@ function verifyLogicalExpression(node) {
     var ifBranch = this.meta.allocateBranchScope();
     var elseBranch = this.meta.allocateBranchScope();
 
-    var leftType = this.meta.verifyNode(node.left);
+    var leftType = this.meta.verifyNode(node.left, null);
     if (!leftType) {
         return null;
     }
@@ -866,7 +860,7 @@ function verifyLogicalExpression(node) {
         assert(false, 'unsupported logical operator');
     }
 
-    var rightType = this.meta.verifyNode(node.right);
+    var rightType = this.meta.verifyNode(node.right, null);
     this.meta.exitBranchScope();
     if (!rightType) {
         return null;
@@ -897,7 +891,7 @@ function verifyLogicalExpression(node) {
 
 ASTVerifier.prototype.verifyFunctionExpression =
 function verifyFunctionExpression(node) {
-    var potentialType = this.meta.currentScope.currentAssignmentType;
+    var potentialType = this.meta.currentExpressionType;
     if (!potentialType) {
         var err = Errors.UnTypedFunctionFound({
             funcName: node.id.name,
@@ -921,7 +915,7 @@ function verifyContinueStatement(node) {
 
 ASTVerifier.prototype.verifyThrowStatement =
 function verifyThrowStatement(node) {
-    var argType = this.meta.verifyNode(node.argument);
+    var argType = this.meta.verifyNode(node.argument, null);
     if (argType === null) {
         return null;
     }
@@ -940,14 +934,14 @@ function verifyThrowStatement(node) {
 
 ASTVerifier.prototype.verifyConditionalExpression =
 function verifyConditionalExpression(node) {
-    this.meta.verifyNode(node.test);
+    this.meta.verifyNode(node.test, null);
 
-    var left = this.meta.verifyNode(node.consequent);
+    var left = this.meta.verifyNode(node.consequent, null);
     if (!left) {
         return null;
     }
 
-    var right = this.meta.verifyNode(node.alternate);
+    var right = this.meta.verifyNode(node.alternate, null);
     if (!right) {
         return null;
     }
@@ -961,7 +955,7 @@ function verifyConditionalExpression(node) {
 
 ASTVerifier.prototype.verifyWhileStatement =
 function verifyWhileStatement(node) {
-    this.meta.verifyNode(node.test);
+    this.meta.verifyNode(node.test, null);
 
     var ifBranch = this.meta.allocateBranchScope();
     var elseBranch = this.meta.allocateBranchScope();
@@ -970,7 +964,7 @@ function verifyWhileStatement(node) {
     this.meta.narrowType(node.test, ifBranch, elseBranch);
 
     this.meta.enterBranchScope(ifBranch);
-    this.meta.verifyNode(node.body);
+    this.meta.verifyNode(node.body, null);
     this.meta.exitBranchScope();
 };
 
@@ -1011,7 +1005,7 @@ function checkFunctionType(node, defn) {
         }
     }
 
-    this.meta.verifyNode(node.body);
+    this.meta.verifyNode(node.body, null);
 
     if (this.meta.currentScope.isConstructor) {
         this._checkHiddenClass(node);
@@ -1149,6 +1143,10 @@ function _findPropertyInType(node, jsigType, propertyName) {
         jsigType.name === 'String'
     ) {
         jsigType = this.meta.getVirtualType('TString').defn;
+    } else if (jsigType.type === 'typeLiteral' &&
+        jsigType.name === 'Number'
+    ) {
+        jsigType = this.meta.getVirtualType('TNumber').defn;
     }
 
     if (jsigType.type === 'unionType') {

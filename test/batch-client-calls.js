@@ -118,7 +118,7 @@ test('calling method on primitive', function t(assert) {
     assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
     assert.equal(err.line, 19);
     assert.equal(err.fieldName, 'getOrCreateBucket');
-    assert.equal(err.nonObjectType, 'id: Number');
+    assert.equal(err.nonObjectType, 'Boolean');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.untyped-identifier');

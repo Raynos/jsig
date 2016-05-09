@@ -37,7 +37,7 @@ function inferCallExpression(node) {
 
     var argTypes = [];
     for (var i = 0; i < args.length; i++) {
-        var funcArg = this.meta.verifyNode(args[i]);
+        var funcArg = this.meta.verifyNode(args[i], null);
         if (!funcArg) {
             return null;
         }
@@ -46,11 +46,15 @@ function inferCallExpression(node) {
     }
 
     var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
-    if (this.meta.currentScope.getAssignmentType()) {
-        returnType = this.meta.currentScope.getAssignmentType();
-    } else if (this.meta.currentScope.getReturnExpressionType()) {
-        returnType = this.meta.currentScope.getReturnExpressionType();
+    if (this.meta.currentExpressionType) {
+        returnType = this.meta.currentExpressionType;
     }
+
+    // if (this.meta.currentScope.getAssignmentType()) {
+        // returnType = this.meta.currentScope.getAssignmentType();
+    // } else if (this.meta.currentScope.getReturnExpressionType()) {
+        // returnType = this.meta.currentScope.getReturnExpressionType();
+    // }
 
     // TODO: infer this arg based on method calls
     var funcType = JsigAST.functionType({
@@ -73,10 +77,11 @@ function inferCallExpression(node) {
     var beforeErrors = this.meta.countErrors();
 
     // Evaluate func decl
-    this.meta.verifyNode(t.node);
+    this.meta.verifyNode(t.node, null);
     this.meta.currentScope = oldScope;
 
     var afterErrors = this.meta.countErrors();
+
     if (beforeErrors !== afterErrors) {
         // verifyNode() failed.
         this.meta.currentScope.revertFunction(node.callee.name, t);
@@ -127,7 +132,7 @@ function inferArrayExpression(node) {
 
     var type = null;
     for (var i = 0; i < elems.length; i++) {
-        var newType = this.meta.verifyNode(elems[i]);
+        var newType = this.meta.verifyNode(elems[i], null);
         if (type) {
             assert(isSameType(newType, type), 'arrays must be homogenous');
         }
@@ -154,7 +159,7 @@ function inferObjectExpression(node) {
         var prop = properties[i];
         assert(prop.kind === 'init', 'only support init kind');
 
-        var value = this.meta.verifyNode(prop.value);
+        var value = this.meta.verifyNode(prop.value, null);
         if (!value) {
             return null;
         }
@@ -214,7 +219,7 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     var referenceNode;
     if (stack[0] === 'args') {
         referenceNode = this.node.arguments[stack[1]];
-        newType = this.meta.verifyNode(referenceNode);
+        newType = this.meta.verifyNode(referenceNode, null);
         if (!newType) {
             return this.bail();
         }
@@ -223,7 +228,7 @@ JsigASTGenericTable.prototype.replace = function replace(ast, rawAst, stack) {
     } else if (stack[0] === 'thisArg') {
         referenceNode = this.node.callee.object;
         // TODO: this might be wrong
-        newType = this.meta.verifyNode(referenceNode);
+        newType = this.meta.verifyNode(referenceNode, null);
         if (!newType) {
             return this.bail();
         }

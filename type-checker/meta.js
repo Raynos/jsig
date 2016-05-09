@@ -46,6 +46,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.narrow = new NarrowType(this);
 
     this.currentNode = null;
+    this.currentExpressionType = null;
 }
 
 ProgramMeta.prototype.serializeType =
@@ -90,17 +91,24 @@ ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
 ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
 
-    this.verifyNode(node);
+    this.verifyNode(node, null);
 };
 
-ProgramMeta.prototype.verifyNode = function verifyNode(node) {
+ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
     if (this.fatalError) {
         return null;
     }
 
+    assert(exprType !== undefined, 'must pass in exprType');
+
     var parent = this.currentNode;
     this.currentNode = node;
+    var oldExprType = this.currentExpressionType;
+    this.currentExpressionType = exprType;
+
     var type = this.verifier.verifyNode(node);
+
+    this.currentExpressionType = oldExprType;
     this.currentNode = parent;
     return type;
 };

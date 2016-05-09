@@ -103,6 +103,9 @@ function loadLanguageIdentifiers() {
     this.globalScope._addVirtualType(
         'TString', es5HeaderFile.getToken('TString')
     );
+    this.globalScope._addVirtualType(
+        'TNumber', es5HeaderFile.getToken('TNumber')
+    );
 
     this.globalScope.loadLanguageIdentifiers();
 };

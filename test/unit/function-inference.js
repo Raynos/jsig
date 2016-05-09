@@ -45,3 +45,41 @@ JSIGSnippet.test('infer function type error', function m() {/*
 
     assert.end();
 });
+
+JSIGSnippet.test('infer func type through assignment', function m() {/*
+    var foo = "";
+
+    foo = toFixed(genNum());
+
+    function genNum() {
+        return 5;
+    }
+
+    function toFixed(n) {
+        return n.toFixed(2);
+    }
+*/}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer func type through return', function m() {/*
+    var foo = "";
+
+    foo = f();
+
+    function f() {
+        return toFixed(genNum());
+    }
+
+    function genNum() {
+        return 5;
+    }
+
+    function toFixed(n) {
+        return n.toFixed(2);
+    }
+*/}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});

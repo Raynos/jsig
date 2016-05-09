@@ -39,7 +39,7 @@ function narrowUnaryExpression(node, ifBranch, elseBranch) {
 
 NarrowType.prototype.narrowIdentifier =
 function narrowIdentifier(node, ifBranch, elseBranch) {
-    var type = this.meta.verifyNode(node);
+    var type = this.meta.verifyNode(node, null);
     if (!type) {
         return null;
     }
@@ -102,7 +102,7 @@ function narrowLogicalExpression(node, ifBranch, elseBranch) {
 NarrowType.prototype.narrowMemberExpression =
 function narrowMemberExpression(node, ifBranch, elseBranch) {
     // Type of field itself
-    var fieldType = this.meta.verifyNode(node);
+    var fieldType = this.meta.verifyNode(node, null);
     if (!fieldType) {
         return null;
     }
@@ -129,7 +129,7 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     }
 
     // targetType that needs mutation
-    var targetType = this.meta.verifyNode(parent);
+    var targetType = this.meta.verifyNode(parent, null);
 
     if (ifBranch && ifType) {
         var ifObjectType = updateObject(
