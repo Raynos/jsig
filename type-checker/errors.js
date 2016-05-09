@@ -165,6 +165,16 @@ Errors.CallingNewOnPlainFunction = TypedError({
     line: null
 });
 
+Errors.CallingNonFunctionObject = TypedError({
+    type: 'jsig.verify.calling-non-function-object',
+    message: '@{line}: Cannot call non-function object. ' +
+        'The call expr {callExpression} does not work for type: {objType}.',
+    objType: null,
+    callExpression: null,
+    loc: null,
+    line: null
+});
+
 Errors.ConstructorMustBePascalCase = TypedError({
     type: 'jsig.verify.constructor-must-be-pascal-case',
     message: '@{line}: Constructor function {funcName} must be pascal case. ' +
