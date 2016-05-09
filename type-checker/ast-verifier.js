@@ -354,6 +354,17 @@ function verifyIdentifier(node) {
         return this.meta.currentScope.getGlobalType();
     }
 
+    if (this.meta.currentExpressionType &&
+        this.meta.currentExpressionType.type === 'function' &&
+        this.meta.currentScope.getFunction(node.name)
+    ) {
+        var exprType = this.meta.currentExpressionType;
+        var bool = this.meta.tryUpdateFunction(node.name, exprType);
+        if (bool) {
+            return exprType;
+        }
+    }
+
     var isUnknown = Boolean(this.meta.currentScope.getUnknownVar(node.name));
 
     if (isUnknown) {
