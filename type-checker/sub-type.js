@@ -30,6 +30,10 @@ function checkSubType(node, parent, child) {
 
     var result;
 
+    // console.log('checkSubType(' + parent.type + ',' + child.type + ')');
+    // console.log('parent: ' + this.meta.serializeType(parent));
+    // console.log('child: ' + this.meta.serializeType(child));
+
     if (parent === child) {
         result = null;
     } else if (parent.type === 'typeLiteral') {
