@@ -214,7 +214,7 @@ function checkGenericLiteralSubType(node, parent, child) {
         throw new Error('generics mismatch');
     }
 
-    for (var i = 0; i < parent.generics.length; i++) {
+    for (i = 0; i < parent.generics.length; i++) {
         isSame = isSameType(parent.generics[i], child.generics[i]);
 
         if (!isSame) {

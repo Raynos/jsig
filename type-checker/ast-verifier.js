@@ -183,7 +183,7 @@ function verifyExpressionStatement(node) {
     return this.meta.verifyNode(node.expression, null);
 };
 
-/*eslint max-statements: [2, 60]*/
+/*eslint max-statements: [2, 80]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     this.meta.currentScope.setWritableTokenLookup();
