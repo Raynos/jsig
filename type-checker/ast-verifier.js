@@ -1296,6 +1296,8 @@ function _createNonExistantFieldError(node, propName) {
     return Errors.NonExistantField({
         fieldName: propName,
         objName: objName,
+        expected: '{ ' + propName + ': T }',
+        actual: serialize(this.meta.verifyNode(node.object, null)),
         loc: node.loc,
         line: node.loc.start.line
     });
