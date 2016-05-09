@@ -6,6 +6,16 @@ var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
 var isSameType = require('./lib/is-same-type.js');
 
+/* TODO:
+
+    Need to add more context for non trivial assignments
+
+    objA = objB
+
+    gives a Number != String type error without fieldname context
+
+*/
+
 module.exports = SubTypeChecker;
 
 function SubTypeChecker(meta) {
@@ -229,7 +239,8 @@ function checkObjectSubType(node, parent, child) {
         return reportTypeMisMatch(node, parent, child);
     }
 
-    if (parent.keyValues.length !== child.keyValues.length) {
+    // If child has more keys then that's ok.
+    if (parent.keyValues.length > child.keyValues.length) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
             expectedFields: parent.keyValues.length,
@@ -242,12 +253,14 @@ function checkObjectSubType(node, parent, child) {
     }
 
     var err;
+    var childIndex = buildIndex(child.keyValues);
     for (var i = 0; i < parent.keyValues.length; i++) {
         // TODO: check key names...
+        var pair = parent.keyValues[i];
 
-        err = this.checkSubType(
-            node, parent.keyValues[i].value, child.keyValues[i].value
-        );
+        var childType = childIndex[pair.key];
+
+        err = this.checkSubType(node, pair.value, childType);
         if (err) {
             return err;
         }
@@ -255,6 +268,15 @@ function checkObjectSubType(node, parent, child) {
 
     return null;
 };
+
+function buildIndex(list) {
+    var index = {};
+    for (var i = 0; i < list.length; i++) {
+        index[list[i].key] = list[i].value;
+    }
+
+    return index;
+}
 
 SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {
