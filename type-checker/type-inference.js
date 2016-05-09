@@ -154,7 +154,7 @@ function inferObjectExpression(node) {
             return null;
         }
 
-        keyValues.push(JsigAST.keyValue(prop.key.name, value));
+        keyValues.push(JsigAST.keyValue(prop.key.value, value));
     }
 
     return JsigAST.object(keyValues);
