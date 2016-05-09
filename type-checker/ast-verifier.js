@@ -1203,6 +1203,11 @@ function _findPropertyInType(node, jsigType, propertyName) {
         jsigType.name === 'Number'
     ) {
         jsigType = this.meta.getVirtualType('TNumber').defn;
+    } else if (jsigType.type === 'genericLiteral' &&
+        jsigType.value.type === 'typeLiteral' &&
+        jsigType.value.name === 'Object'
+    ) {
+        jsigType = this.meta.getVirtualType('TObject').defn;
     }
 
     if (jsigType.type === 'unionType') {
