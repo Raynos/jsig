@@ -193,6 +193,7 @@ function resolveGeneric(funcType, node) {
     return copyFunc;
 };
 
+/*eslint complexity: [2, 25], max-statements: [2, 60] */
 TypeInference.prototype._findGenericTypes =
 function _findGenericTypes(copyFunc, node) {
     var knownGenericTypes = Object.create(null);
