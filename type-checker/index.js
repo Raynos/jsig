@@ -110,6 +110,9 @@ function loadLanguageIdentifiers() {
     this.globalScope._addVirtualType(
         'TArray', es5HeaderFile.getToken('TArray')
     );
+    this.globalScope._addVirtualType(
+        'TObject', es5HeaderFile.getToken('TObject')
+    );
 };
 
 TypeChecker.prototype.loadJavaScriptIntoIndexTable =
