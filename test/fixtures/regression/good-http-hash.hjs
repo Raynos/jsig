@@ -1,3 +1,4 @@
+-- vim: set ft=Haskell:
 type TRouteResult : {
     handler: null,
     splat: null,
