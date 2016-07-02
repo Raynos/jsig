@@ -152,58 +152,7 @@ function getGlobalType() {
         keyValues[props[i]] = this.identifiers[props[i]].defn;
     }
 
-    // console.log('?', keyValues);
-
     return JsigAST.object(keyValues);
-};
-
-GlobalScope.prototype.loadLanguageIdentifiers =
-function loadLanguageIdentifiers() {
-    this._addVar('Object', JsigAST.object({
-        'create': JsigAST.functionType({
-            args: [JsigAST.value('null')],
-            result: JsigAST.literal('%Object%%Empty', true)
-        }),
-        'keys': JsigAST.functionType({
-            args: [JsigAST.generic(
-                JsigAST.literal('Object'),
-                [JsigAST.literal('K'), JsigAST.literal('V')]
-            )],
-            result: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('String')]
-            ),
-            generics: [JsigAST.literal('K'), JsigAST.literal('V')]
-        })
-    }));
-
-    this._addVirtualType('TArray', JsigAST.object({
-        'length': JsigAST.literal('Number'),
-        'push': JsigAST.functionType({
-            thisArg: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            args: [JsigAST.literal('T')],
-            result: JsigAST.literal('Number'),
-            generics: [JsigAST.literal('T')]
-        }),
-        'slice': JsigAST.functionType({
-            thisArg: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            args: [
-                JsigAST.literal('Number'),
-                JsigAST.literal('Number')
-            ],
-            result: JsigAST.generic(
-                JsigAST.literal('Array'),
-                [JsigAST.literal('T')]
-            ),
-            generics: [JsigAST.literal('T')]
-        })
-    }));
 };
 
 function FileScope(parent) {
@@ -260,6 +209,11 @@ function addPrototypeField(id, fieldName, typeDefn) {
     }
 
     this.prototypes[id].fields[fieldName] = typeDefn;
+};
+
+FileScope.prototype.getReturnExpressionType =
+function getReturnExpressionType() {
+    return null;
 };
 
 FileScope.prototype.addFunctionScope =

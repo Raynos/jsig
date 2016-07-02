@@ -4,6 +4,17 @@ var assert = require('assert');
 
 var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
+var isSameType = require('./lib/is-same-type.js');
+
+/* TODO:
+
+    Need to add more context for non trivial assignments
+
+    objA = objB
+
+    gives a Number != String type error without fieldname context
+
+*/
 
 module.exports = SubTypeChecker;
 
@@ -19,6 +30,10 @@ function checkSubType(node, parent, child) {
 
     var result;
 
+    // console.log('checkSubType(' + parent.type + ',' + child.type + ')');
+    // console.log('parent: ' + this.meta.serializeType(parent));
+    // console.log('child: ' + this.meta.serializeType(child));
+
     if (parent === child) {
         result = null;
     } else if (parent.type === 'typeLiteral') {
@@ -33,6 +48,8 @@ function checkSubType(node, parent, child) {
         result = this.checkValueLiteralSubType(node, parent, child);
     } else if (parent.type === 'unionType') {
         result = this.checkUnionSubType(node, parent, child);
+    } else if (parent.type === 'freeLiteral') {
+        return reportTypeMisMatch(node, parent, child);
     } else {
         throw new Error('not implemented sub type: ' + parent.type);
     }
@@ -44,9 +61,20 @@ function checkSubType(node, parent, child) {
 /*eslint complexity: [2, 30]*/
 SubTypeChecker.prototype.checkTypeLiteralSubType =
 function checkTypeLiteralSubType(node, parent, child) {
-    if (!parent.builtin) {
+    if (!parent.builtin && !parent.isGeneric) {
         return reportTypeMisMatch(node, parent, child);
         // throw new Error('not implemented, sub type for non-builtin');
+    }
+    if (parent.isGeneric) {
+        if (!child.isGeneric) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        if (parent.name !== child.name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        return null;
     }
 
     if (parent.name === '%Any%%ModuleExports') {
@@ -153,24 +181,43 @@ function checkGenericLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.value.name === 'Object' &&
+        parent.value.builtin &&
+        child.type === 'object' &&
+        parent.generics[0].name === 'String' &&
+        parent.generics[0].builtin
+    ) {
+        var valueType = parent.generics[1];
+
+        for (var i = 0; i < child.keyValues.length; i++) {
+            var pair = child.keyValues[i];
+
+            var err = this.checkSubType(node, valueType, pair.value);
+            if (err) {
+                return err;
+            }
+        }
+
+        return null;
+    }
+
     if (child.type !== 'genericLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }
 
-    var err = this.checkSubType(node, parent.value, child.value);
-    if (err) {
-        return err;
+    var isSame = isSameType(parent.value, child.value);
+    if (!isSame) {
+        return reportTypeMisMatch(node, parent, child);
     }
 
     if (parent.generics.length !== child.generics.length) {
         throw new Error('generics mismatch');
     }
 
-    for (var i = 0; i < parent.generics.length; i++) {
-        err = this.checkSubType(
-            node, parent.generics[i], child.generics[i]
-        );
-        if (err) {
+    for (i = 0; i < parent.generics.length; i++) {
+        isSame = isSameType(parent.generics[i], child.generics[i]);
+
+        if (!isSame) {
             return reportTypeMisMatch(node, parent, child);
         }
     }
@@ -216,7 +263,8 @@ function checkObjectSubType(node, parent, child) {
         return reportTypeMisMatch(node, parent, child);
     }
 
-    if (parent.keyValues.length !== child.keyValues.length) {
+    // If child has more keys then that's ok.
+    if (parent.keyValues.length > child.keyValues.length) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
             expectedFields: parent.keyValues.length,
@@ -229,12 +277,14 @@ function checkObjectSubType(node, parent, child) {
     }
 
     var err;
+    var childIndex = buildIndex(child.keyValues);
     for (var i = 0; i < parent.keyValues.length; i++) {
         // TODO: check key names...
+        var pair = parent.keyValues[i];
 
-        err = this.checkSubType(
-            node, parent.keyValues[i].value, child.keyValues[i].value
-        );
+        var childType = childIndex[pair.key];
+
+        err = this.checkSubType(node, pair.value, childType);
         if (err) {
             return err;
         }
@@ -242,6 +292,15 @@ function checkObjectSubType(node, parent, child) {
 
     return null;
 };
+
+function buildIndex(list) {
+    var index = {};
+    for (var i = 0; i < list.length; i++) {
+        index[list[i].key] = list[i].value;
+    }
+
+    return index;
+}
 
 SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {

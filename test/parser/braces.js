@@ -12,6 +12,7 @@ test('foo : (String)', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        isGeneric: false,
         builtin: true,
         label: null,
         optional: false,
@@ -32,6 +33,7 @@ test('foo : (String | Number)', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'String',
@@ -39,6 +41,7 @@ test('foo : (String | Number)', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'Number',
@@ -64,6 +67,7 @@ test('foo : (A) => B | C', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: false,
             label: null,
             optional: false,
@@ -74,6 +78,7 @@ test('foo : (A) => B | C', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'B',
@@ -81,6 +86,7 @@ test('foo : (A) => B | C', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'C',
@@ -112,6 +118,7 @@ test('foo : (A) => (B | C)', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: false,
             label: null,
             optional: false,
@@ -122,6 +129,7 @@ test('foo : (A) => (B | C)', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'B',
@@ -129,6 +137,7 @@ test('foo : (A) => (B | C)', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'C',
@@ -160,6 +169,7 @@ test('foo : ((A) => B | C)', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: false,
             label: null,
             optional: false,
@@ -170,6 +180,7 @@ test('foo : ((A) => B | C)', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'B',
@@ -177,6 +188,7 @@ test('foo : ((A) => B | C)', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'C',
@@ -208,6 +220,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: false,
             label: null,
             optional: false,
@@ -218,6 +231,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'B',
@@ -225,6 +239,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'C',
@@ -258,6 +273,7 @@ test('foo : ((A) => B) | C', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: false,
                 label: null,
                 optional: false,
@@ -266,6 +282,7 @@ test('foo : ((A) => B) | C', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'B',
@@ -279,6 +296,7 @@ test('foo : ((A) => B) | C', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: false,
             label: null,
             optional: false,
@@ -306,6 +324,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: true,
                 label: null,
                 optional: false,
@@ -314,6 +333,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'String',
@@ -330,6 +350,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: true,
                 label: null,
                 optional: false,
@@ -338,6 +359,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 name: 'Number',

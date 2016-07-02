@@ -183,7 +183,7 @@ function verifyExpressionStatement(node) {
     return this.meta.verifyNode(node.expression, null);
 };
 
-/*eslint max-statements: [2, 60]*/
+/*eslint max-statements: [2, 80]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     this.meta.currentScope.setWritableTokenLookup();
@@ -354,6 +354,17 @@ function verifyIdentifier(node) {
         return this.meta.currentScope.getGlobalType();
     }
 
+    if (this.meta.currentExpressionType &&
+        this.meta.currentExpressionType.type === 'function' &&
+        this.meta.currentScope.getFunction(node.name)
+    ) {
+        var exprType = this.meta.currentExpressionType;
+        var bool = this.meta.tryUpdateFunction(node.name, exprType);
+        if (bool) {
+            return exprType;
+        }
+    }
+
     var isUnknown = Boolean(this.meta.currentScope.getUnknownVar(node.name));
 
     if (isUnknown) {
@@ -417,6 +428,17 @@ function verifyCallExpression(node) {
         if (!defn) {
             return null;
         }
+    }
+
+    if (defn.type !== 'function') {
+        err = Errors.CallingNonFunctionObject({
+            objType: this.meta.serializeType(defn),
+            callExpression: this.meta.serializeAST(node.callee),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
     }
 
     if (defn.generics.length > 0) {
@@ -487,6 +509,33 @@ function verifyCallExpression(node) {
         // TODO: This could be wrong...
         var obj = this.meta.verifyNode(node.callee.object, null);
         assert(obj, 'object of method call must have a type');
+
+        // Try to late-bound a concrete instance of a free variable
+        // in a generic.
+        if (defn.generics.length > 0 && obj.type === 'genericLiteral') {
+            var hasFreeLiteral = obj.generics[0].type === 'freeLiteral';
+            assert(defn.thisArg.type === 'genericLiteral');
+
+            if (hasFreeLiteral) {
+                var newGenerics = [];
+                assert(obj.generics.length === defn.thisArg.generics.length,
+                    'expected same number of generics');
+                for (i = 0; i < obj.generics.length; i++) {
+                    newGenerics[i] = defn.thisArg.generics[i];
+                }
+
+                var newType = JsigAST.generic(
+                    obj.value, newGenerics, obj.label
+                );
+                assert(node.callee.object.type === 'Identifier',
+                    'object must be variable reference');
+
+                this.meta.currentScope.forceUpdateVar(
+                    node.callee.object.name, newType
+                );
+                obj = newType;
+            }
+        }
 
         this.meta.checkSubType(node.callee.object, defn.thisArg, obj);
     }
@@ -862,7 +911,12 @@ function verifyLogicalExpression(node) {
         assert(false, 'unsupported logical operator');
     }
 
-    var rightType = this.meta.verifyNode(node.right, null);
+    var exprType = null;
+    if (node.operator === '||') {
+        exprType = this.meta.currentExpressionType;
+    }
+
+    var rightType = this.meta.verifyNode(node.right, exprType);
     this.meta.exitBranchScope();
     if (!rightType) {
         return null;
@@ -1149,6 +1203,11 @@ function _findPropertyInType(node, jsigType, propertyName) {
         jsigType.name === 'Number'
     ) {
         jsigType = this.meta.getVirtualType('TNumber').defn;
+    } else if (jsigType.type === 'genericLiteral' &&
+        jsigType.value.type === 'typeLiteral' &&
+        jsigType.value.name === 'Object'
+    ) {
+        jsigType = this.meta.getVirtualType('TObject').defn;
     }
 
     if (jsigType.type === 'unionType') {
@@ -1237,6 +1296,8 @@ function _createNonExistantFieldError(node, propName) {
     return Errors.NonExistantField({
         fieldName: propName,
         objName: objName,
+        expected: '{ ' + propName + ': T }',
+        actual: serialize(this.meta.verifyNode(node.object, null)),
         loc: node.loc,
         line: node.loc.start.line
     });

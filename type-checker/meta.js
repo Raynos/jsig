@@ -161,6 +161,7 @@ function setModuleExportsType(typeDefn, astNode) {
 
 ProgramMeta.prototype.addError = function addError(error) {
     error.fileName = this.fileName;
+    // console.trace('addError(' + error.type + ')');
     this.checker.addError(error);
 };
 

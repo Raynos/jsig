@@ -16,6 +16,7 @@ var serializers = {
     function: serializeFunctionType,
     genericLiteral: serializeGeneric,
     tuple: serializeTuple,
+    freeLiteral: serializeFreeLiteral,
     renamedLiteral: serializeRenamedLiteral
 };
 
@@ -246,6 +247,10 @@ function serializeIntersection(node, opts) {
     }
 
     return str;
+}
+
+function serializeFreeLiteral(node, opts) {
+    return node.name;
 }
 
 function serializeLiteral(node, opts) {

@@ -14,6 +14,7 @@ test('type Foo : Bar | Baz', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'Bar',
@@ -21,6 +22,7 @@ test('type Foo : Bar | Baz', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'Baz',
@@ -45,6 +47,7 @@ test('type A : ObjectE | C | D', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'ObjectE',
@@ -52,6 +55,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'C',
@@ -59,6 +63,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             label: null,
             optional: false,
             name: 'D',
@@ -85,6 +90,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 name: 'Number',
                 builtin: true,
                 label: null,
@@ -92,6 +98,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 name: 'String',
                 builtin: true,
                 label: null,
@@ -104,6 +111,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            isGeneric: false,
             name: 'void',
             builtin: true,
             label: null,

@@ -7,10 +7,10 @@ function DB() {
 }
 
 DB.prototype.get = get;
-function get(key) {
+function get(key, $default) {
     var value = this._values[key];
     if (!value) {
-        value = '';
+        value = $default;
     }
     return value;
 }

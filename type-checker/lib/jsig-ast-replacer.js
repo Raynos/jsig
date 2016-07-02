@@ -7,7 +7,7 @@ function JsigASTReplacer(replacer, neverRaw) {
     this.neverRaw = Boolean(neverRaw);
 }
 
-/*eslint complexity: [2, 50], max-statements: [2, 120]*/
+/*eslint complexity: [2, 80], max-statements: [2, 120]*/
 JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     var i;
@@ -75,29 +75,35 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeLiteral') {
-        if (ast.builtin) {
+        if (ast.builtin || ast.isGeneric) {
             ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
 
         return this.replacer.replace(ast, rawAst, stack);
     } else if (ast.type === 'genericLiteral') {
-        stack.push('value');
-        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
-        stack.pop();
-
-        stack.push('generics');
-        for (i = 0; i < ast.generics.length; i++) {
-            stack.push(i);
-            ast.generics[i] = this.inlineReferences(
-                ast.generics[i], rawAst.generics[i], stack
-            );
+        if (ast.value.builtin) {
+            stack.push('value');
+            ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
             stack.pop();
-        }
-        stack.pop();
 
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
-        return ast;
+            stack.push('generics');
+            for (i = 0; i < ast.generics.length; i++) {
+                stack.push(i);
+                ast.generics[i] = this.inlineReferences(
+                    ast.generics[i], rawAst.generics[i], stack
+                );
+                stack.pop();
+            }
+            stack.pop();
+
+            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+            return ast;
+        }
+
+        return this.replacer.replace(ast, rawAst, stack);
+        // console.log('ast.value', ast.value);
+        // throw new Error('git rekt');
     } else if (ast.type === 'object') {
         stack.push('keyValues');
         for (i = 0; i < ast.keyValues.length; i++) {

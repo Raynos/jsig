@@ -15,6 +15,7 @@ test('foo : (String, Number) => Object', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -22,6 +23,7 @@ test('foo : (String, Number) => Object', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -30,6 +32,7 @@ test('foo : (String, Number) => Object', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             name: 'Object',
@@ -59,6 +62,7 @@ test('foo : () => CustomType', function t(assert) {
             thisArg: null,
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: null,
                 optional: false,
                 builtin: false,
@@ -88,6 +92,7 @@ test('foo : (tagName: String) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: 'tagName',
                 optional: false,
                 builtin: true,
@@ -100,6 +105,7 @@ test('foo : (tagName: String) => void', function t(assert) {
             _raw: null,
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: true,
                 label: null,
                 optional: false,
@@ -126,6 +132,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: 'index',
                 optional: false,
                 builtin: true,
@@ -134,6 +141,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             }],
             thisArg: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: 'this',
                 optional: false,
                 builtin: false,
@@ -143,6 +151,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: true,
                 label: null,
                 optional: false,
@@ -171,6 +180,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: 'id',
                 builtin: true,
                 optional: false,
@@ -178,6 +188,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                isGeneric: false,
                 label: 'parent',
                 builtin: false,
                 optional: true,
@@ -188,6 +199,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                isGeneric: false,
                 builtin: false,
                 optional: false,
                 label: null,
@@ -195,6 +207,69 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 _raw: null
             },
             generics: [],
+            _raw: null,
+            optional: false,
+            label: null
+        },
+        _raw: null
+    });
+
+    assert.end();
+});
+
+test('foo : <T>(a: T, b: T) => T', function t(assert) {
+    var content = 'foo : <T>(a: T, b: T) => T';
+    var result = parse(content).statements[0];
+
+    assert.deepEqual(result, {
+        type: 'assignment',
+        identifier: 'foo',
+        typeExpression: {
+            type: 'function',
+            args: [{
+                type: 'typeLiteral',
+                isGeneric: true,
+                label: 'a',
+                builtin: false,
+                optional: false,
+                name: 'T',
+                _raw: null
+            }, {
+                type: 'typeLiteral',
+                isGeneric: true,
+                label: 'b',
+                builtin: false,
+                optional: false,
+                name: 'T',
+                _raw: null
+            }],
+            thisArg: null,
+            brand: 'Object',
+            result: {
+                type: 'typeLiteral',
+                isGeneric: true,
+                builtin: false,
+                optional: false,
+                label: null,
+                name: 'T',
+                _raw: null
+            },
+            generics: [{
+                type: 'locationLiteral',
+                name: 'T',
+                location: ['args', 0],
+                _raw: null
+            }, {
+                type: 'locationLiteral',
+                name: 'T',
+                location: ['args', 1],
+                _raw: null
+            }, {
+                type: 'locationLiteral',
+                name: 'T',
+                location: ['result'],
+                _raw: null
+            }],
             _raw: null,
             optional: false,
             label: null

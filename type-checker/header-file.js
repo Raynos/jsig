@@ -32,6 +32,8 @@ HeaderFile.prototype.replace = function replace(ast, rawAst) {
         return this.replaceTypeLiteral(ast, rawAst);
     } else if (ast.type === 'import') {
         return this.replaceImport(ast, rawAst);
+    } else if (ast.type === 'genericLiteral') {
+        return this.replaceGenericLiteral(ast, rawAst);
     } else {
         assert(false, 'unexpected ast.type: ' + ast.type);
     }
@@ -50,6 +52,26 @@ function replaceTypeLiteral(ast, rawAst) {
     if (name === 'Error' && !this.indexTable['Error']) {
         this.checker.loadJavaScriptIntoIndexTable(this.indexTable);
     }
+
+    var typeDefn = this.indexTable[name];
+    if (!typeDefn) {
+        this.errors.push(UnknownLiteralError({
+            literal: name
+        }));
+        return null;
+    }
+    typeDefn = cloneJSIG(typeDefn);
+
+    typeDefn.label = ast.label;
+    typeDefn.optional = ast.optional;
+    typeDefn._raw = rawAst;
+
+    return typeDefn;
+};
+
+HeaderFile.prototype.replaceGenericLiteral =
+function replaceGenericLiteral(ast, rawAst) {
+    var name = ast.value.name;
 
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {

@@ -14,6 +14,7 @@ test('foo : [Number, Number]', function t(assert) {
         type: 'tuple',
         values: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -21,6 +22,7 @@ test('foo : [Number, Number]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -45,6 +47,7 @@ test('bar : [String, Object, Array]', function t(assert) {
         type: 'tuple',
         values: [{
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -52,6 +55,7 @@ test('bar : [String, Object, Array]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,
@@ -59,6 +63,7 @@ test('bar : [String, Object, Array]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            isGeneric: false,
             builtin: true,
             label: null,
             optional: false,

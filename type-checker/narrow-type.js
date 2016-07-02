@@ -23,6 +23,8 @@ function narrowType(node, ifBranch, elseBranch) {
         return this.narrowLogicalExpression(node, ifBranch, elseBranch);
     } else if (node.type === 'MemberExpression') {
         return this.narrowMemberExpression(node, ifBranch, elseBranch);
+    } else if (node.type === 'Literal') {
+        return this.narrowLiteral(node, ifBranch, elseBranch);
     } else {
         throw new Error('!! skipping narrowType: ' + node.type);
     }
@@ -62,6 +64,10 @@ NarrowType.prototype.narrowBinaryExpression =
 function narrowBinaryExpression(node, ifBranch, elseBranch) {
     // TODO: support `x === null`
     // TODO: support `typeof y === "{{tag}}"`
+};
+
+NarrowType.prototype.narrowLiteral =
+function narrowLiteral(node, ifBranch, elseBranch) {
 };
 
 NarrowType.prototype.narrowLogicalExpression =

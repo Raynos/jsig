@@ -12,6 +12,7 @@ test('type Foo : String', function t(assert) {
     assert.equal(result.identifier, 'Foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        isGeneric: false,
         builtin: true,
         name: 'String',
         label: null,
@@ -35,6 +36,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
             key: 'option',
             value: {
                 type: 'typeLiteral',
+                isGeneric: true,
                 name: 'T',
                 builtin: false,
                 label: null,
@@ -52,6 +54,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
     });
     assert.deepEqual(result.generics, [{
         type: 'typeLiteral',
+        isGeneric: false,
         name: 'T',
         builtin: false,
         label: null,

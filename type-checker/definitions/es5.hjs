@@ -6,17 +6,23 @@ type Error : {
     ..R
 }
 
---type TArray : {
---    length: Number,
---    push: <T>(this: Array<T>, T) => Number,
---    slice: <T>(this: Array<T>, Number, Number) => Array<T>
---}
+type TArray : {
+    length: Number,
+    push: <T>(this: Array<T>, T) => Number,
+    slice: <T>(this: Array<T>, Number, Number) => Array<T>
+}
 
 type TString : {
     length: Number,
     split: (this: String, String) => Array<String>,
     replace: (this: String, RegExp, String) => String,
-    indexOf: (this: String, String) => Number
+    indexOf: (this: String, String) => Number,
+    charAt : (this: String, index: Number) => String,
+    toUpperCase: (this: String) => String
+}
+
+type TObject : {
+    hasOwnProperty : <K,V>(this: Object<K,V>, key: String) => Boolean
 }
 
 type TNumber : {
@@ -39,8 +45,8 @@ Math : {
 
 parseInt : (String, Number) => Number
 
---Object : {
---    create: (parent: null) => %Object%%Empty,
---    keys: <K, V>(Object<K, V>) => Array<String>
---}
+Object : {
+    create: (parent: null) => %Object%%Empty,
+    keys: <K, V>(Object<K, V>) => Array<String>
+}
 
