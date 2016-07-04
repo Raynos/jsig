@@ -309,6 +309,8 @@ function checkObjectSubType(node, parent, child) {
         }
     }
 
+    // TODO: handle extra fields in child.
+
     return null;
 };
 
