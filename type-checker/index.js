@@ -118,8 +118,10 @@ function loadLanguageIdentifiers() {
 
 TypeChecker.prototype.loadJavaScriptIntoIndexTable =
 function loadJavaScriptIntoIndexTable(indexTable) {
+    var before = this.errors.length;
+
     var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
-    assert(this.errors.length === 0, 'must be no errors');
+    assert(this.errors.length === before, 'must be no errors');
     assert(es5HeaderFile, 'must be able to load es5');
 
     es5HeaderFile.resolveReferences();
