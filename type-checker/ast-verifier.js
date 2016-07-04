@@ -491,7 +491,7 @@ function verifyCallExpression(node) {
 
             actualType = wantedType;
         } else {
-            actualType = this.meta.verifyNode(node.arguments[i], null);
+            actualType = this.meta.verifyNode(node.arguments[i], wantedType);
         }
 
         if (!actualType) {
