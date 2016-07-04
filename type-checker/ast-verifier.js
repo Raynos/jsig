@@ -238,9 +238,10 @@ function verifyAssignmentExpression(node) {
         this.meta.checkSubType(node, leftType, rightType);
     }
 
-    if (node.left.type === 'Identifier') {
-        this.meta.currentScope.updateRestriction(node.left.name, rightType);
+    if (node.left.type === 'Identifier' && isNullDefault) {
+        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
+
     if (isOpenField && node.left.type === 'MemberExpression' &&
         node.left.property.type === 'Identifier'
     ) {
