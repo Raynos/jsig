@@ -391,6 +391,10 @@ util.inherits(BranchScope, BaseScope);
 
 BranchScope.prototype.getThisType =
 function getThisType() {
+    if (this.writableTokenLookup) {
+        return this.parent.getThisType();
+    }
+
     return this._restrictedThisValueType || this.parent.getThisType();
 };
 
