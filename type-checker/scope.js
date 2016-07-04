@@ -101,8 +101,19 @@ function getUnknownVar(id) {
     return this.unknownIdentifiers[id];
 };
 
+/*
+    This permanently mutates the read-only and write-only
+    state of a variable.
+
+    When this is applied it must be applied up the chain if
+    necessary as it changes the type inside and outside a scope
+*/
 BaseScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
+    if (!this.identifiers[id] && this.parent) {
+        return this.parent.forceUpdateVar(id, typeDefn);
+    }
+
     assert(this.identifiers[id], 'identifier must already exist');
     assert(typeDefn, 'cannot force update to null');
 
@@ -371,6 +382,10 @@ function getFunctionScope() {
     return this;
 };
 
+/*
+    restrictType() is used to create a typeRestriction which
+    is a read only construct.
+*/
 FunctionScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
@@ -427,6 +442,10 @@ function getFunctionScope() {
     return parent;
 };
 
+/*
+    updateRestriction() changes a type restriction.
+    Again a typeRestriction is a read only view.
+*/
 BranchScope.prototype.updateRestriction =
 function updateRestriction(id, typeDefn) {
     var restriction = this.typeRestrictions[id];
