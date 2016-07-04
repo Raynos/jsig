@@ -21,6 +21,7 @@ require('./parser/integration/jsonml-stringify.js');
 require('./unit/generics.js');
 require('./unit/function-inference.js');
 require('./unit/optional-fields.js');
+require('./unit/union-folding.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
