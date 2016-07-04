@@ -38,7 +38,7 @@ var typeObject = lexemes.openCurlyBrace
     .chain(function captureValues(values) {
         var rowTypeParser = null;
         if (values.length === 0) {
-            rowTypeParser = singleRowType
+            rowTypeParser = singleRowType;
         } else {
             rowTypeParser = rowType;
         }
