@@ -3,6 +3,8 @@
 var fs = require('fs');
 var program = require('../../parser/program.js');
 
+readJSigAST.parseJSigAST = parseJSigAST;
+
 module.exports = readJSigAST;
 
 function readJSigAST(fileName) {

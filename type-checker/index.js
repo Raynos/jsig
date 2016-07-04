@@ -8,7 +8,7 @@ var resolve = require('resolve');
 var process = global.process;
 
 var HeaderFile = require('./header-file.js');
-var readJSigAST = require('./lib/read-jsig-ast.js');
+var parseJSigAST = require('./lib/read-jsig-ast.js').parseJSigAST;
 var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
 var prettyPrintErrors = require('./lib/pretty-errors.js');
@@ -31,12 +31,13 @@ function TypeChecker(entryFile, options) {
     options = options || {};
 
     this.entryFile = entryFile;
-    this.files = options.files || {};
+    this.files = options.files || Object.create(null);
     this.basedir = process.cwd();
 
     this.globalScope = new GlobalScope();
     this.metas = Object.create(null);
     this.headerFiles = Object.create(null);
+
     this.definitions = Object.create(null);
 
     this.definitionsFolder = options.definitions || null;
@@ -127,12 +128,20 @@ function loadJavaScriptIntoIndexTable(indexTable) {
 
 TypeChecker.prototype.getOrCreateHeaderFile =
 function getOrCreateHeaderFile(fileName) {
-    fileName = path.resolve(fileName);
+    if (!this.files[fileName]) {
+        fileName = path.resolve(fileName);
+    }
+
     if (this.headerFiles[fileName]) {
         return this.headerFiles[fileName];
     }
 
-    var res = readJSigAST(fileName);
+    var source = this.files[fileName];
+    if (!source) {
+        source = fs.readFileSync(fileName, 'utf8');
+    }
+
+    var res = parseJSigAST(source);
     if (res.error) {
         res.error.fileName = fileName;
         this.addError(res.error);

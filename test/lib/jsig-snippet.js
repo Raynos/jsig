@@ -19,9 +19,14 @@ function JSigSnippet(opts) {
 
     this.snippet = opts.snippet;
     this.text = multiline(this.snippet);
+    this.header = opts.header ? multiline(opts.header) : null;
+
     this.files = {};
 
     this.files['snippet.js'] = this.text;
+    if (this.header) {
+        this.files['snippet.hjs'] = this.header;
+    }
 
     this.programMeta = null;
 }
