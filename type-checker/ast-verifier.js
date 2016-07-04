@@ -854,6 +854,8 @@ function verifyIfStatement(node) {
             this.meta.currentScope.restrictType(name, ifType.defn);
         }
     }
+
+    // TODO create unions based on typeRestrictions & mutations...
 };
 
 ASTVerifier.prototype.verifyUnaryExpression =
