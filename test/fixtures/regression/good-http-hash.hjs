@@ -8,7 +8,7 @@ yes it is */
 
 type TRouteResult : {
     handler: null,
-    splat: null,
+    splat: null | String,
     params: Object,
     src: String | null
 }
@@ -43,5 +43,5 @@ RouteResult : (
     this: TRouteResult,
     node: TRouteNode,
     params: Object,
-    splat: null
+    splat: null | String
 ) => void
