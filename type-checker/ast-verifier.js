@@ -167,6 +167,17 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
+    if (token.defn.type !== 'function') {
+        err = Errors.TypeClassMismatch({
+            expected: this.meta.serializeType(token.defn),
+            actual: this.meta.serializeType(JsigAST.literal('Function')),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     this._checkFunctionType(node, token.defn);
     return token.defn;
 };
