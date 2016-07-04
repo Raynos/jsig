@@ -317,4 +317,14 @@ Errors.InvalidThrowStatement = TypedError({
     line: null
 });
 
+Errors.MissingExpectedField = TypedError({
+    type: 'jsig.sub-type.missing-expected-field',
+    message: '@{line}: Expected object to have field {expectedName}.',
+    expectedName: null,
+    expected: null,
+    actual: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

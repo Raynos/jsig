@@ -263,8 +263,15 @@ function checkObjectSubType(node, parent, child) {
         return reportTypeMisMatch(node, parent, child);
     }
 
+    var minimumFields = 0;
+    for (var i = 0; i < parent.keyValues.lenght; i++) {
+        if (!parent.keyValues[i].optional) {
+            minimumFields++;
+        }
+    }
+
     // If child has more keys then that's ok.
-    if (parent.keyValues.length > child.keyValues.length) {
+    if (minimumFields > child.keyValues.length) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
             expectedFields: parent.keyValues.length,
@@ -273,16 +280,28 @@ function checkObjectSubType(node, parent, child) {
             loc: node.loc,
             line: node.loc.start.line
         });
-        // throw new Error('[Internal] object key pairs mismatch');
     }
 
     var err;
     var childIndex = buildIndex(child.keyValues);
-    for (var i = 0; i < parent.keyValues.length; i++) {
+    for (i = 0; i < parent.keyValues.length; i++) {
         // TODO: check key names...
         var pair = parent.keyValues[i];
 
         var childType = childIndex[pair.key];
+        if (!childType && pair.optional) {
+            continue;
+        }
+
+        if (!childType) {
+            return Errors.MissingExpectedField({
+                expected: serialize(parent._raw || parent),
+                actual: serialize(child._raw || child),
+                expectedName: pair.key,
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+        }
 
         err = this.checkSubType(node, pair.value, childType);
         if (err) {
