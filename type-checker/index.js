@@ -138,6 +138,10 @@ function getOrCreateHeaderFile(fileName) {
 
     var source = this.files[fileName];
     if (!source) {
+        if (!fs.existsSync(fileName)) {
+            return null;
+        }
+
         source = fs.readFileSync(fileName, 'utf8');
     }
 
