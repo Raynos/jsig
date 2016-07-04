@@ -31,12 +31,31 @@ function BaseScope(parent) {
 
 BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
+    if (this.identifiers[id]) {
+        assert(this.identifiers[id].preloaded, 'identifier must not exist');
+    }
+
+    assert(typeDefn, 'addVar() must have typeDefn');
+    assert(!typeDefn.optional, 'cannot add optional type');
+
+    var token = {
+        type: 'variable',
+        preloaded: false,
+        defn: typeDefn
+    };
+    this.identifiers[id] = token;
+    return token;
+};
+
+BaseScope.prototype.preloadVar =
+function preloadVar(id, typeDefn) {
     assert(!this.identifiers[id], 'identifier must not exist');
     assert(typeDefn, 'addVar() must have typeDefn');
     assert(!typeDefn.optional, 'cannot add optional type');
 
     var token = {
         type: 'variable',
+        preloaded: true,
         defn: typeDefn
     };
     this.identifiers[id] = token;

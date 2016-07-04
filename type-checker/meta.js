@@ -209,7 +209,7 @@ function loadHeaderFile() {
     for (var i = 0; i < assignments.length; i++) {
         var expr = assignments[i];
 
-        this.currentScope.addVar(expr.identifier, expr.typeExpression);
+        this.currentScope.preloadVar(expr.identifier, expr.typeExpression);
     }
 };
 
