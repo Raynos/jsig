@@ -750,8 +750,11 @@ function verifyVariableDeclaration(node) {
     var decl = node.declarations[0];
 
     var id = decl.id.name;
-    // var token = this.meta.currentScope.getVar(id);
-    // assert(!token, 'shadowing variables not supported');
+
+    var token = this.meta.currentScope.getOwnVar(id);
+    if (token) {
+        assert(token.preloaded, 'cannot declare variable twice');
+    }
 
     var type;
     if (decl.init) {
@@ -759,6 +762,11 @@ function verifyVariableDeclaration(node) {
         if (!type) {
             this.meta.currentScope.addUnknownVar(id);
             return null;
+        }
+
+        if (token) {
+            this.meta.checkSubType(node, token.defn, type);
+            type = token.defn;
         }
     } else {
         type = JsigAST.literal('%Void%%Uninitialized', true);
