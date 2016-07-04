@@ -945,15 +945,7 @@ function verifyLogicalExpression(node) {
         assert(false, 'unimplemented operator');
     }
 
-    if (!t1) {
-        return t2;
-    }
-
-    if (isSameType(t1, t2)) {
-        return t1;
-    }
-
-    return JsigAST.union([t1, t2]);
+    return this._computeSmallestUnion(node, t1, t2);
 };
 
 ASTVerifier.prototype.verifyFunctionExpression =
@@ -1360,6 +1352,64 @@ function resolvePath(node, possiblePath, dirname) {
         return null;
     }
 };
+
+ASTVerifier.prototype._computeSmallestUnion =
+function _computeSmallestUnion(node, t1, t2) {
+    var parts = [];
+    addPossibleType(parts, t1);
+    addPossibleType(parts, t2);
+
+    if (parts.length === 0) {
+        return null;
+    }
+
+    if (parts.length === 1) {
+        return parts[0];
+    }
+
+    var minimal = [];
+    for (var i = 0; i < parts.length; i++) {
+        var sample = parts[i];
+        var unique = true;
+
+        for (var j = 0; j < i; j++) {
+            if (isSameType(sample, parts[j])) {
+                unique = false;
+                break;
+            }
+
+            if (this.meta.isSubType(node, sample, parts[j])) {
+                unique = false;
+                break;
+            }
+        }
+
+        if (unique) {
+            minimal.push(sample);
+        }
+    }
+
+    if (minimal.length === 1) {
+        return minimal[0];
+    }
+
+    return JsigAST.union(minimal);
+};
+
+function addPossibleType(list, maybeType) {
+    if (!maybeType) {
+        return;
+    }
+
+    if (maybeType.type !== 'unionType') {
+        list.push(maybeType);
+        return;
+    }
+
+    for (var i = 0; i < maybeType.unions.length; i++) {
+        list.push(maybeType.unions[i]);
+    }
+}
 
 // hoisting function declarations to the bottom makes the tree
 // order algorithm simpler
