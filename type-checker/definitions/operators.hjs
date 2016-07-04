@@ -25,6 +25,8 @@
 
 ! : (%Boolean%%Mixed) => Boolean
 
+| : (Number, Number) => Number
+
 void : (%Boolean%%Mixed) => void
 
 === : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
