@@ -72,6 +72,14 @@ BaseScope.prototype.getVar = function getVar(id) {
         this.parent.getVar(id);
 };
 
+BaseScope.prototype.getOwnVar = function getOwnVar(id) {
+    if (this.writableTokenLookup) {
+        return this.identifiers[id];
+    }
+
+    return this.typeRestrictions[id] || this.identifiers[id];
+};
+
 BaseScope.prototype.getFunctionScope =
 function getFunctionScope() {
     return null;
