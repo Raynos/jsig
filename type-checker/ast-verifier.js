@@ -1040,10 +1040,26 @@ function verifyWhileStatement(node) {
     this.meta.exitBranchScope();
 };
 
+ASTVerifier.prototype._checkFunctionOverloadType =
+function _checkFunctionOverloadType(node, defn) {
+    this.meta.enterFunctionOverloadScope(node, defn);
+
+    this._verifyFunctionType(node, defn);
+
+    this.meta.exitFunctionScope();
+};
+
 ASTVerifier.prototype._checkFunctionType =
 function checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
 
+    this._verifyFunctionType(node, defn);
+
+    this.meta.exitFunctionScope();
+};
+
+ASTVerifier.prototype._verifyFunctionType =
+function _verifyFunctionType(node, defn) {
     var err;
     if (node.params.length > defn.args.length) {
         err = Errors.TooManyArgsInFunc({
@@ -1086,8 +1102,6 @@ function checkFunctionType(node, defn) {
         // TODO: verify return.
         this._checkReturnType(node);
     }
-
-    this.meta.exitFunctionScope();
 };
 
 ASTVerifier.prototype._checkHiddenClass =

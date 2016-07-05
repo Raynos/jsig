@@ -241,6 +241,17 @@ function enterFunctionScope(funcNode, typeDefn) {
     this.currentScope = funcScope;
 };
 
+ProgramMeta.prototype.enterFunctionOverloadScope =
+function enterFunctionOverloadScope(funcNode, typeDefn) {
+    var funcScope = new FunctionScope(
+        this.currentScope, funcNode.id.name, funcNode
+    );
+    funcScope.loadTypes(funcNode, typeDefn);
+
+    this.currentScope.addFunctionOverloadScope(funcScope);
+    this.currentScope = funcScope;
+};
+
 ProgramMeta.prototype.exitFunctionScope =
 function exitFunctionScope() {
     this.currentScope = this.currentScope.parent;

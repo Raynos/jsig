@@ -70,9 +70,14 @@ function inferCallExpression(node) {
 
     if (returnType.builtin && returnType.name === '%Void%%UnknownReturn') {
         // Grab the scope for the known function
-        var funcScope = this.meta.currentScope.getKnownFunctionInfo(
+        var funcScopes = this.meta.currentScope.getKnownFunctionInfo(
             node.callee.name
-        ).funcScope;
+        ).funcScopes;
+
+        assert(funcScopes.length === 1,
+            'cannot infer call return for overloaded function'
+        );
+        var funcScope = funcScopes[0];
 
         if (funcScope.knownReturnType) {
             funcType.result = funcScope.knownReturnType;

@@ -147,7 +147,9 @@ BaseScope.prototype._addFunctionScope =
 function _addFunctionScope(funcScope) {
     var currScope = this.functionScopes[funcScope.funcName];
     if (currScope) {
-        var currentType = currScope.funcScope.funcType;
+        assert.equal(currScope.funcScopes.length, 1,
+            'cannot _addFunctionScope to overloaded function');
+        var currentType = currScope.funcScopes[0].funcType;
 
         assert(isSameType(currentType, funcScope.funcType),
             'cannot add function twice with different types: ' +
@@ -158,9 +160,32 @@ function _addFunctionScope(funcScope) {
     }
 
     this.functionScopes[funcScope.funcName] = {
-        funcScope: funcScope,
+        funcScopes: [funcScope],
         currentScope: this
     };
+};
+
+BaseScope.prototype._addFunctionOverloadScope =
+function _addFunctionOverloadScope(funcScope) {
+    var currScope = this.functionScopes[funcScope.funcName];
+    if (!currScope) {
+        this.functionScopes[funcScope.funcName] = {
+            funcScopes: [funcScope],
+            currentScope: this
+        };
+        return;
+    }
+
+    for (var i = 0; i < currScope.funcScopes.length; i++) {
+        var existingScope = currScope.funcScopes[i];
+
+        assert(!isSameType(existingScope.funcType, funcScope.funcType),
+            'cannot add same type twice in overload :' +
+            funcScope.funcName
+        );
+    }
+
+    currScope.funcScopes.push(funcScope);
 };
 
 function GlobalScope() {
@@ -278,6 +303,11 @@ function getReturnExpressionType() {
 FileScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
     this._addFunctionScope(funcScope);
+};
+
+FileScope.prototype.addFunctionOverloadScope =
+function addFunctionOverloadScope(funcScope) {
+    this._addFunctionOverloadScope(funcScope);
 };
 
 FileScope.prototype.getKnownFunctionInfo =
@@ -424,6 +454,11 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
 FunctionScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
     this._addFunctionScope(funcScope);
+};
+
+FunctionScope.prototype.addFunctionOverloadScope =
+function addFunctionOverloadScope(funcScope) {
+    this._addFunctionOverloadScope(funcScope);
 };
 
 FunctionScope.prototype.getKnownFunctionInfo =
