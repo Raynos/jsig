@@ -408,16 +408,10 @@ function verifyArrayExpression(node) {
     return this.meta.inferType(node);
 };
 
-ASTVerifier.prototype.verifyCallExpression =
-function verifyCallExpression(node) {
-    var defn;
+ASTVerifier.prototype._getTypeFromFunctionCall =
+function _getTypeFromFunctionCall(node) {
     var token;
-
-    if (node.callee.type === 'Identifier' &&
-        node.callee.name === 'require'
-    ) {
-        return this._getTypeFromRequire(node);
-    }
+    var defn;
 
     if (node.callee.type === 'Identifier') {
         token = this.meta.currentScope.getVar(node.callee.name);
@@ -444,6 +438,24 @@ function verifyCallExpression(node) {
         }
     }
 
+    return defn;
+};
+
+ASTVerifier.prototype.verifyCallExpression =
+function verifyCallExpression(node) {
+    var err;
+
+    if (node.callee.type === 'Identifier' &&
+        node.callee.name === 'require'
+    ) {
+        return this._getTypeFromRequire(node);
+    }
+
+    var defn = this._getTypeFromFunctionCall(node);
+    if (!defn) {
+        return null;
+    }
+
     if (defn.type !== 'function') {
         err = Errors.CallingNonFunctionObject({
             objType: this.meta.serializeType(defn),
@@ -454,6 +466,13 @@ function verifyCallExpression(node) {
         this.meta.addError(err);
         return null;
     }
+
+    return this._checkFunctionCallExpr(node, defn, false);
+};
+
+ASTVerifier.prototype._checkFunctionCallExpr =
+function _checkFunctionCallExpr(node, defn, isOverload) {
+    var err;
 
     if (defn.generics.length > 0) {
         // TODO: resolve generics
@@ -531,6 +550,10 @@ function verifyCallExpression(node) {
             assert(defn.thisArg.type === 'genericLiteral');
 
             if (hasFreeLiteral) {
+                assert(!isOverload,
+                    'cannot resolve free literal in overloaded function'
+                );
+
                 var newGenerics = [];
                 assert(obj.generics.length === defn.thisArg.generics.length,
                     'expected same number of generics');
