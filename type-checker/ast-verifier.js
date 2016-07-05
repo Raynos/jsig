@@ -149,10 +149,12 @@ function verifyFunctionDeclaration(node) {
 
     var token;
     if (this.meta.currentScope.getKnownFunctionInfo(funcName)) {
-        // console.log('found known function info');
+        // console.log('found known function info', funcName);
         // throw new Error('has getKnownFunctionInfo');
         token = this.meta.currentScope.getVar(funcName);
         assert(token, 'must have var for function');
+        this._checkFunctionType(node, token.defn);
+
         return token.defn;
     }
 

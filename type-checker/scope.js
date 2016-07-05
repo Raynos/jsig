@@ -4,6 +4,7 @@ var assert = require('assert');
 var util = require('util');
 
 var JsigAST = require('../ast/');
+var isSameType = require('./lib/is-same-type.js');
 var cloneAST = require('./lib/clone-ast.js');
 
 var moduleType = JsigAST.object({
@@ -142,6 +143,26 @@ function getGlobalType() {
     return this.parent.getGlobalType();
 };
 
+BaseScope.prototype._addFunctionScope =
+function _addFunctionScope(funcScope) {
+    var currScope = this.functionScopes[funcScope.funcName];
+    if (currScope) {
+        var currentType = currScope.funcScope.funcType;
+
+        assert(isSameType(currentType, funcScope.funcType),
+            'cannot add function twice with different types: ' +
+            funcScope.funcName
+        );
+
+        return;
+    }
+
+    this.functionScopes[funcScope.funcName] = {
+        funcScope: funcScope,
+        currentScope: this
+    };
+};
+
 function GlobalScope() {
     this.type = 'global';
 
@@ -256,13 +277,7 @@ function getReturnExpressionType() {
 
 FileScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
-    assert(!this.functionScopes[funcScope.funcName],
-        'cannot add function twice: ' + funcScope.funcName);
-
-    this.functionScopes[funcScope.funcName] = {
-        funcScope: funcScope,
-        currentScope: this
-    };
+    this._addFunctionScope(funcScope);
 };
 
 FileScope.prototype.getKnownFunctionInfo =
@@ -408,13 +423,7 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
 
 FunctionScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
-    assert(!this.functionScopes[funcScope.funcName],
-        'cannot add function twice: ' + funcScope.funcName);
-
-    this.functionScopes[funcScope.funcName] = {
-        funcScope: funcScope,
-        currentScope: this
-    };
+    this._addFunctionScope(funcScope);
 };
 
 FunctionScope.prototype.getKnownFunctionInfo =
