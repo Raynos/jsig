@@ -5,7 +5,6 @@
     They return the type defn of the node.
 */
 
-var console = require('console');
 var assert = require('assert');
 var path = require('path');
 
@@ -169,8 +168,10 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
-    if (token.defn.type !== 'function') {
-        err = Errors.TypeClassMismatch({
+    var isFunction = token.defn.type === 'function';
+    if (!isFunction && token.defn.type !== 'intersectionType') {
+        err = Errors.UnexpectedFunction({
+            funcName: funcName,
             expected: this.meta.serializeType(token.defn),
             actual: this.meta.serializeType(JsigAST.literal('Function')),
             loc: node.loc,
@@ -180,7 +181,31 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
-    this._checkFunctionType(node, token.defn);
+    if (token.defn.type !== 'intersectionType') {
+        this._checkFunctionType(node, token.defn);
+        return token.defn;
+    }
+
+    var allTypes = token.defn.intersections;
+    for (var i = 0; i < allTypes.length; i++) {
+        var currType = allTypes[i];
+
+        isFunction = currType.type === 'function';
+        if (!isFunction) {
+            err = Errors.UnexpectedFunction({
+                funcName: funcName,
+                expected: this.meta.serializeType(currType),
+                actual: this.meta.serializeType(JsigAST.literal('Function')),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
+
+        this._checkFunctionOverloadType(node, currType);
+    }
+
     return token.defn;
 };
 
@@ -456,7 +481,7 @@ function verifyCallExpression(node) {
         return null;
     }
 
-    if (defn.type !== 'function') {
+    if (defn.type !== 'function' && defn.type !== 'intersectionType') {
         err = Errors.CallingNonFunctionObject({
             objType: this.meta.serializeType(defn),
             callExpression: this.meta.serializeAST(node.callee),
@@ -467,7 +492,54 @@ function verifyCallExpression(node) {
         return null;
     }
 
-    return this._checkFunctionCallExpr(node, defn, false);
+    if (defn.type === 'function') {
+        return this._checkFunctionCallExpr(node, defn, false);
+    }
+
+    var allErrors = [];
+    var result = null;
+
+    for (var i = 0; i < defn.intersections.length; i++) {
+        var possibleFn = defn.intersections[i];
+
+        var prevErrors = this.meta.getErrors();
+        var beforeErrors = this.meta.countErrors();
+        var possibleReturn = this._checkFunctionCallExpr(
+            node, possibleFn, true
+        );
+        var afterErrors = this.meta.countErrors();
+
+        if (beforeErrors === afterErrors && possibleReturn) {
+            result = possibleReturn;
+            break;
+        } else {
+            var currErrors = this.meta.getErrors();
+            for (var j = beforeErrors; j < afterErrors; j++) {
+                allErrors.push(currErrors[j]);
+            }
+            this.meta.setErrors(prevErrors);
+        }
+    }
+
+    if (result === null) {
+        var args = [];
+        for (i = 0; i < node.arguments.length; i++) {
+            args.push(this.meta.verifyNode(node.arguments[i], null));
+        }
+
+        var finalErr = Errors.IntersectionOperatorCallMismatch({
+            expected: serialize(defn),
+            actual: serialize(JsigAST.tuple(args)),
+            operator: this.meta.serializeAST(node.callee),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+
+        finalErr.originalErrors = allErrors;
+        this.meta.addError(finalErr);
+    }
+
+    return result;
 };
 
 ASTVerifier.prototype._checkFunctionCallExpr =

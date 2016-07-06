@@ -136,6 +136,17 @@ Errors.MissingReturnStatement = TypedError({
     line: null
 });
 
+Errors.UnexpectedFunction = TypedError({
+    type: 'jsig.verify.found-unexpected-function',
+    message: '@{line}: Expected {funcName} to not be a function. ' +
+        'Expected {expected} but found {actual}.',
+    expected: null,
+    actual: null,
+    funcName: null,
+    loc: null,
+    line: null
+});
+
 Errors.UnTypedFunctionFound = TypedError({
     type: 'jsig.verify.untyped-function-found',
     message: '@{line}: Expected the function {funcName} to have ' +

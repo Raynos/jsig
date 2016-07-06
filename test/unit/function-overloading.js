@@ -2,10 +2,13 @@
 
 var JSIGSnippet = require('../lib/jsig-snippet.js');
 
-JSIGSnippet.test.skip('correctly infer function type', {
+JSIGSnippet.test.skip('function overloading works', {
     snippet: function m() {/*
-        foo('').split();
+        foo('').split('');
+        foo(2).split('');
         foo(2) + 4;
+        foo('') + 4;
+        foo({}) + 4;
 
         function foo(x) {
             return x;
