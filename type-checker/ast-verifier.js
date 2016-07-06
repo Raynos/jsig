@@ -206,7 +206,7 @@ function verifyAssignmentExpression(node) {
     this.meta.currentScope.unsetWritableTokenLookup();
     if (!leftType) {
         if (afterError === beforeError) {
-            console.warn('!!! could not find leftType: ',
+            assert(false, '!!! could not find leftType: ',
                 this.meta.serializeAST(node));
         }
         return null;
@@ -675,7 +675,7 @@ function verifyNewExpression(node) {
 
     if (!fnType) {
         if (beforeError === afterError) {
-            console.warn('!!! cannot call new on unknown function');
+            assert(false, '!!! cannot call new on unknown function');
         }
         return null;
     }
