@@ -296,6 +296,16 @@ Errors.IntersectionOperatorCallMismatch = TypedError({
     line: null
 });
 
+Errors.FunctionOverloadCallMisMatch = TypedError({
+    type: 'jsig.verify.function-overload-call-mismatch',
+    message: '@{line}: Cannot call any overload of function: {funcName}',
+    expected: null,
+    actual: null,
+    funcName: null,
+    loc: null,
+    line: null
+});
+
 Errors.IncorrectFieldCount = TypedError({
     type: 'jsig.sub-type.unexpected-field-count',
     message: '@{line}: Got unexpected number of fields. ' +

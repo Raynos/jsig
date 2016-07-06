@@ -527,10 +527,10 @@ function verifyCallExpression(node) {
             args.push(this.meta.verifyNode(node.arguments[i], null));
         }
 
-        var finalErr = Errors.IntersectionOperatorCallMismatch({
+        var finalErr = Errors.FunctionOverloadCallMisMatch({
             expected: serialize(defn),
             actual: serialize(JsigAST.tuple(args)),
-            operator: this.meta.serializeAST(node.callee),
+            funcName: this.meta.serializeAST(node.callee),
             loc: node.loc,
             line: node.loc.start.line
         });
