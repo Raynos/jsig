@@ -57,6 +57,16 @@ TypeChecker.prototype.countErrors = function countErrors() {
     return this.errors.length;
 };
 
+TypeChecker.prototype.getErrors =
+function getErrors() {
+    return this.errors.slice();
+};
+
+TypeChecker.prototype.setErrors =
+function setErrors(list) {
+    this.errors = list;
+};
+
 TypeChecker.prototype.prettyPrintAllErrors =
 function prettyPrintAllErrors() {
     return prettyPrintErrors(this);
