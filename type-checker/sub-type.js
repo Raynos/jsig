@@ -141,6 +141,13 @@ function checkValueLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.name === 'string' && child.type === 'typeLiteral' &&
+        child.builtin && child.name === 'String' &&
+        child.concreteValue === parent.value
+    ) {
+        return null;
+    }
+
     if (child.type !== 'valueLiteral') {
         return reportTypeMisMatch(node, parent, child);
     }

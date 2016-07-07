@@ -92,7 +92,9 @@ function inferLiteral(node) {
     var value = node.value;
 
     if (typeof value === 'string') {
-        return JsigAST.literal('String');
+        return JsigAST.literal('String', true, {
+            concreteValue: value
+        });
     } else if (typeof value === 'number') {
         return JsigAST.literal('Number');
     } else if (value === null) {
