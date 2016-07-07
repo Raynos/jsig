@@ -1,4 +1,4 @@
-# jsig2
+# jsig
 
 From scratch type-checker
 
@@ -106,7 +106,7 @@ foo('Hello, world!');
 ```
 
 ```
-raynos at raynos-Dell-Precision-M3800  ~/projects/jsig2 on master*
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
 $ jsig ./examples/hello.js 
 
 examples/hello.js
@@ -126,7 +126,7 @@ Found (1) error
 ## More examples
 
 ```
-raynos at raynos-Dell-Precision-M3800  ~/projects/jsig2 on master*
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
 $ jsig examples/2-main.js 
 No type errors
 ```
@@ -138,7 +138,7 @@ This includes the module system and the definition files.
 ## Definitions example
 
 ```
-raynos at raynos-ThinkPad-T440p  ~/projects/jsig2 on master*
+raynos at raynos-ThinkPad-T440p  ~/projects/jsig on master*
 $ jsig ./examples/3-node_modules.js --definitions ./test/lib/definitions/
 
 examples/3-node_modules.js
@@ -157,7 +157,7 @@ Found (1) error
 
 There is a `3-node_modules.js` example that shows how to use external
 definitions. In this case we pass the `./definitions/` folder that
-is part of jsig2 and contains stubs for modules defined in node core.
+is part of jsig and contains stubs for modules defined in node core.
 
 This is an example of how to define definitions for modules that you
 did not author or that are not part of your current code repository.
@@ -169,7 +169,7 @@ This approach works for both npm modules and node core modules.
 There are a lot of tests that show examples
 
 ```
-raynos at raynos-Dell-Precision-M3800  ~/projects/jsig2 on master*
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
 $ git ls-files | grep test | grep 'hjs'
 test/batch-client-calls/bad-assign-result-of-method-to-wrong-type.hjs
 test/batch-client-calls/bad-call-method-with-wrong-argument.hjs
