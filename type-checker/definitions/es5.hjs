@@ -18,7 +18,8 @@ type TString : {
     replace: (this: String, RegExp, String) => String,
     indexOf: (this: String, String) => Number,
     charAt : (this: String, index: Number) => String,
-    toUpperCase: (this: String) => String
+    toUpperCase: (this: String) => String,
+    toString: (this: String) => String
 }
 
 type TObject : {
