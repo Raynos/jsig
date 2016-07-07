@@ -525,7 +525,12 @@ function verifyCallExpression(node) {
     if (result === null) {
         var args = [];
         for (i = 0; i < node.arguments.length; i++) {
-            args.push(this.meta.verifyNode(node.arguments[i], null));
+            var argType = this.meta.verifyNode(node.arguments[i], null);
+            if (!argType) {
+                argType = JsigAST.literal('<TypeError for js expr `' +
+                    this.meta.serializeAST(node.arguments[i]) + '`>');
+            }
+            args.push(argType);
         }
 
         var finalErr = Errors.FunctionOverloadCallMisMatch({
