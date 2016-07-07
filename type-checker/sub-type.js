@@ -160,7 +160,7 @@ function checkValueLiteralSubType(node, parent, child) {
         }
 
         if (child.value !== parent.value) {
-            return new Error('[Internal] not the same string');
+            return reportTypeMisMatch(node, parent, child);
         }
     } else {
         // console.log('valueLiteral?', {
