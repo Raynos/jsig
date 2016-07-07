@@ -900,7 +900,8 @@ function verifyVariableDeclaration(node) {
             type = token.defn;
         }
     } else {
-        type = JsigAST.literal('%Void%%Uninitialized', true);
+        type = token ? token.defn :
+            JsigAST.literal('%Void%%Uninitialized', true);
     }
 
     if (type.type === 'valueLiteral' && type.name === 'null') {
