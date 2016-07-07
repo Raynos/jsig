@@ -15,6 +15,7 @@ test('foo : (String, Number) => Object', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             label: null,
@@ -23,6 +24,7 @@ test('foo : (String, Number) => Object', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             label: null,
@@ -32,6 +34,7 @@ test('foo : (String, Number) => Object', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             label: null,
@@ -62,6 +65,7 @@ test('foo : () => CustomType', function t(assert) {
             thisArg: null,
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: null,
                 optional: false,
@@ -92,6 +96,7 @@ test('foo : (tagName: String) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: 'tagName',
                 optional: false,
@@ -105,6 +110,7 @@ test('foo : (tagName: String) => void', function t(assert) {
             _raw: null,
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: true,
                 label: null,
@@ -132,6 +138,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: 'index',
                 optional: false,
@@ -141,6 +148,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             }],
             thisArg: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: 'this',
                 optional: false,
@@ -151,6 +159,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: true,
                 label: null,
@@ -180,6 +189,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: 'id',
                 builtin: true,
@@ -188,6 +198,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: 'parent',
                 builtin: false,
@@ -199,6 +210,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: false,
                 optional: false,
@@ -228,6 +240,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: true,
                 label: 'a',
                 builtin: false,
@@ -236,6 +249,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: true,
                 label: 'b',
                 builtin: false,
@@ -247,6 +261,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: true,
                 builtin: false,
                 optional: false,

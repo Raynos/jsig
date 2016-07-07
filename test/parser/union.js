@@ -14,6 +14,7 @@ test('type Foo : Bar | Baz', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -22,6 +23,7 @@ test('type Foo : Bar | Baz', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -47,6 +49,7 @@ test('type A : ObjectE | C | D', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -55,6 +58,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -63,6 +67,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -90,6 +95,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 name: 'Number',
                 builtin: true,
@@ -98,6 +104,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 name: 'String',
                 builtin: true,
@@ -111,6 +118,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             name: 'void',
             builtin: true,

@@ -14,6 +14,7 @@ test('foo : Object<String, String>', function t(assert) {
         type: 'genericLiteral',
         value: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             name: 'Object',
@@ -23,6 +24,7 @@ test('foo : Object<String, String>', function t(assert) {
         },
         generics: [{
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             name: 'String',
@@ -31,6 +33,7 @@ test('foo : Object<String, String>', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             name: 'String',

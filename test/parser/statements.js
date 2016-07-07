@@ -12,6 +12,7 @@ test('foo : String', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         builtin: true,
         label: null,
@@ -31,6 +32,7 @@ test('foo : Error', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         builtin: false,
         label: null,
@@ -68,6 +70,7 @@ test('foo : RegExp', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         name: 'RegExp',
         label: null,
@@ -87,6 +90,7 @@ test('foo : Symbol', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         name: 'Symbol',
         label: null,
@@ -124,6 +128,7 @@ test('foo : Array', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         name: 'Array',
         label: null,
@@ -143,6 +148,7 @@ test('foo-bar : Number', function t(assert) {
     assert.equal(result.identifier, 'foo-bar');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        concreteValue: null,
         isGeneric: false,
         builtin: true,
         label: null,
@@ -167,6 +173,7 @@ test('foo : () => Number', function t(assert) {
         thisArg: null,
         result: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             builtin: true,
             label: null,
@@ -201,6 +208,7 @@ test('two statements', function t(assert) {
             generics: [],
             result: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 label: null,
                 optional: false,
@@ -220,6 +228,7 @@ test('two statements', function t(assert) {
         identifier: 'bar',
         typeExpression: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,
@@ -242,6 +251,7 @@ test('foo-baz/bar-boz : Number', function t(assert) {
         identifier: 'foo-baz/bar-boz',
         typeExpression: {
             type: 'typeLiteral',
+            concreteValue: null,
             isGeneric: false,
             label: null,
             optional: false,

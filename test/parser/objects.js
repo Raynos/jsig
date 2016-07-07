@@ -17,6 +17,7 @@ test('foo : { text: String }', function t(assert) {
             key: 'text',
             value: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: true,
                 label: null,
@@ -53,6 +54,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
             key: 'text',
             value: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: true,
                 label: null,
@@ -149,6 +151,7 @@ test('foo : { bar?: Baz }', function t(assert) {
             key: 'bar',
             value: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: false,
                 optional: false,
@@ -182,6 +185,7 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
             key: 'bar',
             value: {
                 type: 'typeLiteral',
+                concreteValue: null,
                 isGeneric: false,
                 builtin: false,
                 optional: false,
