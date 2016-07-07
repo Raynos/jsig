@@ -165,6 +165,14 @@ function _addFunctionScope(funcScope) {
     };
 };
 
+BaseScope.prototype._revertFunctionScope =
+function _revertFunctionScope(name) {
+    var info = this.functionScopes[name];
+    assert(info, 'cannot revert what does not exist');
+
+    delete this.functionScopes[name];
+};
+
 BaseScope.prototype._addFunctionOverloadScope =
 function _addFunctionOverloadScope(funcScope) {
     var currScope = this.functionScopes[funcScope.funcName];
@@ -303,6 +311,11 @@ function getReturnExpressionType() {
 FileScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
     this._addFunctionScope(funcScope);
+};
+
+FileScope.prototype.revertFunctionScope =
+function revertFunctionScope(name) {
+    this._revertFunctionScope(name);
 };
 
 FileScope.prototype.addFunctionOverloadScope =
@@ -454,6 +467,11 @@ FunctionScope.prototype.restrictType = function restrictType(id, type) {
 FunctionScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
     this._addFunctionScope(funcScope);
+};
+
+FunctionScope.prototype.revertFunctionScope =
+function revertFunctionScope(name) {
+    this._revertFunctionScope(name);
 };
 
 FunctionScope.prototype.addFunctionOverloadScope =

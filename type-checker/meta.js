@@ -286,7 +286,13 @@ function tryUpdateFunction(name, newType) {
 
     var afterErrors = this.countErrors();
     if (beforeErrors !== afterErrors) {
+        var info = this.currentScope.getKnownFunctionInfo(name);
+
+        assert(info.funcScopes.length === 1,
+            'expected only one function info obj');
+
         // verifyNode() failed
+        this.currentScope.revertFunctionScope(name);
         this.currentScope.revertFunction(name, t);
         return false;
     }
