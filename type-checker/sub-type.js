@@ -89,9 +89,20 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.optional && child.type === 'valueLiteral' &&
+        child.name === 'undefined'
+    ) {
+        return null;
+    }
+
     if (child.type !== 'typeLiteral') {
         return reportTypeMisMatch(node, parent, child);
         // return new Error('[Internal] expected type literal');
+    }
+
+    /* optional vs strict must match */
+    if (!parent.optional && child.optional) {
+        return reportTypeMisMatch(node, parent, child);
     }
 
     var name = parent.name;
@@ -256,9 +267,11 @@ function checkFunctionSubType(node, parent, child) {
     }
 
     for (var i = 0; i < parent.args.length; i++) {
-        err = this.checkSubType(node, parent.args[i], child.args[i]);
-        if (err) {
-            return err;
+        /* function args must be the same type, aka invariant */
+        var isSame = isSameType(parent.args[i], child.args[i]);
+
+        if (!isSame) {
+            return reportTypeMisMatch(node, parent.args[i], child.args[i]);
         }
     }
 

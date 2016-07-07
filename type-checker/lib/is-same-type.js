@@ -23,6 +23,10 @@ function isSameType(left, right) {
             return false;
         }
 
+        if (left.optional !== right.optional) {
+            return false;
+        }
+
         return true;
     } else if (left.type === 'object') {
         if (left.keyValues.length !== right.keyValues.length) {

@@ -24,6 +24,7 @@ require('./unit/function-inference.js');
 require('./unit/optional-fields.js');
 require('./unit/union-folding.js');
 require('./unit/function-overloading.js');
+require('./unit/function-invariance.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
