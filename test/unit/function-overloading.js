@@ -48,3 +48,27 @@ JSIGSnippet.test('function overloading works', {
 
     assert.end();
 });
+
+JSIGSnippet.test('overloading based on string argument', {
+    snippet: function m() {/*
+        on("str", x);
+        on("num", y);
+
+        function x(a) {
+            a.split("");
+        }
+        function y(b) {
+            b + 4;
+        }
+
+        function on(str, listener) {
+        }
+    */},
+    header: function h() {/*
+        on: ((str: "str", (String) => void) => void) &
+            ((str: "num", (Number) => void) => void)
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
