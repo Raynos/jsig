@@ -605,6 +605,23 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             actualType = this.meta.verifyNode(node.arguments[i], wantedType);
         }
 
+        /* If a literal string value is expected AND
+            A literal string value is passed as an argument
+            a.k.a not an alias or field.
+
+            Then convert the TypeLiteral into a ValueLiteral
+         */
+        if (wantedType.type === 'valueLiteral' &&
+            wantedType.name === 'string' &&
+            node.arguments[i].type === 'Literal' &&
+            actualType.type === 'typeLiteral' &&
+            actualType.builtin &&
+            actualType.name === 'String' &&
+            typeof actualType.concreteValue === 'string'
+        ) {
+            actualType = JsigAST.value(actualType.concreteValue, 'string');
+        }
+
         if (!actualType) {
             return null;
         }
