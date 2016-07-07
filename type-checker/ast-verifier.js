@@ -515,6 +515,7 @@ function verifyCallExpression(node) {
         } else {
             var currErrors = this.meta.getErrors();
             for (var j = beforeErrors; j < afterErrors; j++) {
+                currErrors[j].branchType = this.meta.serializeType(possibleFn);
                 allErrors.push(currErrors[j]);
             }
             this.meta.setErrors(prevErrors);

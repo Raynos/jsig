@@ -266,6 +266,10 @@ function exitFunctionScope() {
     this.currentScope = this.currentScope.parent;
 };
 
+/* As part of inference we believe that the function named
+    "name" which is untyped has a type of `newType`.
+
+*/
 ProgramMeta.prototype.tryUpdateFunction =
 function tryUpdateFunction(name, newType) {
     var t = this.currentScope.getFunction(name);

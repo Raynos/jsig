@@ -63,7 +63,9 @@ function prettyPrintError(checker, error, opts) {
         parts.push('');
 
         for (var j = 0; j < error.originalErrors.length; j++) {
-            parts.push(prettyPrintError(checker, error.originalErrors[j], {
+            var e = error.originalErrors[j];
+            parts.push(nestedPrefix + 'Branch: ' + TermColor.green(e.branchType));
+            parts.push(prettyPrintError(checker, e, {
                 prefix: nestedPrefix,
                 showLoc: false
             }));
