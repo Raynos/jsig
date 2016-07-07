@@ -161,6 +161,14 @@ function checkValueLiteralSubType(node, parent, child) {
         if (child.name !== name) {
             return new Error('[Internal] Not undefined');
         }
+    } else if (name === 'string') {
+        if (child.name !== 'string') {
+            return new Error('[Internal] Not a string');
+        }
+
+        if (child.value !== parent.value) {
+            return new Error('[Internal] not the same string');
+        }
     } else {
         // console.log('valueLiteral?', {
         //     p: parent,
