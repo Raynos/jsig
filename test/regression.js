@@ -13,7 +13,8 @@ test('regression: ProcWatcher', function t(assert) {
     var file = getFile('good-proc-watcher.js');
 
     var meta = compile(file, {
-        definitions: definitionsDir
+        definitions: definitionsDir,
+        globalsFile: globalsFile
     });
     assert.ok(meta, 'expected meta to exist');
     assert.equal(meta.errors.length, 0, 'expected one error');
