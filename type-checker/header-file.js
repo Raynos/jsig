@@ -2,16 +2,10 @@
 
 var assert = require('assert');
 var path = require('path');
-var TypedError = require('error/typed');
 
+var Errors = require('./errors.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 var cloneJSIG = require('./lib/clone-ast.js');
-
-var UnknownLiteralError = TypedError({
-    type: 'jsig.header-file.unknown-literal',
-    message: 'Could not resolve {literal}',
-    literal: null
-});
 
 module.exports = HeaderFile;
 
@@ -55,7 +49,7 @@ function replaceTypeLiteral(ast, rawAst) {
 
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {
-        this.errors.push(UnknownLiteralError({
+        this.errors.push(Errors.UnknownLiteralError({
             literal: name
         }));
         return null;
@@ -75,7 +69,7 @@ function replaceGenericLiteral(ast, rawAst) {
 
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {
-        this.errors.push(UnknownLiteralError({
+        this.errors.push(Errors.UnknownLiteralError({
             literal: name
         }));
         return null;
