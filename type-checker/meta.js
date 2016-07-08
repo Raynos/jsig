@@ -206,10 +206,10 @@ type definitions for a subset of the program.
 
 */
 ProgramMeta.prototype.loadHeaderFile =
-function loadHeaderFile() {
+function loadHeaderFile(required) {
     var headerFileName = this.fileName.replace(fileExtRegex, '.hjs');
 
-    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName);
+    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName, required);
     if (!this.headerFile) {
         return;
     }

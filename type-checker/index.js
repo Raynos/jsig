@@ -7,6 +7,7 @@ var assert = require('assert');
 var resolve = require('resolve');
 var process = global.process;
 
+var Errors = require('./errors.js');
 var HeaderFile = require('./header-file.js');
 var parseJSigAST = require('./lib/read-jsig-ast.js').parseJSigAST;
 var ProgramMeta = require('./meta.js');
@@ -84,7 +85,7 @@ function checkProgram() {
 
 TypeChecker.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {
-    var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile);
+    var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile, true);
     assert(this.errors.length === 0, 'must be no errors');
     assert(opHeaderFile, 'must be able to load operators');
 
@@ -94,7 +95,7 @@ function loadLanguageIdentifiers() {
         this.globalScope._addOperator(a.identifier, a.typeExpression);
     }
 
-    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File, true);
     assert(this.errors.length === 0, 'must be no errors');
     assert(es5HeaderFile, 'must be able to load es5');
 
@@ -130,7 +131,7 @@ TypeChecker.prototype.loadJavaScriptIntoIndexTable =
 function loadJavaScriptIntoIndexTable(indexTable) {
     var before = this.errors.length;
 
-    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File, true);
     assert(this.errors.length === before, 'must be no errors');
     assert(es5HeaderFile, 'must be able to load es5');
 
@@ -139,7 +140,10 @@ function loadJavaScriptIntoIndexTable(indexTable) {
 };
 
 TypeChecker.prototype.getOrCreateHeaderFile =
-function getOrCreateHeaderFile(fileName) {
+function getOrCreateHeaderFile(fileName, required) {
+    assert(typeof required === 'boolean',
+        'required parameter needed');
+
     if (!this.files[fileName]) {
         fileName = path.resolve(fileName);
     }
@@ -151,6 +155,11 @@ function getOrCreateHeaderFile(fileName) {
     var source = this.files[fileName];
     if (!source) {
         if (!fs.existsSync(fileName)) {
+            if (required) {
+                this.addError(Errors.CouldNotFindHeaderFile({
+                    fileName: fileName
+                }));
+            }
             return null;
         }
 
@@ -238,7 +247,7 @@ function preloadDefinitions() {
             continue;
         }
 
-        var headerFile = this.getOrCreateHeaderFile(fileName);
+        var headerFile = this.getOrCreateHeaderFile(fileName, true);
         if (!headerFile) {
             continue;
         }
@@ -257,7 +266,7 @@ function preloadGlobals() {
         return;
     }
 
-    var headerFile = this.getOrCreateHeaderFile(this.globalsFile);
+    var headerFile = this.getOrCreateHeaderFile(this.globalsFile, true);
     if (!headerFile) {
         return;
     }

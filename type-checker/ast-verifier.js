@@ -92,7 +92,7 @@ function verifyProgram(node) {
 
     this.meta.setModuleExportsNode(node);
 
-    this.meta.loadHeaderFile();
+    this.meta.loadHeaderFile(false);
 
     var i = 0;
     for (i = 0; i < parts.functions.length; i++) {

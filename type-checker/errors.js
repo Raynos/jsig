@@ -4,6 +4,18 @@ var TypedError = require('error/typed');
 
 var Errors = {};
 
+Errors.UnknownLiteralError = TypedError({
+    type: 'jsig.header-file.unknown-literal',
+    message: 'Could not resolve {literal}',
+    literal: null
+});
+
+Errors.CouldNotFindHeaderFile = TypedError({
+    type: 'jsig.header-file.could-not-find-header-file',
+    message: 'Cannot find other header file: {fileName}.',
+    fileName: null
+});
+
 Errors.MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
     message: '@{line}: Expected the field: {fieldName} to be defined ' +

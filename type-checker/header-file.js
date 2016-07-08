@@ -94,7 +94,7 @@ function replaceImport(ast, rawAst) {
     var depPath = ast.dependency;
     var fileName = resolvePath(depPath, this.folderName);
 
-    var otherHeader = this.checker.getOrCreateHeaderFile(fileName);
+    var otherHeader = this.checker.getOrCreateHeaderFile(fileName, true);
     if (!otherHeader) {
         return ast;
     }
