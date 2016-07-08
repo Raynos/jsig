@@ -30,7 +30,7 @@ function main(args) {
         return shortHelp();
     }
 
-    if (args.v) {
+    if (args.v || args.version) {
         console.log('version: ' + $package.version);
         var commit = $package.gitHead;
         if (!commit) {
