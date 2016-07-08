@@ -234,6 +234,13 @@ function _addDefinition(id, typeDefn) {
     return token;
 };
 
+TypeChecker.prototype.getDefinitionFilePath =
+function getDefinitionFilePath(packageName) {
+    return path.join(
+        this.definitionsFolder, packageName + '.hjs'
+    );
+};
+
 TypeChecker.prototype.preloadDefinitions =
 function preloadDefinitions() {
     if (!this.definitionsFolder) {

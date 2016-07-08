@@ -83,10 +83,13 @@ function replaceGenericLiteral(ast, rawAst) {
     return typeDefn;
 };
 
+// Find another HeaderFile instance for filePath
+// Then reach into indexTable and grab tokens
+// Copy tokens into local index table
 HeaderFile.prototype.replaceImport =
 function replaceImport(ast, rawAst) {
     var depPath = ast.dependency;
-    var fileName = resolvePath(depPath, this.folderName);
+    var fileName = this._resolvePath(depPath, this.folderName);
 
     var otherHeader = this.checker.getOrCreateHeaderFile(fileName, true);
     if (!otherHeader) {
@@ -104,11 +107,9 @@ function replaceImport(ast, rawAst) {
     }
 
     return ast;
-    // Find another HeaderFile instance for filePath
-    // Then reach into indexTable and grab tokens
-    // Copy tokens into local index table
 };
 
+HeaderFile.prototype._resolvePath =
 function resolvePath(possiblePath, dirname) {
     if (possiblePath[0] === path.sep) {
         // is absolute path
@@ -117,10 +118,13 @@ function resolvePath(possiblePath, dirname) {
         // is relative path
         return path.resolve(dirname, possiblePath);
     } else {
-        // require lookup semantics...
-        assert(false, 'node_modules lookup not implemented');
+        // TODO: improve handling to reach into sub modules
+        assert(possiblePath.indexOf('/') === -1,
+            'node_modules nested files lookup not implemented');
+
+        return this.checker.getDefinitionFilePath(possiblePath);
     }
-}
+};
 
 HeaderFile.prototype.addToken =
 function addToken(token, defn) {
