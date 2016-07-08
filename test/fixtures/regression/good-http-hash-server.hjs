@@ -1,0 +1,40 @@
+-- vim: set ft=Haskell:
+import { THttpReq, THttpRes, THttpServer } from "http"
+import {
+    THttpServiceRouter, TGlobalHandlerOpts
+} from "./good-http-service-router.hjs"
+import { TSocket } from "net"
+
+type Cb : (Error | null) => void
+
+type THttpHashServer : {
+    _state: Number,
+    _httpServer: THttpServer,
+    _router: THttpServiceRouter,
+    _initcb: Cb | null,
+
+    family: String,
+    globalRequestOptions: TGlobalHandlerOpts,
+    hostname: String,
+    port: Number,
+
+    _handleRequest: (
+        this: THttpHashServer, req: THttpReq, res: THttpRes
+    ) => void,
+    _handleConnection: (this: THttpHashServer, socket: TSocket) => void,
+    _handleError: (this: THttpHashServer, error: Error) => void,
+    _onServerListening: (this: THttpHashServer) => void,
+    _onServerDestroyed: (this: THttpHashServer, cb: Cb) => void,
+
+    listen: (this: THttpHashServer, cb: Cb) => void,
+    destroy: (this: THttpHashServer, cb: Cb) => void
+}
+
+type TServerOptions : {
+    hostname?: String,
+    port: Number,
+    router: THttpServiceRouter,
+    globalRequestOptions?: TGlobalHandlerOpts
+}
+
+HttpHashServer : (this: THttpHashServer, opts: TServerOptions) => void

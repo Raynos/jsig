@@ -1,0 +1,71 @@
+-- vim: set ft=Haskell:
+import {
+    THttpHash,
+    TRouteResult,
+    THttpRequestContext,
+    THandlerOpts,
+    THandler
+} from "http-hash"
+import { TUrl } from "fast-url-parser"
+import { THttpReq, THttpRes } from "http"
+
+type TGlobalHandlerOpts : {
+    requestContext?: THttpRequestContext
+}
+
+type THttpServiceRouter : {
+    hash: THttpHash,
+    urlNotFound: (THttpReq, THttpRes) => void,
+    methodNotAllowed: (THttpReq, THttpRes) => void,
+
+    handleRequest : (
+        this: THttpServiceRouter,
+        req: THttpReq,
+        res: THttpRes,
+        opts: TGlobalHandlerOpts
+    ) => void
+}
+
+type TEndpoint : {
+    serviceName: String,
+    methodName: String,
+    routeHandler: (THttpReq, THttpRes, THandlerOpts) => void,
+
+    handleRequest : (
+        this: TEndpoint,
+        req: THttpReq,
+        res: THttpRes,
+        opts: THandlerOpts
+    ) => void
+}
+
+type TServicesInfo : Object<String, {
+    route: String,
+    methods: Object<String, {
+        route: String,
+        handler: (THttpReq, THttpRes, THandlerOpts) => void,
+        httpMethod: String
+    }>
+}>
+
+type TRouterOpts : {
+    services : TServicesInfo,
+    urlNotFound: ((THttpReq, THttpRes) => void) | null,
+    methodNotAllowed: ((THttpReq, THttpRes) => void) | null
+}
+
+HttpServiceRouter : (this: THttpServiceRouter, opts: TRouterOpts) => void
+
+Endpoint : (
+    this: TEndpoint,
+    serviceName: String,
+    methodName: String,
+    routeHandler: (THttpReq, THttpRes, THandlerOpts) => void
+) => void
+
+HttpRequestContext : (
+    this: THttpRequestContext,
+    requestTime: Number,
+    parsedUrl: TUrl,
+    route: TRouteResult
+) => void

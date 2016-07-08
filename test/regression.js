@@ -26,7 +26,38 @@ test('regression: ProcWatcher', function t(assert) {
 test('regression: HttpHash', function t(assert) {
     var file = getFile('good-http-hash.js');
 
-    var meta = compile(file);
+    var meta = compile(file, {
+        definitions: definitionsDir,
+        globalsFile: globalsFile
+    });
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
+
+test('regression: HttpServiceRouter', function t(assert) {
+    var file = getFile('good-http-service-router.js');
+
+    var meta = compile(file, {
+        definitions: definitionsDir,
+        globalsFile: globalsFile
+    });
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
+
+test('regression: HttpHashServer', function t(assert) {
+    var file = getFile('good-http-hash-server.js');
+
+    var meta = compile(file, {
+        definitions: definitionsDir,
+        globalsFile: globalsFile
+    });
     assert.ok(meta, 'expected meta to exist');
     assert.equal(meta.errors.length, 0, 'expected one error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
