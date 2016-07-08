@@ -13,6 +13,7 @@ var parseJSigAST = require('./lib/read-jsig-ast.js').parseJSigAST;
 var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
 var prettyPrintErrors = require('./lib/pretty-errors.js');
+var serialize = require('../serialize.js');
 
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
 var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
@@ -48,6 +49,11 @@ function TypeChecker(entryFile, options) {
     this.moduleExportsType = null;
     this.currentMeta = null;
 }
+
+TypeChecker.prototype.serializeType =
+function serializeType(type, opts) {
+    return serialize(type, opts);
+};
 
 TypeChecker.prototype.addError = function addError(err) {
     // console.trace('addError(' + err.type + ')');
