@@ -1,0 +1,52 @@
+-- vim: set ft=Haskell:
+import { THttpReq, THttpRes } from "./http.hjs"
+import { TUrl } from "./fast-url-parser.hjs"
+
+type THttpRequestContext : {
+    requestTime: Number,
+    parsedUrl: TUrl,
+    params: Object,
+    splat: null,
+    serviceName: String,
+    methodName: String
+}
+
+type THandlerOpts : {
+    requestContext: THttpRequestContext
+}
+
+type THandler : {
+    handleRequest: (
+        req: THttpReq,
+        res: THttpRes,
+        opts: THandlerOpts
+    ) => void
+}
+
+type THandlerData : Object<String, THandler>
+
+type TRouteResult : {
+    handler: THandlerData,
+    splat: null,
+    params: Object,
+    src: String | null
+}
+
+type TRouteNode : {
+    parent: TRouteNode | null,
+    segment: String,
+    handler: THandlerData,
+    staticPaths: Object,
+    variablePaths: TRouteNode | null,
+    isSplat: Boolean,
+    src: String | null
+}
+
+type THttpHash : {
+    _hash: TRouteNode,
+
+    get : (this: THttpHash, pathname: String) => TRouteResult,
+    set : (this: THttpHash, pathname: String, handler: THandlerData) => void
+}
+
+http-hash : (this: THttpHash) => void

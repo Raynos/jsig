@@ -1,0 +1,2 @@
+-- vim: set ft=Haskell:
+xtend : <T>(obj: T) => T

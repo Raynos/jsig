@@ -1,0 +1,8 @@
+-- vim: set ft=Haskell:
+type TBuffer : {
+    length: Number
+}
+
+buffer : {
+    Buffer: (this: TBuffer, str: String) => void
+}

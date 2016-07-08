@@ -1,0 +1,8 @@
+-- vim: set ft=Haskell:
+type TUrl : {
+    pathname: String
+}
+
+fast-url-parser : {
+    parse: (String, bool: Boolean) => TUrl
+}
