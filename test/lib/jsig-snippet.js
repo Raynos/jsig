@@ -59,6 +59,8 @@ JSigSnippet.prototype.checkMeta = function checkMeta(assert) {
 };
 
 JSigSnippet.prototype.compileAndCheck = function compileAndCheck(assert) {
-    this.compile();
+    var meta = this.compile();
     this.checkMeta(assert);
+
+    return meta;
 };
