@@ -17,6 +17,7 @@ function HeaderFile(checker, jsigAst, fileName) {
     this.resolvedJsigAst = null;
 
     this.indexTable = Object.create(null);
+    this.exportType = null;
     this.errors = [];
     this.astReplacer = new JsigASTReplacer(this);
 }
@@ -132,6 +133,12 @@ function addToken(token, defn) {
     this.indexTable[token] = defn;
 };
 
+HeaderFile.prototype.addDefaultExport =
+function addDefaultExport(defn) {
+    assert(this.exportType === null, 'cannot have double export');
+    this.exportType = defn;
+};
+
 HeaderFile.prototype.resolveReferences =
 function resolveReferences() {
     if (this.resolvedJsigAst) {
@@ -146,6 +153,8 @@ function resolveReferences() {
 
         if (line.type === 'typeDeclaration') {
             this.addToken(line.identifier, line.typeExpression);
+        } else if (line.type === 'defaultExport') {
+            this.addDefaultExport(line.typeExpression);
         }
     }
 
@@ -170,4 +179,11 @@ function getResolvedAssignments() {
     }
 
     return statements;
+};
+
+HeaderFile.prototype.getExportType =
+function getExportType() {
+    this.resolveReferences();
+
+    return this.exportType;
 };

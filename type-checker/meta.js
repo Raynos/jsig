@@ -155,8 +155,20 @@ function setModuleExportsNode(astNode) {
 
 ProgramMeta.prototype.setModuleExportsType =
 function setModuleExportsType(typeDefn, astNode) {
+    assert(this.moduleExportsType === null, 'cannot double export');
+
     this.moduleExportsName = astNode.name;
     this.moduleExportsType = typeDefn;
+};
+
+ProgramMeta.prototype.getModuleExportsType =
+function getModuleExportsType() {
+    return this.moduleExportsType;
+};
+
+ProgramMeta.prototype.hasExportDefined =
+function hasExportDefined() {
+    return this.moduleExportsType !== null;
 };
 
 ProgramMeta.prototype.addError = function addError(error) {
@@ -221,6 +233,11 @@ function loadHeaderFile(required) {
         var expr = assignments[i];
 
         this.currentScope.preloadVar(expr.identifier, expr.typeExpression);
+    }
+
+    var exportType = this.headerFile.getExportType();
+    if (exportType !== null) {
+        this.moduleExportsType = exportType;
     }
 };
 

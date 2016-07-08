@@ -46,6 +46,14 @@ function inlineReferences(ast, rawAst, stack) {
         stack.pop();
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
+    } else if (ast.type === 'defaultExport') {
+        stack.push('typeExpression');
+        ast.typeExpression = this.inlineReferences(
+            ast.typeExpression, rawAst.typeExpression, stack
+        );
+        stack.pop();
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        return ast;
     } else if (ast.type === 'function') {
         stack.push('args');
         for (i = 0; i < ast.args.length; i++) {

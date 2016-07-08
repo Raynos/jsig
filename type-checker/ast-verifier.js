@@ -299,10 +299,18 @@ function verifyAssignmentExpression(node) {
     }
 
     if (leftType.name === '%Any%%ModuleExports') {
-        assert(node.right.type === 'Identifier',
-            'export must be identifier');
+        assert(rightType, 'must have an export type');
 
-        this.meta.setModuleExportsType(rightType, node.right);
+        if (this.meta.hasExportDefined()) {
+            var expectedType = this.meta.getModuleExportsType();
+
+            this.meta.checkSubType(node, expectedType, rightType);
+        } else {
+            assert(node.right.type === 'Identifier',
+                'export must be identifier');
+
+            this.meta.setModuleExportsType(rightType, node.right);
+        }
     }
 
     var funcScope = this.meta.currentScope.getFunctionScope();
