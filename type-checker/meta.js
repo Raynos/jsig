@@ -209,7 +209,9 @@ ProgramMeta.prototype.loadHeaderFile =
 function loadHeaderFile(required) {
     var headerFileName = this.fileName.replace(fileExtRegex, '.hjs');
 
-    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName, required);
+    this.headerFile = this.checker.getOrCreateHeaderFile(
+        headerFileName, required
+    );
     if (!this.headerFile) {
         return;
     }
