@@ -11,6 +11,7 @@ require('./parser/imports.js');
 require('./parser/tuples.js');
 require('./parser/parser-errors.js');
 require('./parser/braces.js');
+require('./parser/exports.js');
 
 require('./parser/integration/min-document.js');
 require('./parser/integration/jsig.js');

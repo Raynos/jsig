@@ -47,6 +47,13 @@ var assignment = lexemes.assignmentIdentifier
             });
     });
 
+var exportStatement = lexemes.exportWord
+    .then(lexemes.defaultWord)
+    .then(typeDefinition)
+    .map(function toDefaultExport(type) {
+        return AST.defaultExport(type);
+    });
+
 var commentStatement = lexemes.commentStart
     .then(lexemes.nonNewLine.many())
     .map(function comment(text) {
@@ -72,7 +79,8 @@ var statement = Parsimmon.alt(
     blockCommentStatement,
     importStatement,
     assignment,
-    typeDeclaration
+    typeDeclaration,
+    exportStatement
 );
 
 module.exports = statement;

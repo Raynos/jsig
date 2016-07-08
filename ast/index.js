@@ -17,6 +17,7 @@ var GenericLiteralNode = require('./generic.js');
 var TupleNode = require('./tuple.js');
 var RenamedLiteralNode = require('./renamed-literal.js');
 var CommentNode = require('./comment.js');
+var DefaultExportNode = require('./default-export.js');
 
 module.exports = {
     program: function program(statements) {
@@ -69,5 +70,8 @@ module.exports = {
     },
     comment: function comment(text) {
         return new CommentNode(text);
+    },
+    defaultExport: function defaultExport(type) {
+        return new DefaultExportNode(type);
     }
 };

@@ -8,6 +8,8 @@ var lexemes = {
     openCurlyBrace: lexeme(Parsimmon.string('{')),
     closeCurlyBrace: lexeme(Parsimmon.string('}')),
     fromWord: lexeme(Parsimmon.string('from')),
+    exportWord: lexeme(Parsimmon.string('export')),
+    defaultWord: lexeme(Parsimmon.string('default')),
     quote: lexeme(Parsimmon.regex(/['"]/)),
     identifier: lexeme(Parsimmon.regex(/[a-z\-\/]+/i)),
     assignmentIdentifier: lexeme(
