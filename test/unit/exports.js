@@ -203,6 +203,27 @@ JSIGSnippet.test('assigning exports field to non-object', {
     assert.end();
 });
 
-// TODO: not assiging exports.foo at all
+JSIGSnippet.test('not exporting anything at all', {
+    snippet: function m() {/*
+        var a = '';
+    */},
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+    assert.equal(meta.errors.length, 1, 'found two errors');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.missing-exports');
+    assert.equal(err.expected, '{ a: String }');
+    assert.equal(err.actual, '<MissingType>');
+
+    assert.end();
+});
+
 // TODO: adding the wrong field to exports
 // TODO: assigning a subset of exports fields
