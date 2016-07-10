@@ -142,3 +142,39 @@ JSIGSnippet.test('Export must exist', {
 
     assert.end();
 });
+
+JSIGSnippet.test('can export an anonymous object', {
+    snippet: function m() {/*
+        module.exports = { a: '' };
+    */},
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+
+    assert.end();
+});
+
+JSIGSnippet.test('can use exports.foo', {
+    snippet: function m() {/*
+        exports.a = '';
+    */},
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+
+    assert.end();
+});
+
+// TODO: assiging exports.foo where exports : Number
+// TODO: not assiging exports.foo at all
+// TODO: assigning a subset of exports fields

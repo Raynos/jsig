@@ -29,10 +29,16 @@ function ProgramMeta(checker, ast, fileName, source) {
 
     this.type = 'program';
 
+    // Esprima AST for exports
     this.moduleExportsNode = null;
+    // JSig type AST for exports type
     this.moduleExportsType = null;
+    // Name of variable, if applicable
     this.moduleExportsName = null;
+    // Whether an module.exports statement exists
     this.hasModuleExports = false;
+    // Which field names were exported
+    this.exportedFields = [];
 
     this.globalScope = checker.globalScope;
     this.currentScope = new FileScope(this.globalScope);
@@ -178,9 +184,45 @@ function setHasModuleExports(bool) {
     this.hasModuleExports = bool;
 };
 
-ProgramMeta.prototype.getHasModuleExports =
-function getHasModuleExports() {
-    return this.hasModuleExports;
+ProgramMeta.prototype.hasFullyExportedType =
+function hasFullyExportedType() {
+    if (this.hasModuleExports) {
+        return this.hasModuleExports;
+    }
+
+    if (this.exportedFields.length === 0 ||
+        !this.moduleExportsType ||
+        this.moduleExportsType.type !== 'object'
+    ) {
+        return false;
+    }
+
+    var objKeys = getFieldsFromObject(this.moduleExportsType).sort();
+    var exported = this.exportedFields.sort();
+
+    var isSame = exported.length === objKeys.length;
+    for (var i = 0; i < objKeys.length; i++) {
+        isSame = isSame && (objKeys[i] === exported[i]);
+    }
+
+    return isSame;
+};
+
+function getFieldsFromObject(objType) {
+    var keys = [];
+
+    for (var i = 0; i < objType.keyValues.length; i++) {
+        keys.push(objType.keyValues[i].key);
+    }
+
+    return keys;
+}
+
+ProgramMeta.prototype.addExportedField =
+function addExportedField(fieldName) {
+    if (this.exportedFields.indexOf(fieldName) === -1) {
+        this.exportedFields.push(fieldName);
+    }
 };
 
 ProgramMeta.prototype.addError = function addError(error) {

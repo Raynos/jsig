@@ -7,11 +7,6 @@ var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
 var cloneAST = require('./lib/clone-ast.js');
 
-var moduleType = JsigAST.object({
-    exports: JsigAST.literal('%Any%%ModuleExports', true)
-});
-moduleType.isNodeModuleToken = true;
-
 module.exports = {
     GlobalScope: GlobalScope,
     FileScope: FileScope,
@@ -258,7 +253,13 @@ util.inherits(FileScope, BaseScope);
 
 FileScope.prototype.loadModuleTokens =
 function loadModuleTokens() {
+    var moduleType = JsigAST.object({
+        exports: JsigAST.literal('%Any%%ModuleExports', true)
+    });
+    var exportsType = JsigAST.literal('%Any%%ExportsObject', true);
+
     this.addVar('module', moduleType);
+    this.addVar('exports', exportsType);
     this.addVar('__dirname', JsigAST.literal('String'));
 };
 

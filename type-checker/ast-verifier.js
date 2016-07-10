@@ -129,7 +129,7 @@ function verifyProgram(node) {
 
     /* If a module.exports type exists, but it has not been assigned */
     if (this.meta.hasExportDefined() &&
-        !this.meta.getHasModuleExports()
+        !this.meta.hasFullyExportedType()
     ) {
         var exportType = this.meta.getModuleExportsType();
         this.meta.addError(Errors.MissingExports({
@@ -322,6 +322,22 @@ function verifyAssignmentExpression(node) {
                 'export must be identifier');
 
             this.meta.setModuleExportsType(rightType, node.right);
+        }
+    }
+
+    if (node.left.type === 'MemberExpression' &&
+        node.left.object.type === 'Identifier' &&
+        node.left.property.type === 'Identifier' &&
+        node.left.object.name === 'exports' &&
+        this.meta.hasExportDefined()
+    ) {
+        var exportsType = this.meta.verifyNode(node.left.object, null);
+
+        if (exportsType.type === 'typeLiteral' &&
+            exportsType.builtin && exportsType.name === '%Any%%ExportsObject'
+        ) {
+            var fieldName = node.left.property.name;
+            this.meta.addExportedField(fieldName);
         }
     }
 
@@ -1387,6 +1403,12 @@ function _findPropertyInType(node, jsigType, propertyName) {
             unionType: serialize(jsigType)
         }));
         return null;
+    }
+
+    if (jsigType.type === 'typeLiteral' &&
+        jsigType.builtin && jsigType.name === '%Any%%ExportsObject'
+    ) {
+        jsigType = this.meta.getModuleExportsType();
     }
 
     if (jsigType.type !== 'object') {
