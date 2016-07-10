@@ -77,7 +77,7 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     }
 
-    if (parent.name === '%Any%%ModuleExports') {
+    if (parent.name === '%Export%%ModuleExports') {
         return null;
     } else if (parent.name === '%Boolean%%Mixed') {
         return null;

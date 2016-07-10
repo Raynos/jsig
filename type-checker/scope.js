@@ -254,9 +254,9 @@ util.inherits(FileScope, BaseScope);
 FileScope.prototype.loadModuleTokens =
 function loadModuleTokens() {
     var moduleType = JsigAST.object({
-        exports: JsigAST.literal('%Any%%ModuleExports', true)
+        exports: JsigAST.literal('%Export%%ModuleExports', true)
     });
-    var exportsType = JsigAST.literal('%Any%%ExportsObject', true);
+    var exportsType = JsigAST.literal('%Export%%ExportsObject', true);
 
     this.addVar('module', moduleType);
     this.addVar('exports', exportsType);

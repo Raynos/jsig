@@ -252,7 +252,7 @@ function verifyAssignmentExpression(node) {
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getFunction(node.right.name)
     ) {
-        if (leftType.name === '%Any%%ModuleExports') {
+        if (leftType.name === '%Export%%ModuleExports') {
             this.meta.addError(Errors.UnknownModuleExports({
                 funcName: node.right.name,
                 loc: node.loc,
@@ -309,7 +309,7 @@ function verifyAssignmentExpression(node) {
         );
     }
 
-    if (leftType.name === '%Any%%ModuleExports') {
+    if (leftType.name === '%Export%%ModuleExports') {
         assert(rightType, 'must have an export type');
 
         if (this.meta.hasExportDefined()) {
@@ -334,7 +334,7 @@ function verifyAssignmentExpression(node) {
         var exportsType = this.meta.verifyNode(node.left.object, null);
 
         if (exportsType.type === 'typeLiteral' &&
-            exportsType.builtin && exportsType.name === '%Any%%ExportsObject'
+            exportsType.builtin && exportsType.name === '%Export%%ExportsObject'
         ) {
             var fieldName = node.left.property.name;
             this.meta.addExportedField(fieldName);
@@ -1406,7 +1406,7 @@ function _findPropertyInType(node, jsigType, propertyName) {
     }
 
     if (jsigType.type === 'typeLiteral' &&
-        jsigType.builtin && jsigType.name === '%Any%%ExportsObject'
+        jsigType.builtin && jsigType.name === '%Export%%ExportsObject'
     ) {
         jsigType = this.meta.getModuleExportsType();
     }
@@ -1487,7 +1487,7 @@ function _createNonExistantFieldError(node, propName) {
     var actualType = this.meta.verifyNode(node.object, null);
 
     if (actualType.type === 'typeLiteral' &&
-        actualType.builtin && actualType.name === '%Any%%ExportsObject'
+        actualType.builtin && actualType.name === '%Export%%ExportsObject'
     ) {
         actualType = this.meta.getModuleExportsType();
     }
