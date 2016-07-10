@@ -9,7 +9,7 @@ test('bad identifier', function t(assert) {
 
     assert.throws(function throwIt() {
         parse(content);
-    }, /expected ':' at character 7, got '...~bar-boz/);
+    }, /expected ':' at line 1 column 8, got '...~bar-boz/);
 
     assert.end();
 });
@@ -22,7 +22,7 @@ test('bad identifier with cb', function t(assert) {
     function onError(err) {
         assert.ok(err);
         assert.equal(err.message,
-            'expected \':\' at character 7, ' +
+            'expected \':\' at line 1 column 8, ' +
             'got \'...~bar-boz : N...\''
         );
 
