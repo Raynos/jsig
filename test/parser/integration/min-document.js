@@ -60,7 +60,7 @@ var ASTFixture = AST.program([
         'className': makeLiteral('String'),
         'dataset': AST.generic(
             makeLiteral('Object'),
-            [ makeLiteral('String'), makeLiteral('Any') ]
+            [ makeLiteral('String'), makeLiteral('Mixed') ]
         ),
         'childNodes': AST.generic(
             makeLiteral('Array'),

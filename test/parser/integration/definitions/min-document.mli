@@ -17,7 +17,7 @@ type DOMChild : DOMText | DOMElement
 type DOMElement : {
     tagName: String,
     className: String,
-    dataset: Object<String, Any>,
+    dataset: Object<String, Mixed>,
     childNodes: Array<DOMChild>,
     parentNode: null | DOMElement,
     style: Object<String, String>,
