@@ -1484,11 +1484,19 @@ function _createNonExistantFieldError(node, propName) {
         assert(false, 'unknown object type');
     }
 
+    var actualType = this.meta.verifyNode(node.object, null);
+
+    if (actualType.type === 'typeLiteral' &&
+        actualType.builtin && actualType.name === '%Any%%ExportsObject'
+    ) {
+        actualType = this.meta.getModuleExportsType();
+    }
+
     return Errors.NonExistantField({
         fieldName: propName,
         objName: objName,
         expected: '{ ' + propName + ': T }',
-        actual: serialize(this.meta.verifyNode(node.object, null)),
+        actual: serialize(actualType),
         loc: node.loc,
         line: node.loc.start.line
     });

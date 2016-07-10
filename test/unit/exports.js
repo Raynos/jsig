@@ -225,5 +225,35 @@ JSIGSnippet.test('not exporting anything at all', {
     assert.end();
 });
 
+JSIGSnippet.test('not exporting anything at all', {
+    snippet: function m() {/*
+        exports.b = '';
+    */},
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+    assert.equal(meta.errors.length, 2, 'found two errors');
+
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.non-existant-field');
+    assert.equal(err1.fieldName, 'b');
+    assert.equal(err1.objName, 'exports');
+    assert.equal(err1.line, 1);
+    assert.equal(err1.expected, '{ b: T }');
+    assert.equal(err1.actual, '{ a: String }');
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.missing-exports');
+    assert.equal(err2.expected, '{ a: String }');
+    assert.equal(err2.actual, '<MissingType>');
+
+    assert.end();
+});
+
 // TODO: adding the wrong field to exports
 // TODO: assigning a subset of exports fields
