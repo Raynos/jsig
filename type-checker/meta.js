@@ -32,6 +32,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.moduleExportsNode = null;
     this.moduleExportsType = null;
     this.moduleExportsName = null;
+    this.hasModuleExports = false;
 
     this.globalScope = checker.globalScope;
     this.currentScope = new FileScope(this.globalScope);
@@ -159,6 +160,7 @@ function setModuleExportsType(typeDefn, astNode) {
 
     this.moduleExportsName = astNode.name;
     this.moduleExportsType = typeDefn;
+    this.hasModuleExports = true;
 };
 
 ProgramMeta.prototype.getModuleExportsType =
@@ -169,6 +171,16 @@ function getModuleExportsType() {
 ProgramMeta.prototype.hasExportDefined =
 function hasExportDefined() {
     return this.moduleExportsType !== null;
+};
+
+ProgramMeta.prototype.setHasModuleExports =
+function setHasModuleExports(bool) {
+    this.hasModuleExports = bool;
+};
+
+ProgramMeta.prototype.getHasModuleExports =
+function getHasModuleExports() {
+    return this.hasModuleExports;
 };
 
 ProgramMeta.prototype.addError = function addError(error) {

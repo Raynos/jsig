@@ -119,3 +119,26 @@ JSIGSnippet.test('catches mis-export error for literal', {
 
     assert.end();
 });
+
+JSIGSnippet.test('Export must exist', {
+    snippet: function m() {/*
+        var foo = 4;
+    */},
+    header: function h() {/*
+        export default Number
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, 'Number');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.missing-exports');
+    assert.equal(err.expected, 'Number');
+    assert.equal(err.actual, '<MissingType>');
+    assert.equal(err.fileName, 'snippet.js');
+
+    assert.end();
+});

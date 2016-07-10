@@ -43,6 +43,13 @@ Errors.UnknownModuleExports = TypedError({
     line: null
 });
 
+Errors.MissingExports = TypedError({
+    type: 'jsig.verify.missing-exports',
+    message: 'Expected module to export {expected} but found no exports.',
+    expected: null,
+    actual: null
+});
+
 Errors.UnTypedIdentifier = TypedError({
     type: 'jsig.verify.untyped-identifier',
     message: '@{line}: Identifier {tokenName} does not have a type.',

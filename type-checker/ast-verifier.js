@@ -126,6 +126,17 @@ function verifyProgram(node) {
     for (i = 0; i < functions.length; i++) {
         this.meta.verifyNode(functions[i], null);
     }
+
+    /* If a module.exports type exists, but it has not been assigned */
+    if (this.meta.hasExportDefined() &&
+        !this.meta.getHasModuleExports()
+    ) {
+        var exportType = this.meta.getModuleExportsType();
+        this.meta.addError(Errors.MissingExports({
+            expected: this.meta.serializeType(exportType),
+            actual: '<MissingType>'
+        }));
+    }
 };
 
 ASTVerifier.prototype.verifyFunctionDeclaration =
@@ -305,6 +316,7 @@ function verifyAssignmentExpression(node) {
             var expectedType = this.meta.getModuleExportsType();
 
             this.meta.checkSubType(node, expectedType, rightType);
+            this.meta.setHasModuleExports(true);
         } else {
             assert(node.right.type === 'Identifier',
                 'export must be identifier');
