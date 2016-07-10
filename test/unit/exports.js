@@ -225,7 +225,7 @@ JSIGSnippet.test('not exporting anything at all', {
     assert.end();
 });
 
-JSIGSnippet.test('not exporting anything at all', {
+JSIGSnippet.test('adding the wrong field to exports', {
     snippet: function m() {/*
         exports.b = '';
     */},
@@ -255,5 +255,26 @@ JSIGSnippet.test('not exporting anything at all', {
     assert.end();
 });
 
-// TODO: adding the wrong field to exports
-// TODO: assigning a subset of exports fields
+JSIGSnippet.test('assigning a subset of exports fields', {
+    snippet: function m() {/*
+        exports.b = '';
+    */},
+    header: function h() {/*
+        export default { a: String, b: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported,
+        '{\n    a: String,\n    b: String\n}');
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.missing-exports');
+    assert.equal(err.expected, '{\n    a: String,\n    b: String\n}');
+    assert.equal(err.actual, '{ b: String }');
+    assert.equal(err.fileName, 'snippet.js');
+
+    assert.end();
+});

@@ -132,9 +132,24 @@ function verifyProgram(node) {
         !this.meta.hasFullyExportedType()
     ) {
         var exportType = this.meta.getModuleExportsType();
+        var actualType = JsigAST.literal('<MissingType>', true);
+
+        if (this.meta.getExportedFields().length > 0) {
+            var fields = this.meta.getExportedFields();
+            actualType = cloneJSIG(exportType);
+
+            actualType.keyValues = [];
+            for (i = 0; i < exportType.keyValues.length; i++) {
+                var pair = exportType.keyValues[i];
+                if (fields.indexOf(pair.key) >= 0) {
+                    actualType.keyValues.push(pair);
+                }
+            }
+        }
+
         this.meta.addError(Errors.MissingExports({
             expected: this.meta.serializeType(exportType),
-            actual: '<MissingType>'
+            actual: this.meta.serializeType(actualType)
         }));
     }
 };

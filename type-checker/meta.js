@@ -225,6 +225,11 @@ function addExportedField(fieldName) {
     }
 };
 
+ProgramMeta.prototype.getExportedFields =
+function getExportedFields() {
+    return this.exportedFields;
+};
+
 ProgramMeta.prototype.addError = function addError(error) {
     error.fileName = this.fileName;
     // console.trace('addError(' + error.type + ')');

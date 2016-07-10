@@ -45,7 +45,8 @@ Errors.UnknownModuleExports = TypedError({
 
 Errors.MissingExports = TypedError({
     type: 'jsig.verify.missing-exports',
-    message: 'Expected module to export {expected} but found no exports.',
+    message: 'Expected module to export {expected} but ' +
+        'found incomplete exports.',
     expected: null,
     actual: null
 });
