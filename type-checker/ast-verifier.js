@@ -371,7 +371,7 @@ function verifyAssignmentExpression(node) {
         assert(node.left.object.object.type === 'Identifier',
             'expected identifier');
         var funcName = node.left.object.object.name;
-        var fieldName = node.left.property.name;
+        fieldName = node.left.property.name;
 
         assert(this.meta.currentScope.type === 'file',
             'expected to be in file scope');
