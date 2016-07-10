@@ -175,6 +175,34 @@ JSIGSnippet.test('can use exports.foo', {
     assert.end();
 });
 
-// TODO: assiging exports.foo where exports : Number
+JSIGSnippet.test('assigning exports field to non-object', {
+    snippet: function m() {/*
+        exports.a = '';
+    */},
+    header: function h() {/*
+        export default Number
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, 'Number');
+    assert.equal(meta.errors.length, 2, 'found two errors');
+
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err1.fieldName, 'a');
+    assert.equal(err1.nonObjectType, 'Number');
+    assert.equal(err1.line, 1);
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.missing-exports');
+    assert.equal(err2.expected, 'Number');
+    assert.equal(err2.actual, '<MissingType>');
+
+    assert.end();
+});
+
 // TODO: not assiging exports.foo at all
+// TODO: adding the wrong field to exports
 // TODO: assigning a subset of exports fields
