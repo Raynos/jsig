@@ -98,7 +98,18 @@ ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
 ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
 
-    this.verifyNode(node, null);
+    if (this.checker.optin) {
+        assert(node.type === 'Program', 'Esprima ast must be program');
+        var firstComment = node.comments[0];
+        var commentText = firstComment ? firstComment.value.trim() : '';
+
+        // If startsWith @jsig
+        if (commentText.indexOf('@jsig') === 0) {
+            this.verifyNode(node, null);
+        }
+    } else {
+        this.verifyNode(node, null);
+    }
 };
 
 ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {

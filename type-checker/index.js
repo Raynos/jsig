@@ -223,22 +223,9 @@ function getOrCreateMeta(fileName) {
     var meta = new ProgramMeta(this, ast, fileName, source);
     this.metas[fileName] = meta;
 
-    if (!this.optin) {
-        this.currentMeta = meta;
-        meta.verify();
-        this.currentMeta = null;
-    } else {
-        assert(ast.type === 'Program', 'Esprima ast must be program');
-        var firstComment = ast.comments[0];
-        var commentText = firstComment ? firstComment.value.trim() : '';
-
-        // If startsWith @jsig
-        if (commentText.indexOf('@jsig') === 0) {
-            this.currentMeta = meta;
-            meta.verify();
-            this.currentMeta = null;
-        }
-    }
+    this.currentMeta = meta;
+    meta.verify();
+    this.currentMeta = null;
 
     return meta;
 };
