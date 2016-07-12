@@ -278,3 +278,25 @@ JSIGSnippet.test('assigning a subset of exports fields', {
 
     assert.end();
 });
+
+JSIGSnippet.test('cannot export a field when no exports', {
+    snippet: function m() {/*
+        exports.a = '';
+    */},
+    header: function h() {/*
+        a : String
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.moduleExportsType, null);
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'a');
+    assert.equal(err.nonObjectType, '%Export%%ExportsObject');
+    assert.equal(err.line, 1);
+
+    assert.end();
+});

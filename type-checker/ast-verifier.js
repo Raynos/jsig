@@ -1423,7 +1423,10 @@ function _findPropertyInType(node, jsigType, propertyName) {
     if (jsigType.type === 'typeLiteral' &&
         jsigType.builtin && jsigType.name === '%Export%%ExportsObject'
     ) {
-        jsigType = this.meta.getModuleExportsType();
+        var newType = this.meta.getModuleExportsType();
+        if (newType) {
+            jsigType = newType;
+        }
     }
 
     if (jsigType.type !== 'object') {
