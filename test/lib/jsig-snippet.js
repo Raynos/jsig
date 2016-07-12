@@ -10,6 +10,14 @@ var compileJSIG = require('../../type-checker/');
 JSigSnippet.test = tapeCluster(tape, JSigSnippet);
 module.exports = JSigSnippet;
 
+function getText(funcOrStr) {
+    if (typeof funcOrStr === 'string') {
+        return funcOrStr;
+    }
+
+    return multiline(funcOrStr);
+}
+
 function JSigSnippet(opts) {
     if (typeof opts === 'function') {
         opts = {
@@ -18,8 +26,9 @@ function JSigSnippet(opts) {
     }
 
     this.snippet = opts.snippet;
-    this.text = multiline(this.snippet);
-    this.header = opts.header ? multiline(opts.header) : null;
+    this.text = getText(this.snippet);
+    this.header = opts.header ? getText(opts.header) : null;
+    this.optin = opts.optin || false;
 
     this.files = {};
 
@@ -41,7 +50,8 @@ JSigSnippet.prototype.close = function close(cb) {
 
 JSigSnippet.prototype.compile = function compile() {
     this.programMeta = compileJSIG('snippet.js', {
-        files: this.files
+        files: this.files,
+        optin: this.optin
     });
 
     return this.programMeta;

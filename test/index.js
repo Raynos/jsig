@@ -27,6 +27,7 @@ require('./unit/union-folding.js');
 require('./unit/function-overloading.js');
 require('./unit/function-invariance.js');
 require('./unit/exports.js');
+require('./unit/optin.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
