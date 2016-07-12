@@ -766,9 +766,11 @@ function verifyBinaryExpression(node) {
             isBad = false;
         } else {
             if (leftError) {
+                leftError.branchType = this.meta.serializeType(defn);
                 errors.push(leftError);
             }
             if (rightError) {
+                rightError.branchType = this.meta.serializeType(defn);
                 errors.push(rightError);
             }
         }
