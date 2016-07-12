@@ -44,6 +44,7 @@ function TypeChecker(entryFile, options) {
 
     this.definitionsFolder = options.definitions || null;
     this.globalsFile = options.globalsFile || null;
+    this.optin = options.optin || false;
 
     this.errors = [];
     this.moduleExportsType = null;
