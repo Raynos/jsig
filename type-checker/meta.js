@@ -254,6 +254,11 @@ function setModuleExportsNode(astNode) {
 
     if (moduleExports) {
         this.moduleExportsNode = moduleExports.expression.right;
+        if (this.moduleExportsNode.type === 'Identifier') {
+            this.currentScope.setExportedIdentifier(
+                this.moduleExportsNode.name
+            );
+        }
     }
 };
 

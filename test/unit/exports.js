@@ -346,6 +346,31 @@ JSIGSnippet.test('partialExport mode allows exporting extras', {
     assert.end();
 });
 
+JSIGSnippet.test('partialExport mode allows extra methods on class', {
+    snippet: [
+        '/* @jsig partialExport: true, allowUnusedFunction: true */',
+        'function JobFoo() {}',
+        'JobFoo.prototype.bar = function bar() {};',
+        'JobFoo.prototype.foo = function foo() {};',
+        'module.exports = JobFoo;'
+    ].join('\n'),
+    header: function h() {/*
+        type JobFoo : {
+            bar: () => void
+        }
+
+        JobFoo : (this: JobFoo) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '(this: JobFoo) => void');
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
+
 JSIGSnippet.test('exporting a large object literal', {
     snippet: function m() {/*
         module.exports = {

@@ -1477,6 +1477,22 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
+    if (this.meta.checkerRules.partialExport) {
+        // If we are assigning a method to the exported class
+        if (this.meta.currentScope.type === 'file' &&
+            node.object.type === 'MemberExpression' &&
+            node.object.property.name === 'prototype' &&
+            node.object.object.type === 'Identifier'
+        ) {
+            var expected = this.meta.currentScope.getExportedIdentifier();
+            var actual = node.object.object.name;
+
+            if (expected === actual) {
+                return JsigAST.literal('%Mixed%%UnknownExportsField', true);
+            }
+        }
+    }
+
     var err = this._createNonExistantFieldError(node, propertyName);
     this.meta.addError(err);
     return null;

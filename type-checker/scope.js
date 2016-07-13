@@ -246,6 +246,7 @@ function FileScope(parent) {
     BaseScope.call(this, parent);
     this.type = 'file';
 
+    this.exportedIdentifier = null;
     this.untypedFunctions = Object.create(null);
     this.prototypes = Object.create(null);
 }
@@ -261,6 +262,16 @@ function loadModuleTokens() {
     this.addVar('module', moduleType);
     this.addVar('exports', exportsType);
     this.addVar('__dirname', JsigAST.literal('String'));
+};
+
+FileScope.prototype.getExportedIdentifier =
+function getExportedIdentifier(name) {
+    return this.exportedIdentifier;
+};
+
+FileScope.prototype.setExportedIdentifier =
+function setExportedIdentifier(name) {
+    this.exportedIdentifier = name;
 };
 
 FileScope.prototype.addFunction =
