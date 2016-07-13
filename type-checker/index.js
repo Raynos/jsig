@@ -110,7 +110,7 @@ function checkProgram() {
         meta = this.getOrCreateMeta(this.entryFiles[i]);
     }
 
-    if (this.entryFiles.length === 1) {
+    if (this.entryFiles.length === 1 && meta) {
         this.moduleExportsType = meta.moduleExportsType;
     }
 };
@@ -223,12 +223,34 @@ function getOrCreateHeaderFile(fileName, required) {
     return headerFile;
 };
 
+function tryResolveSync(fileName, basedir) {
+    var tuple = [null, null];
+
+    /*eslint-disable no-restricted-syntax*/
+    try {
+        tuple[1] = resolve.sync(fileName, {
+            basedir: basedir
+        });
+    } catch (err) {
+        tuple[0] = err;
+    }
+    /*eslint-enable no-restricted-syntax*/
+
+    return tuple;
+}
+
 TypeChecker.prototype.getOrCreateMeta =
 function getOrCreateMeta(fileName) {
     if (!this.files[fileName]) {
-        fileName = resolve.sync(fileName, {
-            basedir: this.basedir
-        });
+        var tuple = tryResolveSync(fileName, this.basedir);
+        if (tuple[0]) {
+            this.addError(Errors.CouldNotFindFile({
+                fileName: fileName
+            }));
+            return null;
+        }
+
+        fileName = tuple[1];
     }
 
     if (this.metas[fileName]) {

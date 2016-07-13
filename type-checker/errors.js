@@ -16,6 +16,12 @@ Errors.CouldNotFindHeaderFile = TypedError({
     fileName: null
 });
 
+Errors.CouldNotFindFile = TypedError({
+    type: 'jsig.checker.could-not-find-file',
+    message: 'Cannot find javascript file: {fileName}',
+    fileName: null
+});
+
 Errors.MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
     message: '@{line}: Expected the field: {fieldName} to be defined ' +
