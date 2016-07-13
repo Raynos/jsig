@@ -1616,26 +1616,16 @@ function _computeSmallestUnion(node, t1, t2) {
         return parts[0];
     }
 
-    var minimal = [];
-    for (var i = 0; i < parts.length; i++) {
-        var sample = parts[i];
-        var unique = true;
+    var minimal = this._computeSmallestCommonTypes(node, parts);
 
-        for (var j = 0; j < i; j++) {
-            if (isSameType(sample, parts[j])) {
-                unique = false;
-                break;
-            }
+    // Again, find smallest common type in reverse
+    var reverseMinimal = parts.slice();
+    reverseMinimal.reverse();
+    reverseMinimal = this._computeSmallestCommonTypes(node, reverseMinimal);
 
-            if (this.meta.isSubType(node, sample, parts[j])) {
-                unique = false;
-                break;
-            }
-        }
-
-        if (unique) {
-            minimal.push(sample);
-        }
+    // Only use reverse minimal if smaller.
+    if (reverseMinimal.length < minimal.length) {
+        minimal = reverseMinimal;
     }
 
     if (minimal.length === 1) {
@@ -1643,6 +1633,36 @@ function _computeSmallestUnion(node, t1, t2) {
     }
 
     return JsigAST.union(minimal);
+};
+
+ASTVerifier.prototype._computeSmallestCommonTypes =
+function _computeSmallestCommonTypes(node, list) {
+    var minimal = [];
+
+    for (var i = 0; i < list.length; i++) {
+        var sample = list[i];
+        var toAdd = sample;
+
+        for (var j = 0; j < minimal.length; j++) {
+            if (isSameType(sample, minimal[j])) {
+                toAdd = null;
+                break;
+            }
+
+            /* if a super type of the other then remove from union */
+            var isSuper = this.meta.isSubType(node, minimal[j], sample);
+            if (isSuper) {
+                toAdd = null;
+                break;
+            }
+        }
+
+        if (toAdd) {
+            minimal.push(toAdd);
+        }
+    }
+
+    return minimal;
 };
 
 function addPossibleType(list, maybeType) {

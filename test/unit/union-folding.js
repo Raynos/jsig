@@ -43,7 +43,7 @@ JSIGSnippet.test('fold empty object into optional object', {
         }
     */}
 }, function t(snippet, assert) {
-    var meta = snippet.compile();
+    var meta = snippet.compile(assert);
     var errors = meta.errors;
 
     assert.equal(errors.length, 1);
@@ -53,6 +53,40 @@ JSIGSnippet.test('fold empty object into optional object', {
     assert.equal(errors[0].objName, 'b');
     assert.equal(errors[0].line, 9);
     assert.equal(errors[0].actual, '{ fieldOne?: String }');
+
+    assert.end();
+});
+
+JSIGSnippet.test('fold empty object into optional object reverse', {
+    snippet: function m() {/*
+        var opts = {
+            requestOptions: {
+                fieldOne: ''
+            }
+        };
+
+        var b = {} || opts.requestOptions;
+
+        b.foo();
+    */},
+    header: function h() {/*
+        opts : {
+            requestOptions?: {
+                fieldOne?: String
+            }
+        }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var errors = meta.errors;
+
+    assert.equal(errors.length, 1);
+
+    assert.equal(errors[0].type, 'jsig.verify.non-existant-field');
+    assert.equal(errors[0].fieldName, 'foo');
+    assert.equal(errors[0].objName, 'b');
+    assert.equal(errors[0].line, 9);
+    assert.equal(errors[0].actual, '{}');
 
     assert.end();
 });
