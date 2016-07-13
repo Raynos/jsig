@@ -12,7 +12,7 @@ var HeaderFile = require('./header-file.js');
 var parseJSigAST = require('./lib/read-jsig-ast.js').parseJSigAST;
 var ProgramMeta = require('./meta.js');
 var GlobalScope = require('./scope.js').GlobalScope;
-var prettyPrintErrors = require('./lib/pretty-errors.js');
+var pretty = require('./lib/pretty-errors.js');
 var serialize = require('../serialize.js');
 
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
@@ -47,6 +47,7 @@ function TypeChecker(entryFile, options) {
     this.optin = options.optin || false;
 
     this.errors = [];
+    this.traces = [];
     this.moduleExportsType = null;
     this.currentMeta = null;
 }
@@ -59,6 +60,10 @@ function serializeType(type, opts) {
 TypeChecker.prototype.addError = function addError(err) {
     // console.trace('addError(' + err.type + ')');
     this.errors.push(err);
+};
+
+TypeChecker.prototype.addTrace = function addTrace(trace) {
+    this.traces.push(trace);
 };
 
 TypeChecker.prototype.countErrors = function countErrors() {
@@ -77,7 +82,12 @@ function setErrors(list) {
 
 TypeChecker.prototype.prettyPrintAllErrors =
 function prettyPrintAllErrors() {
-    return prettyPrintErrors(this);
+    return pretty.prettyPrintErrors(this);
+};
+
+TypeChecker.prototype.prettyPrintTraces =
+function prettyPrintTraces() {
+    return pretty.prettyPrintTraces(this);
 };
 
 TypeChecker.prototype.checkProgram =

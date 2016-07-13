@@ -5,10 +5,15 @@ var assert = require('assert');
 var path = require('path');
 var TermColor = require('term-color');
 
+var serializeType = require('../../serialize.js');
+
 var STRAIGHT_LINE = '-----------------------------------------' +
     '------------------------';
 
-module.exports = prettyPrintAllErrors;
+module.exports = {
+    prettyPrintAllErrors: prettyPrintAllErrors,
+    prettyPrintTraces: prettyPrintTraces
+};
 
 function prettyPrintAllErrors(checker) {
     var parts = [];
@@ -42,7 +47,7 @@ function prettyPrintError(checker, error, opts) {
     parts.push('');
 
     if (opts.showLoc !== false && error.loc) {
-        var failingLines = getFailingLines(checker, error);
+        var failingLines = getFailingLines(checker, error.loc, error.fileName);
 
         parts.push(opts.prefix + failingLines);
         parts.push('');
@@ -78,13 +83,52 @@ function prettyPrintError(checker, error, opts) {
     return parts.join('\n');
 }
 
-function getFailingLines(checker, err) {
-    assert(err.loc, 'need loc on error');
-    assert(err.fileName, 'need fileName on error');
+function prettyPrintTraces(checker) {
+    var traces = checker.traces;
+    var parts = [];
+    parts.push('');
 
-    var meta = checker.getOrCreateMeta(err.fileName);
-    var startLine = err.loc.start.line - 1;
-    var endLine = err.loc.end.line - 1;
+    for (var i = 0; i < traces.length; i++) {
+        var trace = traces[i];
+
+        assert(trace.fileName, 'trace must have fileName');
+        var relativePath = path.relative(process.cwd(), trace.fileName);
+
+        parts.push(TermColor.underline(relativePath));
+        parts.push(prettyPrintTrace(checker, trace));
+    }
+
+    return parts.join('\n');
+}
+
+function prettyPrintTrace(checker, trace) {
+    var parts = [];
+
+    parts.push('TRACE: ' + TermColor.cyan(trace.type));
+
+    if (trace.node.loc) {
+        var failingLines = getFailingLines(
+            checker, trace.node.loc, trace.fileName
+        );
+
+        parts.push(failingLines);
+        parts.push('');
+    }
+
+    var expected = serializeType(trace.expected);
+    var actual = serializeType(trace.actual);
+
+    parts.push('Expected : ' + TermColor.green(expected));
+    parts.push('Actual : ' + TermColor.red(actual));
+    parts.push('');
+
+    return parts.join('\n');
+}
+
+function getFailingLines(checker, loc, fileName) {
+    var meta = checker.getOrCreateMeta(fileName);
+    var startLine = loc.start.line - 1;
+    var endLine = loc.end.line - 1;
 
     var prevLine = meta.sourceLines[startLine - 1] || '';
     var nextLine = meta.sourceLines[endLine + 1] || '';
@@ -98,8 +142,8 @@ function getFailingLines(checker, err) {
     var endColumn;
     if (startLine === endLine) {
         failLine = meta.sourceLines[startLine];
-        startColumn = err.loc.start.column;
-        endColumn = err.loc.end.column;
+        startColumn = loc.start.column;
+        endColumn = loc.end.column;
 
         segments.push(
             String(startLine) + '. ' +
@@ -109,8 +153,8 @@ function getFailingLines(checker, err) {
         );
     } else {
         failLine = meta.sourceLines[startLine];
-        startColumn = err.loc.start.column;
-        endColumn = err.loc.end.column;
+        startColumn = loc.start.column;
+        endColumn = loc.end.column;
 
         segments.push(
             String(startLine) + '. ' +

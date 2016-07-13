@@ -12,6 +12,7 @@ var FileScope = require('./scope.js').FileScope;
 var FunctionScope = require('./scope.js').FunctionScope;
 var BranchScope = require('./scope.js').BranchScope;
 var Errors = require('./errors.js');
+var JsigAst = require('../ast/');
 
 var fileExtRegex = /.js$/;
 
@@ -22,6 +23,14 @@ function CheckerRules() {
     this.partialExport = false;
     this.allowUnusedFunction = false;
     this.allowUnknownRequire = false;
+}
+
+function TraceInfo(type, node, expected, actual) {
+    this.node = node;
+    this.expected = expected;
+    this.actual = actual;
+    this.type = type;
+    this.fileName = '';
 }
 
 function ProgramMeta(checker, ast, fileName, source) {
@@ -205,7 +214,16 @@ ProgramMeta.prototype.inferType = function inferType(node) {
         return null;
     }
 
-    return this.inference.inferType(node);
+    var inferred = this.inference.inferType(node);
+
+    this.addTrace(new TraceInfo(
+        'meta.infer-type',
+        node,
+        JsigAst.literal('<InferredType>'),
+        inferred || JsigAst.literal('<InferenceError>')
+    ));
+
+    return inferred;
 };
 
 ProgramMeta.prototype.narrowType =
@@ -310,6 +328,11 @@ function getExportedFields() {
     return this.exportedFields;
 };
 
+ProgramMeta.prototype.addTrace = function addTrace(trace) {
+    trace.fileName = this.fileName;
+    this.checker.addTrace(trace);
+};
+
 ProgramMeta.prototype.addError = function addError(error) {
     /* silence untyped-function-found if opted in */
     if (this.checkerRules.allowUnusedFunction &&
@@ -338,7 +361,7 @@ function setErrors(list) {
 
 ProgramMeta.prototype.checkSubType =
 function checkSubType(node, leftType, rightType) {
-    var err = this.subType.checkSubType(node, leftType, rightType);
+    var err = this.checkSubTypeRaw(node, leftType, rightType);
     if (err) {
         this.addError(err);
         return false;
@@ -348,13 +371,16 @@ function checkSubType(node, leftType, rightType) {
 
 ProgramMeta.prototype.checkSubTypeRaw =
 function checkSubTypeRaw(node, leftType, rightType) {
+    this.addTrace(new TraceInfo(
+        'meta.check-sub-type', node, leftType, rightType
+    ));
+
     return this.subType.checkSubType(node, leftType, rightType);
 };
 
 ProgramMeta.prototype.isSubType =
 function isSubType(node, leftType, rightType) {
-    var e = this.subType.checkSubType(node, leftType, rightType);
-    // console.log('e', e);
+    var e = this.checkSubTypeRaw(node, leftType, rightType);
     return !e;
 };
 

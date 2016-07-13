@@ -43,6 +43,11 @@ TypeCheckBinary.args.add('optin', {
     help: 'Turn on optin only mode'
 });
 
+TypeCheckBinary.args.add('trace', {
+    boolean: true,
+    help: 'Turns on tracing mode, lots of extra output...'
+});
+
 TypeCheckBinary.prototype.run = function run() {
     if (this.args.h || this.args.help) {
         return this.shortHelp();
@@ -66,12 +71,21 @@ TypeCheckBinary.prototype.run = function run() {
     });
 
     this.checkProgram();
+
+    /* eslint-disable no-process-env */
+    if (process.env.TRACE || this.args.trace) {
+        console.log(this.checker.prettyPrintTraces());
+    }
+    /* eslint-enable no-process-env */
+
     if (this.checker.errors.length === 0) {
         console.log('No type errors');
+
         return this.exit(0);
     }
 
     console.log(this.checker.prettyPrintAllErrors());
+
     this.exit(1);
 };
 
