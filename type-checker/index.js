@@ -32,7 +32,16 @@ function compile(fileName, options) {
 function TypeChecker(entryFile, options) {
     options = options || {};
 
-    this.entryFile = entryFile;
+    var entryFiles = null;
+    if (typeof entryFile === 'string') {
+        entryFiles = [entryFile];
+    } else if (Array.isArray(entryFile)) {
+        entryFiles = entryFile;
+    } else {
+        assert(false, 'entryFile must be string or array');
+    }
+
+    this.entryFiles = entryFiles;
     this.files = options.files || Object.create(null);
     this.basedir = process.cwd();
 
@@ -96,8 +105,14 @@ function checkProgram() {
     this.preloadDefinitions();
     this.preloadGlobals();
 
-    var meta = this.getOrCreateMeta(this.entryFile);
-    this.moduleExportsType = meta.moduleExportsType;
+    var meta;
+    for (var i = 0; i < this.entryFiles.length; i++) {
+        meta = this.getOrCreateMeta(this.entryFiles[i]);
+    }
+
+    if (this.entryFiles.length === 1) {
+        this.moduleExportsType = meta.moduleExportsType;
+    }
 };
 
 TypeChecker.prototype.loadLanguageIdentifiers =
