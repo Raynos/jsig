@@ -21,6 +21,7 @@ function CheckerRules() {
     this.optin = false;
     this.partialExport = false;
     this.allowUnusedFunction = false;
+    this.allowUnknownRequire = false;
 }
 
 function ProgramMeta(checker, ast, fileName, source) {
@@ -130,7 +131,7 @@ ProgramMeta.prototype.parseRules = function parseRules() {
         return;
     }
 
-    // If startsWith @jsig
+    // If not startsWith @jsig
     if (commentText.indexOf('@jsig') !== 0) {
         return;
     }
@@ -154,6 +155,8 @@ ProgramMeta.prototype.parseRules = function parseRules() {
             this.checkerRules.partialExport = value;
         } else if (key === 'allowUnusedFunction') {
             this.checkerRules.allowUnusedFunction = value;
+        } else if (key === 'allowUnknownRequire') {
+            this.checkerRules.allowUnknownRequire = value;
         } else {
             this.addError(Errors.UnrecognisedOption({
                 key: key,

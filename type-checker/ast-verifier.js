@@ -1558,16 +1558,29 @@ function _getTypeFromRequire(node) {
 
     var depPath = arg.value;
 
+    // Handle pre-defined npm case
     var externDefn = this.checker.getDefinition(depPath);
     if (externDefn) {
         return externDefn.defn;
     }
 
+    // Resolve a local file name
     var fileName = this._resolvePath(node, depPath, this.folderName);
     if (!fileName) {
+        if (this.meta.checkerRules.allowUnknownRequire) {
+            return JsigAST.literal('%Mixed%%UnknownRequire', true);
+        }
+
+        // TODO: search for type defintions inside node_modules/*
+        this.meta.addError(Errors.MissingDefinition({
+            moduleName: depPath,
+            line: node.loc.start.line,
+            loc: node.loc
+        }));
         return null;
     }
 
+    // Handle local case
     var otherMeta = this.checker.getOrCreateMeta(fileName);
     if (!otherMeta) {
         return null;
@@ -1585,12 +1598,6 @@ function resolvePath(node, possiblePath, dirname) {
         // is relative path
         return path.resolve(dirname, possiblePath);
     } else {
-        // TODO: search for type defintions inside node_modules/*
-        this.meta.addError(Errors.MissingDefinition({
-            moduleName: possiblePath,
-            line: node.loc.start.line,
-            loc: node.loc
-        }));
         return null;
     }
 };

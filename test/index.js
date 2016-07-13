@@ -29,6 +29,7 @@ require('./unit/function-invariance.js');
 require('./unit/exports.js');
 require('./unit/optin.js');
 require('./unit/unused-function.js');
+require('./unit/unknown-require.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
