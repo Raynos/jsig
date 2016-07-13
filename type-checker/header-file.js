@@ -91,6 +91,13 @@ HeaderFile.prototype.replaceImport =
 function replaceImport(ast, rawAst) {
     var depPath = ast.dependency;
     var fileName = this._resolvePath(depPath, this.folderName);
+    if (fileName === null) {
+        // Could not resolve header
+        this.checker.addError(Errors.CouldNotFindHeaderFile({
+            fileName: depPath
+        }));
+        return ast;
+    }
 
     var otherHeader = this.checker.getOrCreateHeaderFile(fileName, true);
     if (!otherHeader) {

@@ -336,6 +336,10 @@ function _addDefinition(id, typeDefn) {
 
 TypeChecker.prototype.getDefinitionFilePath =
 function getDefinitionFilePath(packageName) {
+    if (!this.definitionsFolder) {
+        return null;
+    }
+
     return path.join(
         this.definitionsFolder, packageName + '.hjs'
     );
