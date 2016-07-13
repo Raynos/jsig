@@ -81,6 +81,8 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     } else if (parent.name === '%Boolean%%Mixed') {
         return null;
+    } else if (parent.name === '%Mixed%%UnknownExportsField') {
+        return null;
     } else if (parent.name === '%Void%%UnknownReturn') {
         return null;
     } else if (parent.name === 'Function' && child.type === 'function') {

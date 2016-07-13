@@ -255,6 +255,7 @@ function verifyAssignmentExpression(node) {
     var leftType = this.meta.verifyNode(node.left, null);
     var afterError = this.meta.countErrors();
     this.meta.currentScope.unsetWritableTokenLookup();
+
     if (!leftType) {
         if (afterError === beforeError) {
             assert(false, '!!! could not find leftType: ',
@@ -313,6 +314,7 @@ function verifyAssignmentExpression(node) {
 
         assert(node.left.object.type === 'Identifier');
         var targetType = this.meta.verifyNode(node.left.object, null);
+
         var newObjType = updateObject(
             targetType, [propertyName], rightType
         );
@@ -340,7 +342,8 @@ function verifyAssignmentExpression(node) {
         }
     }
 
-    if (node.left.type === 'MemberExpression' &&
+    if (leftType.name !== '%Mixed%%UnknownExportsField' &&
+        node.left.type === 'MemberExpression' &&
         node.left.object.type === 'Identifier' &&
         node.left.property.type === 'Identifier' &&
         node.left.object.name === 'exports' &&
@@ -1422,9 +1425,11 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return null;
     }
 
+    var isExportsObject = false;
     if (jsigType.type === 'typeLiteral' &&
         jsigType.builtin && jsigType.name === '%Export%%ExportsObject'
     ) {
+        isExportsObject = true;
         var newType = this.meta.getModuleExportsType();
         if (newType) {
             jsigType = newType;
@@ -1451,6 +1456,9 @@ function _findPropertyInType(node, jsigType, propertyName) {
 
     if (jsigType.open) {
         return JsigAST.literal('%Mixed%%OpenField', true);
+    }
+    if (isExportsObject && this.meta.checkerRules.partialExport) {
+        return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
     var err = this._createNonExistantFieldError(node, propertyName);

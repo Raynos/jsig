@@ -300,3 +300,48 @@ JSIGSnippet.test('cannot export a field when no exports', {
 
     assert.end();
 });
+
+JSIGSnippet.test('exporting extra fields is error', {
+    snippet: function m() {/*
+        exports.a = '';
+        exports.b = '';
+    */},
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.non-existant-field');
+    assert.equal(err.fieldName, 'b');
+    assert.equal(err.objName, 'exports');
+    assert.equal(err.line, 2);
+    assert.equal(err.expected, '{ b: T }');
+    assert.equal(err.actual, '{ a: String }');
+
+    assert.end();
+});
+
+JSIGSnippet.test('partialExport mode allows exporting extras', {
+    snippet: [
+        '/* @jsig partialExport: true */',
+        'exports.a = "";',
+        'exports.b = "";'
+    ].join('\n'),
+    header: function h() {/*
+        export default { a: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '{ a: String }');
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
