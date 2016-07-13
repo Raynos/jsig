@@ -346,6 +346,16 @@ Errors.IncorrectFieldCount = TypedError({
     line: null
 });
 
+Errors.UnexpectedExtraField = TypedError({
+    type: 'jsig.sub-type.unexpected-extra-field',
+    message: '@{line}: Got unexpected extra field {fieldName}.',
+    actual: null,
+    expected: null,
+    fieldName: null,
+    loc: null,
+    line: null
+});
+
 Errors.NonGenericPropertyLookup = TypedError({
     type: 'jsig.verify.non-generic-property-lookup',
     message: '@{line}: Cannot lookup field in non-generic value. ' +
