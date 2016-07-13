@@ -1152,7 +1152,11 @@ function verifyFunctionExpression(node) {
     // If we are assigning onto a Mixed%%OpenField then
     // skip checking this function expression
     if (potentialType.type === 'typeLiteral' &&
-        potentialType.builtin && potentialType.name === '%Mixed%%OpenField'
+        potentialType.builtin &&
+        (
+            potentialType.name === '%Mixed%%OpenField' ||
+            potentialType.name === '%Mixed%%UnknownExportsField'
+        )
     ) {
         err = Errors.UnTypedFunctionFound({
             funcName: node.id.name,
