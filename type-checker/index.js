@@ -18,6 +18,7 @@ var serialize = require('../serialize.js');
 var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
 var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
 var isHeaderR = /\.hjs$/;
+var BIN_HEADER = '#!/usr/bin/env node\n';
 
 compile.TypeChecker = TypeChecker;
 
@@ -260,6 +261,11 @@ function getOrCreateMeta(fileName) {
     var source = this.files[fileName];
     if (!source) {
         source = fs.readFileSync(fileName, 'utf8');
+    }
+
+    // Munge source text if it has unix executable header
+    if (source.indexOf(BIN_HEADER) === 0) {
+        source = source.slice(BIN_HEADER.length);
     }
 
     var ast = esprima.parse(source, {
