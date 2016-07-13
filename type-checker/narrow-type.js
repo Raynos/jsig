@@ -25,6 +25,8 @@ function narrowType(node, ifBranch, elseBranch) {
         return this.narrowMemberExpression(node, ifBranch, elseBranch);
     } else if (node.type === 'Literal') {
         return this.narrowLiteral(node, ifBranch, elseBranch);
+    } else if (node.type === 'ObjectExpression') {
+        return this.narrowObjectExpression(node, ifBranch, elseBranch);
     } else {
         throw new Error('!! skipping narrowType: ' + node.type);
     }
@@ -68,6 +70,12 @@ function narrowBinaryExpression(node, ifBranch, elseBranch) {
 
 NarrowType.prototype.narrowLiteral =
 function narrowLiteral(node, ifBranch, elseBranch) {
+    // TODO: support if ("") {
+};
+
+NarrowType.prototype.narrowObjectExpression =
+function narrowObjectExpression(node, ifBranch, elseBranch) {
+    // TODO: ...
 };
 
 NarrowType.prototype.narrowLogicalExpression =
