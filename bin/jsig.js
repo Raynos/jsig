@@ -75,7 +75,7 @@ TypeCheckBinary.prototype.check = function check() {
         optin: this.args.optin || false
     });
 
-    this.checkProgram();
+    var success = this.checkProgram();
 
     /* eslint-disable no-process-env */
     if (process.env.TRACE || this.args.trace) {
@@ -83,7 +83,7 @@ TypeCheckBinary.prototype.check = function check() {
     }
     /* eslint-enable no-process-env */
 
-    if (this.checker.errors.length === 0) {
+    if (success && this.checker.errors.length === 0) {
         console.log('No type errors');
 
         return this.exit(0);
@@ -96,6 +96,7 @@ TypeCheckBinary.prototype.check = function check() {
 
 TypeCheckBinary.prototype.checkProgram =
 function checkProgram() {
+    var failed = false;
     /* eslint-disable no-restricted-syntax */
     try {
         this.checker.checkProgram();
@@ -103,8 +104,10 @@ function checkProgram() {
     /* eslint-enable no-restricted-syntax */
 
         this.warnError(error);
-        this.exit(1);
+        failed = true;
     }
+
+    return failed;
 };
 
 TypeCheckBinary.prototype.warnError = function warnError(error) {
