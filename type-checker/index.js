@@ -82,7 +82,7 @@ function setErrors(list) {
 
 TypeChecker.prototype.prettyPrintAllErrors =
 function prettyPrintAllErrors() {
-    return pretty.prettyPrintErrors(this);
+    return pretty.prettyPrintAllErrors(this);
 };
 
 TypeChecker.prototype.prettyPrintTraces =
