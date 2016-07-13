@@ -30,6 +30,7 @@ require('./unit/exports.js');
 require('./unit/optin.js');
 require('./unit/unused-function.js');
 require('./unit/unknown-require.js');
+require('./unit/intersection-types.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');

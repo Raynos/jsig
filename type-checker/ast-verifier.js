@@ -209,23 +209,30 @@ function verifyFunctionDeclaration(node) {
     }
 
     var allTypes = token.defn.intersections;
+    var anyFunction = false;
     for (var i = 0; i < allTypes.length; i++) {
         var currType = allTypes[i];
 
         isFunction = currType.type === 'function';
         if (!isFunction) {
-            err = Errors.UnexpectedFunction({
-                funcName: funcName,
-                expected: this.meta.serializeType(currType),
-                actual: this.meta.serializeType(JsigAST.literal('Function')),
-                loc: node.loc,
-                line: node.loc.start.line
-            });
-            this.meta.addError(err);
-            return null;
+            continue;
         }
 
+        anyFunction = true;
         this._checkFunctionOverloadType(node, currType);
+    }
+
+    if (!anyFunction) {
+        // TODO: actually show branches & originalErrors
+        err = Errors.UnexpectedFunction({
+            funcName: funcName,
+            expected: this.meta.serializeType(currType),
+            actual: this.meta.serializeType(JsigAST.literal('Function')),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
     }
 
     return token.defn;
@@ -1461,6 +1468,19 @@ function _findPropertyInType(node, jsigType, propertyName) {
         }
     }
 
+    // Naive intersection support, find first object.
+    if (jsigType.type === 'intersectionType') {
+        var intersections = jsigType.intersections;
+        for (var i = 0; i < intersections.length; i++) {
+            var possibleType = intersections[i];
+            if (possibleType.type === 'object') {
+                return this._findPropertyInType(
+                    node, possibleType, propertyName
+                );
+            }
+        }
+    }
+
     if (jsigType.type !== 'object') {
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
@@ -1471,7 +1491,7 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return null;
     }
 
-    for (var i = 0; i < jsigType.keyValues.length; i++) {
+    for (i = 0; i < jsigType.keyValues.length; i++) {
         var keyValue = jsigType.keyValues[i];
         if (keyValue.key === propertyName) {
             // TODO: handle optional fields
