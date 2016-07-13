@@ -179,6 +179,8 @@ ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
 
     this.parseRules();
+    this.loadHeaderFile(false);
+    this.setModuleExportsNode(node);
 
     if (this.checker.optin) {
         if (this.checkerRules.optin) {
@@ -258,6 +260,16 @@ function setModuleExportsNode(astNode) {
             this.currentScope.setExportedIdentifier(
                 this.moduleExportsNode.name
             );
+
+            var prevErrors = this.getErrors();
+            var exportType = this.verifyNode(this.moduleExportsNode, null);
+            this.setErrors(prevErrors);
+
+            if (exportType) {
+                this.setModuleExportsType(
+                    exportType, this.moduleExportsNode
+                );
+            }
         }
     }
 };

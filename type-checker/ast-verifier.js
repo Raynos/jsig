@@ -90,10 +90,6 @@ ASTVerifier.prototype.verifyProgram =
 function verifyProgram(node) {
     var parts = splitFunctionDeclaration(node.body);
 
-    this.meta.setModuleExportsNode(node);
-
-    this.meta.loadHeaderFile(false);
-
     var i = 0;
     for (i = 0; i < parts.functions.length; i++) {
         var name = parts.functions[i].id.name;
