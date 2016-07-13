@@ -311,9 +311,10 @@ function getOrCreateMeta(fileName) {
     var meta = new ProgramMeta(this, ast, fileName, source);
     this.metas[fileName] = meta;
 
+    var previousMeta = this.currentMeta;
     this.currentMeta = meta;
     meta.verify();
-    this.currentMeta = null;
+    this.currentMeta = previousMeta;
 
     return meta;
 };
