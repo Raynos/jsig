@@ -103,6 +103,22 @@ ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
     return this.globalScope.getVirtualType(id);
 };
 
+function parseCommentLines(commentText) {
+    var lines = commentText.split('\n');
+    var segments = [];
+    for (var i = 0; i < lines.length; i++) {
+        var chunks = lines[i].split(',');
+        for (var j = 0; j < chunks.length; j++) {
+            var trimmed = chunks[j].trim();
+            if (trimmed !== '') {
+                segments.push(trimmed);
+            }
+        }
+    }
+
+    return segments;
+}
+
 ProgramMeta.prototype.parseRules = function parseRules() {
     var node = this.ast;
     assert(node.type === 'Program', 'Esprima ast must be program');
@@ -121,20 +137,9 @@ ProgramMeta.prototype.parseRules = function parseRules() {
 
     this.checkerRules.optin = true;
     commentText = commentText.slice(5);
+    var segments = parseCommentLines(commentText);
 
-    var lines = commentText.split('\n');
-    var segments = [];
-    for (var i = 0; i < lines.length; i++) {
-        var chunks = lines[i].split(',');
-        for (var j = 0; j < chunks.length; j++) {
-            var trimmed = chunks[j].trim();
-            if (trimmed !== '') {
-                segments.push(trimmed);
-            }
-        }
-    }
-
-    for (i = 0; i < segments.length; i++) {
+    for (var i = 0; i < segments.length; i++) {
         var parts = segments[i].split(':');
         var key = parts[0].trim();
         var value = parts[1].trim();
