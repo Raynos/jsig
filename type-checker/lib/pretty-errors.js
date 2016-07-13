@@ -47,7 +47,28 @@ function prettyPrintError(checker, error, opts) {
     parts.push('');
 
     if (opts.showLoc !== false && error.loc) {
-        var failingLines = getFailingLines(checker, error.loc, error.fileName);
+        var meta = checker.getOrCreateMeta(error.fileName);
+        var failingLines = getFailingLines(meta.sourceLines, error.loc);
+
+        parts.push(opts.prefix + failingLines);
+        parts.push('');
+    }
+
+    if (opts.showLoc !== false &&
+        error.type === 'jsig.checker.could-not-parse-javascript'
+    ) {
+        var sourceLines = error.source.split('\n');
+        var loc = {
+            start: {
+                column: 0,
+                line: error.line
+            },
+            end: {
+                line: error.line,
+                column: sourceLines[error.line].length
+            }
+        };
+        var failingLines = getFailingLines(sourceLines, loc);
 
         parts.push(opts.prefix + failingLines);
         parts.push('');
@@ -107,9 +128,8 @@ function prettyPrintTrace(checker, trace) {
     parts.push('TRACE: ' + TermColor.cyan(trace.type));
 
     if (trace.node.loc) {
-        var failingLines = getFailingLines(
-            checker, trace.node.loc, trace.fileName
-        );
+        var meta = checker.getOrCreateMeta(trace.fileName);
+        var failingLines = getFailingLines(meta.sourceLines, trace.node.loc);
 
         parts.push(failingLines);
         parts.push('');
@@ -125,60 +145,59 @@ function prettyPrintTrace(checker, trace) {
     return parts.join('\n');
 }
 
-function getFailingLines(checker, loc, fileName) {
-    var meta = checker.getOrCreateMeta(fileName);
+function getFailingLines(sourceLines, loc) {
     var startLine = loc.start.line - 1;
     var endLine = loc.end.line - 1;
 
-    var prevLine = meta.sourceLines[startLine - 1] || '';
-    var nextLine = meta.sourceLines[endLine + 1] || '';
+    var prevLine = sourceLines[startLine - 1] || '';
+    var nextLine = sourceLines[endLine + 1] || '';
 
     var segments = [
-        String(startLine - 1) + '. ' + TermColor.gray(prevLine)
+        String(startLine) + '. ' + TermColor.gray(prevLine)
     ];
 
     var failLine;
     var startColumn;
     var endColumn;
     if (startLine === endLine) {
-        failLine = meta.sourceLines[startLine];
+        failLine = sourceLines[startLine];
         startColumn = loc.start.column;
         endColumn = loc.end.column;
 
         segments.push(
-            String(startLine) + '. ' +
+            String(startLine + 1) + '. ' +
             failLine.slice(0, startColumn) +
             TermColor.red(failLine.slice(startColumn, endColumn)) +
             failLine.slice(endColumn, failLine.length)
         );
     } else {
-        failLine = meta.sourceLines[startLine];
+        failLine = sourceLines[startLine];
         startColumn = loc.start.column;
         endColumn = loc.end.column;
 
         segments.push(
-            String(startLine) + '. ' +
+            String(startLine + 1) + '. ' +
             failLine.slice(0, startColumn) +
             TermColor.red(failLine.slice(startColumn, failLine.length))
         );
 
         for (var i = startLine + 1; i < endLine; i++) {
             segments.push(
-                String(i) + '. ' + TermColor.red(meta.sourceLines[i])
+                String(i + 1) + '. ' + TermColor.red(sourceLines[i])
             );
         }
 
-        failLine = meta.sourceLines[endLine];
+        failLine = sourceLines[endLine];
 
         segments.push(
-            String(endLine) + '. ' +
+            String(endLine + 1) + '. ' +
             TermColor.red(failLine.slice(0, endColumn)) +
             failLine.slice(endColumn, failLine.length)
         );
     }
 
     segments.push(
-        String(endLine + 1) + '. ' + TermColor.gray(nextLine)
+        String(endLine + 2) + '. ' + TermColor.gray(nextLine)
     );
 
     return segments.join('\n');

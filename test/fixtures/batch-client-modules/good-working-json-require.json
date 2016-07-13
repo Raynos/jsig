@@ -1,0 +1,39 @@
+{
+  "name": "jsig",
+  "version": "0.1.4",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint $(git ls-files | grep '\\.js$')",
+    "test": "npm run lint && node test/index.js && bash scripts/check_files.sh",
+    "cover": "istanbul cover --report html --print detail test/index.js",
+    "view-cover": "istanbul report html && opn ./coverage/index.html"
+  },
+  "devDependencies": {
+    "difflet": "1.0.1",
+    "eslint": "1.8.0",
+    "eslint-config-perf-standard": "2.1.1",
+    "eslint-plugin-perf-standard": "^1.0.2",
+    "istanbul": "^0.4.3",
+    "json-diff": "0.3.1",
+    "multiline": "^1.0.2",
+    "opn": "^1.0.0",
+    "tape": "^4.4.0",
+    "tape-cluster": "^2.1.2"
+  },
+  "bin": {
+    "jsig": "./bin/jsig.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "error": "^7.0.2",
+    "esprima": "^2.7.1",
+    "json-cycle": "^1.0.5",
+    "minimist": "^1.2.0",
+    "parsimmon": "^0.9.1",
+    "resolve": "^1.1.7",
+    "term-color": "^1.0.1",
+    "xtend": "^4.0.1"
+  }
+}

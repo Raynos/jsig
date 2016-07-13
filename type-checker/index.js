@@ -240,6 +240,23 @@ function tryResolveSync(fileName, basedir) {
     return tuple;
 }
 
+function tryEsprimaParse(source) {
+    var tuple = [null, null];
+
+    /*eslint-disable no-restricted-syntax*/
+    try {
+        tuple[1] = esprima.parse(source, {
+            loc: true,
+            comment: true
+        });
+    } catch (err) {
+        tuple[0] = err;
+    }
+    /*eslint-enable no-restricted-syntax*/
+
+    return tuple;
+}
+
 TypeChecker.prototype.getOrCreateMeta =
 function getOrCreateMeta(fileName) {
     if (!this.files[fileName]) {
@@ -271,6 +288,19 @@ function getOrCreateMeta(fileName) {
     // Munge source text if it has unix executable header
     if (source.indexOf(BIN_HEADER) === 0) {
         source = source.slice(BIN_HEADER.length);
+    }
+
+    tuple = tryEsprimaParse(source);
+    if (tuple[0]) {
+        var parseError = tuple[0];
+        this.addError(Errors.CouldNotParseJavaScript({
+            fileName: fileName,
+            line: parseError.lineNumber,
+            detail: parseError.description,
+            charOffset: parseError.index,
+            source: source
+        }));
+        return null;
     }
 
     var ast = esprima.parse(source, {

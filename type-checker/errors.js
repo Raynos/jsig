@@ -22,6 +22,16 @@ Errors.CouldNotFindFile = TypedError({
     fileName: null
 });
 
+Errors.CouldNotParseJavaScript = TypedError({
+    type: 'jsig.checker.could-not-parse-javascript',
+    message: '@{line}: Error parsing javascript: {detail}.',
+    fileName: null,
+    line: null,
+    detail: null,
+    charOffset: null,
+    source: null
+});
+
 Errors.MissingFieldInConstr = TypedError({
     type: 'jsig.verify.missing-field-in-constructor',
     message: '@{line}: Expected the field: {fieldName} to be defined ' +
