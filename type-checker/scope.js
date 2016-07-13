@@ -472,6 +472,10 @@ function addFunctionScope(funcScope) {
 
 FunctionScope.prototype.revertFunctionScope =
 function revertFunctionScope(name) {
+    if (!this.functionScopes[name]) {
+        return this.parent.revertFunctionScope(name);
+    }
+
     this._revertFunctionScope(name);
 };
 
