@@ -113,6 +113,11 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
         return null;
     }
 
+    // Cannot narrow based on object index operator
+    if (node.computed) {
+        return null;
+    }
+
     var ifType = getUnionWithoutBool(fieldType, true);
     var elseType = getUnionWithoutBool(fieldType, false);
 
