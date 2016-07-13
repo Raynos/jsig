@@ -27,6 +27,14 @@ Errors.MissingFieldInConstr = TypedError({
     line: null
 });
 
+Errors.UnrecognisedOption = TypedError({
+    type: 'jsig.meta.unrecognised-option',
+    message: '@{line}: Unrecognised @jsig option: {key}',
+    key: null,
+    loc: null,
+    line: null
+});
+
 Errors.UnknownIdentifier = TypedError({
     type: 'jsig.verify.unknown-identifier',
     message: '@{line}: Could not find identifier {tokenName}.',

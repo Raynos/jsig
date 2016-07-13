@@ -11,10 +11,17 @@ var NarrowType = require('./narrow-type.js');
 var FileScope = require('./scope.js').FileScope;
 var FunctionScope = require('./scope.js').FunctionScope;
 var BranchScope = require('./scope.js').BranchScope;
+var Errors = require('./errors.js');
 
 var fileExtRegex = /.js$/;
 
 module.exports = ProgramMeta;
+
+function CheckerRules() {
+    this.optin = false;
+    this.partialExport = false;
+    this.allowUnusedFunction = false;
+}
 
 function ProgramMeta(checker, ast, fileName, source) {
     this.checker = checker;
@@ -22,6 +29,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.fileName = fileName;
     this.source = source;
     this.sourceLines = source.split('\n');
+    this.checkerRules = new CheckerRules();
 
     this.identifiers = {};
     this.operators = {};
@@ -95,16 +103,69 @@ ProgramMeta.prototype.getVirtualType = function getVirtualType(id) {
     return this.globalScope.getVirtualType(id);
 };
 
+ProgramMeta.prototype.parseRules = function parseRules() {
+    var node = this.ast;
+    assert(node.type === 'Program', 'Esprima ast must be program');
+
+    var firstComment = node.comments[0];
+    var commentText = firstComment ? firstComment.value.trim() : '';
+
+    if (commentText.length === 0) {
+        return;
+    }
+
+    // If startsWith @jsig
+    if (commentText.indexOf('@jsig') !== 0) {
+        return;
+    }
+
+    this.checkerRules.optin = true;
+    commentText = commentText.slice(5);
+
+    var lines = commentText.split('\n');
+    var segments = [];
+    for (var i = 0; i < lines.length; i++) {
+        var chunks = lines[i].split(',');
+        for (var j = 0; j < chunks.length; j++) {
+            var trimmed = chunks[j].trim();
+            if (trimmed !== '') {
+                segments.push(trimmed);
+            }
+        }
+    }
+
+    for (i = 0; i < segments.length; i++) {
+        var parts = segments[i].split(':');
+        var key = parts[0].trim();
+        var value = parts[1].trim();
+
+        if (value === 'true') {
+            value = true;
+        } else if (value === 'false') {
+            value = false;
+        }
+
+        if (key === 'partialExport') {
+            this.checkerRules.partialExport = value;
+        } else if (key === 'allowUnusedFunction') {
+            this.checkerRules.allowUnusedFunction = value;
+        } else {
+            this.addError(Errors.UnrecognisedOption({
+                key: key,
+                loc: firstComment.loc,
+                line: firstComment.loc.start.line
+            }));
+        }
+    }
+};
+
 ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
 
-    if (this.checker.optin) {
-        assert(node.type === 'Program', 'Esprima ast must be program');
-        var firstComment = node.comments[0];
-        var commentText = firstComment ? firstComment.value.trim() : '';
+    this.parseRules();
 
-        // If startsWith @jsig
-        if (commentText.indexOf('@jsig') === 0) {
+    if (this.checker.optin) {
+        if (this.checkerRules.optin) {
             this.verifyNode(node, null);
         }
     } else {
