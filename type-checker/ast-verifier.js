@@ -1156,8 +1156,9 @@ function verifyFunctionExpression(node) {
             potentialType.name === '%Export%%ModuleExports'
         )
     ) {
+        var funcName = node.id ? node.id.name : '(anonymous)';
         err = Errors.UnTypedFunctionFound({
-            funcName: node.id.name,
+            funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
         });
