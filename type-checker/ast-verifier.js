@@ -864,7 +864,7 @@ function verifyNewExpression(node) {
         return null;
     }
 
-    var isConstructor = /[A-Z]/.test(node.callee.name[0]);
+    var isConstructor = /[A-Z]/.test(getCalleeName(node)[0]);
     if (!isConstructor) {
         err = Errors.ConstructorMustBePascalCase({
             funcName: node.callee.name,
@@ -921,6 +921,18 @@ function verifyNewExpression(node) {
 
     return thisArg;
 };
+
+function getCalleeName(node) {
+    if (node.callee.type === 'Identifier') {
+        return node.callee.name;
+    } else if (node.callee.type === 'MemberExpression' &&
+        node.callee.property.type === 'Identifier'
+    ) {
+        return node.callee.property.name;
+    } else {
+        assert(false, 'Cannot get callee name');
+    }
+}
 
 ASTVerifier.prototype.verifyVariableDeclaration =
 function verifyVariableDeclaration(node) {
