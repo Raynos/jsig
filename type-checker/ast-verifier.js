@@ -1616,15 +1616,15 @@ function _computeSmallestUnion(node, t1, t2) {
 
     var minimal = this._computeSmallestCommonTypes(node, parts);
 
-    // Again, find smallest common type in reverse
-    var reverseMinimal = parts.slice();
-    reverseMinimal.reverse();
-    reverseMinimal = this._computeSmallestCommonTypes(node, reverseMinimal);
+    // Again, find smallest common type in reverse ??
+    // var reverseMinimal = parts.slice();
+    // reverseMinimal.reverse();
+    // reverseMinimal = this._computeSmallestCommonTypes(node, reverseMinimal);
 
-    // Only use reverse minimal if smaller.
-    if (reverseMinimal.length < minimal.length) {
-        minimal = reverseMinimal;
-    }
+    // // Only use reverse minimal if smaller.
+    // if (reverseMinimal.length < minimal.length) {
+    //     minimal = reverseMinimal;
+    // }
 
     if (minimal.length === 1) {
         return minimal[0];
@@ -1648,6 +1648,7 @@ function _computeSmallestCommonTypes(node, list) {
             }
 
             /* if a super type of the other then remove from union */
+            // TODO: this seems so naive...
             var isSuper = this.meta.isSubType(node, minimal[j], sample);
             if (isSuper) {
                 toAdd = null;
