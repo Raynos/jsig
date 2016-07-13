@@ -287,7 +287,6 @@ function checkObjectSubType(node, parent, child) {
     }
 
     var minimumFields = 0;
-    var maximumFields = parent.keyValues.length;
     for (var i = 0; i < parent.keyValues.length; i++) {
         if (!parent.keyValues[i].optional) {
             minimumFields++;
@@ -296,9 +295,7 @@ function checkObjectSubType(node, parent, child) {
 
     // If parent has optional keys, then child must have
     // somewhere between "required keys" and "all keys"
-    if (child.keyValues.length < minimumFields ||
-        maximumFields < child.keyValues.length
-    ) {
+    if (child.keyValues.length < minimumFields) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
             expectedFields: parent.keyValues.length,
@@ -336,23 +333,7 @@ function checkObjectSubType(node, parent, child) {
         }
     }
 
-    // For all extra keys, check that they exist in parent...
-    var parentIndex = buildIndex(parent.keyValues);
-    for (i = 0; i < child.keyValues.length; i++) {
-        pair = child.keyValues[i];
-
-        var parentType = parentIndex[pair.key];
-        if (!parentType) {
-            return Errors.UnexpectedExtraField({
-                expected: serialize(parent._raw || parent),
-                actual: serialize(child._raw || child),
-                fieldName: pair.key,
-                loc: node.loc,
-                line: node.loc.start.line
-            });
-        }
-    }
-
+    // For all extra keys, they are allowed...
     return null;
 };
 
