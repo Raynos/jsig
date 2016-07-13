@@ -308,6 +308,13 @@ function getExportedFields() {
 };
 
 ProgramMeta.prototype.addError = function addError(error) {
+    /* silence untyped-function-found if opted in */
+    if (this.checkerRules.allowUnusedFunction &&
+        error.type === 'jsig.verify.untyped-function-found'
+    ) {
+        return;
+    }
+
     error.fileName = this.fileName;
     // console.trace('addError(' + error.type + ')');
     this.checker.addError(error);
