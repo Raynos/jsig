@@ -1149,6 +1149,20 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
+    // If we are assigning onto a Mixed%%OpenField then
+    // skip checking this function expression
+    if (potentialType.type === 'typeLiteral' &&
+        potentialType.builtin && potentialType.name === '%Mixed%%OpenField'
+    ) {
+        err = Errors.UnTypedFunctionFound({
+            funcName: node.id.name,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     this._checkFunctionType(node, potentialType);
     return potentialType;
 };
