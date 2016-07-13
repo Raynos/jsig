@@ -11,12 +11,13 @@ var TermColor = require('term-color');
 var $package = require('../package.json');
 var TypeChecker = require('../type-checker/').TypeChecker;
 var ArgsVerify = require('./lib/args-verify.js');
+var findFiles = require('./find-files.js');
 
 function TypeCheckBinary(args) {
     this.args = args;
     this.fileName = args._[0];
 
-    this.sourceFile = null;
+    this.entryFiles = null;
     this.checker = null;
 }
 
@@ -67,8 +68,8 @@ TypeCheckBinary.prototype.run = function run() {
 };
 
 TypeCheckBinary.prototype.check = function check() {
-    this.sourceFile = path.resolve(process.cwd(), this.fileName);
-    this.checker = new TypeChecker(this.sourceFile, {
+    this.entryFiles = findFiles(path.resolve(process.cwd(), this.fileName));
+    this.checker = new TypeChecker(this.entryFiles, {
         definitions: this.args.definitions || null,
         globalsFile: this.args.globals || null,
         optin: this.args.optin || false
