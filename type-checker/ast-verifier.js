@@ -335,9 +335,6 @@ function verifyAssignmentExpression(node) {
             this.meta.checkSubType(node, expectedType, rightType);
             this.meta.setHasModuleExports(true);
         } else {
-            assert(node.right.type === 'Identifier',
-                'export must be identifier');
-
             this.meta.setModuleExportsType(rightType, node.right);
         }
     }
@@ -1155,7 +1152,8 @@ function verifyFunctionExpression(node) {
         potentialType.builtin &&
         (
             potentialType.name === '%Mixed%%OpenField' ||
-            potentialType.name === '%Mixed%%UnknownExportsField'
+            potentialType.name === '%Mixed%%UnknownExportsField' ||
+            potentialType.name === '%Export%%ModuleExports'
         )
     ) {
         err = Errors.UnTypedFunctionFound({

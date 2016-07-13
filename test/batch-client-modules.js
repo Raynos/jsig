@@ -18,6 +18,16 @@ test('working require from another file', function t(assert) {
     assert.end();
 });
 
+test('working require with json file', function t(assert) {
+    var file = getFile('good-working-json-require.js');
+
+    var meta = compile(file);
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 0, 'expected no error');
+
+    assert.end();
+});
+
 test('working require side effect file');
 
 test('require non-existant file');

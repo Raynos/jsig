@@ -263,6 +263,11 @@ function getOrCreateMeta(fileName) {
         source = fs.readFileSync(fileName, 'utf8');
     }
 
+    // Hack: to support JSON
+    if (path.extname(fileName) === '.json') {
+        source = 'module.exports = ' + source;
+    }
+
     // Munge source text if it has unix executable header
     if (source.indexOf(BIN_HEADER) === 0) {
         source = source.slice(BIN_HEADER.length);

@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var assert = require('assert');
 
 var isModuleExports = require('./lib/is-module-exports.js');
@@ -13,8 +14,6 @@ var FunctionScope = require('./scope.js').FunctionScope;
 var BranchScope = require('./scope.js').BranchScope;
 var Errors = require('./errors.js');
 var JsigAst = require('../ast/');
-
-var fileExtRegex = /.js$/;
 
 module.exports = ProgramMeta;
 
@@ -391,7 +390,10 @@ type definitions for a subset of the program.
 */
 ProgramMeta.prototype.loadHeaderFile =
 function loadHeaderFile(required) {
-    var headerFileName = this.fileName.replace(fileExtRegex, '.hjs');
+    var extName = path.extname(this.fileName);
+    var extIndex = this.fileName.lastIndexOf(extName);
+
+    var headerFileName = this.fileName.slice(0, extIndex) + '.hjs';
 
     this.headerFile = this.checker.getOrCreateHeaderFile(
         headerFileName, required

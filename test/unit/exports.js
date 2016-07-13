@@ -345,3 +345,71 @@ JSIGSnippet.test('partialExport mode allows exporting extras', {
 
     assert.end();
 });
+
+JSIGSnippet.test('exporting a large object literal', {
+    snippet: function m() {/*
+        module.exports = {
+            'name': 'jsig',
+            'version': '0.1.4',
+            'bin': {
+                'jsig': './bin/jsig.js'
+            }
+        };
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported,
+        '{\n    name: String,\n' +
+        '    version: String,\n' +
+        '    bin: { jsig: String }\n}'
+    );
+
+    assert.end();
+});
+
+JSIGSnippet.test('exporting an untyped function is error', {
+    snippet: function m() {/*
+        function FooBar(x) {
+            return x;
+        }
+
+        module.exports = FooBar
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    assert.equal(meta.moduleExportsType, null);
+    assert.equal(meta.errors.length, 2);
+
+    var err1 = meta.errors[0];
+    assert.equal(err1.type, 'jsig.verify.unknown-module-exports');
+    assert.equal(err1.funcName, 'FooBar');
+    assert.equal(err1.line, 5);
+
+    var err2 = meta.errors[1];
+    assert.equal(err2.type, 'jsig.verify.untyped-function-found');
+    assert.equal(err2.funcName, 'FooBar');
+    assert.equal(err2.line, 1);
+
+    assert.end();
+});
+
+JSIGSnippet.test('exporting a function expr is error', {
+    snippet: function m() {/*
+        module.exports = function FooBar(x) {
+            return x;
+        };
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+    assert.equal(meta.moduleExportsType, null);
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.untyped-function-found');
+    assert.equal(err.funcName, 'FooBar');
+    assert.equal(err.line, 1);
+
+    assert.end();
+});
