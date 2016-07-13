@@ -63,6 +63,10 @@ TypeCheckBinary.prototype.run = function run() {
         return null;
     }
 
+    this.check();
+};
+
+TypeCheckBinary.prototype.check = function check() {
     this.sourceFile = path.resolve(process.cwd(), this.fileName);
     this.checker = new TypeChecker(this.sourceFile, {
         definitions: this.args.definitions || null,
