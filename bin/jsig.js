@@ -54,7 +54,7 @@ TypeCheckBinary.prototype.run = function run() {
 
     if (!this.fileName) {
         this.shortHelp();
-        console.warn('WARN: unknown fileName');
+        console.log('WARN: unknown fileName');
         return null;
     }
 
