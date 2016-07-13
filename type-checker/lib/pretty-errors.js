@@ -68,7 +68,7 @@ function prettyPrintError(checker, error, opts) {
                 column: sourceLines[error.line].length
             }
         };
-        var failingLines = getFailingLines(sourceLines, loc);
+        failingLines = getFailingLines(sourceLines, loc);
 
         parts.push(opts.prefix + failingLines);
         parts.push('');
