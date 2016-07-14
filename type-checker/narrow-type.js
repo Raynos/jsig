@@ -84,9 +84,12 @@ function narrowLogicalExpression(node, ifBranch, elseBranch) {
         // TODO: support ||
 
         this.narrowType(node.left, null, elseBranch);
-        this.meta.enterBranchScope(elseBranch);
-        this.narrowType(node.right, null, elseBranch);
-        this.meta.exitBranchScope();
+
+        if (elseBranch) {
+            this.meta.enterBranchScope(elseBranch);
+            this.narrowType(node.right, null, elseBranch);
+            this.meta.exitBranchScope();
+        }
 
         // Inside IF then
         //      node.left TRUE AND node.right FALSE
@@ -98,9 +101,12 @@ function narrowLogicalExpression(node, ifBranch, elseBranch) {
         // TODO: support &&
 
         this.narrowType(node.left, ifBranch, null);
-        this.meta.enterBranchScope(ifBranch);
-        this.narrowType(node.right, ifBranch, null);
-        this.meta.exitBranchScope();
+
+        if (ifBranch) {
+            this.meta.enterBranchScope(ifBranch);
+            this.narrowType(node.right, ifBranch, null);
+            this.meta.exitBranchScope();
+        }
 
         // Inside IF then
         //      node.left TRUE and node.right TRUE
