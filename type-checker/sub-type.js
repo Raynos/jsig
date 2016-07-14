@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
+var cloneJSIG = require('./lib/clone-ast.js');
 var isSameType = require('./lib/is-same-type.js');
 
 /* TODO:
@@ -22,6 +23,31 @@ function SubTypeChecker(meta) {
     this.meta = meta;
 }
 
+function getUnionWithoutOptional(unionType) {
+    var newType = null;
+
+    var newUnions = [];
+    for (var i = 0; i < unionType.unions.length; i++) {
+        var innerType = unionType.unions[i];
+        if (innerType.type === 'valueLiteral' &&
+            innerType.name === 'undefined'
+        ) {
+            continue;
+        }
+
+        newUnions.push(innerType);
+    }
+
+    if (newUnions.length === 1) {
+        newType = newUnions[0];
+    } else {
+        newType = cloneJSIG(unionType);
+        newType.unions = newUnions;
+    }
+
+    return newType;
+}
+
 SubTypeChecker.prototype.checkSubType =
 function checkSubType(node, parent, child) {
     assert(node && node.type, 'ast node must have type');
@@ -29,6 +55,10 @@ function checkSubType(node, parent, child) {
     assert(child && child.type, 'child must have a type');
 
     var result;
+
+    if (parent.optional && child.type === 'unionType') {
+        child = getUnionWithoutOptional(child);
+    }
 
     // console.log('checkSubType(' + parent.type + ',' + child.type + ')');
     // console.log('parent: ' + this.meta.serializeType(parent));
