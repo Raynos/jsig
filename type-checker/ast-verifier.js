@@ -550,6 +550,8 @@ function verifyCallExpression(node) {
         return this._checkFunctionCallExpr(node, defn, false);
     }
 
+    // Handle intersections
+
     var allErrors = [];
     var result = null;
 
@@ -902,6 +904,16 @@ function verifyNewExpression(node) {
         return null;
     }
 
+    // Handle generic constructors
+    if (fnType.generics.length > 0) {
+        fnType = this.meta.resolveGeneric(
+            fnType, node, this.meta.currentExpressionType
+        );
+        if (!fnType) {
+            return null;
+        }
+    }
+
     var minArgs = fnType.args.length;
     for (i = 0; i < fnType.args.length; i++) {
         if (fnType.args[i].optional) {
@@ -976,7 +988,9 @@ function verifyVariableDeclaration(node) {
 
     var type;
     if (decl.init) {
-        type = this.meta.verifyNode(decl.init, null);
+        var leftType = token ? token.defn : null;
+
+        type = this.meta.verifyNode(decl.init, leftType);
         if (!type) {
             this.meta.currentScope.addUnknownVar(id);
             return null;

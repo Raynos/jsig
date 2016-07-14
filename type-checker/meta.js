@@ -248,12 +248,14 @@ function narrowType(node, ifBranch, elseBranch) {
 };
 
 ProgramMeta.prototype.resolveGeneric =
-function resolveGeneric(funcType, node) {
+function resolveGeneric(funcType, node, currentExpressionType) {
     if (this.fatalError) {
         return null;
     }
 
-    return this.inference.resolveGeneric(funcType, node);
+    return this.inference.resolveGeneric(
+        funcType, node, currentExpressionType
+    );
 };
 
 ProgramMeta.prototype.setModuleExportsNode =

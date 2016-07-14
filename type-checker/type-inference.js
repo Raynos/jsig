@@ -175,14 +175,28 @@ function inferObjectExpression(node) {
 };
 
 TypeInference.prototype.resolveGeneric =
-function resolveGeneric(funcType, node) {
-    assert(node.type === 'CallExpression',
-        'can only resolve generic with callee node');
+function resolveGeneric(funcType, node, currentExpressionType) {
+    /*
+        CallExpression : {
+            callee: {
+                type: 'MemberExpression',
+                object: { type: 'Identifier' }
+            },
+            arguments: Array<X>
+        }
+
+        NewExpression : {
+            callee: { type: 'Identifier' },
+            arguments: Array<X>
+        }
+    */
 
     var copyFunc = JSON.parse(JSON.stringify(funcType));
     copyFunc._raw = null;
 
-    var knownGenericTypes = this._findGenericTypes(copyFunc, node);
+    var knownGenericTypes = this._findGenericTypes(
+        copyFunc, node, currentExpressionType
+    );
     if (!knownGenericTypes) {
         return null;
     }
@@ -209,7 +223,7 @@ function resolveGeneric(funcType, node) {
 
 /*eslint complexity: [2, 25], max-statements: [2, 60] */
 TypeInference.prototype._findGenericTypes =
-function _findGenericTypes(copyFunc, node) {
+function _findGenericTypes(copyFunc, node, currentExpressionType) {
     var knownGenericTypes = Object.create(null);
 
     for (var i = 0; i < copyFunc.generics.length; i++) {
@@ -229,14 +243,29 @@ function _findGenericTypes(copyFunc, node) {
 
             newType = walkProps(newType, stack, 2);
         } else if (stack[0] === 'thisArg') {
-            referenceNode = node.callee.object;
-            // TODO: this might be wrong
-            newType = this.meta.verifyNode(referenceNode, null);
-            if (!newType) {
-                return null;
-            }
 
-            newType = walkProps(newType, stack, 1);
+            // Method call()
+            if (node.callee.type === 'MemberExpression') {
+                referenceNode = node.callee.object;
+                // TODO: this might be wrong
+                newType = this.meta.verifyNode(referenceNode, null);
+                if (!newType) {
+                    return null;
+                }
+
+                newType = walkProps(newType, stack, 1);
+            // new expression
+            } else if (node.callee.type === 'Identifier') {
+                if (currentExpressionType) {
+                    newType = currentExpressionType;
+                    newType = walkProps(newType, stack, 1);
+                } else {
+                    // If we have no ctx as for type then free literal
+                    newType = JsigAST.freeLiteral('T');
+                }
+            } else {
+                assert(false, 'unknown caller type: ' + node.callee.type);
+            }
         } else {
             referenceNode = node;
             newType = knownGenericTypes[ast.name];
