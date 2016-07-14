@@ -1503,10 +1503,17 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
         intersections = jsigType.intersections;
         for (i = 0; i < intersections.length; i++) {
             possibleType = intersections[i];
-            if (possibleType.type === 'object') {
-                return this._findPropertyInType(
-                    node, possibleType, propertyName
-                );
+            if (possibleType.type !== 'object') {
+                continue;
+            }
+
+            for (var j = 0; j < possibleType.keyValues.length; j++) {
+                var pair = possibleType.keyValues[j];
+                if (pair.key === propertyName) {
+                    return this._findPropertyInType(
+                        node, possibleType, propertyName
+                    );
+                }
             }
         }
     }

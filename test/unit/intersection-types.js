@@ -143,4 +143,24 @@ JSIGSnippet.test('can pass intersection func to Function', {
     assert.end();
 });
 
+JSIGSnippet.test('object intersection types', {
+    snippet: function m() {/*
+        var foo = {
+            a: '',
+            b: ''
+        };
+
+        foo.a.split('');
+        foo.b.split('');
+    */},
+    header: function h() {/*
+        foo : { a: String } & { b: String }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0);
+    assert.end();
+});
+
 // TEST: Object & Object intersection

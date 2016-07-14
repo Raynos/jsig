@@ -50,6 +50,8 @@ function checkSubType(node, parent, child) {
         result = this.checkUnionSubType(node, parent, child);
     } else if (parent.type === 'freeLiteral') {
         return reportTypeMisMatch(node, parent, child);
+    } else if (parent.type === 'intersectionType') {
+        return this.checkIntersectionSubType(node, parent, child);
     } else {
         throw new Error('not implemented sub type: ' + parent.type);
     }
@@ -333,11 +335,6 @@ SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {
     // Check to see that child matches ONE of parent.
 
-    // console.log('check?', {
-    //     p: this.meta.serializeType(parent),
-    //     c: this.meta.serializeType(child)
-    // });
-
     var childUnions = child.type === 'unionType' ? child.unions : [child];
 
     var err;
@@ -377,6 +374,23 @@ function checkUnionSubType(node, parent, child) {
 
     finalErr.originalErrors = errors;
     return finalErr;
+};
+
+SubTypeChecker.prototype.checkIntersectionSubType =
+function checkIntersectionSubType(node, parent, child) {
+    /* TODO: pretty errors & branchType */
+
+    var allTypes = parent.intersections;
+    for (var i = 0; i < allTypes.length; i++) {
+        var currType = allTypes[i];
+
+        var err = this.checkSubType(node, currType, child);
+        if (err) {
+            return err;
+        }
+    }
+
+    return null;
 };
 
 function reportTypeMisMatch(node, parent, child) {
