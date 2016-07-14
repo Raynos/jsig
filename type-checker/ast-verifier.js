@@ -81,6 +81,8 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyConditionalExpression(node);
     } else if (node.type === 'WhileStatement') {
         return this.verifyWhileStatement(node);
+    } else if (node.type === 'BreakStatement') {
+        return this.verifyBreakStatement(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -1223,6 +1225,13 @@ function verifyFunctionExpression(node) {
 
 ASTVerifier.prototype.verifyContinueStatement =
 function verifyContinueStatement(node) {
+    assert(node.label === null, 'do not support goto');
+
+    return null;
+};
+
+ASTVerifier.prototype.verifyBreakStatement =
+function verifyBreakStatement(node) {
     assert(node.label === null, 'do not support goto');
 
     return null;
