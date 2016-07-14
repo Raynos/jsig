@@ -1078,9 +1078,9 @@ function verifyIfStatement(node) {
         this.meta.verifyNode(node.consequent, null);
         this.meta.exitBranchScope();
     }
-    if (node.alternative) {
+    if (node.alternate) {
         this.meta.enterBranchScope(elseBranch);
-        this.meta.verifyNode(node.alternative, null);
+        this.meta.verifyNode(node.alternate, null);
         this.meta.exitBranchScope();
     }
 
