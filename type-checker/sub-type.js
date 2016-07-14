@@ -122,34 +122,10 @@ function checkTypeLiteralSubType(node, parent, child) {
         if (child.name !== name && child.name !== 'Error') {
             return reportTypeMisMatch(node, parent, child);
         }
-    } else if (name === 'Array') {
-        if (child.name !== name) {
-            return new Error('[Internal] Not an array');
-        }
-    } else if (name === 'String') {
-        if (child.name !== name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-    } else if (name === 'void') {
-        if (child.name !== name) {
-            return new Error('[Internal] Not a void');
-        }
-    } else if (name === 'RegExp') {
-        if (child.name !== name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-    } else if (name === 'Number') {
-        if (child.name !== name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-    } else if (name === 'Boolean') {
-        if (child.name !== name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-    } else if (name === 'Error') {
-        if (child.name !== name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
+    } else if (child.name !== name) {
+        return reportTypeMisMatch(node, parent, child);
+    } else if (child.name === name) {
+        return null;
     } else {
         throw new Error('NotImplemented: ' + parent.name);
     }
