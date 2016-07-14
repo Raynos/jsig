@@ -7,7 +7,7 @@ var JsigAST = require('../../ast/');
 module.exports = updateObject;
 
 function updateObject(targetType, keyPath, newValue) {
-    assert(targetType.type === 'object');
+    assert(targetType.type === 'object', 'targetType must be object');
     assert(newValue, 'newValue cannot be null');
 
     var pairs = [];
@@ -33,7 +33,7 @@ function updateObject(targetType, keyPath, newValue) {
     }
 
     if (!addedField) {
-        assert(keyPath.length === 1);
+        assert(keyPath.length === 1, 'keyPath must be shallow');
         pairs.push(JsigAST.keyValue(keyPath[0], newValue));
     }
 
