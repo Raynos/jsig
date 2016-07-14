@@ -38,7 +38,7 @@ Error : (this: Error, String) => void
 
 Date : {
     now: () => Number
-}
+} & (this: Date) => void
 
 Math : {
     floor: (Number) => Number

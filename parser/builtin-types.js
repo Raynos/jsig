@@ -9,6 +9,7 @@ var builtinTypes = [
     'Array',
     'Function',
     'RegExp',
+    'Date',
     'Symbol',
     '%Boolean%%Mixed',
     '%Object%%Empty'
