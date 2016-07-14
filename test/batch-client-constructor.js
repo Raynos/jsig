@@ -61,7 +61,7 @@ test('Header file references unknown literal', function t(assert) {
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
 
-    assert.equal(meta.errors.length, 4, 'expected error');
+    assert.equal(meta.errors.length, 2, 'expected error');
     var err1 = meta.errors[0];
     var err2 = meta.errors[1];
 
@@ -69,17 +69,6 @@ test('Header file references unknown literal', function t(assert) {
     assert.equal(err1.literal, 'Channel');
     assert.equal(err2.type, 'jsig.header-file.unknown-literal');
     assert.equal(err2.literal, 'Channel');
-
-    var error3 = meta.errors[2];
-    assert.equal(error3.type, 'jsig.verify.unknown-module-exports',
-        'should have an unknown export error');
-    assert.equal(error3.funcName, 'BatchClient');
-    assert.equal(error3.line, 3);
-
-    var error4 = meta.errors[3];
-    assert.equal(error4.type, 'jsig.verify.untyped-function-found');
-    assert.equal(error4.funcName, 'BatchClient');
-    assert.equal(error4.line, 5);
 
     assert.end();
 });
