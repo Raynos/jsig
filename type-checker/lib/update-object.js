@@ -3,10 +3,49 @@
 var assert = require('assert');
 
 var JsigAST = require('../../ast/');
+var cloneJSIG = require('./clone-ast.js');
 
 module.exports = updateObject;
 
 function updateObject(targetType, keyPath, newValue) {
+    if (targetType.type === 'object') {
+        return _updateObject(targetType, keyPath, newValue);
+    }
+
+    assert(targetType.type === 'intersectionType');
+
+    var clone = cloneJSIG(targetType);
+    clone.intersections = clone.intersections.slice();
+    var intersections = clone.intersections;
+
+    assert(keyPath.length === 1, 'can only have shallow keys');
+    var key = keyPath[0];
+    var foundIndex = -1;
+
+    for (var i = 0; i < intersections.length; i++) {
+        var possibleObject = intersections[i];
+        if (possibleObject.type !== 'object') {
+            continue;
+        }
+
+        for (var j = 0; j < possibleObject.keyValues.length; j++) {
+            var pair = possibleObject.keyValues[j];
+            if (pair.key === key) {
+                foundIndex = i;
+                break;
+            }
+        }
+    }
+
+    assert(foundIndex !== -1, 'cannot updateObject() weird intersection');
+
+    var obj = updateObject(intersections[foundIndex], keyPath, newValue);
+    intersections[foundIndex] = obj;
+
+    return clone;
+}
+
+function _updateObject(targetType, keyPath, newValue) {
     assert(targetType.type === 'object', 'targetType must be object');
     assert(newValue, 'newValue cannot be null');
 
