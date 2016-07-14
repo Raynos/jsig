@@ -157,17 +157,18 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     var targetType = this.meta.verifyNode(parent, null);
 
     if (ifBranch && ifType) {
-        var ifObjectType = updateObject(
-            targetType, keyPath.slice(1), ifType
-        );
-        ifBranch.restrictType(keyPath[0], ifObjectType);
+        updateObjectAndRestrict(ifBranch, targetType, keyPath, ifType);
     }
     if (elseBranch && elseType) {
-        var elseObjectType = updateObject(
-            targetType, keyPath.slice(1), elseType
-        );
-        elseBranch.restrictType(keyPath[0], elseObjectType);
+        updateObjectAndRestrict(elseBranch, targetType, keyPath, elseType);
     }
     // TODO: support nullable field check
 };
+
+function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
+    var newType = updateObject(
+        objType, keyPath.slice(1), valueType
+    );
+    branch.restrictType(keyPath[0], newType);
+}
 
