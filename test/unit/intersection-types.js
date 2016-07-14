@@ -107,4 +107,40 @@ JSIGSnippet.test('allow methods on intersection constructor', {
     assert.end();
 });
 
+JSIGSnippet.test('can pass intersection func to Function', {
+    snippet: function m() {/*
+        function Foo(x) {
+            this.x = x;
+        }
+
+        Foo.STATIC_TYPE = 'Foo';
+
+        util.inherits(Foo, Foo);
+
+        module.exports = Foo;
+    */},
+    header: function h() {/*
+        type Foo : {
+            x: String
+        }
+
+        util : {
+            inherits: (Function, Function) => void
+        }
+
+        Foo : {
+            STATIC_TYPE: String
+        } & (this: Foo, x: String) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported,
+        '{ STATIC_TYPE: String } & ' +
+        '(this: Foo, x: String) => void');
+
+    assert.end();
+});
+
 // TEST: Object & Object intersection

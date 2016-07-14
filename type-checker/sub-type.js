@@ -91,6 +91,15 @@ function checkTypeLiteralSubType(node, parent, child) {
         return null;
     }
 
+    if (parent.name === 'Function' && child.type === 'intersectionType') {
+        var types = child.intersections;
+        for (var i = 0; i < types.length; i++) {
+            if (types[i].type === 'function') {
+                return null;
+            }
+        }
+    }
+
     if (parent.optional && child.type === 'valueLiteral' &&
         child.name === 'undefined'
     ) {
