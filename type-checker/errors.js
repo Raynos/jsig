@@ -10,6 +10,14 @@ Errors.UnknownLiteralError = TypedError({
     literal: null
 });
 
+Errors.CannotParseHeaderFile = TypedError({
+    type: 'jsig.parser.cannot-parse-header-file',
+    message: '@{line}: {msg}.',
+    line: null,
+    msg: null,
+    source: null
+});
+
 Errors.CouldNotFindHeaderFile = TypedError({
     type: 'jsig.header-file.could-not-find-header-file',
     message: 'Cannot find other header file: {fileName}.',

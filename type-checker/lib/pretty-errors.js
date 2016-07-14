@@ -55,7 +55,10 @@ function prettyPrintError(checker, error, opts) {
     }
 
     if (opts.showLoc !== false &&
-        error.type === 'jsig.checker.could-not-parse-javascript'
+        (
+            error.type === 'jsig.checker.could-not-parse-javascript' ||
+            error.type === 'jsig.parser.cannot-parse-header-file'
+        )
     ) {
         var sourceLines = error.source.split('\n');
         var loc = {
