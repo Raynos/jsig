@@ -1419,30 +1419,48 @@ function _checkVoidReturnType(node) {
     ), 'expected Constructor to have no return void');
 };
 
+ASTVerifier.prototype._tryResolveVirtualType =
+function _tryResolveVirtualType(type) {
+    var newType = null;
+
+    if (type.type === 'genericLiteral' &&
+        type.value.type === 'typeLiteral' &&
+        type.value.name === 'Array' && type.value.builtin
+    ) {
+        newType = this.meta.getVirtualType('TArray').defn;
+    } else if (type.type === 'typeLiteral' &&
+        type.name === 'String' && type.builtin
+    ) {
+        newType = this.meta.getVirtualType('TString').defn;
+    } else if (type.type === 'typeLiteral' &&
+        type.name === 'Number' && type.builtin
+    ) {
+        newType = this.meta.getVirtualType('TNumber').defn;
+    } else if (type.type === 'typeLiteral' &&
+        type.name === 'Date' && type.builtin
+    ) {
+        newType = this.meta.getVirtualType('TDate').defn;
+    } else if (type.type === 'genericLiteral' &&
+        type.value.type === 'typeLiteral' &&
+        type.value.name === 'Object' && type.value.builtin
+    ) {
+        newType = this.meta.getVirtualType('TObject').defn;
+    }
+
+    return newType;
+};
+
 ASTVerifier.prototype._findPropertyInType =
 function _findPropertyInType(node, jsigType, propertyName) {
     if (jsigType.type === 'function' &&
         propertyName === 'prototype'
     ) {
         return jsigType.thisArg;
-    } else if (jsigType.type === 'genericLiteral' &&
-        jsigType.value.type === 'typeLiteral' &&
-        jsigType.value.name === 'Array'
-    ) {
-        jsigType = this.meta.getVirtualType('TArray').defn;
-    } else if (jsigType.type === 'typeLiteral' &&
-        jsigType.name === 'String'
-    ) {
-        jsigType = this.meta.getVirtualType('TString').defn;
-    } else if (jsigType.type === 'typeLiteral' &&
-        jsigType.name === 'Number'
-    ) {
-        jsigType = this.meta.getVirtualType('TNumber').defn;
-    } else if (jsigType.type === 'genericLiteral' &&
-        jsigType.value.type === 'typeLiteral' &&
-        jsigType.value.name === 'Object'
-    ) {
-        jsigType = this.meta.getVirtualType('TObject').defn;
+    }
+
+    var possibleType = this._tryResolveVirtualType(jsigType);
+    if (possibleType) {
+        jsigType = possibleType;
     }
 
     var isExportsObject = false;
