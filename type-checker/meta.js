@@ -524,7 +524,7 @@ function tryUpdateFunction(name, newType) {
             'expected only one function info obj');
 
         // verifyNode() failed
-        this.currentScope.revertFunctionScope(name);
+        t.currentScope.revertFunctionScope(name);
         this.currentScope.revertFunction(name, t);
         return false;
     }
