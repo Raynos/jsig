@@ -859,14 +859,22 @@ function verifyNewExpression(node) {
     if (fnType.thisArg.type !== 'object' ||
         fnType.thisArg.keyValues.length === 0
     ) {
-        err = Errors.ConstructorThisTypeMustBeObject({
-            funcName: node.callee.name,
-            thisType: serialize(fnType.thisArg),
-            loc: node.loc,
-            line: node.loc.start.line
-        });
-        this.meta.addError(err);
-        return null;
+        var possibleThisArg = this._tryResolveVirtualType(fnType.thisArg);
+        if (!possibleThisArg ||
+            fnType.thisArg.name === 'String' ||
+            fnType.thisArg.name === 'Number' ||
+            possibleThisArg.type !== 'object' ||
+            possibleThisArg.keyValues.length === 0
+        ) {
+            err = Errors.ConstructorThisTypeMustBeObject({
+                funcName: node.callee.name,
+                thisType: serialize(fnType.thisArg),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
     }
 
     if (fnType.result.type !== 'typeLiteral' ||
