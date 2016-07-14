@@ -27,11 +27,13 @@ type TObject : {
 }
 
 type TDate : {
-    getTime : (this: Date) => Number
+    getTime : (this: Date) => Number,
+    toString : (this: Date) => String
 }
 
 type TNumber : {
-    toFixed : (this: Number, digits?: Number) => String
+    toFixed : (this: Number, digits?: Number) => String,
+    toString : (this: Number) => String
 }
 
 String : (Number) => String
