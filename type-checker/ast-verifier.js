@@ -1504,6 +1504,15 @@ function _findPropertyInType(node, jsigType, propertyName) {
         }
     }
 
+    return this._findPropertyInObject(
+        node, jsigType, propertyName, isExportsObject
+    );
+};
+
+ASTVerifier.prototype._findPropertyInObject =
+function _findPropertyInObject(
+    node, jsigType, propertyName, isExportsObject
+) {
     if (jsigType.type !== 'object') {
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
@@ -1514,7 +1523,7 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return null;
     }
 
-    for (i = 0; i < jsigType.keyValues.length; i++) {
+    for (var i = 0; i < jsigType.keyValues.length; i++) {
         var keyValue = jsigType.keyValues[i];
         if (keyValue.key === propertyName) {
             // TODO: handle optional fields
