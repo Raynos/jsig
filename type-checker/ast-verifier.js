@@ -1572,7 +1572,7 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
                 var pair = possibleType.keyValues[j];
                 if (pair.key === propertyName) {
                     return this._findPropertyInType(
-                        node, possibleType, propertyName
+                        node, possibleType, propertyName, isExportsObject
                     );
                 }
             }
@@ -1584,11 +1584,37 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
     );
 };
 
+ASTVerifier.prototype._isAssigningMethodOnExportsPrototype =
+function _isAssigningMethodOnExportsPrototype(node) {
+    // If we are assigning a method to the exported class
+    if (this.meta.currentScope.type === 'file' &&
+        node.object.type === 'MemberExpression' &&
+        node.object.property.name === 'prototype' &&
+        node.object.object.type === 'Identifier'
+    ) {
+
+        var expected = this.meta.currentScope.getExportedIdentifier();
+        var actual = node.object.object.name;
+
+        if (expected === actual) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 ASTVerifier.prototype._findPropertyInObject =
 function _findPropertyInObject(
     node, jsigType, propertyName, isExportsObject
 ) {
     if (jsigType.type !== 'object') {
+        if (this.meta.checkerRules.partialExport &&
+            this._isAssigningMethodOnExportsPrototype(node)
+        ) {
+            return JsigAST.literal('%Mixed%%UnknownExportsField', true);
+        }
+
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
             line: node.loc.start.line,
@@ -1615,20 +1641,10 @@ function _findPropertyInObject(
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
-    if (this.meta.checkerRules.partialExport) {
-        // If we are assigning a method to the exported class
-        if (this.meta.currentScope.type === 'file' &&
-            node.object.type === 'MemberExpression' &&
-            node.object.property.name === 'prototype' &&
-            node.object.object.type === 'Identifier'
-        ) {
-            var expected = this.meta.currentScope.getExportedIdentifier();
-            var actual = node.object.object.name;
-
-            if (expected === actual) {
-                return JsigAST.literal('%Mixed%%UnknownExportsField', true);
-            }
-        }
+    if (this.meta.checkerRules.partialExport &&
+        this._isAssigningMethodOnExportsPrototype(node)
+    ) {
+        return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
     var err = this._createNonExistantFieldError(node, propertyName);
