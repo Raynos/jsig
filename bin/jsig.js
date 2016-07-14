@@ -96,7 +96,7 @@ TypeCheckBinary.prototype.check = function check() {
 
 TypeCheckBinary.prototype.checkProgram =
 function checkProgram() {
-    var failed = false;
+    var success = true;
     /* eslint-disable no-restricted-syntax */
     try {
         this.checker.checkProgram();
@@ -104,10 +104,10 @@ function checkProgram() {
     /* eslint-enable no-restricted-syntax */
 
         this.warnError(error);
-        failed = true;
+        success = false;
     }
 
-    return failed;
+    return success;
 };
 
 TypeCheckBinary.prototype.warnError = function warnError(error) {
