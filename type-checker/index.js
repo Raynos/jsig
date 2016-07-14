@@ -146,6 +146,9 @@ function loadLanguageIdentifiers() {
         this.globalScope._addVar(a.identifier, a.typeExpression);
     }
 
+    var errType = es5HeaderFile.getToken('Error');
+    errType.brand = 'Error';
+
     this.globalScope._addVirtualType(
         'TString', es5HeaderFile.getToken('TString')
     );
