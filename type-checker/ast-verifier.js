@@ -1468,11 +1468,34 @@ function _findPropertyInType(node, jsigType, propertyName) {
         }
     }
 
-    // Naive intersection support, find first object.
-    if (jsigType.type === 'intersectionType') {
+    if (jsigType.type === 'intersectionType' &&
+        propertyName === 'prototype'
+    ) {
+        // Count functions
+        var funcCount = 0;
+        var funcType = null;
         var intersections = jsigType.intersections;
         for (var i = 0; i < intersections.length; i++) {
             var possibleType = intersections[i];
+            if (possibleType.type === 'function') {
+                funcType = possibleType;
+                funcCount++;
+            }
+        }
+
+        assert(funcCount <= 1, 'cannot access prototype fields ' +
+            'on overloaded constructors...');
+
+        if (funcType.thisArg) {
+            return funcType.thisArg;
+        }
+    }
+
+    // Naive intersection support, find first object.
+    if (jsigType.type === 'intersectionType') {
+        intersections = jsigType.intersections;
+        for (i = 0; i < intersections.length; i++) {
+            possibleType = intersections[i];
             if (possibleType.type === 'object') {
                 return this._findPropertyInType(
                     node, possibleType, propertyName

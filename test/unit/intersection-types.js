@@ -32,7 +32,7 @@ JSIGSnippet.test('allow intersection of function and object', {
     assert.end();
 });
 
-JSIGSnippet.test('allow intersection of function and object', {
+JSIGSnippet.test('cannot assign function to object type', {
     snippet: function m() {/*
         function Foo(x) {
             this.x = x;
@@ -71,5 +71,40 @@ JSIGSnippet.test('allow intersection of function and object', {
     assert.end();
 });
 
-// TEST: Assingning a function to Object & Object
+JSIGSnippet.test('allow methods on intersection constructor', {
+    snippet: function m() {/*
+        function Foo(x) {
+            this.x = x;
+        }
+
+        Foo.STATIC_TYPE = 'Foo';
+
+        Foo.prototype.y = function y() {
+            return this.x;
+        };
+
+        module.exports = Foo;
+    */},
+    header: function h() {/*
+        type Foo : {
+            x: String,
+
+            y: (this: Foo) => String
+        }
+
+        Foo : {
+            STATIC_TYPE: String
+        } & (this: Foo, x: String) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported,
+        '{ STATIC_TYPE: String } & ' +
+        '(this: Foo, x: String) => void');
+
+    assert.end();
+});
+
 // TEST: Object & Object intersection
