@@ -179,8 +179,19 @@ ProgramMeta.prototype.verify = function verify() {
     var node = this.ast;
 
     this.parseRules();
+
+    var beforeErrors = this.countErrors();
     this.loadHeaderFile(false);
+    var afterErrors = this.countErrors();
+
     this.setModuleExportsNode(node);
+
+    // If something went wrong in the header file loading phase
+    // Then do not even bother to check the source code against
+    // a malformed / half done header.
+    if (beforeErrors !== afterErrors) {
+        return;
+    }
 
     if (this.checker.optin) {
         if (this.checkerRules.optin) {
