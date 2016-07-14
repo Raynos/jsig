@@ -831,6 +831,17 @@ function verifyNewExpression(node) {
         return null;
     }
 
+    // Grab first function...
+    if (fnType.type === 'intersectionType') {
+        for (var i = 0; i < fnType.intersections.length; i++) {
+            var possibleType = fnType.intersections[i];
+            if (possibleType.type === 'function') {
+                fnType = possibleType;
+                break;
+            }
+        }
+    }
+
     assert(fnType.type === 'function', 'only support defined constructors');
 
     var err;
@@ -884,7 +895,7 @@ function verifyNewExpression(node) {
     }
 
     var minArgs = fnType.args.length;
-    for (var i = 0; i < fnType.args.length; i++) {
+    for (i = 0; i < fnType.args.length; i++) {
         if (fnType.args[i].optional) {
             minArgs--;
         }
