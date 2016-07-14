@@ -15,8 +15,8 @@ type TGlobalHandlerOpts : {
 
 type THttpServiceRouter : {
     hash: THttpHash,
-    urlNotFound: (THttpReq, THttpRes) => void,
-    methodNotAllowed: (THttpReq, THttpRes) => void,
+    urlNotFound: (THttpReq, THttpRes, THandlerOpts) => void,
+    methodNotAllowed: (THttpReq, THttpRes, THandlerOpts) => void,
 
     handleRequest : (
         this: THttpServiceRouter,
@@ -50,8 +50,8 @@ type TServicesInfo : Object<String, {
 
 type TRouterOpts : {
     services : TServicesInfo,
-    urlNotFound: ((THttpReq, THttpRes) => void) | null,
-    methodNotAllowed: ((THttpReq, THttpRes) => void) | null
+    urlNotFound: ((THttpReq, THttpRes, THandlerOpts) => void) | null,
+    methodNotAllowed: ((THttpReq, THttpRes, THandlerOpts) => void) | null
 }
 
 HttpServiceRouter : (this: THttpServiceRouter, opts: TRouterOpts) => void

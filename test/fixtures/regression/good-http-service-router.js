@@ -145,12 +145,12 @@ function handleEndpointRequest(req, res, opts) {
     }
 }
 
-function defaultNotFound(req, res) {
+function defaultNotFound(req, res, opts) {
     res.writeHead(NOT_FOUND_STATUS_CODE, NOT_FOUND_HEADERS);
     res.end(NOT_FOUND_BODY);
 }
 
-function defaultMethodNotAllowed(req, res) {
+function defaultMethodNotAllowed(req, res, opts) {
     res.writeHead(METHOD_NOT_ALLOWED_STATUS_CODE, METHOD_NOT_ALLOWED_HEADERS);
     res.end(METHOD_NOT_ALLOWED_BODY);
 }
