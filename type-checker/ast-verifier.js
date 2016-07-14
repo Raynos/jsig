@@ -1181,12 +1181,16 @@ function verifyLogicalExpression(node) {
     return this._computeSmallestUnion(node, t1, t2);
 };
 
+function getFunctionName(node) {
+    return node.id ? node.id.name : '(anonymous)';
+}
+
 ASTVerifier.prototype.verifyFunctionExpression =
 function verifyFunctionExpression(node) {
     var potentialType = this.meta.currentExpressionType;
     if (!potentialType) {
         var err = Errors.UnTypedFunctionFound({
-            funcName: node.id.name,
+            funcName: getFunctionName(node),
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -1204,9 +1208,8 @@ function verifyFunctionExpression(node) {
             potentialType.name === '%Export%%ModuleExports'
         )
     ) {
-        var funcName = node.id ? node.id.name : '(anonymous)';
         err = Errors.UnTypedFunctionFound({
-            funcName: funcName,
+            funcName: getFunctionName(node),
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -1303,7 +1306,7 @@ function _verifyFunctionType(node, defn) {
     var err;
     if (node.params.length > defn.args.length) {
         err = Errors.TooManyArgsInFunc({
-            funcName: node.id.name,
+            funcName: getFunctionName(node),
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
             loc: node.loc,
@@ -1313,7 +1316,7 @@ function _verifyFunctionType(node, defn) {
         return;
     } else if (node.params.length < defn.args.length) {
         err = Errors.TooFewArgsInFunc({
-            funcName: node.id.name,
+            funcName: getFunctionName(node),
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
             loc: node.loc,

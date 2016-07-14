@@ -462,10 +462,19 @@ function exitBranchScope() {
     this.currentScope = this.currentScope.parent;
 };
 
+function getFunctionName(node) {
+    if (node.id) {
+        return node.id.name;
+    }
+
+    return '(anonymous @ ' + node.loc.start.line +
+        ' : ' + node.loc.start.column;
+}
+
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
     var funcScope = new FunctionScope(
-        this.currentScope, funcNode.id.name, funcNode
+        this.currentScope, getFunctionName(funcNode), funcNode
     );
     funcScope.loadTypes(funcNode, typeDefn);
 
@@ -476,7 +485,7 @@ function enterFunctionScope(funcNode, typeDefn) {
 ProgramMeta.prototype.enterFunctionOverloadScope =
 function enterFunctionOverloadScope(funcNode, typeDefn) {
     var funcScope = new FunctionScope(
-        this.currentScope, funcNode.id.name, funcNode
+        this.currentScope, getFunctionName(funcNode), funcNode
     );
     funcScope.loadTypes(funcNode, typeDefn);
 
