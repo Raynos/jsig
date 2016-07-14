@@ -1257,7 +1257,7 @@ function _checkFunctionOverloadType(node, defn) {
 };
 
 ASTVerifier.prototype._checkFunctionType =
-function checkFunctionType(node, defn) {
+function _checkFunctionType(node, defn) {
     this.meta.enterFunctionScope(node, defn);
 
     this._verifyFunctionType(node, defn);
@@ -1277,7 +1277,6 @@ function _verifyFunctionType(node, defn) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-        this.meta.exitFunctionScope();
         return;
     } else if (node.params.length < defn.args.length) {
         err = Errors.TooFewArgsInFunc({
@@ -1288,7 +1287,6 @@ function _verifyFunctionType(node, defn) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-        this.meta.exitFunctionScope();
         return;
     }
 
