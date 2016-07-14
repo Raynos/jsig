@@ -1447,16 +1447,6 @@ function _findPropertyInType(node, jsigType, propertyName) {
         jsigType = this.meta.getVirtualType('TObject').defn;
     }
 
-    if (jsigType.type === 'unionType') {
-        this.meta.addError(Errors.UnionFieldAccess({
-            loc: node.loc,
-            line: node.loc.start.line,
-            fieldName: propertyName,
-            unionType: serialize(jsigType)
-        }));
-        return null;
-    }
-
     var isExportsObject = false;
     if (jsigType.type === 'typeLiteral' &&
         jsigType.builtin && jsigType.name === '%Export%%ExportsObject'
@@ -1466,6 +1456,23 @@ function _findPropertyInType(node, jsigType, propertyName) {
         if (newType) {
             jsigType = newType;
         }
+    }
+
+    return this._findPropertyInSet(
+        node, jsigType, propertyName, isExportsObject
+    );
+};
+
+ASTVerifier.prototype._findPropertyInSet =
+function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
+    if (jsigType.type === 'unionType') {
+        this.meta.addError(Errors.UnionFieldAccess({
+            loc: node.loc,
+            line: node.loc.start.line,
+            fieldName: propertyName,
+            unionType: serialize(jsigType)
+        }));
+        return null;
     }
 
     if (jsigType.type === 'intersectionType' &&
