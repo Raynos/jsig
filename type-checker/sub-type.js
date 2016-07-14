@@ -90,24 +90,8 @@ function checkSubType(node, parent, child) {
     return result;
 };
 
-/*eslint complexity: [2, 30]*/
-SubTypeChecker.prototype.checkTypeLiteralSubType =
-function checkTypeLiteralSubType(node, parent, child) {
-    if (!parent.builtin && !parent.isGeneric) {
-        return reportTypeMisMatch(node, parent, child);
-    }
-    if (parent.isGeneric) {
-        if (!child.isGeneric) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-
-        if (parent.name !== child.name) {
-            return reportTypeMisMatch(node, parent, child);
-        }
-
-        return null;
-    }
-
+SubTypeChecker.prototype._checkSpecialTypeLiteralSubType =
+function _checkSpecialTypeLiteralSubType(node, parent, child) {
     if (parent.name === '%Export%%ModuleExports') {
         return null;
     } else if (parent.name === '%Boolean%%Mixed') {
@@ -129,6 +113,30 @@ function checkTypeLiteralSubType(node, parent, child) {
                 return null;
             }
         }
+    }
+};
+
+/*eslint complexity: [2, 30]*/
+SubTypeChecker.prototype.checkTypeLiteralSubType =
+function checkTypeLiteralSubType(node, parent, child) {
+    if (!parent.builtin && !parent.isGeneric) {
+        return reportTypeMisMatch(node, parent, child);
+    }
+
+    if (parent.isGeneric) {
+        if (!child.isGeneric) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        if (parent.name !== child.name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        return null;
+    }
+
+    if (this._checkSpecialTypeLiteralSubType(node, parent, child) === null) {
+        return null;
     }
 
     if (parent.optional && child.type === 'valueLiteral' &&
