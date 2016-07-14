@@ -1597,9 +1597,11 @@ function _findPropertyInObject(
         }
     }
 
-    if (jsigType.open) {
+    // If open and mutation then allow mixed type.
+    if (jsigType.open && this.meta.currentScope.writableTokenLookup) {
         return JsigAST.literal('%Mixed%%OpenField', true);
     }
+
     if (isExportsObject && this.meta.checkerRules.partialExport) {
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
