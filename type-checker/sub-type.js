@@ -63,7 +63,6 @@ SubTypeChecker.prototype.checkTypeLiteralSubType =
 function checkTypeLiteralSubType(node, parent, child) {
     if (!parent.builtin && !parent.isGeneric) {
         return reportTypeMisMatch(node, parent, child);
-        // throw new Error('not implemented, sub type for non-builtin');
     }
     if (parent.isGeneric) {
         if (!child.isGeneric) {
@@ -108,7 +107,6 @@ function checkTypeLiteralSubType(node, parent, child) {
 
     if (child.type !== 'typeLiteral') {
         return reportTypeMisMatch(node, parent, child);
-        // return new Error('[Internal] expected type literal');
     }
 
     /* optional vs strict must match */
