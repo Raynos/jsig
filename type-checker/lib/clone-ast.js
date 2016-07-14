@@ -22,6 +22,10 @@ function clone(typeDefn) {
         return JsigAST.union(typeDefn.unions, typeDefn.label, {
             optional: typeDefn.optional
         });
+    } else if (typeDefn.type === 'intersectionType') {
+        return JsigAST.intersection(typeDefn.intersections, typeDefn.label, {
+            optional: typeDefn.optional
+        });
     } else if (typeDefn.type === 'function') {
         return JsigAST.functionType({
             args: typeDefn.args,

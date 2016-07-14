@@ -72,8 +72,24 @@ function isSameType(left, right) {
             return false;
         }
 
+        // TODO: order-ness...
         for (i = 0; i < left.unions.length; i++) {
             if (!isSameType(left.unions[i], right.unions[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    } else if (left.type === 'intersectionType') {
+        if (left.intersections.length !== right.intersections.length) {
+            return false;
+        }
+
+        // TODO: order-ness
+        for (i = 0; i < left.intersections.length; i++) {
+            if (!isSameType(
+                left.intersections[i], right.intersections[i]
+            )) {
                 return false;
             }
         }

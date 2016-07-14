@@ -380,14 +380,33 @@ SubTypeChecker.prototype.checkIntersectionSubType =
 function checkIntersectionSubType(node, parent, child) {
     /* TODO: pretty errors & branchType */
 
+    // TODO: what if child is intersectionType
+    var childTypes = child.type === 'intersectionType' ?
+        child.intersections : [child];
+
     var allTypes = parent.intersections;
     for (var i = 0; i < allTypes.length; i++) {
         var currType = allTypes[i];
+        var err = null;
+        var isGood = false;
 
-        var err = this.checkSubType(node, currType, child);
-        if (err) {
+        for (var j = 0; j < childTypes.length; j++) {
+            var error = this.checkSubType(node, currType, childTypes[j]);
+            if (!err) {
+                isGood = true;
+            } else {
+                err = error;
+            }
+        }
+
+        if (!isGood) {
             return err;
         }
+
+        // var err = this.checkSubType(node, currType, child);
+        // if (err) {
+        //     return err;
+        // }
     }
 
     return null;
