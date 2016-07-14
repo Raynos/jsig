@@ -26,6 +26,10 @@ type TObject : {
     hasOwnProperty : <K,V>(this: Object<K,V>, key: String) => Boolean
 }
 
+type TDate : {
+    getTime : (this: Date) => Number
+}
+
 type TNumber : {
     toFixed : (this: Number, digits?: Number) => String
 }
@@ -35,6 +39,8 @@ String : (Number) => String
 Boolean : (Boolean | undefined) => Boolean
 
 Error : (this: Error, String) => void
+
+Array : <T>(this: Array<T>, size: Number) => void
 
 Date : {
     now: () => Number
