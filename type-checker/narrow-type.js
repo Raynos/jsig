@@ -27,6 +27,10 @@ function narrowType(node, ifBranch, elseBranch) {
         return this.narrowLiteral(node, ifBranch, elseBranch);
     } else if (node.type === 'ObjectExpression') {
         return this.narrowObjectExpression(node, ifBranch, elseBranch);
+    } else if (node.type === 'CallExpression') {
+        return this.narrowCallExpression(node, ifBranch, elseBranch);
+    } else if (node.type === 'AssignmentExpression') {
+        return this.narrowAssignmentExpression(node, ifBranch, elseBranch);
     } else {
         throw new Error('!! skipping narrowType: ' + node.type);
     }
@@ -76,6 +80,16 @@ function narrowLiteral(node, ifBranch, elseBranch) {
 NarrowType.prototype.narrowObjectExpression =
 function narrowObjectExpression(node, ifBranch, elseBranch) {
     // TODO: ...
+};
+
+NarrowType.prototype.narrowCallExpression =
+function narrowCallExpression(node, ifBranch, elseBranch) {
+    // TODO: Support hasOwnProperty()
+};
+
+NarrowType.prototype.narrowAssignmentExpression =
+function narrowAssignmentExpression(node, ifBranch, elseBranch) {
+    // TODO: like identifier, but also side-effect
 };
 
 NarrowType.prototype.narrowLogicalExpression =
