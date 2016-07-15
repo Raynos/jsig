@@ -6,8 +6,11 @@ var Errors = {};
 
 Errors.UnknownLiteralError = TypedError({
     type: 'jsig.header-file.unknown-literal',
-    message: 'Could not resolve {literal}',
-    literal: null
+    message: '@{line}: Could not resolve {literal}',
+    literal: null,
+    line: null,
+    loc: null,
+    source: null
 });
 
 Errors.CannotImportToken = TypedError({
@@ -24,6 +27,7 @@ Errors.CannotParseHeaderFile = TypedError({
     type: 'jsig.parser.cannot-parse-header-file',
     message: '@{line}: {msg}.',
     line: null,
+    loc: null,
     msg: null,
     source: null
 });

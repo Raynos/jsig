@@ -52,7 +52,10 @@ function replaceTypeLiteral(ast, rawAst) {
     var typeDefn = this.indexTable[name];
     if (!typeDefn) {
         this.errors.push(Errors.UnknownLiteralError({
-            literal: name
+            literal: name,
+            loc: ast.loc,
+            line: ast.line,
+            source: this.source
         }));
         return null;
     }
