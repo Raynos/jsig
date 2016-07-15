@@ -26,6 +26,17 @@ function makeLiteral(name, builtin, opts) {
     return AST.literal(name, builtin, opts);
 }
 
+function makeParam(name, value) {
+    var opts = {};
+
+    if (name && name[name.length - 1] === '?') {
+        opts.optional = true;
+        name = name.substr(0, name.length - 1);
+    }
+
+    return AST.param(name, value, opts);
+}
+
 var ASTFixture = AST.program([
     AST.importStatement('node.jsig', [
         makeLiteral('Stream')
@@ -64,10 +75,10 @@ var ASTFixture = AST.program([
                 })
             }),
             AST.functionType({
-                args: [AST.generic(
+                args: [makeParam(null, AST.generic(
                     makeLiteral('Callback'),
                     [makeLiteral('MongoCursor')]
-                )],
+                ))],
                 result: makeLiteral('void')
             })
         ]),
@@ -80,15 +91,15 @@ var ASTFixture = AST.program([
                 [makeLiteral('void')
             ]),
             'collection': AST.functionType({
-                args: [makeLiteral('String', 'name')],
+                args: [AST.param('name', makeLiteral('String'))],
                 result: makeLiteral('Collection')
             })
         }),
         AST.functionType({
-            args: [AST.generic(
+            args: [makeParam(null, AST.generic(
                 makeLiteral('Callback'),
                 [makeLiteral('MongoDB')]
-            )],
+            ))],
             result: makeLiteral('void')
         })
     ])),
@@ -96,13 +107,8 @@ var ASTFixture = AST.program([
         AST.object({
             'find': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Cursor'),
@@ -111,13 +117,8 @@ var ASTFixture = AST.program([
             }),
             'findById': AST.functionType({
                 args: [
-                    makeLiteral('String', true, {
-                        label: 'id'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('id', makeLiteral('String')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -126,21 +127,10 @@ var ASTFixture = AST.program([
             }),
             'findAndModify': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Array', true, {
-                        label: 'sort',
-                        optional: true
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'doc',
-                        optional: true
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('sort?', makeLiteral('Array')),
+                    makeParam('doc?', makeLiteral('Object')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -149,17 +139,9 @@ var ASTFixture = AST.program([
             }),
             'findAndRemove': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Array', true, {
-                        label: 'sort',
-                        optional: true
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('sort?', makeLiteral('Array')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -168,13 +150,8 @@ var ASTFixture = AST.program([
             }),
             'findOne': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -183,15 +160,11 @@ var ASTFixture = AST.program([
             }),
             'insert': AST.functionType({
                 args: [
-                    AST.generic(
+                    makeParam('docs', AST.generic(
                         makeLiteral('Array'),
-                        [makeLiteral('T')],
-                        'docs'
-                    ),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                        [makeLiteral('T')]
+                    )),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -203,16 +176,9 @@ var ASTFixture = AST.program([
             }),
             'mapReduce': AST.functionType({
                 args: [
-                    makeLiteral('Function', true, {
-                        label: 'map'
-                    }),
-                    makeLiteral('Function', true, {
-                        label: 'reduce'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('map', makeLiteral('Function')),
+                    makeParam('reduce', makeLiteral('Function')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -221,13 +187,8 @@ var ASTFixture = AST.program([
             }),
             'remove': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -236,17 +197,9 @@ var ASTFixture = AST.program([
             }),
             'update': AST.functionType({
                 args: [
-                    makeLiteral('Object', true, {
-                        label: 'selector'
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'doc',
-                        optional: true
-                    }),
-                    makeLiteral('Object', true, {
-                        label: 'options',
-                        optional: true
-                    })
+                    makeParam('selector', makeLiteral('Object')),
+                    makeParam('doc?', makeLiteral('Object')),
+                    makeParam('options?', makeLiteral('Object'))
                 ],
                 result: AST.generic(
                     makeLiteral('Continuable'),
@@ -255,26 +208,21 @@ var ASTFixture = AST.program([
             })
         }),
         AST.functionType({
-            args: [AST.generic(
+            args: [makeParam(null, AST.generic(
                 makeLiteral('Callback'),
                 [makeLiteral('MongoCollection')]
-            )],
+            ))],
             result: makeLiteral('void')
         })
     ]), [ makeLiteral('T') ]),
     AST.assignment('continuable-mongo/cursor', AST.functionType({
         args: [
-            AST.generic(
+            makeParam(null, AST.generic(
                 makeLiteral('Collection'),
                 [makeLiteral('T')]
-            ),
-            makeLiteral('Object', true, {
-                label: 'selector'
-            }),
-            makeLiteral('Object', true, {
-                label: 'options',
-                optional: true
-            })
+            )),
+            makeParam('selector', makeLiteral('Object')),
+            makeParam('options?', makeLiteral('Object'))
         ],
         result: AST.generic(
             makeLiteral('Cursor'),
@@ -283,23 +231,16 @@ var ASTFixture = AST.program([
     })),
     AST.assignment('continuable-mongo/collection',
         AST.functionType({
-            args: [makeLiteral('Client')],
+            args: [makeParam(null, makeLiteral('Client'))],
             result: AST.functionType({
-                args: [makeLiteral('String', true, {
-                    label: 'collectionName'
-                })],
+                args: [makeParam('collectionName', makeLiteral('String'))],
                 result: makeLiteral('Collection')
             })
         })),
     AST.assignment('continuable-mongo', AST.functionType({
         args: [
-            makeLiteral('String', true, {
-                label: 'uri'
-            }),
-            makeLiteral('Object', true, {
-                label: 'options',
-                optional: true
-            })
+            makeParam('uri', makeLiteral('String')),
+            makeParam('options?', makeLiteral('Object'))
         ],
         result: makeLiteral('Client')
     }))

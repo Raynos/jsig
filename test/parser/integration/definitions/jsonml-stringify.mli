@@ -33,4 +33,4 @@ jsonml-stringify/dom : (jsonml: JsonML) => DOMElement
 jsonml-stringify/attrs : (attributes: Object) => String
 
 jsonml-stringify/unpack-selector :
-    (selector: String, attributes: Object) => tagName: String
+    (selector: String, attributes: Object) => String

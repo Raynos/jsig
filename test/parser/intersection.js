@@ -29,8 +29,6 @@ test('foo : Bar & Baz', function t(assert) {
             isGeneric: false,
             name: 'Bar',
             builtin: false,
-            optional: false,
-            label: null,
             _raw: null
         }, {
             type: 'typeLiteral',
@@ -49,12 +47,8 @@ test('foo : Bar & Baz', function t(assert) {
             isGeneric: false,
             name: 'Baz',
             builtin: false,
-            optional: false,
-            label: null,
             _raw: null
         }],
-        label: null,
-        optional: false,
         _raw: null
     });
 

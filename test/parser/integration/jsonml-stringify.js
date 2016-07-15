@@ -12,14 +12,23 @@ var uri = path.join(__dirname, 'definitions',
     'jsonml-stringify.mli');
 var content = fs.readFileSync(uri, 'utf8');
 
-function makeLiteral(name, builtin, opts) {
-    opts = opts || {};
+function makeLiteral(name, builtin) {
     if (typeof builtin === 'string') {
-        opts.label = builtin;
         builtin = undefined;
     }
 
-    return AST.literal(name, builtin, opts);
+    return AST.literal(name, builtin);
+}
+
+function makeParam(name, value) {
+    var opts = {};
+
+    if (name && name[name.length - 1] === '?') {
+        opts.optional = true;
+        name = name.substr(0, name.length - 1);
+    }
+
+    return AST.param(name, value, opts);
 }
 
 var ASTFixture = AST.program([
@@ -132,31 +141,28 @@ var ASTFixture = AST.program([
     ])),
     AST.assignment('jsonml-stringify', AST.functionType({
         args: [
-            makeLiteral('JsonML', 'jsonml'),
-            makeLiteral('Object', true, {
-                label: 'opts',
-                optional: true
-            })
+            makeParam('jsonml', makeLiteral('JsonML')),
+            makeParam('opts?', makeLiteral('Object'))
         ],
         result: makeLiteral('String')
     })),
     AST.assignment('jsonml-stringify/normalize', AST.functionType({
-        args: [makeLiteral('MaybeJsonML')],
+        args: [makeParam(null, makeLiteral('MaybeJsonML'))],
         result: makeLiteral('JsonML')
     })),
     AST.assignment('jsonml-stringify/dom', AST.functionType({
-        args: [makeLiteral('JsonML', 'jsonml')],
+        args: [makeParam('jsonml', makeLiteral('JsonML'))],
         result: makeLiteral('DOMElement')
     })),
     AST.assignment('jsonml-stringify/attrs', AST.functionType({
-        args: [makeLiteral('Object', 'attributes')],
+        args: [makeParam('attributes', makeLiteral('Object'))],
         result: makeLiteral('String')
     })),
     AST.assignment('jsonml-stringify/unpack-selector',
         AST.functionType({
             args: [
-                makeLiteral('String', 'selector'),
-                makeLiteral('Object', 'attributes')
+                makeParam('selector', makeLiteral('String')),
+                makeParam('attributes', makeLiteral('Object'))
             ],
             result: makeLiteral('String', 'tagName')
         }))

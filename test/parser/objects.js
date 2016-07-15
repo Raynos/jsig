@@ -31,8 +31,6 @@ test('foo : { text: String }', function t(assert) {
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
-                label: null,
-                optional: false,
                 name: 'String',
                 _raw: null
             },
@@ -41,8 +39,6 @@ test('foo : { text: String }', function t(assert) {
         }],
         open: false,
         brand: 'Object',
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -79,8 +75,6 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
-                label: null,
-                optional: false,
                 name: 'String',
                 _raw: null
             },
@@ -93,8 +87,6 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
                 type: 'valueLiteral',
                 name: 'string',
                 value: '"DOMTextNode"',
-                label: null,
-                optional: false,
                 _raw: null
             },
             optional: false,
@@ -102,8 +94,6 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
         }],
         brand: 'Object',
         open: false,
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -134,8 +124,6 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
                         type: 'valueLiteral',
                         name: 'number',
                         value: '3',
-                        label: null,
-                        optional: false,
                         _raw: null
                     },
                     optional: false,
@@ -143,8 +131,6 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
                 }],
                 brand: 'Object',
                 open: false,
-                label: null,
-                optional: false,
                 _raw: null
             },
             optional: false,
@@ -152,8 +138,6 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
         }],
         brand: 'Object',
         open: false,
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -187,8 +171,6 @@ test('foo : { bar?: Baz }', function t(assert) {
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,
-                optional: false,
-                label: null,
                 name: 'Baz',
                 _raw: null
             },
@@ -197,8 +179,6 @@ test('foo : { bar?: Baz }', function t(assert) {
         }],
         brand: 'Object',
         open: false,
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -232,8 +212,6 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,
-                optional: false,
-                label: null,
                 name: 'Baz',
                 _raw: null
             },
@@ -242,8 +220,6 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
         }],
         brand: 'Object',
         open: true,
-        label: null,
-        optional: false,
         _raw: null
     });
 

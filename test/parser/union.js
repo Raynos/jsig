@@ -27,8 +27,6 @@ test('type Foo : Bar | Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             name: 'Bar',
             builtin: false,
             _raw: null
@@ -47,14 +45,10 @@ test('type Foo : Bar | Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             name: 'Baz',
             builtin: false,
             _raw: null
         }],
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -84,8 +78,6 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             name: 'ObjectE',
             builtin: false,
             _raw: null
@@ -104,8 +96,6 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             name: 'C',
             builtin: false,
             _raw: null
@@ -124,14 +114,10 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             name: 'D',
             builtin: false,
             _raw: null
         }],
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -147,51 +133,51 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
     assert.deepEqual(result.typeExpression, {
         type: 'function',
         args: [{
-            type: 'unionType',
-            unions: [{
-                type: 'typeLiteral',
-                line: 1,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 17
-                    },
-                    end: {
-                        line: 1,
-                        column: 23
-                    }
-                },
-                concreteValue: null,
-                isGeneric: false,
-                name: 'Number',
-                builtin: true,
-                label: null,
-                optional: false,
-                _raw: null
-            }, {
-                type: 'typeLiteral',
-                line: 1,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 26
-                    },
-                    end: {
-                        line: 1,
-                        column: 32
-                    }
-                },
-                concreteValue: null,
-                isGeneric: false,
-                name: 'String',
-                builtin: true,
-                label: null,
-                optional: false,
-                _raw: null
-            }],
-            label: 'arg',
+            type: 'param',
+            name: 'arg',
             optional: false,
-            _raw: null
+            _raw: null,
+            value: {
+                type: 'unionType',
+                unions: [{
+                    type: 'typeLiteral',
+                    line: 1,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 17
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
+                    },
+                    concreteValue: null,
+                    isGeneric: false,
+                    name: 'Number',
+                    builtin: true,
+                    _raw: null
+                }, {
+                    type: 'typeLiteral',
+                    line: 1,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 26
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    },
+                    concreteValue: null,
+                    isGeneric: false,
+                    name: 'String',
+                    builtin: true,
+                    _raw: null
+                }],
+                _raw: null
+            }
         }],
         result: {
             type: 'typeLiteral',
@@ -210,15 +196,11 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             isGeneric: false,
             name: 'void',
             builtin: true,
-            label: null,
-            optional: false,
             _raw: null
         },
         generics: [],
         brand: 'Object',
         thisArg: null,
-        label: null,
-        optional: false,
         _raw: null
     });
 

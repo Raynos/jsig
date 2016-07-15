@@ -15,14 +15,12 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
-function makeLiteral(name, builtin, opts) {
-    opts = opts || {};
+function makeLiteral(name, builtin) {
     if (typeof builtin === 'string') {
-        opts.label = builtin;
         builtin = undefined;
     }
 
-    return AST.literal(name, builtin, opts);
+    return AST.literal(name, builtin);
 }
 
 var ASTFixture = AST.program([
@@ -43,7 +41,7 @@ var ASTFixture = AST.program([
     })),
     AST.typeDeclaration('NativeKeyboard', AST.object({
         'isDown': AST.functionType({
-            args: [ makeLiteral('KeyCode', 'keyCode') ],
+            args: [ AST.param('keyCode', makeLiteral('KeyCode')) ],
             result: AST.generic(
                 makeLiteral('Observ'),
                 [ makeLiteral('Boolean') ])
@@ -64,10 +62,10 @@ var ASTFixture = AST.program([
             [ makeLiteral('KeyCode', 'keyCode') ]),
         'directions': AST.functionType({
             args: [
-                makeLiteral('KeyCode', 'up'),
-                makeLiteral('KeyCode', 'down'),
-                makeLiteral('KeyCode', 'left'),
-                makeLiteral('KeyCode', 'right')
+                AST.param('up', makeLiteral('KeyCode')),
+                AST.param('down', makeLiteral('KeyCode')),
+                AST.param('left', makeLiteral('KeyCode')),
+                AST.param('right', makeLiteral('KeyCode'))
             ],
             result: AST.generic(
                 makeLiteral('Observ'),
@@ -100,11 +98,11 @@ var ASTFixture = AST.program([
         result: makeLiteral('Keyboard', 'cachedKeyboard')
     })),
     AST.assignment('frp-keyboard/keyboard', AST.functionType({
-        args: [ makeLiteral('Delegator') ],
+        args: [ AST.param(null, makeLiteral('Delegator')) ],
         result: makeLiteral('Keyboard')
     })),
     AST.assignment('frp-keyboard/native', AST.functionType({
-        args: [ makeLiteral('Delegator') ],
+        args: [ AST.param(null, makeLiteral('Delegator')) ],
         result: makeLiteral('NativeKeyboard')
     }))
 ]);

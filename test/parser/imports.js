@@ -27,8 +27,6 @@ test('import { Foo } from "bar"', function t(assert) {
         isGeneric: false,
         name: 'Foo',
         builtin: false,
-        optional: false,
-        label: null,
         _raw: null
     }]);
 
@@ -58,8 +56,6 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         isGeneric: false,
         name: 'Foo',
         builtin: false,
-        optional: false,
-        label: null,
         _raw: null
     }, {
         type: 'typeLiteral',
@@ -78,8 +74,6 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         isGeneric: false,
         name: 'Bar',
         builtin: false,
-        optional: false,
-        label: null,
         _raw: null
     }]);
 
@@ -96,7 +90,6 @@ test('import { Foo as Bar } from "bar"', function t(assert) {
         type: 'renamedLiteral',
         name: 'Bar',
         builtin: false,
-        optional: false,
         original: {
             type: 'typeLiteral',
             line: 1,
@@ -114,11 +107,8 @@ test('import { Foo as Bar } from "bar"', function t(assert) {
             isGeneric: false,
             name: 'Foo',
             builtin: false,
-            optional: false,
-            label: null,
             _raw: null
         },
-        label: null,
         _raw: null
     }]);
 

@@ -26,8 +26,6 @@ test('foo : String', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         builtin: true,
-        label: null,
-        optional: false,
         name: 'String',
         _raw: null
     });
@@ -57,8 +55,6 @@ test('foo : Error', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         builtin: false,
-        label: null,
-        optional: false,
         name: 'Error',
         _raw: null
     });
@@ -76,8 +72,6 @@ test('foo : null', function t(assert) {
         type: 'valueLiteral',
         name: 'null',
         value: 'null',
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -106,8 +100,6 @@ test('foo : RegExp', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         name: 'RegExp',
-        label: null,
-        optional: false,
         builtin: true,
         _raw: null
     });
@@ -137,8 +129,6 @@ test('foo : Symbol', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         name: 'Symbol',
-        label: null,
-        optional: false,
         builtin: true,
         _raw: null
     });
@@ -156,8 +146,6 @@ test('foo : undefined', function t(assert) {
         type: 'valueLiteral',
         name: 'undefined',
         value: 'undefined',
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -186,8 +174,6 @@ test('foo : Array', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         name: 'Array',
-        label: null,
-        optional: false,
         builtin: true,
         _raw: null
     });
@@ -217,8 +203,6 @@ test('foo-bar : Number', function t(assert) {
         concreteValue: null,
         isGeneric: false,
         builtin: true,
-        label: null,
-        optional: false,
         name: 'Number',
         _raw: null
     });
@@ -253,14 +237,10 @@ test('foo : () => Number', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'Number',
             _raw: null
         },
         brand: 'Object',
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -298,15 +278,11 @@ test('two statements', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
-                label: null,
-                optional: false,
                 builtin: true,
                 name: 'Number',
                 _raw: null
             },
             brand: 'Object',
-            label: null,
-            optional: false,
             _raw: null
         },
         _raw: null
@@ -329,8 +305,6 @@ test('two statements', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             builtin: true,
             name: 'String',
             _raw: null
@@ -363,8 +337,6 @@ test('foo-baz/bar-boz : Number', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
-            label: null,
-            optional: false,
             builtin: true,
             name: 'Number',
             _raw: null

@@ -15,16 +15,24 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
-function makeLiteral(name, builtin, opts) {
-    opts = opts || {};
+function makeLiteral(name, builtin) {
     if (typeof builtin === 'string') {
-        opts.label = builtin;
         builtin = undefined;
     }
 
-    return AST.literal(name, builtin, opts);
+    return AST.literal(name, builtin);
 }
 
+function makeParam(name, value) {
+    var opts = {};
+
+    if (name && name[name.length - 1] === '?') {
+        opts.optional = true;
+        name = name.substr(0, name.length - 1);
+    }
+
+    return AST.param(name, value, opts);
+}
 var ASTFixture = AST.program([
     AST.typeDeclaration('DOMText', AST.object({
         'data': makeLiteral('String'),
@@ -34,16 +42,16 @@ var ASTFixture = AST.program([
         'nodeType': AST.value('3', 'number'),
         'toString': AST.functionType({
             result: makeLiteral('String'),
-            thisArg: makeLiteral('DOMText', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMText'))
         }),
         'replaceChild': AST.functionType({
             args: [
-                makeLiteral('Number', 'index'),
-                makeLiteral('Number', 'length'),
-                makeLiteral('String', 'value')
+                makeParam('index', makeLiteral('Number')),
+                makeParam('length', makeLiteral('Number')),
+                makeParam('value', makeLiteral('String'))
             ],
             result: makeLiteral('void'),
-            thisArg: makeLiteral('DOMText', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMText'))
         })
     })),
     AST.typeDeclaration('DOMNode', AST.union([
@@ -85,44 +93,44 @@ var ASTFixture = AST.program([
             makeLiteral('String')
         ]),
         'appendChild': AST.functionType({
-            args: [ makeLiteral('DOMChild', 'child') ],
+            args: [ makeParam('child', makeLiteral('DOMChild')) ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         }),
         'replaceChild': AST.functionType({
             args: [
-                makeLiteral('DOMChild', 'elem'),
-                makeLiteral('DOMChild', 'needle')
+                makeParam('elem', makeLiteral('DOMChild')),
+                makeParam('needle', makeLiteral('DOMChild'))
             ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         }),
         'removeChild': AST.functionType({
-            args: [ makeLiteral('DOMChild', 'child') ],
+            args: [ makeParam('child', makeLiteral('DOMChild')) ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         }),
         'insertBefore': AST.functionType({
             args: [
-                makeLiteral('DOMChild', 'elem'),
-                AST.union([
+                makeParam('elem', makeLiteral('DOMChild')),
+                makeParam('needle', AST.union([
                     makeLiteral('DOMChild'),
                     AST.value('null'),
                     AST.value('undefined')
-                ], 'needle')
+                ]))
             ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         }),
         'addEventListener': makeLiteral('addEventListener'),
         'dispatchEvent': makeLiteral('dispatchEvent'),
         'focus': AST.functionType({
             result: makeLiteral('void'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         }),
         'toString': AST.functionType({
             result: makeLiteral('String'),
-            thisArg: makeLiteral('DOMElement', 'this')
+            thisArg: makeParam('this', makeLiteral('DOMElement'))
         })
     })),
     AST.typeDeclaration('DocumentFragment', AST.object({
@@ -142,70 +150,68 @@ var ASTFixture = AST.program([
             AST.value('null')
         ]),
         'appendChild': AST.functionType({
-            args: [makeLiteral('DOMChild', 'child')],
+            args: [ makeParam('child', makeLiteral('DOMChild')) ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DocumentFragment', 'this')
+            thisArg: makeParam('this', makeLiteral('DocumentFragment'))
         }),
         'replaceChild': AST.functionType({
             args: [
-                makeLiteral('DOMChild', 'elem'),
-                makeLiteral('DOMChild', 'needle')
+                makeParam('elem', makeLiteral('DOMChild')),
+                makeParam('needle', makeLiteral('DOMChild'))
             ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DocumentFragment', 'this')
+            thisArg: makeParam('this', makeLiteral('DocumentFragment'))
         }),
         'removeChild': AST.functionType({
-            args: [ makeLiteral('DOMChild', 'child') ],
+            args: [ makeParam('child', makeLiteral('DOMChild')) ],
             result: makeLiteral('DOMChild'),
-            thisArg: makeLiteral('DocumentFragment', 'this')
+            thisArg: makeParam('this', makeLiteral('DocumentFragment'))
         }),
         'toString': AST.functionType({
             result: makeLiteral('String'),
-            thisArg: makeLiteral('DocumentFragment', 'this')
+            thisArg: makeParam('this', makeLiteral('DocumentFragment'))
         })
     })),
     AST.typeDeclaration('Document', AST.object({
         'body': makeLiteral('DOMElement'),
         'documentElement': makeLiteral('DOMElement'),
         'createTextNode': AST.functionType({
-            args: [ makeLiteral('String', 'value') ],
-            thisArg: makeLiteral('Document', 'this'),
+            args: [ makeParam('value', makeLiteral('String')) ],
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: makeLiteral('DOMText')
         }),
         'createElement': AST.functionType({
-            args: [ makeLiteral('String', 'tagName') ],
-            thisArg: makeLiteral('Document', 'this'),
+            args: [ makeParam('tagName', makeLiteral('String')) ],
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: makeLiteral('DOMElement')
         }),
         'createElementNS': AST.functionType({
             args: [
-                AST.union([
+                makeParam('namespace', AST.union([
                     makeLiteral('String'),
                     AST.value('null')
-                ], 'namespace'),
-                makeLiteral('String', 'tagName')
+                ])),
+                makeParam('tagName', makeLiteral('String'))
             ],
-            thisArg: makeLiteral('Document', 'this'),
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: makeLiteral('DOMElement')
         }),
         'createDocumentFragment': AST.functionType({
             args: [],
-            thisArg: makeLiteral('Document', 'this'),
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: makeLiteral('DocumentFragment')
         }),
         'createEvent': AST.functionType({
             args: [],
-            thisArg: makeLiteral('Document', 'this'),
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: makeLiteral('Event')
         }),
         'getElementById': AST.functionType({
             args: [
-                makeLiteral('String', 'id'),
-                makeLiteral('DOMElement', 'parent', {
-                    optional: true
-                })
+                makeParam('id', makeLiteral('String')),
+                makeParam('parent?', makeLiteral('DOMElement'))
             ],
-            thisArg: makeLiteral('Document', 'this'),
+            thisArg: makeParam('this', makeLiteral('Document')),
             result: AST.union([
                 AST.value('null'),
                 makeLiteral('DOMElement')
@@ -218,25 +224,25 @@ var ASTFixture = AST.program([
         'cancelable': makeLiteral('Boolean'),
         'initEvent': AST.functionType({
             args: [
-                makeLiteral('String', 'type'),
-                makeLiteral('Boolean', 'bubbles'),
-                makeLiteral('Boolean', 'cancelable')
+                makeParam('type', makeLiteral('String')),
+                makeParam('bubbles', makeLiteral('Boolean')),
+                makeParam('cancelable', makeLiteral('Boolean'))
             ],
-            thisArg: makeLiteral('Event', 'this'),
+            thisArg: makeParam('this', makeLiteral('Event')),
             result: makeLiteral('void')
         })
     })),
     AST.typeDeclaration('addEventListener', AST.functionType({
         args: [
-            makeLiteral('String', 'type'),
-            makeLiteral('Listener', 'listener')
+            makeParam('type', makeLiteral('String')),
+            makeParam('listener', makeLiteral('Listener'))
         ],
-        thisArg: makeLiteral('DOMElement', 'this'),
+        thisArg: makeParam('this', makeLiteral('DOMElement')),
         result: makeLiteral('void')
     })),
     AST.typeDeclaration('dispatchEvent', AST.functionType({
-        args: [ makeLiteral('Event', 'ev') ],
-        thisArg: makeLiteral('DOMElement', 'this'),
+        args: [ makeParam('ev', makeLiteral('Event')) ],
+        thisArg: makeParam('this', makeLiteral('DOMElement')),
         result: makeLiteral('void')
     })),
     AST.assignment('min-document/event/add-event-listener',
@@ -249,23 +255,23 @@ var ASTFixture = AST.program([
     })),
     AST.assignment('min-document/dom-element', AST.functionType({
         args: [
-            makeLiteral('String', 'tagName'),
-            makeLiteral('Document', 'owner', { optional: true }),
-            AST.union([
+            makeParam('tagName', makeLiteral('String')),
+            makeParam('owner?', makeLiteral('Document')),
+            makeParam('namespace?', AST.union([
                 makeLiteral('String'),
                 AST.value('null')
-            ], 'namespace', { optional: true })
+            ]))
         ],
         result: makeLiteral('DOMElement')
     })),
     AST.assignment('min-document/dom-fragment', AST.functionType({
-        args: [ makeLiteral('Document', 'owner', { optional: true }) ],
+        args: [ makeParam('owner?', makeLiteral('Document')) ],
         result: makeLiteral('DocumentFragment')
     })),
     AST.assignment('min-document/dom-text', AST.functionType({
         args: [
-            makeLiteral('String', 'value'),
-            makeLiteral('Document', 'owner', { optional: true })
+            makeParam('value', makeLiteral('String')),
+            makeParam('owner?', makeLiteral('Document'))
         ],
         result: makeLiteral('DOMText')
     })),
@@ -274,7 +280,7 @@ var ASTFixture = AST.program([
         result: makeLiteral('Event')
     })),
     AST.assignment('min-document/serialize', AST.functionType({
-        args: [ makeLiteral('DOMElement') ],
+        args: [ makeParam(null, makeLiteral('DOMElement')) ],
         result: makeLiteral('String')
     })),
     AST.assignment('min-document', makeLiteral('Document'))

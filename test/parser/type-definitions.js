@@ -27,8 +27,6 @@ test('type Foo : String', function t(assert) {
         isGeneric: false,
         builtin: true,
         name: 'String',
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -63,8 +61,6 @@ test('type OptionError<T> : { option: T }', function t(assert) {
                 isGeneric: true,
                 name: 'T',
                 builtin: false,
-                label: null,
-                optional: false,
                 _raw: null
             },
             optional: false,
@@ -72,8 +68,6 @@ test('type OptionError<T> : { option: T }', function t(assert) {
         }],
         brand: 'Object',
         open: false,
-        label: null,
-        optional: false,
         _raw: null
     });
     assert.deepEqual(result.generics, [{
@@ -93,8 +87,6 @@ test('type OptionError<T> : { option: T }', function t(assert) {
         isGeneric: false,
         name: 'T',
         builtin: false,
-        label: null,
-        optional: false,
         _raw: null
     }]);
 

@@ -4,7 +4,7 @@ var test = require('tape');
 var fs = require('fs');
 var path = require('path');
 
-// var showDiff = require('../lib/show-diff.js')
+// var showDiff = require('../lib/show-diff.js');
 
 var parse = require('../../../parser.js');
 var AST = require('../../../ast/');
@@ -48,8 +48,8 @@ var ASTFixture = AST.program([
     })),
     AST.assignment('error/option', AST.functionType({
         args: [
-            makeLiteral('String'),
-            makeLiteral('T')
+            AST.param(null, makeLiteral('String')),
+            AST.param(null, makeLiteral('T'))
         ],
         result: AST.generic(
             makeLiteral('OptionError'),
@@ -58,13 +58,13 @@ var ASTFixture = AST.program([
     })),
     AST.assignment('error/typed', AST.functionType({
         args: [
-            AST.object({
+            AST.param('args', AST.object({
                 'message': makeLiteral('String'),
                 'type': makeLiteral('String')
-            }, 'args')
+            }))
         ],
         result: AST.functionType({
-            args: [ makeLiteral('Object', 'opts') ],
+            args: [ AST.param('opts', makeLiteral('Object')) ],
             result: AST.generic(
                 makeLiteral('TypedError'),
                 [ makeLiteral('String') ]
@@ -73,10 +73,10 @@ var ASTFixture = AST.program([
     })),
     AST.assignment('error/validation', AST.functionType({
         args: [
-            AST.generic(
+            AST.param(null, AST.generic(
                 makeLiteral('Array'),
                 [ makeLiteral('Error') ]
-            )
+            ))
         ],
         result: makeLiteral('ValidationError')
     }))
@@ -87,7 +87,7 @@ test('the error type definition', function t(assert) {
     var result = parse(content);
     AST.CONFIG.loc = true;
 
-    // showDiff(result, ASTFixture)
+    // showDiff(result, ASTFixture);
     assert.deepEqual(result, ASTFixture);
 
     assert.end();

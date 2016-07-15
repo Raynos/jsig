@@ -57,8 +57,6 @@ test('good identifier callbak', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'String',
             _raw: null
         });

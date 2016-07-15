@@ -28,8 +28,6 @@ test('foo : [Number, Number]', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'Number',
             _raw: null
         }, {
@@ -48,13 +46,9 @@ test('foo : [Number, Number]', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'Number',
             _raw: null
         }],
-        label: null,
-        optional: false,
         _raw: null
     });
 
@@ -85,8 +79,6 @@ test('bar : [String, Object, Array]', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'String',
             _raw: null
         }, {
@@ -105,8 +97,6 @@ test('bar : [String, Object, Array]', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'Object',
             _raw: null
         }, {
@@ -125,13 +115,9 @@ test('bar : [String, Object, Array]', function t(assert) {
             concreteValue: null,
             isGeneric: false,
             builtin: true,
-            label: null,
-            optional: false,
             name: 'Array',
             _raw: null
         }],
-        label: null,
-        optional: false,
         _raw: null
     });
 

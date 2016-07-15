@@ -26,8 +26,6 @@ test('export default String', function t(assert) {
         isGeneric: false,
         name: 'String',
         builtin: true,
-        optional: false,
-        label: null,
         _raw: null
     });
 
@@ -64,14 +62,10 @@ test('export default { a: String }', function t(assert) {
                 isGeneric: false,
                 name: 'String',
                 builtin: true,
-                optional: false,
-                label: null,
                 _raw: null
             }
         }],
-        label: null,
         open: false,
-        optional: false,
         _raw: null
     });
 

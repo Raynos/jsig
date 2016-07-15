@@ -15,14 +15,23 @@ var content = fs.readFileSync(uri, 'utf8');
 
 /*eslint array-bracket-spacing: 0*/
 
-function makeLiteral(name, builtin, opts) {
-    opts = opts || {};
+function makeLiteral(name, builtin) {
     if (typeof builtin === 'string') {
-        opts.label = builtin;
         builtin = undefined;
     }
 
-    return AST.literal(name, builtin, opts);
+    return AST.literal(name, builtin);
+}
+
+function makeParam(name, value) {
+    var opts = {};
+
+    if (name && name[name.length - 1] === '?') {
+        opts.optional = true;
+        name = name.substr(0, name.length - 1);
+    }
+
+    return AST.param(name, value, opts);
 }
 
 var ASTFixture = AST.program([
@@ -176,39 +185,39 @@ var ASTFixture = AST.program([
     })),
     AST.typeDeclaration('AST', AST.object({
         'program': AST.functionType({
-            args: [ AST.generic(
+            args: [ makeParam(null, AST.generic(
                 makeLiteral('Array'),
                 [ makeLiteral('Statement') ]
-            ) ],
+            )) ],
             result: makeLiteral('Program')
         }),
         'typeDeclaration': AST.functionType({
             args: [
-                makeLiteral('String'),
-                makeLiteral('TypeExpression')
+                makeParam(null, makeLiteral('String')),
+                makeParam(null, makeLiteral('TypeExpression'))
             ],
             result: makeLiteral('TypeDeclaration')
         }),
         'assignment': AST.functionType({
             args: [
-                makeLiteral('String'),
-                makeLiteral('TypeExpression')
+                makeParam(null, makeLiteral('String')),
+                makeParam(null, makeLiteral('TypeExpression'))
             ],
             result: makeLiteral('Assignment')
         }),
         'importStatement': AST.functionType({
             args: [
-                makeLiteral('String'),
-                AST.generic(
+                makeParam(null, makeLiteral('String')),
+                makeParam(null, AST.generic(
                     makeLiteral('Array'),
                     [ makeLiteral('LiteralE') ]
-                )
+                ))
             ],
             result: makeLiteral('Import')
         }),
         'object': AST.functionType({
             args: [
-                AST.union([
+                makeParam('keyValues', AST.union([
                     AST.generic(
                         makeLiteral('Array'),
                         [ makeLiteral('KeyValue') ]
@@ -220,74 +229,64 @@ var ASTFixture = AST.program([
                             makeLiteral('TypeExpression')
                         ]
                     )
-                ], 'keyValues'),
-                makeLiteral('String', 'label', {
-                    optional: true
-                })
+                ])),
+                makeParam('label?', makeLiteral('String'))
             ],
             result: makeLiteral('ObjectE')
         }),
         'union': AST.functionType({
             args: [
-                AST.generic(
+                makeParam(null, AST.generic(
                     makeLiteral('Array'),
                     [ makeLiteral('TypeExpression') ]
-                ),
-                makeLiteral('String', 'label', {
-                    optional: true
-                }),
-                AST.object({
+                )),
+                makeParam('label?', makeLiteral('String')),
+                makeParam('opts?', AST.object({
                     'optional': makeLiteral('Boolean')
-                }, 'opts', { optional: true })
+                }))
             ],
             result: makeLiteral('UnionE')
         }),
         'intersection': AST.functionType({
             args: [
-                AST.generic(
+                makeParam(null, AST.generic(
                     makeLiteral('Array'),
                     [ makeLiteral('TypeExpression') ]
-                ),
-                makeLiteral('String', 'label', {
-                    optional: true
-                }),
-                AST.object({
+                )),
+                makeParam('label?', makeLiteral('String')),
+                makeParam('opts?', AST.object({
                     'optional': makeLiteral('Boolean')
-                }, 'opts', { optional: true })
+                }))
             ],
             result: makeLiteral('IntersectionE')
         }),
         'literal': AST.functionType({
             args: [
-                makeLiteral('String'),
-                makeLiteral('String', 'builtin', {
-                    optional: true
-                }),
-                AST.object({
+                makeParam(null, makeLiteral('String')),
+                makeParam('builtin?', makeLiteral('String')),
+                makeParam('opts?', AST.object({
                     'optional': makeLiteral('Boolean')
-                }, 'opts', { optional: true })
+                }))
             ],
             result: makeLiteral('LiteralE')
         }),
         'keyValue': AST.functionType({
             args: [
-                makeLiteral('String'),
-                makeLiteral('TypeExpression')
+                makeParam(null, makeLiteral('String')),
+                makeParam(null, makeLiteral('TypeExpression'))
             ],
             result: makeLiteral('KeyValue')
         }),
         'value': AST.functionType({
             args: [
-                makeLiteral('String'),
-                makeLiteral('String', 'name'),
-                makeLiteral('String', 'label', {
-                    optional: true
-                })
+                makeParam(null, makeLiteral('String')),
+                makeParam('name', makeLiteral('String', 'name')),
+                makeParam('label?', makeLiteral('String'))
             ],
             result: makeLiteral('ValueE')
         }),
         'functionType': AST.functionType({
-            args: [ AST.object([
+            args: [ makeParam('opts', AST.object([
                 AST.keyValue('args', AST.generic(
                     makeLiteral('Array'),
                     [ makeLiteral('TypeExpression') ]
@@ -305,42 +304,37 @@ var ASTFixture = AST.program([
                     makeLiteral('Boolean'), {
                         optional: true
                     })
-            ], 'opts') ],
+            ])) ],
             result: makeLiteral('FunctionE')
         }),
         'generic': AST.functionType({
             args: [
-                makeLiteral('TypeExpression', 'value'),
-                AST.generic(
+                makeParam('value', makeLiteral('TypeExpression')),
+                makeParam('generics', AST.generic(
                     makeLiteral('Array'),
-                    [ makeLiteral('TypeExpression') ],
-                    'generics'
-                ),
-                makeLiteral('String', 'label', {
-                    optional: true
-                })
+                    [ makeLiteral('TypeExpression') ]
+                )),
+                makeParam('label?', makeLiteral('String'))
             ],
             result: makeLiteral('GenericE')
         }),
         'tuple': AST.functionType({
             args: [
-                AST.generic(
+                makeParam(null, AST.generic(
                     makeLiteral('Array'),
                     [ makeLiteral('TypeExpression') ]
-                ),
-                makeLiteral('String', 'label', {
-                    optional: true
-                }),
-                AST.object({
+                )),
+                makeParam('label?', makeLiteral('String')),
+                makeParam('opts?', AST.object({
                     'optional': makeLiteral('Boolean')
-                }, 'opts', { optional: true })
+                }))
             ],
             result: makeLiteral('TupleE')
         })
     })),
     AST.assignment('jsig/ast', makeLiteral('AST')),
     AST.assignment('jsig/parser', AST.functionType({
-        args: [ makeLiteral('String', 'content') ],
+        args: [ makeParam('content', makeLiteral('String')) ],
         result: makeLiteral('Program')
     }))
 ]);
