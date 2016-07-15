@@ -93,8 +93,8 @@ function replaceImport(ast, rawAst) {
     var fileName = this._resolvePath(depPath, this.folderName);
     if (fileName === null) {
         // Could not resolve header
-        this.checker.addError(Errors.CouldNotFindHeaderFile({
-            fileName: depPath
+        this.errors.push(Errors.CouldNotFindHeaderFile({
+            otherFile: depPath
         }));
         return ast;
     }

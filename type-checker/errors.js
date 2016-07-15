@@ -27,7 +27,8 @@ Errors.CannotParseHeaderFile = TypedError({
 
 Errors.CouldNotFindHeaderFile = TypedError({
     type: 'jsig.header-file.could-not-find-header-file',
-    message: 'Cannot find other header file: {fileName}.',
+    message: 'Cannot find other header file: {otherFile}.',
+    otherFile: null,
     fileName: null
 });
 
