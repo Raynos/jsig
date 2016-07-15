@@ -288,7 +288,7 @@ function checkFunctionSubType(node, parent, child) {
     }
 
     if (parent.args.length !== child.args.length) {
-        throw new Error('[Internal] function args mismatch');
+        return reportTypeMisMatch(node, parent, child);
     }
 
     for (var i = 0; i < parent.args.length; i++) {
