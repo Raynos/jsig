@@ -18,8 +18,7 @@ function updateObject(targetType, keyPath, newValue) {
     clone.intersections = clone.intersections.slice();
     var intersections = clone.intersections;
 
-    assert(keyPath.length === 1, 'can only have shallow keys');
-    var key = keyPath[0];
+    var primaryKey = keyPath[0];
     var foundIndex = -1;
 
     for (var i = 0; i < intersections.length; i++) {
@@ -30,7 +29,7 @@ function updateObject(targetType, keyPath, newValue) {
 
         for (var j = 0; j < possibleObject.keyValues.length; j++) {
             var pair = possibleObject.keyValues[j];
-            if (pair.key === key) {
+            if (pair.key === primaryKey) {
                 foundIndex = i;
                 break;
             }
