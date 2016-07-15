@@ -59,6 +59,8 @@ function replaceTypeLiteral(ast, rawAst) {
         }));
         return null;
     }
+
+    // TODO: this clone breaks cyclic imports...
     typeDefn = cloneJSIG(typeDefn);
 
     typeDefn.label = ast.label;
