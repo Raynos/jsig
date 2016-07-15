@@ -47,20 +47,25 @@ function prettyPrintError(checker, error, opts) {
     parts.push('');
 
     if (opts.showLoc !== false && error.loc) {
-        var meta = checker.getOrCreateMeta(error.fileName);
-        var failingLines = getFailingLines(meta.sourceLines, error.loc);
+        var sourceLines;
+        if (error.source) {
+            sourceLines = error.source.split('\n');
+        } else {
+            var meta = checker.getOrCreateMeta(error.fileName);
+            sourceLines = meta.sourceLines;
+        }
+
+        var failingLines = getFailingLines(sourceLines, error.loc);
 
         parts.push(opts.prefix + failingLines);
         parts.push('');
-    }
-
-    if (opts.showLoc !== false &&
+    } else if (opts.showLoc !== false &&
         (
             error.type === 'jsig.checker.could-not-parse-javascript' ||
             error.type === 'jsig.parser.cannot-parse-header-file'
         )
     ) {
-        var sourceLines = error.source.split('\n');
+        sourceLines = error.source.split('\n');
         var loc = {
             start: {
                 column: 0,
