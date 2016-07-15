@@ -32,32 +32,16 @@ var intersectionType = Parsimmon.alt(
     unionType
 );
 
-var typeDeclaration = lexemes.label
-    .chain(function captureLabels(labels) {
-        return intersectionType.map(function toExpr(expr) {
-            var label = labels[0] || null;
-            var optional = typeof label === 'string' &&
-                label.charAt(label.length - 1) === '?';
+var typeDefinition = intersectionType;
 
-            if (optional) {
-                label = label.substr(0, label.length - 1);
-            }
-
-            expr.label = label;
-            expr.optional = optional;
-
-            return expr;
-        });
-    });
-
-var typeDeclarationWithParen = Parsimmon.alt(
-    typeDeclaration,
+var typeDefinitionWithParen = Parsimmon.alt(
+    typeDefinition,
     lexemes.openBrace
-        .then(typeDeclaration)
+        .then(typeDefinition)
         .skip(lexemes.closeBrace)
 );
 
-module.exports = typeDeclarationWithParen;
+module.exports = typeDefinitionWithParen;
 
 var typeExpression = require('./type-expression.js');
 var typeFunction = require('./type-function.js');

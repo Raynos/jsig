@@ -48,10 +48,6 @@ var lexemes = {
     blockCommentEnd: Parsimmon.string('*/')
 };
 
-lexemes.label = lexemes.labelName
-    .skip(lexemes.labelSeperator)
-    .atMost(1);
-
 module.exports = lexemes;
 
 function lexeme(p) {

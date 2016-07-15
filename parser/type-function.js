@@ -10,6 +10,31 @@ var genericExpression = lexemes.openAngularBrace
     .then(join(typeLiteral, lexemes.comma))
     .skip(lexemes.closeAngularBrace);
 
+var paramName = lexemes.labelName
+    .skip(lexemes.labelSeperator)
+    .atMost(1);
+
+var typeParam = paramName
+    .chain(function captureOptional(maybeName) {
+        var name = maybeName[0] || null;
+        var optional = false;
+        if (name) {
+            optional = name[name.length - 1] === '?';
+            if (optional) {
+                name = name.substr(0, name.length - 1);
+            }
+        }
+
+        return typeDefinition
+            .map(function toParam(value) {
+                return AST.param(name, value, {
+                    optional: optional
+                });
+            });
+    });
+
+var typeParams = join(typeParam, lexemes.comma);
+
 var typeFunction = genericExpression.times(0, 1)
     .chain(function captureGeneric(list) {
         var generics = list[0] || null;
@@ -20,10 +45,10 @@ var typeFunction = genericExpression.times(0, 1)
         }
 
         return lexemes.openRoundBrace
-             .then(join(typeDefinition, lexemes.comma))
+            .then(typeParams)
             .chain(function captureArgs(args) {
                 var thisArg = null;
-                if (args[0] && args[0].label === 'this') {
+                if (args[0] && args[0].name === 'this') {
                     thisArg = args.shift();
                 }
 
