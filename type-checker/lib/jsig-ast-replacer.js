@@ -131,6 +131,12 @@ function inlineReferences(ast, rawAst, stack) {
         stack.pop();
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
+    } else if (ast.type === 'param') {
+        stack.push('value');
+        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+        stack.pop();
+        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        return ast;
     } else if (ast.type === 'unionType') {
         stack.push('unions');
         for (i = 0; i < ast.unions.length; i++) {
