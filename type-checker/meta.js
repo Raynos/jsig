@@ -13,7 +13,7 @@ var FileScope = require('./scope.js').FileScope;
 var FunctionScope = require('./scope.js').FunctionScope;
 var BranchScope = require('./scope.js').BranchScope;
 var Errors = require('./errors.js');
-var JsigAst = require('../ast/');
+var JsigAST = require('../ast/');
 
 module.exports = ProgramMeta;
 
@@ -231,8 +231,8 @@ ProgramMeta.prototype.inferType = function inferType(node) {
     this.addTrace(new TraceInfo(
         'meta.infer-type',
         node,
-        JsigAst.literal('<InferredType>'),
-        inferred || JsigAst.literal('<InferenceError>')
+        JsigAST.literal('<InferredType>'),
+        inferred || JsigAST.literal('<InferenceError>')
     ));
 
     return inferred;
