@@ -18,23 +18,45 @@ var renamedLiteral = typeLiteral
             });
     });
 
-var importStatement = lexemes.importWord
-    .then(lexemes.openCurlyBrace)
-    .then(join(Parsimmon.alt(
-        renamedLiteral,
-        typeLiteral
-    ), lexemes.comma))
-    .chain(function captureLiteral(importLiterals) {
-        return lexemes.closeCurlyBrace
-            .then(lexemes.fromWord)
-            .then(lexemes.quote)
-            .then(lexemes.moduleName)
-            .skip(lexemes.quote)
-            .map(function toImport(identifier) {
-                return AST.importStatement(identifier,
-                    importLiterals);
-            });
-    });
+var importStatement = Parsimmon.seqMap(
+
+    lexemes.importWord
+        .then(Parsimmon.index),
+
+    lexemes.openCurlyBrace
+        .then(join(Parsimmon.alt(
+            renamedLiteral,
+            typeLiteral
+        ), lexemes.comma)),
+
+    lexemes.closeCurlyBrace
+        .then(lexemes.fromWord)
+        .then(Parsimmon.index),
+
+    lexemes.quote
+        .then(lexemes.moduleName)
+        .skip(lexemes.quote),
+
+    function onParts(startIndex, importLiterals, endIndex, identifier) {
+        var loc = {
+            start: {
+                column: 0,
+                line: startIndex.line
+            },
+            end: {
+                line: endIndex.line,
+                column: Number.MAX_VALUE
+            }
+        };
+
+        return AST.importStatement(
+            identifier, importLiterals, {
+                loc: loc,
+                line: startIndex.line
+            }
+        );
+    }
+);
 
 var assignment = lexemes.assignmentIdentifier
     .chain(function captureIdentifier(identifier) {

@@ -29,8 +29,8 @@ module.exports = {
     assignment: function assigment(id, expr) {
         return new AssignmentNode(id, expr);
     },
-    importStatement: function importStatement(dependency, types) {
-        return new ImportStatementNode(dependency, types);
+    importStatement: function importStatement(dependency, types, opts) {
+        return new ImportStatementNode(dependency, types, opts);
     },
     object: function object(pairs, label, opts) {
         return new ObjectNode(pairs, label, opts);
