@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-var fs = require('fs');
 var assert = require('assert');
 
 var isModuleExports = require('./lib/is-module-exports.js');
