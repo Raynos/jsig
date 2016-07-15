@@ -103,7 +103,7 @@ function replaceImport(ast, rawAst) {
         return ast;
     }
 
-    var otherHeader = this.checker.getOrCreateHeaderFile(fileName, true);
+    var otherHeader = this.checker.getOrCreateHeaderFile(fileName);
     if (!otherHeader) {
         return ast;
     }

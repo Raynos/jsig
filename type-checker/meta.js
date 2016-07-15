@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var fs = require('fs');
 var assert = require('assert');
 
 var isModuleExports = require('./lib/is-module-exports.js');
@@ -425,9 +426,14 @@ function loadHeaderFile(required) {
 
     var headerFileName = this.fileName.slice(0, extIndex) + '.hjs';
 
-    this.headerFile = this.checker.getOrCreateHeaderFile(
-        headerFileName, required
-    );
+    // if the header file is not required and we could not read it
+    // then this is expected and we continue on
+    if (!required && !this.checker.tryReadHeaderFile(headerFileName)) {
+        return true;
+    }
+
+    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName);
+
     if (!this.headerFile) {
         return false;
     }

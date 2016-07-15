@@ -118,7 +118,7 @@ function checkProgram() {
 
 TypeChecker.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {
-    var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile, true);
+    var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile);
     assert(this.errors.length === 0, 'must be no errors');
     assert(opHeaderFile, 'must be able to load operators');
 
@@ -128,7 +128,7 @@ function loadLanguageIdentifiers() {
         this.globalScope._addOperator(a.identifier, a.typeExpression);
     }
 
-    var es5HeaderFile = this.getOrCreateHeaderFile(es5File, true);
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
     assert(this.errors.length === 0, 'must be no errors');
     assert(es5HeaderFile, 'must be able to load es5');
 
@@ -170,7 +170,7 @@ TypeChecker.prototype.loadJavaScriptIntoIndexTable =
 function loadJavaScriptIntoIndexTable(indexTable) {
     var before = this.errors.length;
 
-    var es5HeaderFile = this.getOrCreateHeaderFile(es5File, true);
+    var es5HeaderFile = this.getOrCreateHeaderFile(es5File);
     assert(this.errors.length === before, 'must be no errors');
     assert(es5HeaderFile, 'must be able to load es5');
 
@@ -178,11 +178,34 @@ function loadJavaScriptIntoIndexTable(indexTable) {
     indexTable['Error'] = es5HeaderFile.indexTable['Error'];
 };
 
-TypeChecker.prototype.getOrCreateHeaderFile =
-function getOrCreateHeaderFile(fileName, required) {
-    assert(typeof required === 'boolean',
-        'required parameter needed');
+TypeChecker.prototype.tryReadHeaderFile =
+function tryReadHeaderFile(fileName) {
+    if (!this.files[fileName]) {
+        fileName = path.resolve(fileName);
+    }
 
+    var headerFile;
+    if (this.headerFiles[fileName]) {
+        headerFile = this.headerFiles[fileName];
+        if (headerFile.errors.length) {
+            return true;
+        }
+
+        return true;
+    }
+
+    var source = this.files[fileName];
+    if (!source) {
+        if (!fs.existsSync(fileName)) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+TypeChecker.prototype.getOrCreateHeaderFile =
+function getOrCreateHeaderFile(fileName) {
     if (!this.files[fileName]) {
         fileName = path.resolve(fileName);
     }
@@ -200,11 +223,9 @@ function getOrCreateHeaderFile(fileName, required) {
     var source = this.files[fileName];
     if (!source) {
         if (!fs.existsSync(fileName)) {
-            if (required) {
-                this.addError(Errors.CouldNotFindHeaderFile({
-                    fileName: fileName
-                }));
-            }
+            this.addError(Errors.CouldNotFindHeaderFile({
+                fileName: fileName
+            }));
             return null;
         }
 
@@ -372,7 +393,7 @@ function preloadDefinitions() {
             continue;
         }
 
-        var headerFile = this.getOrCreateHeaderFile(fileName, true);
+        var headerFile = this.getOrCreateHeaderFile(fileName);
         if (!headerFile) {
             continue;
         }
@@ -391,7 +412,7 @@ function preloadGlobals() {
         return;
     }
 
-    var headerFile = this.getOrCreateHeaderFile(this.globalsFile, true);
+    var headerFile = this.getOrCreateHeaderFile(this.globalsFile);
     if (!headerFile) {
         return;
     }
