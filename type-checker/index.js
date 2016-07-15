@@ -187,8 +187,14 @@ function getOrCreateHeaderFile(fileName, required) {
         fileName = path.resolve(fileName);
     }
 
+    var headerFile;
     if (this.headerFiles[fileName]) {
-        return this.headerFiles[fileName];
+        headerFile = this.headerFiles[fileName];
+        if (headerFile.errors.length) {
+            return null;
+        }
+
+        return headerFile;
     }
 
     var source = this.files[fileName];
@@ -216,8 +222,11 @@ function getOrCreateHeaderFile(fileName, required) {
         return null;
     }
 
-    var headerFile = new HeaderFile(this, res.value, fileName);
+    headerFile = new HeaderFile(this, res.value, fileName);
+    this.headerFiles[fileName] = headerFile;
+
     headerFile.resolveReferences();
+
     if (headerFile.errors.length) {
         for (var i = 0; i < headerFile.errors.length; i++) {
             headerFile.errors[i].fileName = fileName;
@@ -226,7 +235,6 @@ function getOrCreateHeaderFile(fileName, required) {
         return null;
     }
 
-    this.headerFiles[fileName] = headerFile;
     return headerFile;
 };
 

@@ -181,7 +181,7 @@ ProgramMeta.prototype.verify = function verify() {
     this.parseRules();
 
     var beforeErrors = this.countErrors();
-    this.loadHeaderFile(false);
+    var success = this.loadHeaderFile(false);
     var afterErrors = this.countErrors();
 
     this.setModuleExportsNode(node);
@@ -189,7 +189,7 @@ ProgramMeta.prototype.verify = function verify() {
     // If something went wrong in the header file loading phase
     // Then do not even bother to check the source code against
     // a malformed / half done header.
-    if (beforeErrors !== afterErrors) {
+    if (!success || beforeErrors !== afterErrors) {
         return;
     }
 
@@ -429,7 +429,7 @@ function loadHeaderFile(required) {
         headerFileName, required
     );
     if (!this.headerFile) {
-        return;
+        return false;
     }
 
     var assignments = this.headerFile.getResolvedAssignments();
@@ -443,6 +443,8 @@ function loadHeaderFile(required) {
     if (exportType !== null) {
         this.moduleExportsType = exportType;
     }
+
+    return true;
 };
 
 ProgramMeta.prototype.allocateBranchScope =
