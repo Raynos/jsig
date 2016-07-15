@@ -346,7 +346,9 @@ var ASTFixture = AST.program([
 ]);
 
 test('the jsig type definition', function t(assert) {
+    AST.CONFIG.loc = false;
     var result = parse(content);
+    AST.CONFIG.loc = true;
 
    // showDiff(result, ASTFixture)
     assert.deepEqual(result, ASTFixture);
