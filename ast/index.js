@@ -19,6 +19,7 @@ var TupleNode = require('./tuple.js');
 var RenamedLiteralNode = require('./renamed-literal.js');
 var CommentNode = require('./comment.js');
 var DefaultExportNode = require('./default-export.js');
+var FunctionParameterNode = require('./function-parameter.js');
 
 module.exports = {
     CONFIG: ASTConfig,
@@ -60,6 +61,9 @@ module.exports = {
     },
     functionType: function functionType(opts) {
         return new FunctionNode(opts);
+    },
+    param: function param(name, value, opts) {
+        return new FunctionParameterNode(name, value, opts);
     },
     generic: function generic(value, generics, label) {
         return new GenericLiteralNode(value, generics, label);
