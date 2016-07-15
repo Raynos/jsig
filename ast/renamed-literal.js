@@ -15,8 +15,6 @@ function RenamedLiteralNode(token, original, opts) {
     this.type = 'renamedLiteral';
     this.name = token.name;
     this.builtin = token.builtin;
-    this.optional = token.optional;
-    this.label = token.label;
     this.original = original;
     this._raw = null;
 }

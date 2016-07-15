@@ -1,8 +1,12 @@
 'use strict';
 
+var assert = require('assert');
+
 module.exports = ValueLiteralNode;
 
 function ValueLiteralNode(value, name, label) {
+    assert(!label, 'cannot have label on valueLiteral');
+
     name = name ? name :
         value === 'null' ? 'null' :
         value === 'undefined' ? 'undefined' :
@@ -11,7 +15,5 @@ function ValueLiteralNode(value, name, label) {
     this.type = 'valueLiteral';
     this.value = value;
     this.name = name;
-    this.label = label || null;
-    this.optional = false;
     this._raw = null;
 }

@@ -1,17 +1,20 @@
 'use strict';
 
+var assert = require('assert');
+
 var LocationLiteralNode = require('./location-literal.js');
 var JsigASTReplacer = require('../type-checker/lib/jsig-ast-replacer.js');
 
 module.exports = FunctionNode;
 
 function FunctionNode(opts) {
+    assert(!(opts && opts.label), 'cannot have label on function');
+    assert(!(opts && opts.optional), 'cannot have optional on function');
+
     this.type = 'function';
     this.args = opts.args || [];
     this.result = opts.result;
     this.thisArg = opts.thisArg || null;
-    this.label = opts.label || null;
-    this.optional = opts.optional || false;
     this.brand = opts.brand || 'Object';
     this._raw = null;
 
