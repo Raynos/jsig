@@ -12,8 +12,11 @@ Errors.UnknownLiteralError = TypedError({
 
 Errors.CannotImportToken = TypedError({
     type: 'jsig.header-file.cannot-import-token',
-    message: 'Cannot import {identifier} from {otherFile}.',
+    message: '@{line}: Cannot import {identifier} from {otherFile}.',
     identifier: null,
+    line: null,
+    loc: null,
+    source: null,
     otherFile: null
 });
 

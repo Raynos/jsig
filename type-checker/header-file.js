@@ -9,8 +9,9 @@ var cloneJSIG = require('./lib/clone-ast.js');
 
 module.exports = HeaderFile;
 
-function HeaderFile(checker, jsigAst, fileName) {
+function HeaderFile(checker, jsigAst, fileName, source) {
     this.checker = checker;
+    this.source = source;
     this.fileName = fileName;
     this.folderName = path.dirname(fileName);
     this.rawJsigAst = jsigAst;
@@ -111,7 +112,10 @@ function replaceImport(ast, rawAst) {
         if (!otherHeader.indexTable[t.name]) {
             this.errors.push(Errors.CannotImportToken({
                 identifier: t.name,
-                otherFile: fileName
+                otherFile: fileName,
+                loc: t.loc,
+                line: t.line,
+                source: this.source
             }));
             continue;
         }

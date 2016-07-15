@@ -222,7 +222,7 @@ function getOrCreateHeaderFile(fileName, required) {
         return null;
     }
 
-    headerFile = new HeaderFile(this, res.value, fileName);
+    headerFile = new HeaderFile(this, res.value, fileName, source);
     this.headerFiles[fileName] = headerFile;
 
     headerFile.resolveReferences();
