@@ -17,7 +17,8 @@ var serializers = {
     genericLiteral: serializeGeneric,
     tuple: serializeTuple,
     freeLiteral: serializeFreeLiteral,
-    renamedLiteral: serializeRenamedLiteral
+    renamedLiteral: serializeRenamedLiteral,
+    param: serializeParam
 };
 
 module.exports = serialize;
@@ -130,18 +131,12 @@ function serializeImportStatement(node, opts) {
         spaces(opts.indent) + '} from "' + node.dependency + '"';
 }
 
-function serializeLabel(node) {
-    return node.label ?
-        node.label + (node.optional ? '?' : '') + ': ' :
-        '';
-}
-
 function serializeObject(node, opts) {
     var keyValues = node.keyValues;
     var tokens;
 
     if (keyValues.length === 0) {
-        return serializeLabel(node, opts) + '{}';
+        return '{}';
     }
 
     /* heuristic. Pretty print single key, value on one line */
@@ -150,8 +145,7 @@ function serializeObject(node, opts) {
         for (var i = 0; i < keyValues.length; i++) {
             tokens.push(serialize(keyValues[i]));
         }
-        var content = serializeLabel(node, opts) + '{ ' +
-            tokens.join(', ') + ' }';
+        var content = '{ ' + tokens.join(', ') + ' }';
 
         if (content.length < 65 &&
             content.indexOf('\n') === -1
@@ -167,11 +161,11 @@ function serializeObject(node, opts) {
         })));
     }
 
-    return serializeLabel(node, opts) + '{\n' +
+    return '{\n' +
         tokens.join(',\n') + '\n' + spaces(opts.indent) + '}';
 }
 
-function prettyFormatList(labelStr, tokens, seperator, opts) {
+function prettyFormatList(tokens, seperator, opts) {
     var parts = [''];
     for (var i = 0; i < tokens.length; i++) {
         var token = tokens[i];
@@ -199,23 +193,22 @@ function prettyFormatList(labelStr, tokens, seperator, opts) {
             trimLeft(token) + seperator;
     }
 
-    var str = labelStr + parts.join('\n');
+    var str = parts.join('\n');
     // remove extra {seperator} at the end
     return str.substr(0, str.length - seperator.length);
 }
 
 function serializeUnion(node, opts) {
-    var labelStr = serializeLabel(node);
     var nodes = [];
     for (var i = 0; i < node.unions.length; i++) {
         nodes.push(serialize(node.unions[i], opts));
     }
-    var str = labelStr + nodes.join(' | ');
+    var str = nodes.join(' | ');
 
     /* heuristic. Split across multiple lines if too long */
     if (str.split('\n')[0].length > 65) {
         if (nodes.length < 10) {
-            str = prettyFormatList(labelStr, nodes, ' | ', opts);
+            str = prettyFormatList(nodes, ' | ', opts);
         } else {
             nodes = [];
             for (i = 0; i < node.unions.length; i++) {
@@ -233,17 +226,16 @@ function serializeUnion(node, opts) {
 }
 
 function serializeIntersection(node, opts) {
-    var labelStr = serializeLabel(node);
     var nodes = [];
     for (var i = 0; i < node.intersections.length; i++) {
         nodes.push(serialize(node.intersections[i], opts));
     }
 
-    var str = labelStr + nodes.join(' & ');
+    var str = nodes.join(' & ');
 
     /* heuristic. Split across multiple lines if too long */
     if (str.split('\n')[0].length > 65) {
-        str = prettyFormatList(labelStr, nodes, ' & ', opts);
+        str = prettyFormatList(nodes, ' & ', opts);
     }
 
     return str;
@@ -254,7 +246,15 @@ function serializeFreeLiteral(node, opts) {
 }
 
 function serializeLiteral(node, opts) {
-    return serializeLabel(node, opts) + node.name;
+    return node.name;
+}
+
+function serializeParam(node, opts) {
+    var prefix = node.name ?
+        (node.name + (node.optional ? '?' : '') + ': ') :
+        '';
+
+    return prefix + serialize(node.value, opts);
 }
 
 function serializeKeyValue(node, opts) {
@@ -264,11 +264,11 @@ function serializeKeyValue(node, opts) {
 }
 
 function serializeValue(node, opts) {
-    return serializeLabel(node, opts) + node.value;
+    return node.value;
 }
 
 function serializeFunctionType(node, opts) {
-    var str = serializeLabel(node, opts) + '(';
+    var str = '(';
     var argNodes = node.args.slice();
 
     if (node.thisArg) {
@@ -307,8 +307,7 @@ function serializeGeneric(node, opts) {
         nodes.push(serialize(node.generics[i], opts));
     }
 
-    return serializeLabel(node, opts) +
-        serialize(node.value, opts) +
+    return serialize(node.value, opts) +
         '<' + nodes.join(', ') + '>';
 }
 
@@ -318,14 +317,12 @@ function serializeTuple(node, opts) {
         nodes.push(serialize(node.values[i], opts));
     }
 
-    return serializeLabel(node, opts) +
-        '[' + nodes.join(', ') + ']';
+    return '[' + nodes.join(', ') + ']';
 }
 
 function serializeRenamedLiteral(node, opts) {
-    var label = serializeLabel(node, opts);
 
-    return label + spaces(opts.indent) +
+    return spaces(opts.indent) +
         serialize(node.original) + ' as ' + node.name;
 }
 
