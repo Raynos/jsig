@@ -11,6 +11,8 @@ function LiteralTypeNode(name, builtin, opts) {
     this.type = 'typeLiteral';
     this.name = name;
     this.builtin = builtin;
+    this.line = (opts && opts.line) || null;
+    this.loc = (opts && opts.loc) || null;
     this.label = (opts && opts.label) || null;
     this.optional = (opts && opts.optional) || false;
 

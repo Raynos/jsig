@@ -2,6 +2,8 @@
 
 var Parsimmon = require('parsimmon');
 
+var RAW_TYPE_NAME = Parsimmon.regex(/[a-z%]+/i);
+
 var lexemes = {
     importWord: lexeme(Parsimmon.string('import')),
     rowTypeVariable: lexeme(Parsimmon.string('..R')),
@@ -17,7 +19,8 @@ var lexemes = {
     ),
     moduleName: lexeme(Parsimmon.regex(/[a-z0-9_\-\/\.]+/i)),
     labelName: lexeme(Parsimmon.regex(/[a-z0-9_\?]+/i)),
-    typeName: lexeme(Parsimmon.regex(/[a-z%]+/i)),
+    rawTypeName: RAW_TYPE_NAME,
+    typeName: lexeme(RAW_TYPE_NAME),
     labelSeperator: lexeme(Parsimmon.string(':')),
     comma: lexeme(Parsimmon.string(',')),
     openAngularBrace: lexeme(Parsimmon.string('<')),
