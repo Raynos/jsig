@@ -108,8 +108,13 @@ function replaceImport(ast, rawAst) {
         var t = ast.types[i];
         assert(t.type === 'typeLiteral', 'expected typeLiteral');
 
-        assert(otherHeader.indexTable[t.name],
-            'expected token to be defined in other header');
+        if (!otherHeader.indexTable[t.name]) {
+            this.errors.push(Errors.CannotImportToken({
+                identifier: t.name,
+                otherFile: fileName
+            }));
+            continue;
+        }
 
         this.addToken(t.name, otherHeader.indexTable[t.name]);
     }
