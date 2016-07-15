@@ -1,5 +1,6 @@
 'use strict';
 
+var ASTConfig = require('./_ast-config.js');
 var builtinTypes = require('../parser/builtin-types.js');
 
 module.exports = LiteralTypeNode;
@@ -11,8 +12,8 @@ function LiteralTypeNode(name, builtin, opts) {
     this.type = 'typeLiteral';
     this.name = name;
     this.builtin = builtin;
-    this.line = (opts && opts.line) || null;
-    this.loc = (opts && opts.loc) || null;
+    this.line = (ASTConfig.loc && opts && opts.line) || null;
+    this.loc = (ASTConfig.loc && opts && opts.loc) || null;
     this.label = (opts && opts.label) || null;
     this.optional = (opts && opts.optional) || false;
 

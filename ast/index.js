@@ -1,5 +1,6 @@
 'use strict';
 
+var ASTConfig = require('./_ast-config.js');
 var ProgramNode = require('./program.js');
 var TypeDeclarationNode = require('./type-declaration.js');
 var AssignmentNode = require('./assignment.js');
@@ -20,6 +21,7 @@ var CommentNode = require('./comment.js');
 var DefaultExportNode = require('./default-export.js');
 
 module.exports = {
+    CONFIG: ASTConfig,
     program: function program(statements) {
         return new ProgramNode(statements);
     },
