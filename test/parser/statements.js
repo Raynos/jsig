@@ -12,6 +12,17 @@ test('foo : String', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 6
+            },
+            end: {
+                line: 1,
+                column: 12
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         builtin: true,
@@ -32,6 +43,17 @@ test('foo : Error', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 6
+            },
+            end: {
+                line: 1,
+                column: 11
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         builtin: false,
@@ -70,6 +92,17 @@ test('foo : RegExp', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 6
+            },
+            end: {
+                line: 1,
+                column: 12
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'RegExp',
@@ -90,6 +123,17 @@ test('foo : Symbol', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 6
+            },
+            end: {
+                line: 1,
+                column: 12
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'Symbol',
@@ -128,6 +172,17 @@ test('foo : Array', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 6
+            },
+            end: {
+                line: 1,
+                column: 11
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'Array',
@@ -148,6 +203,17 @@ test('foo-bar : Number', function t(assert) {
     assert.equal(result.identifier, 'foo-bar');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 10
+            },
+            end: {
+                line: 1,
+                column: 16
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         builtin: true,
@@ -173,6 +239,17 @@ test('foo : () => Number', function t(assert) {
         thisArg: null,
         result: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 12
+                },
+                end: {
+                    line: 1,
+                    column: 18
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -208,6 +285,17 @@ test('two statements', function t(assert) {
             generics: [],
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 12
+                    },
+                    end: {
+                        line: 1,
+                        column: 18
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -228,6 +316,17 @@ test('two statements', function t(assert) {
         identifier: 'bar',
         typeExpression: {
             type: 'typeLiteral',
+            line: 2,
+            loc: {
+                start: {
+                    line: 2,
+                    column: 6
+                },
+                end: {
+                    line: 2,
+                    column: 12
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -251,6 +350,17 @@ test('foo-baz/bar-boz : Number', function t(assert) {
         identifier: 'foo-baz/bar-boz',
         typeExpression: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 18
+                },
+                end: {
+                    line: 1,
+                    column: 24
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,

@@ -12,6 +12,17 @@ test('foo : (String)', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 7
+            },
+            end: {
+                line: 1,
+                column: 13
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         builtin: true,
@@ -34,6 +45,17 @@ test('foo : (String | Number)', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -43,6 +65,17 @@ test('foo : (String | Number)', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 16
+                },
+                end: {
+                    line: 1,
+                    column: 22
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -70,6 +103,17 @@ test('foo : (A) => B | C', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 8
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: false,
@@ -82,6 +126,17 @@ test('foo : (A) => B | C', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 13
+                    },
+                    end: {
+                        line: 1,
+                        column: 14
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -91,6 +146,17 @@ test('foo : (A) => B | C', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 17
+                    },
+                    end: {
+                        line: 1,
+                        column: 18
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -124,6 +190,17 @@ test('foo : (A) => (B | C)', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 8
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: false,
@@ -136,6 +213,17 @@ test('foo : (A) => (B | C)', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 14
+                    },
+                    end: {
+                        line: 1,
+                        column: 15
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -145,6 +233,17 @@ test('foo : (A) => (B | C)', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 18
+                    },
+                    end: {
+                        line: 1,
+                        column: 19
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -178,6 +277,17 @@ test('foo : ((A) => B | C)', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 8
+                },
+                end: {
+                    line: 1,
+                    column: 9
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: false,
@@ -190,6 +300,17 @@ test('foo : ((A) => B | C)', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 14
+                    },
+                    end: {
+                        line: 1,
+                        column: 15
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -199,6 +320,17 @@ test('foo : ((A) => B | C)', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 18
+                    },
+                    end: {
+                        line: 1,
+                        column: 19
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -232,6 +364,17 @@ test('foo : ((A) => (B | C))', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 8
+                },
+                end: {
+                    line: 1,
+                    column: 9
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: false,
@@ -244,6 +387,17 @@ test('foo : ((A) => (B | C))', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 15
+                    },
+                    end: {
+                        line: 1,
+                        column: 16
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -253,6 +407,17 @@ test('foo : ((A) => (B | C))', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 19
+                    },
+                    end: {
+                        line: 1,
+                        column: 20
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -288,6 +453,17 @@ test('foo : ((A) => B) | C', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 8
+                    },
+                    end: {
+                        line: 1,
+                        column: 9
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,
@@ -298,6 +474,17 @@ test('foo : ((A) => B) | C', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 14
+                    },
+                    end: {
+                        line: 1,
+                        column: 15
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -313,6 +500,17 @@ test('foo : ((A) => B) | C', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 19
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: false,
@@ -342,6 +540,17 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 8
+                    },
+                    end: {
+                        line: 1,
+                        column: 14
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -352,6 +561,17 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 19
+                    },
+                    end: {
+                        line: 1,
+                        column: 25
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -370,6 +590,17 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             thisArg: null,
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 31
+                    },
+                    end: {
+                        line: 1,
+                        column: 37
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -380,6 +611,17 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
             }],
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 42
+                    },
+                    end: {
+                        line: 1,
+                        column: 48
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,

@@ -14,6 +14,17 @@ test('type Foo : Bar | Baz', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 11
+                },
+                end: {
+                    line: 1,
+                    column: 14
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -23,6 +34,17 @@ test('type Foo : Bar | Baz', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 17
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -49,6 +71,17 @@ test('type A : ObjectE | C | D', function t(assert) {
         type: 'unionType',
         unions: [{
             type: 'typeLiteral',
+            line: 3,
+            loc: {
+                start: {
+                    line: 3,
+                    column: 5
+                },
+                end: {
+                    line: 3,
+                    column: 12
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -58,6 +91,17 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 3,
+            loc: {
+                start: {
+                    line: 3,
+                    column: 15
+                },
+                end: {
+                    line: 3,
+                    column: 16
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -67,6 +111,17 @@ test('type A : ObjectE | C | D', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 3,
+            loc: {
+                start: {
+                    line: 3,
+                    column: 19
+                },
+                end: {
+                    line: 3,
+                    column: 20
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             label: null,
@@ -95,6 +150,17 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             type: 'unionType',
             unions: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 17
+                    },
+                    end: {
+                        line: 1,
+                        column: 23
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 name: 'Number',
@@ -104,6 +170,17 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 26
+                    },
+                    end: {
+                        line: 1,
+                        column: 32
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 name: 'String',
@@ -118,6 +195,17 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 37
+                },
+                end: {
+                    line: 1,
+                    column: 41
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             name: 'void',

@@ -14,6 +14,17 @@ test('foo : Object<String, String>', function t(assert) {
         type: 'genericLiteral',
         value: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 6
+                },
+                end: {
+                    line: 1,
+                    column: 12
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -24,6 +35,17 @@ test('foo : Object<String, String>', function t(assert) {
         },
         generics: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 13
+                },
+                end: {
+                    line: 1,
+                    column: 19
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -33,6 +55,17 @@ test('foo : Object<String, String>', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 21
+                },
+                end: {
+                    line: 1,
+                    column: 27
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,

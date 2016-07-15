@@ -15,6 +15,17 @@ test('foo : (String, Number) => Object', function t(assert) {
         thisArg: null,
         args: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -24,6 +35,17 @@ test('foo : (String, Number) => Object', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 15
+                },
+                end: {
+                    line: 1,
+                    column: 21
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -34,6 +56,17 @@ test('foo : (String, Number) => Object', function t(assert) {
         }],
         result: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 26
+                },
+                end: {
+                    line: 1,
+                    column: 32
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -65,6 +98,17 @@ test('foo : () => CustomType', function t(assert) {
             thisArg: null,
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 12
+                    },
+                    end: {
+                        line: 1,
+                        column: 22
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: null,
@@ -96,6 +140,17 @@ test('foo : (tagName: String) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 16
+                    },
+                    end: {
+                        line: 1,
+                        column: 22
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: 'tagName',
@@ -110,6 +165,17 @@ test('foo : (tagName: String) => void', function t(assert) {
             _raw: null,
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 27
+                    },
+                    end: {
+                        line: 1,
+                        column: 31
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -138,6 +204,17 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 29
+                    },
+                    end: {
+                        line: 1,
+                        column: 35
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: 'index',
@@ -148,6 +225,17 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             }],
             thisArg: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 13
+                    },
+                    end: {
+                        line: 1,
+                        column: 20
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: 'this',
@@ -159,6 +247,17 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 40
+                    },
+                    end: {
+                        line: 1,
+                        column: 44
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -189,6 +288,17 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 11
+                    },
+                    end: {
+                        line: 1,
+                        column: 17
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: 'id',
@@ -198,6 +308,17 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 28
+                    },
+                    end: {
+                        line: 1,
+                        column: 31
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 label: 'parent',
@@ -210,6 +331,17 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 36
+                    },
+                    end: {
+                        line: 1,
+                        column: 39
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,
@@ -240,6 +372,17 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
             type: 'function',
             args: [{
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 13
+                    },
+                    end: {
+                        line: 1,
+                        column: 14
+                    }
+                },
                 concreteValue: null,
                 isGeneric: true,
                 label: 'a',
@@ -249,6 +392,17 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                 _raw: null
             }, {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 19
+                    },
+                    end: {
+                        line: 1,
+                        column: 20
+                    }
+                },
                 concreteValue: null,
                 isGeneric: true,
                 label: 'b',
@@ -261,6 +415,17 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
             brand: 'Object',
             result: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 25
+                    },
+                    end: {
+                        line: 1,
+                        column: 26
+                    }
+                },
                 concreteValue: null,
                 isGeneric: true,
                 builtin: false,

@@ -12,6 +12,17 @@ test('import { Foo } from "bar"', function t(assert) {
     assert.equal(result.dependency, 'bar');
     assert.deepEqual(result.types, [{
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 9
+            },
+            end: {
+                line: 1,
+                column: 12
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'Foo',
@@ -32,6 +43,17 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
     assert.equal(result.dependency, 'bar');
     assert.deepEqual(result.types, [{
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 9
+            },
+            end: {
+                line: 1,
+                column: 12
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'Foo',
@@ -41,6 +63,17 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         _raw: null
     }, {
         type: 'typeLiteral',
+        line: 1,
+        loc: {
+            start: {
+                line: 1,
+                column: 14
+            },
+            end: {
+                line: 1,
+                column: 17
+            }
+        },
         concreteValue: null,
         isGeneric: false,
         name: 'Bar',
@@ -66,6 +99,17 @@ test('import { Foo as Bar } from "bar"', function t(assert) {
         optional: false,
         original: {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 9
+                },
+                end: {
+                    line: 1,
+                    column: 12
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             name: 'Foo',

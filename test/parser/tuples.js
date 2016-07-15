@@ -14,6 +14,17 @@ test('foo : [Number, Number]', function t(assert) {
         type: 'tuple',
         values: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -23,6 +34,17 @@ test('foo : [Number, Number]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 15
+                },
+                end: {
+                    line: 1,
+                    column: 21
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -49,6 +71,17 @@ test('bar : [String, Object, Array]', function t(assert) {
         type: 'tuple',
         values: [{
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 7
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -58,6 +91,17 @@ test('bar : [String, Object, Array]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 15
+                },
+                end: {
+                    line: 1,
+                    column: 21
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
@@ -67,6 +111,17 @@ test('bar : [String, Object, Array]', function t(assert) {
             _raw: null
         }, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 23
+                },
+                end: {
+                    line: 1,
+                    column: 28
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,

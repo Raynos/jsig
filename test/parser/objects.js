@@ -17,6 +17,17 @@ test('foo : { text: String }', function t(assert) {
             key: 'text',
             value: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 14
+                    },
+                    end: {
+                        line: 1,
+                        column: 20
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -54,6 +65,17 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
             key: 'text',
             value: {
                 type: 'typeLiteral',
+                line: 2,
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 10
+                    },
+                    end: {
+                        line: 2,
+                        column: 16
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: true,
@@ -151,6 +173,17 @@ test('foo : { bar?: Baz }', function t(assert) {
             key: 'bar',
             value: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 14
+                    },
+                    end: {
+                        line: 1,
+                        column: 17
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,
@@ -185,6 +218,17 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
             key: 'bar',
             value: {
                 type: 'typeLiteral',
+                line: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 13
+                    },
+                    end: {
+                        line: 1,
+                        column: 16
+                    }
+                },
                 concreteValue: null,
                 isGeneric: false,
                 builtin: false,

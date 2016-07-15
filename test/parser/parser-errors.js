@@ -43,6 +43,17 @@ test('good identifier callbak', function t(assert) {
         assert.equal(result.identifier, 'foo');
         assert.deepEqual(result.typeExpression, {
             type: 'typeLiteral',
+            line: 1,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 6
+                },
+                end: {
+                    line: 1,
+                    column: 12
+                }
+            },
             concreteValue: null,
             isGeneric: false,
             builtin: true,
