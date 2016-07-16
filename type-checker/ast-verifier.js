@@ -873,24 +873,31 @@ function verifyNewExpression(node) {
     var thisArgType = fnType.thisArg.value;
     assert(!fnType.thisArg.optional, 'do not support optional this');
 
-    if (thisArgType.type !== 'object' ||
-        thisArgType.keyValues.length === 0
-    ) {
-        var possibleThisArg = this._tryResolveVirtualType(thisArgType);
-        if (!possibleThisArg ||
-            thisArgType.name === 'String' ||
-            thisArgType.name === 'Number' ||
-            possibleThisArg.type !== 'object' ||
-            possibleThisArg.keyValues.length === 0
+    var thisObjects = thisArgType.type === 'intersectionType' ?
+        thisArgType.intersections : [thisArgType];
+
+    for (i = 0; i < thisObjects.length; i++) {
+        var thisObj = thisObjects[i];
+
+        if (thisObj.type !== 'object' ||
+            thisObj.keyValues.length === 0
         ) {
-            err = Errors.ConstructorThisTypeMustBeObject({
-                funcName: node.callee.name,
-                thisType: serialize(thisArgType),
-                loc: node.loc,
-                line: node.loc.start.line
-            });
-            this.meta.addError(err);
-            return null;
+            var possibleThisArg = this._tryResolveVirtualType(thisObj);
+            if (!possibleThisArg ||
+                thisObj.name === 'String' ||
+                thisObj.name === 'Number' ||
+                possibleThisArg.type !== 'object' ||
+                possibleThisArg.keyValues.length === 0
+            ) {
+                err = Errors.ConstructorThisTypeMustBeObject({
+                    funcName: node.callee.name,
+                    thisType: serialize(thisArgType),
+                    loc: node.loc,
+                    line: node.loc.start.line
+                });
+                this.meta.addError(err);
+                return null;
+            }
         }
     }
 
