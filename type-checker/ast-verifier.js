@@ -1380,8 +1380,21 @@ function _checkHiddenClass(node) {
     var knownFields = this.meta.currentScope.knownFields;
     var protoFields = this.meta.currentScope.getPrototypeFields();
 
+    var thisObjects = [];
+    if (thisType && thisType.type === 'object') {
+        thisObjects.push(thisType);
+    } else if (thisType && thisType.type === 'intersectionType') {
+        for (var i = 0; i < thisType.intersections.length; i++) {
+            if (thisType.intersections[i].type === 'object') {
+                thisObjects.push(thisType.intersections[i]);
+            }
+        }
+    }
+
     var err;
-    if (!thisType || thisType.type !== 'object') {
+    if (thisObjects.length === 0) {
+        // console.log('thisType?', thisType, thisObjects);
+
         err = Errors.ConstructorThisTypeMustBeObject({
             funcName: this.meta.currentScope.funcName,
             thisType: thisType ? serialize(thisType) : 'void',
@@ -1391,22 +1404,31 @@ function _checkHiddenClass(node) {
         this.meta.addError(err);
         return;
     }
-    assert(thisType && thisType.type === 'object', 'this field must be object');
 
-    for (var i = 0; i < thisType.keyValues.length; i++) {
-        var key = thisType.keyValues[i].key;
-        if (
-            knownFields[i] !== key &&
-            !(protoFields && protoFields[key])
-        ) {
-            err = Errors.MissingFieldInConstr({
-                fieldName: key,
-                funcName: this.meta.currentScope.funcName,
-                otherField: knownFields[i] || 'no-field',
-                loc: node.loc,
-                line: node.loc.start.line
-            });// new Error('missing field: ' + key);
-            this.meta.addError(err);
+    var knownOffset = 0;
+    for (i = 0; i < thisObjects.length; i++) {
+        var thisObj = thisObjects[i];
+
+        assert(thisObj && thisObj.type === 'object',
+            'this field must be object');
+
+        for (var j = 0; j < thisObj.keyValues.length; j++) {
+            var key = thisObj.keyValues[j].key;
+            if (
+                knownFields[knownOffset] !== key &&
+                !(protoFields && protoFields[key])
+            ) {
+                err = Errors.MissingFieldInConstr({
+                    fieldName: key,
+                    funcName: this.meta.currentScope.funcName,
+                    otherField: knownFields[knownOffset] || 'no-field',
+                    loc: node.loc,
+                    line: node.loc.start.line
+                });// new Error('missing field: ' + key);
+                this.meta.addError(err);
+            }
+
+            knownOffset++;
         }
     }
 };
