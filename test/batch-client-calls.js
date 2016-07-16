@@ -41,8 +41,11 @@ test('calling method with wrong args', function t(assert) {
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.line, 18);
-    assert.equal(err.expected, 'bucketStart: Number');
-    assert.equal(err.actual, 'op: PendingOutOperation');
+    assert.equal(err.expected, 'Number');
+    assert.equal(err.actual,
+        '{\n    timedOut: Boolean,\n' +
+        '    data: String,\n' +
+        '    timeout: Number\n}');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
@@ -204,7 +207,9 @@ test('assigning result of method to wrong type', function t(assert) {
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.line, 21);
     assert.equal(err.expected, 'String');
-    assert.equal(err.actual, 'TOutPendingBucket');
+    assert.equal(err.actual,
+        '{\n    elements: PendingElements,\n' +
+        '    count: Number\n}');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');

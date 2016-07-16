@@ -41,7 +41,7 @@ function inferCallExpression(node) {
             return null;
         }
 
-        argTypes.push(funcArg);
+        argTypes.push(JsigAST.param(null, funcArg));
     }
 
     var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
@@ -59,9 +59,7 @@ function inferCallExpression(node) {
     var funcType = JsigAST.functionType({
         args: argTypes,
         result: returnType,
-        thisArg: null,
-        label: node.callee.name,
-        optional: false
+        thisArg: null
     });
 
     if (!this.meta.tryUpdateFunction(node.callee.name, funcType)) {
@@ -241,7 +239,7 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
                 return null;
             }
 
-            newType = walkProps(newType, stack, 2);
+            newType = walkProps(newType, stack, 3);
         } else if (stack[0] === 'thisArg') {
 
             // Method call()
@@ -253,12 +251,12 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
                     return null;
                 }
 
-                newType = walkProps(newType, stack, 1);
+                newType = walkProps(newType, stack, 2);
             // new expression
             } else if (node.callee.type === 'Identifier') {
                 if (currentExpressionType) {
                     newType = currentExpressionType;
-                    newType = walkProps(newType, stack, 1);
+                    newType = walkProps(newType, stack, 2);
                 } else {
                     // If we have no ctx as for type then free literal
                     newType = JsigAST.freeLiteral('T');

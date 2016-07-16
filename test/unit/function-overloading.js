@@ -95,7 +95,7 @@ JSIGSnippet.test('string argument disallows aliases', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.expected, 'str: "str"');
+    assert.equal(err.expected, '"str"');
     assert.equal(err.actual, 'String');
     assert.equal(err.line, 2);
 

@@ -30,7 +30,7 @@ function getUnionWithoutBool(type, truthy) {
         return unions[0];
     }
 
-    return JsigAST.union(unions, type.label);
+    return JsigAST.union(unions);
 }
 
 // handle more literals like 0 or "" or false

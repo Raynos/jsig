@@ -5,7 +5,6 @@ var path = require('path');
 
 var Errors = require('./errors.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
-var cloneJSIG = require('./lib/clone-ast.js');
 
 module.exports = HeaderFile;
 
@@ -60,13 +59,6 @@ function replaceTypeLiteral(ast, rawAst) {
         return null;
     }
 
-    // TODO: this clone breaks cyclic imports...
-    typeDefn = cloneJSIG(typeDefn);
-
-    typeDefn.label = ast.label;
-    typeDefn.optional = ast.optional;
-    typeDefn._raw = rawAst;
-
     return typeDefn;
 };
 
@@ -81,11 +73,6 @@ function replaceGenericLiteral(ast, rawAst) {
         }));
         return null;
     }
-    typeDefn = cloneJSIG(typeDefn);
-
-    typeDefn.label = ast.label;
-    typeDefn.optional = ast.optional;
-    typeDefn._raw = rawAst;
 
     return typeDefn;
 };

@@ -71,7 +71,7 @@ JSIGSnippet.test('disallow writing supertypes into generics', function m() {/*
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.line, 3);
-    assert.equal(err.expected, 'this: Array<String | null>');
+    assert.equal(err.expected, 'Array<String | null>');
     assert.equal(err.actual, 'Array<String>');
 
     assert.end();

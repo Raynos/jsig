@@ -5,7 +5,6 @@ var util = require('util');
 
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
-var cloneAST = require('./lib/clone-ast.js');
 
 module.exports = {
     GlobalScope: GlobalScope,
@@ -32,7 +31,6 @@ function addVar(id, typeDefn) {
     }
 
     assert(typeDefn, 'addVar() must have typeDefn');
-    assert(!typeDefn.optional, 'cannot add optional type');
 
     var token = {
         type: 'variable',
@@ -47,7 +45,6 @@ BaseScope.prototype.preloadVar =
 function preloadVar(id, typeDefn) {
     assert(!this.identifiers[id], 'identifier must not exist');
     assert(typeDefn, 'addVar() must have typeDefn');
-    assert(!typeDefn.optional, 'cannot add optional type');
 
     var token = {
         type: 'variable',
@@ -366,15 +363,9 @@ function loadTypes(funcNode, typeDefn) {
 
     for (var i = 0; i < len; i++) {
         var param = funcNode.params[i];
-        var argType = typeDefn.args[i];
+        var argType = typeDefn.args[i].value;
 
-        if (argType.optional) {
-            argType = cloneAST(argType);
-            argType.optional = false;
-            if (argType.label) {
-                argType.label = argType.label.substr(0, argType.label - 1);
-            }
-
+        if (typeDefn.args[i].optional) {
             argType = JsigAST.union([
                 argType, JsigAST.value('undefined')
             ]);
@@ -383,7 +374,16 @@ function loadTypes(funcNode, typeDefn) {
         this.addVar(param.name, argType);
     }
 
-    this._thisValueType = typeDefn.thisArg;
+    this._thisValueType = null;
+    if (typeDefn.thisArg) {
+        this._thisValueType = typeDefn.thisArg.value;
+        if (typeDefn.thisArg.optional) {
+            this._thisValueType = JsigAST.union([
+                this._thisValueType, JsigAST.value('undefined')
+            ]);
+        }
+    }
+
     this.returnValueType = typeDefn.result;
     this.funcType = typeDefn;
 };

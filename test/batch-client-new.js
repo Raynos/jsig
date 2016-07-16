@@ -29,7 +29,7 @@ test('calling constructor with wrong type', function t(assert) {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.expected, 'str: String');
+    assert.equal(err.expected, 'String');
     assert.equal(err.actual, 'Number');
     assert.equal(err.line, 9);
 
@@ -80,7 +80,7 @@ test('assigning result of new to wrong type', function t(assert) {
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.expected, 'String');
-    assert.equal(err.actual, 'this: TBuffer');
+    assert.equal(err.actual, '{ str: String }');
     assert.equal(err.line, 9);
 
     assert.end();
@@ -143,7 +143,7 @@ test('calling new on non-object thisArg', function t(assert) {
     assert.equal(err1.type, 'jsig.verify.constructor-this-type-must-be-object');
     assert.equal(err1.line, 9);
     assert.equal(err1.funcName, 'Buffer');
-    assert.equal(err1.thisType, 'this: String');
+    assert.equal(err1.thisType, 'String');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
@@ -156,7 +156,7 @@ test('calling new on non-object thisArg', function t(assert) {
     assert.equal(err3.type, 'jsig.verify.constructor-this-type-must-be-object');
     assert.equal(err3.line, 12);
     assert.equal(err3.funcName, 'Buffer');
-    assert.equal(err3.thisType, 'this: String');
+    assert.equal(err3.thisType, 'String');
 
     assert.end();
 });
@@ -172,7 +172,7 @@ test('calling new on empty object thisArg', function t(assert) {
     assert.equal(err1.type, 'jsig.verify.constructor-this-type-must-be-object');
     assert.equal(err1.line, 9);
     assert.equal(err1.funcName, 'Buffer');
-    assert.equal(err1.thisType, 'this: {}');
+    assert.equal(err1.thisType, '{}');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
@@ -236,7 +236,7 @@ test('calling new on constructor with a return object', function t(assert) {
     var err3 = meta.errors[2];
     assert.equal(err3.type, 'jsig.verify.return-statement-in-constructor');
     assert.equal(err3.funcName, 'Buffer');
-    assert.equal(err3.returnType, '{ str: str: String }');
+    assert.equal(err3.returnType, '{ str: String }');
     assert.equal(err3.line, 15);
 
     assert.end();

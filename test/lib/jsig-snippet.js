@@ -4,6 +4,7 @@ var tape = require('tape');
 var tapeCluster = require('tape-cluster');
 var multiline = require('multiline');
 var console = require('console');
+var process = global.process;
 
 var compileJSIG = require('../../type-checker/');
 
@@ -64,6 +65,12 @@ JSigSnippet.prototype.checkMeta = function checkMeta(assert) {
     assert.equal(meta.errors.length, 0, 'expected no error');
 
     if (meta.errors.length > 0) {
+        /* eslint-disable no-process-env */
+        if (process.env.TRACE) {
+            console.error(meta.prettyPrintTraces());
+        }
+        /* eslint-enable no-process-env */
+
         console.error(meta.prettyPrintAllErrors());
     }
 };

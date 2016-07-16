@@ -647,7 +647,12 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
 
     var minLength = Math.min(defn.args.length, node.arguments.length);
     for (i = 0; i < minLength; i++) {
-        var wantedType = defn.args[i];
+        var wantedType = defn.args[i].value;
+        if (defn.args[i].optional) {
+            wantedType = JsigAST.union([
+                wantedType, JsigAST.value('undefined')
+            ]);
+        }
 
         var actualType;
         if (node.arguments[i].type === 'Identifier' &&
@@ -700,7 +705,11 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         // in a generic.
         if (defn.generics.length > 0 && obj.type === 'genericLiteral') {
             var hasFreeLiteral = obj.generics[0].type === 'freeLiteral';
-            assert(defn.thisArg.type === 'genericLiteral');
+            var thisArgType = defn.thisArg.value;
+
+            assert(!defn.thisArg.optional, 'do not support optional this');
+            assert(thisArgType.type === 'genericLiteral',
+                'thisArg must be generic...');
 
             if (hasFreeLiteral) {
                 assert(!isOverload,
@@ -708,14 +717,14 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
                 );
 
                 var newGenerics = [];
-                assert(obj.generics.length === defn.thisArg.generics.length,
+                assert(obj.generics.length === thisArgType.generics.length,
                     'expected same number of generics');
                 for (i = 0; i < obj.generics.length; i++) {
-                    newGenerics[i] = defn.thisArg.generics[i];
+                    newGenerics[i] = thisArgType.generics[i];
                 }
 
                 var newType = JsigAST.generic(
-                    obj.value, newGenerics, obj.label
+                    obj.value, newGenerics
                 );
                 assert(node.callee.object.type === 'Identifier',
                     'object must be variable reference');
@@ -727,7 +736,8 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             }
         }
 
-        this.meta.checkSubType(node.callee.object, defn.thisArg, obj);
+        assert(!defn.thisArg.optional, 'do not support optional this');
+        this.meta.checkSubType(node.callee.object, defn.thisArg.value, obj);
     }
 
     return defn.result;
@@ -762,10 +772,10 @@ function verifyBinaryExpression(node) {
             'expected type defn args to be two');
 
         var leftError = this.meta.checkSubTypeRaw(
-            node.left, defn.args[0], leftType
+            node.left, defn.args[0].value, leftType
         );
         var rightError = this.meta.checkSubTypeRaw(
-            node.right, defn.args[1], rightType
+            node.right, defn.args[1].value, rightType
         );
 
         if (!leftError && !rightError) {
@@ -860,19 +870,22 @@ function verifyNewExpression(node) {
         return null;
     }
 
-    if (fnType.thisArg.type !== 'object' ||
-        fnType.thisArg.keyValues.length === 0
+    var thisArgType = fnType.thisArg.value;
+    assert(!fnType.thisArg.optional, 'do not support optional this');
+
+    if (thisArgType.type !== 'object' ||
+        thisArgType.keyValues.length === 0
     ) {
-        var possibleThisArg = this._tryResolveVirtualType(fnType.thisArg);
+        var possibleThisArg = this._tryResolveVirtualType(thisArgType);
         if (!possibleThisArg ||
-            fnType.thisArg.name === 'String' ||
-            fnType.thisArg.name === 'Number' ||
+            thisArgType.name === 'String' ||
+            thisArgType.name === 'Number' ||
             possibleThisArg.type !== 'object' ||
             possibleThisArg.keyValues.length === 0
         ) {
             err = Errors.ConstructorThisTypeMustBeObject({
                 funcName: node.callee.name,
-                thisType: serialize(fnType.thisArg),
+                thisType: serialize(thisArgType),
                 loc: node.loc,
                 line: node.loc.start.line
             });
@@ -914,6 +927,8 @@ function verifyNewExpression(node) {
         if (!fnType) {
             return null;
         }
+
+        thisArgType = fnType.thisArg.value;
     }
 
     var minArgs = fnType.args.length;
@@ -945,7 +960,13 @@ function verifyNewExpression(node) {
 
     var minLength = Math.min(fnType.args.length, node.arguments.length);
     for (i = 0; i < minLength; i++) {
-        var wantedType = fnType.args[i];
+        var wantedType = fnType.args[i].value;
+        if (fnType.args[i].optional) {
+            wantedType = JsigAST.union([
+                wantedType, JsigAST.value('undefined')
+            ]);
+        }
+
         var actualType = this.meta.verifyNode(node.arguments[i], null);
         if (!actualType) {
             return null;
@@ -954,12 +975,11 @@ function verifyNewExpression(node) {
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
     }
 
-    var thisArg = fnType.thisArg;
-    thisArg = cloneJSIG(thisArg);
-    thisArg.brand = fnType.brand;
-    thisArg._raw = fnType.thisArg._raw;
+    thisArgType = cloneJSIG(thisArgType);
+    thisArgType.brand = fnType.brand;
+    thisArgType._raw = thisArgType._raw;
 
-    return thisArg;
+    return thisArgType;
 };
 
 function getCalleeName(node) {
@@ -1042,7 +1062,7 @@ function verifyUpdateExpression(node) {
     assert(defn.args.length === 1,
         'expecteted type defn args to be one');
 
-    this.meta.checkSubType(node.argument, defn.args[0], firstType);
+    this.meta.checkSubType(node.argument, defn.args[0].value, firstType);
 
     return defn.result;
 };
@@ -1129,7 +1149,7 @@ function verifyUnaryExpression(node) {
     assert(defn.args.length === 1,
         'expecteted type defn args to be one');
 
-    this.meta.checkSubType(node.argument, defn.args[0], firstType);
+    this.meta.checkSubType(node.argument, defn.args[0].value, firstType);
 
     return defn.result;
 };
@@ -1500,7 +1520,7 @@ function _findPropertyInType(node, jsigType, propertyName) {
     if (jsigType.type === 'function' &&
         propertyName === 'prototype'
     ) {
-        return jsigType.thisArg;
+        return jsigType.thisArg.value;
     }
 
     var possibleType = this._tryResolveVirtualType(jsigType);
@@ -1554,8 +1574,8 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
         assert(funcCount <= 1, 'cannot access prototype fields ' +
             'on overloaded constructors...');
 
-        if (funcType.thisArg) {
-            return funcType.thisArg;
+        if (funcType.thisArg.value) {
+            return funcType.thisArg.value;
         }
     }
 

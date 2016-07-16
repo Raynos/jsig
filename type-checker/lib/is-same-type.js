@@ -23,10 +23,6 @@ function isSameType(left, right) {
             return false;
         }
 
-        if (left.optional !== right.optional) {
-            return false;
-        }
-
         return true;
     } else if (left.type === 'object') {
         if (left.keyValues.length !== right.keyValues.length) {
@@ -119,6 +115,18 @@ function isSameType(left, right) {
         }
 
         if (!isSameType(left.result, right.result)) {
+            return false;
+        }
+
+        return true;
+    } else if (left.type === 'param') {
+        // left.name, names can be different
+        if (!isSameType(left.value, right.value)) {
+            return false;
+        }
+
+        // Optional must be same
+        if (left.optional !== right.optional) {
             return false;
         }
 

@@ -110,7 +110,7 @@ test('assign method with wrong arg number -> string', function t(assert) {
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.expected, 'Number');
-    assert.equal(err.actual, 'foo: String');
+    assert.equal(err.actual, 'String');
     assert.equal(err.line, 14);
 
     var err2 = meta.errors[1];
@@ -302,7 +302,11 @@ test('treat this value as a string', function t(assert) {
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.expected, 'String');
-    assert.equal(err.actual, 'this: TBatchClient');
+    assert.equal(err.actual,
+        '{\n    channel: Channel,\n' +
+        '    hosts: Array<String>,\n' +
+        '    value: String,\n' +
+        '    _sendRequest: (this: TBatchClient, foo: String) => void\n}');
     assert.equal(err.line, 8);
 
     var err2 = meta.errors[1];
