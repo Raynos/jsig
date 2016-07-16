@@ -36,6 +36,10 @@ type TNumber : {
     toString : (this: Number) => String
 }
 
+type TFunction : {
+    call: %InternalFunction%%FnCall
+}
+
 String : (Number) => String
 
 Boolean : (Boolean | undefined) => Boolean

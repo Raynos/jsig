@@ -1530,6 +1530,8 @@ function _tryResolveVirtualType(type) {
         type.name === 'Number' && type.builtin
     ) {
         newType = this.meta.getVirtualType('TNumber').defn;
+    } else if (type.type === 'function') {
+        newType = this.meta.getVirtualType('TFunction').defn;
     } else if (type.type === 'typeLiteral' &&
         type.name === 'Date' && type.builtin
     ) {

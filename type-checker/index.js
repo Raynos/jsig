@@ -164,6 +164,9 @@ function loadLanguageIdentifiers() {
     this.globalScope._addVirtualType(
         'TDate', es5HeaderFile.getToken('TDate')
     );
+    this.globalScope._addVirtualType(
+        'TFunction', es5HeaderFile.getToken('TFunction')
+    );
 };
 
 TypeChecker.prototype.loadJavaScriptIntoIndexTable =
