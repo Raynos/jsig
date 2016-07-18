@@ -740,6 +740,30 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         this.meta.checkSubType(node.callee.object, defn.thisArg.value, obj);
     }
 
+    /*
+        Detect `Base.call(this)` pattern that is used to invoke
+        the constructor of a base class.
+    */
+    var funcScope = this.meta.currentScope.getFunctionScope();
+    if (funcScope && funcScope.isConstructor &&
+        node.callee.type === 'MemberExpression' &&
+        node.callee.property.type === 'Identifier' &&
+        node.callee.property.name === 'call' &&
+        node.arguments[0] &&
+        node.arguments[0].type === 'ThisExpression'
+    ) {
+        var fnToCall = this.meta.verifyNode(node.callee.object, null);
+        var thisArg = fnToCall.thisArg.value;
+
+        if (thisArg && thisArg.type === 'object' &&
+            thisArg.keyValues.length > 0
+        ) {
+            for (i = 0; i < thisArg.keyValues.length; i++) {
+                funcScope.addKnownField(thisArg.keyValues[i].key);
+            }
+        }
+    }
+
     return defn.result;
 };
 
