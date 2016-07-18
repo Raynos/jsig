@@ -533,14 +533,16 @@ function _tryResolveInternalFunction(node, defn) {
 
         assert(fnToCall && fnToCall.type === 'function',
             'function being called must be a function');
-        assert(fnToCall.args.length === 0,
-            'function must have zero args');
         assert(fnToCall.thisArg,
             'function being call() must have thisArg');
 
         var argTypes = [
             JsigAST.param('thisArg', fnToCall.thisArg.value)
         ];
+
+        for (var i = 0; i < fnToCall.args.length; i++) {
+            argTypes.push(fnToCall.args[i]);
+        }
 
         var callFuncType = JsigAST.functionType({
             args: argTypes,
