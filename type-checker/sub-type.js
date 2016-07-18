@@ -296,7 +296,7 @@ function checkFunctionSubType(node, parent, child) {
 
 SubTypeChecker.prototype.checkObjectSubType =
 function checkObjectSubType(node, parent, child) {
-    if (child.type !== 'object') {
+    if (child.type !== 'object' && child.type !== 'intersectionType') {
         return reportTypeMisMatch(node, parent, child);
     }
 
@@ -307,21 +307,34 @@ function checkObjectSubType(node, parent, child) {
         }
     }
 
+    var childFieldCount = null;
+    if (child.type === 'object') {
+        childFieldCount = child.keyValues.length;
+    } else if (child.type === 'intersectionType') {
+        childFieldCount = 0;
+        for (i = 0; i < child.intersections.length; i++) {
+            var maybeObj = child.intersections[i];
+            if (maybeObj.type === 'object') {
+                childFieldCount += maybeObj.keyValues.length;
+            }
+        }
+    }
+
     // If parent has optional keys, then child must have
     // somewhere between "required keys" and "all keys"
-    if (child.keyValues.length < minimumFields) {
+    if (childFieldCount < minimumFields) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
             expectedFields: parent.keyValues.length,
             actual: serialize(child._raw || child),
-            actualFields: child.keyValues.length,
+            actualFields: childFieldCount,
             loc: node.loc,
             line: node.loc.start.line
         });
     }
 
     var err;
-    var childIndex = buildIndex(child.keyValues);
+    var childIndex = buildIndex(child);
     for (i = 0; i < parent.keyValues.length; i++) {
         // TODO: check key names...
         var pair = parent.keyValues[i];
@@ -351,10 +364,27 @@ function checkObjectSubType(node, parent, child) {
     return null;
 };
 
-function buildIndex(list) {
+function buildIndex(typeDefn) {
     var index = {};
-    for (var i = 0; i < list.length; i++) {
-        index[list[i].key] = list[i].value;
+    var i;
+
+    if (typeDefn.type === 'object') {
+        for (i = 0; i < typeDefn.keyValues.length; i++) {
+            var pair = typeDefn.keyValues[i];
+            index[pair.key] = pair.value;
+        }
+    } else if (typeDefn.type === 'intersectionType') {
+        for (i = 0; i < typeDefn.intersections.length; i++) {
+            var maybeObj = typeDefn.intersections[i];
+            if (maybeObj.type !== 'object') {
+                continue;
+            }
+
+            for (var j = 0; j < maybeObj.keyValues.length; j++) {
+                pair = maybeObj.keyValues[j];
+                index[pair.key] = pair.value;
+            }
+        }
     }
 
     return index;
