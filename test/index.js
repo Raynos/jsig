@@ -32,6 +32,7 @@ require('./unit/unused-function.js');
 require('./unit/unknown-require.js');
 require('./unit/intersection-types.js');
 require('./unit/construct-builtins.js');
+require('./unit/prototype-inheritance.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
