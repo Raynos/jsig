@@ -21,6 +21,18 @@ function ObjectNode(keyValues, label, opts) {
     this._raw = null;
 }
 
+ObjectNode.prototype.buildObjectIndex =
+function buildObjectIndex(index) {
+    index = index || {};
+
+    for (var i = 0; i < this.keyValues.length; i++) {
+        var pair = this.keyValues[i];
+        index[pair.key] = pair.value;
+    }
+
+    return index;
+};
+
 function convertToKeyValues(keyValuesObj) {
     var keyValues = [];
     var keys = Object.keys(keyValuesObj);

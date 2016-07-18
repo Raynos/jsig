@@ -334,7 +334,7 @@ function checkObjectSubType(node, parent, child) {
     }
 
     var err;
-    var childIndex = buildIndex(child);
+    var childIndex = child.buildObjectIndex();
     for (i = 0; i < parent.keyValues.length; i++) {
         // TODO: check key names...
         var pair = parent.keyValues[i];
@@ -363,32 +363,6 @@ function checkObjectSubType(node, parent, child) {
     // For all extra keys, they are allowed...
     return null;
 };
-
-function buildIndex(typeDefn) {
-    var index = {};
-    var i;
-
-    if (typeDefn.type === 'object') {
-        for (i = 0; i < typeDefn.keyValues.length; i++) {
-            var pair = typeDefn.keyValues[i];
-            index[pair.key] = pair.value;
-        }
-    } else if (typeDefn.type === 'intersectionType') {
-        for (i = 0; i < typeDefn.intersections.length; i++) {
-            var maybeObj = typeDefn.intersections[i];
-            if (maybeObj.type !== 'object') {
-                continue;
-            }
-
-            for (var j = 0; j < maybeObj.keyValues.length; j++) {
-                pair = maybeObj.keyValues[j];
-                index[pair.key] = pair.value;
-            }
-        }
-    }
-
-    return index;
-}
 
 SubTypeChecker.prototype.checkUnionSubType =
 function checkUnionSubType(node, parent, child) {

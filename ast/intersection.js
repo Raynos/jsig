@@ -12,3 +12,19 @@ function IntersectionTypeNode(intersections, label, opts) {
     this.intersections = intersections;
     this._raw = null;
 }
+
+IntersectionTypeNode.prototype.buildObjectIndex =
+function buildObjectIndex(index) {
+    index = index || {};
+
+    for (var i = 0; i < this.intersections.length; i++) {
+        var maybeObj = this.intersections[i];
+        if (maybeObj.type !== 'object') {
+            continue;
+        }
+
+        maybeObj.buildObjectIndex(index);
+    }
+
+    return index;
+};
