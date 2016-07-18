@@ -5,6 +5,7 @@ var path = require('path');
 
 var Errors = require('./errors.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
+var deepCloneJSIG = require('./lib/deep-clone-ast.js');
 
 module.exports = HeaderFile;
 
@@ -154,7 +155,7 @@ function resolveReferences() {
     }
 
     var ast = this.rawJsigAst;
-    var copyAst = JSON.parse(JSON.stringify(ast));
+    var copyAst = deepCloneJSIG(ast);
 
     for (var i = 0; i < copyAst.statements.length; i++) {
         var line = copyAst.statements[i];

@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
+var deepCloneJSIG = require('./lib/deep-clone-ast.js');
 
 module.exports = TypeInference;
 
@@ -189,7 +190,7 @@ function resolveGeneric(funcType, node, currentExpressionType) {
         }
     */
 
-    var copyFunc = JSON.parse(JSON.stringify(funcType));
+    var copyFunc = deepCloneJSIG(funcType);
     copyFunc._raw = null;
 
     var knownGenericTypes = this._findGenericTypes(
