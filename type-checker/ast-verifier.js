@@ -522,6 +522,38 @@ function _getTypeFromFunctionCall(node) {
     return defn;
 };
 
+ASTVerifier.prototype._tryResolveInternalFunction =
+function _tryResolveInternalFunction(node, defn) {
+    if (defn.type === 'typeLiteral' && defn.builtin &&
+        defn.name === '%InternalFunction%%FnCall'
+    ) {
+        assert(node.callee.type === 'MemberExpression',
+            'Can only fn.call() in a member expression');
+        var fnToCall = this.meta.verifyNode(node.callee.object, null);
+
+        assert(fnToCall && fnToCall.type === 'function',
+            'function being called must be a function');
+        assert(fnToCall.args.length === 0,
+            'function must have zero args');
+        assert(fnToCall.thisArg,
+            'function being call() must have thisArg');
+
+        var argTypes = [
+            JsigAST.param('thisArg', fnToCall.thisArg.value)
+        ];
+
+        var callFuncType = JsigAST.functionType({
+            args: argTypes,
+            result: JsigAST.literal('void'),
+            thisArg: JsigAST.param('this', fnToCall)
+        });
+
+        return callFuncType;
+    }
+
+    return defn;
+};
+
 ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
     var err;
@@ -536,6 +568,8 @@ function verifyCallExpression(node) {
     if (!defn) {
         return null;
     }
+
+    defn = this._tryResolveInternalFunction(node, defn);
 
     if (defn.type !== 'function' && defn.type !== 'intersectionType') {
         err = Errors.CallingNonFunctionObject({
