@@ -83,3 +83,107 @@ JSIGSnippet.test('infer func type through return', function m() {/*
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('infer function type via callback (decl)', {
+    snippet: function m() {/*
+        readFile('fileName', onFile);
+
+        function onFile(err, str) {
+            str.split('')
+        }
+    */},
+    header: function h() {/*
+        readFile : (String, (Error, String) => void) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer function type via callback (expr)', {
+    snippet: function m() {/*
+        readFile('fileName', function onFile(err, str) {
+            str.split('');
+        });
+    */},
+    header: function h() {/*
+        readFile : (String, (Error, String) => void) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer function type via field (decl)', {
+    snippet: function m() {/*
+        var req = readFile('fileName');
+        req.onDone = onFile;
+
+        function onFile(err, str) {
+            str.split('')
+        }
+    */},
+    header: function h() {/*
+        readFile : (String) => {
+            onDone: (Error, String) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer function type via field (expr)', {
+    snippet: function m() {/*
+        var req = readFile('fileName');
+        req.onDone = function onFile(err, str) {
+            str.split('');
+        };
+    */},
+    header: function h() {/*
+        readFile : (String) => {
+            onDone: (Error, String) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer function type via option (decl)', {
+    snippet: function m() {/*
+        readFile('fileName', {
+            onDone: onFile
+        });
+
+        function onFile(err, str) {
+            str.split('')
+        }
+    */},
+    header: function h() {/*
+        readFile : (String, {
+            onDone: (Error, String) => void
+        }) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('infer function type via option (expr)', {
+    snippet: function m() {/*
+        readFile('fileName', {
+            onDone: function onFile(err, str) {
+                str.split('');
+            }
+        });
+    */},
+    header: function h() {/*
+        readFile : (String, {
+            onDone: (Error, String) => void
+        }) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});

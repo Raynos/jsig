@@ -150,21 +150,32 @@ function inferObjectExpression(node) {
         return JsigAST.object([]);
     }
 
+    var currentExpressionType = this.meta.currentExpressionType;
+    var index = null;
+    if (currentExpressionType && currentExpressionType.type === 'object') {
+        index = currentExpressionType.buildObjectIndex();
+    }
+
     var keyValues = [];
     for (var i = 0; i < properties.length; i++) {
         var prop = properties[i];
         assert(prop.kind === 'init', 'only support init kind');
-
-        var value = this.meta.verifyNode(prop.value, null);
-        if (!value) {
-            return null;
-        }
 
         var keyName = null;
         if (prop.key.type === 'Identifier') {
             keyName = prop.key.name;
         } else if (prop.key.type === 'Literal') {
             keyName = prop.key.value;
+        }
+
+        var expectedType = null;
+        if (keyName && index && index[keyName]) {
+            expectedType = index[keyName];
+        }
+
+        var value = this.meta.verifyNode(prop.value, expectedType);
+        if (!value) {
+            return null;
         }
 
         keyValues.push(JsigAST.keyValue(keyName, value));
