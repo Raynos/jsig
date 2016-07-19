@@ -550,6 +550,11 @@ function getFunction(id) {
     return this.parent.getFunction(id);
 };
 
+BranchScope.prototype.addFunctionScope =
+function addFunctionScope(funcScope) {
+    return this.parent.addFunctionScope(funcScope);
+};
+
 BranchScope.prototype.updateFunction =
 function updateFunction(id, defn) {
     return this.parent.updateFunction(id, defn);
