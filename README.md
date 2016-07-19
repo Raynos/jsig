@@ -91,6 +91,14 @@ JSIG takes a different approach by focusing on ES5 and external
 annotations as a first class citizen. JSIG also heavily relies
 on inference but will complain if it cannot safely infer something.
 
+# Documentation
+
+Currently documentation is sparse, there are some examples
+and there are a few documents:
+
+ - [Language overview](overview.md)
+ - [Spec (incomplete)](spec.md)
+
 # Hello world example
 
 There is a small hello world example that shows inference.
