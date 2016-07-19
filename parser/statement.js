@@ -23,6 +23,9 @@ var importStatement = Parsimmon.seqMap(
     lexemes.importWord
         .then(Parsimmon.index),
 
+    lexemes.macroWord
+        .atMost(1),
+
     lexemes.openCurlyBrace
         .then(join(Parsimmon.alt(
             renamedLiteral,
@@ -37,7 +40,11 @@ var importStatement = Parsimmon.seqMap(
         .then(lexemes.moduleName)
         .skip(lexemes.quote),
 
-    function onParts(startIndex, importLiterals, endIndex, identifier) {
+    function onParts(
+        startIndex, macroWord, importLiterals, endIndex, identifier
+    ) {
+        var isMacro = macroWord.length === 1;
+
         var loc = {
             start: {
                 column: 0,
@@ -52,6 +59,7 @@ var importStatement = Parsimmon.seqMap(
         return AST.importStatement(
             identifier, importLiterals, {
                 loc: loc,
+                isMacro: isMacro,
                 line: startIndex.line
             }
         );

@@ -10,5 +10,6 @@ function ImportStatementNode(dependency, types, opts) {
     this.types = types;
     this.line = (ASTConfig.loc && opts && opts.line) || null;
     this.loc = (ASTConfig.loc && opts && opts.loc) || null;
+    this.isMacro = (opts && opts.isMacro) || false;
     this._raw = null;
 }

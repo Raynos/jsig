@@ -6,6 +6,7 @@ var RAW_TYPE_NAME = Parsimmon.regex(/[a-z%]+/i);
 
 var lexemes = {
     importWord: lexeme(Parsimmon.string('import')),
+    macroWord: lexeme(Parsimmon.string('macro')),
     rowTypeVariable: lexeme(Parsimmon.string('..R')),
     openCurlyBrace: lexeme(Parsimmon.string('{')),
     closeCurlyBrace: lexeme(Parsimmon.string('}')),
