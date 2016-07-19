@@ -41,4 +41,7 @@ require('./batch-client-calls.js');
 require('./batch-client-modules.js');
 require('./proc-watcher-node_modules.js');
 
+require('./city-controller-macros.js');
+
 require('./regression.js');
+

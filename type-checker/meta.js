@@ -43,6 +43,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.identifiers = {};
     this.operators = {};
     this.virtualTypes = {};
+    this.macros = {};
 
     this.type = 'program';
 
@@ -537,4 +538,32 @@ function tryUpdateFunction(name, newType) {
     }
 
     return true;
+};
+
+ProgramMeta.prototype._allocateMacro =
+function _allocateMacro(macroLiteral) {
+    /*eslint-disable global-require*/
+    // TODO: any way to avoid dynamic require... ?
+    var macroBuilders = require(macroLiteral.macroFile);
+    /*eslint-enable global-require*/
+
+    var Constr = macroBuilders[macroLiteral.macroName];
+    return new Constr(this, JsigAST);
+};
+
+ProgramMeta.prototype.getOrCreateMacro =
+function getOrCreateMacro(macroLiteral) {
+    var macros = this.macros[macroLiteral.macroFile];
+    if (!macros) {
+        macros = {};
+        this.macros[macroLiteral.macroFile] = macros;
+    }
+
+    var macroObj = macros[macroLiteral.macroName];
+    if (!macroObj) {
+        macroObj = this._allocateMacro(macroLiteral);
+        macros[macroLiteral.macroName] = macroObj;
+    }
+
+    return macroObj;
 };

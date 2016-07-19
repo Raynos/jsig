@@ -1,0 +1,38 @@
+import { RequestEnvConstr, RequestEnv, CityData } from "request-env"
+
+type CityMonitor : {
+    getCachedCanonicalForm: (
+        this: CityMonitor,
+        uuid: String
+    ) => String | null
+}
+
+type Deps : {
+    cityMonitor : CityMonitor
+}
+
+type ControllerCallback : (
+    err: Error | null,
+    res?: String
+) => void
+
+type CityController : {
+    RequestEnv: RequestEnvConstr,
+    deps: Deps,
+
+    retrieveCanonicalForm : (
+        this: CityController,
+        params: {
+            source: String,
+            useCache: Boolean,
+            uuid: String,
+            userUUID: String,
+            env?: RequestEnv
+        },
+        done: ControllerCallback
+    ) => void,
+
+    isAuthorizedSource: (this: CityController, String) => Boolean
+}
+
+CityController : (this: CityController, deps: Deps) => void

@@ -2,9 +2,11 @@
 
 var assert = require('assert');
 var path = require('path');
+var resolve = require('resolve');
 
 var Errors = require('./errors.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
+var JsigAST = require('../ast/');
 var deepCloneJSIG = require('./lib/deep-clone-ast.js');
 
 module.exports = HeaderFile;
@@ -78,27 +80,37 @@ function replaceGenericLiteral(ast, rawAst) {
     return typeDefn;
 };
 
-// Find another HeaderFile instance for filePath
-// Then reach into indexTable and grab tokens
-// Copy tokens into local index table
-HeaderFile.prototype.replaceImport =
-function replaceImport(ast, rawAst) {
-    var depPath = ast.dependency;
+HeaderFile.prototype._getHeaderFile =
+function _getHeaderFile(importNode) {
+    var depPath = importNode.dependency;
     var fileName = this._resolvePath(depPath, this.folderName);
     if (fileName === null) {
         // Could not resolve header
         this.errors.push(Errors.CouldNotFindHeaderFile({
             otherFile: depPath,
-            loc: ast.loc,
-            line: ast.line,
+            loc: importNode.loc,
+            line: importNode.line,
             source: this.source
         }));
-        return ast;
+        return null;
     }
 
     var otherHeader = this.checker.getOrCreateHeaderFile(
-        fileName, ast, this.source
+        fileName, importNode, this.source
     );
+    return otherHeader;
+};
+
+// Find another HeaderFile instance for filePath
+// Then reach into indexTable and grab tokens
+// Copy tokens into local index table
+HeaderFile.prototype.replaceImport =
+function replaceImport(ast, rawAst) {
+    if (ast.isMacro) {
+        return this.replaceImportMacro(ast, rawAst);
+    }
+
+    var otherHeader = this._getHeaderFile(ast);
     if (!otherHeader) {
         return ast;
     }
@@ -110,7 +122,7 @@ function replaceImport(ast, rawAst) {
         if (!otherHeader.indexTable[t.name]) {
             this.errors.push(Errors.CannotImportToken({
                 identifier: t.name,
-                otherFile: fileName,
+                otherFile: otherHeader.fileName,
                 loc: t.loc,
                 line: t.line,
                 source: this.source
@@ -119,6 +131,23 @@ function replaceImport(ast, rawAst) {
         }
 
         this.addToken(t.name, otherHeader.indexTable[t.name]);
+    }
+
+    return ast;
+};
+
+HeaderFile.prototype.replaceImportMacro =
+function replaceImportMacro(ast, rawAst) {
+    var filePath = resolve.sync(ast.dependency, {
+        basedir: this.folderName
+    });
+
+    for (var i = 0; i < ast.types.length; i++) {
+        var t = ast.types[i];
+        assert(t.type === 'typeLiteral', 'expected typeLiteral');
+
+        var macro = JsigAST.macroLiteral(t.name, filePath);
+        this.addToken(t.name, macro);
     }
 
     return ast;

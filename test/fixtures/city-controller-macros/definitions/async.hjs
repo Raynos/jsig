@@ -1,0 +1,5 @@
+import macro { MacroWaterfall } from "./async-macros.js"
+
+async : {
+    waterfall: MacroWaterfall
+}

@@ -78,6 +78,8 @@ function checkSubType(node, parent, child) {
         return reportTypeMisMatch(node, parent, child);
     } else if (parent.type === 'intersectionType') {
         return this.checkIntersectionSubType(node, parent, child);
+    } else if (parent.type === 'tuple') {
+        return this.checkTupleSubType(node, parent, child);
     } else {
         throw new Error('not implemented sub type: ' + parent.type);
     }
@@ -294,6 +296,27 @@ function checkFunctionSubType(node, parent, child) {
     return null;
 };
 
+SubTypeChecker.prototype.checkTupleSubType =
+function checkTupleSubType(node, parent, child) {
+    if (child.type !== 'tuple') {
+        return reportTypeMisMatch(node, parent, child);
+    }
+
+    if (parent.values.length !== child.values.length) {
+        return reportTypeMisMatch(node, parent, child);
+    }
+
+    for (var i = 0; i < parent.values.length; i++) {
+        var isSame = isSameType(parent.values[i], child.values[i]);
+
+        if (!isSame) {
+            return reportTypeMisMatch(node, parent.values[i], child.values[i]);
+        }
+    }
+
+    return null;
+};
+
 SubTypeChecker.prototype.checkObjectSubType =
 function checkObjectSubType(node, parent, child) {
     if (child.type !== 'object' && child.type !== 'intersectionType') {
@@ -449,6 +472,8 @@ function reportTypeMisMatch(node, parent, child) {
     return Errors.TypeClassMismatch({
         expected: serialize(parent._raw || parent),
         actual: serialize(child._raw || child),
+        _parent: parent,
+        _child: child,
         loc: node.loc,
         line: node.loc.start.line
     });

@@ -1,0 +1,25 @@
+type CityData : {
+    type: String,
+
+    canonicalForm: () => {
+        type: String,
+        uuid: String
+    },
+
+    userHasViewPermission: (String) => Boolean
+}
+
+type RequestEnv : {
+    loadCity : (
+        this: RequestEnv,
+        uuid: String,
+        cb: (Error, CityData) => void
+    ) => void
+}
+
+type RequestEnvConstr : (this: RequestEnv, ctx: {}, opts: {
+    useCache: Boolean,
+    endpointName: String
+}) => void
+
+request-env : RequestEnvConstr

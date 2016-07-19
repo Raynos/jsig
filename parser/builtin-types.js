@@ -13,7 +13,8 @@ var builtinTypes = [
     'Symbol',
     '%Boolean%%Mixed',
     '%Object%%Empty',
-    '%InternalFunction%%FnCall'
+    '%InternalFunction%%FnCall',
+    '%InternalFunction%%FnBind'
 ];
 
 module.exports = builtinTypes;

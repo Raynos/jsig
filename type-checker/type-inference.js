@@ -126,6 +126,12 @@ function inferArrayExpression(node) {
         );
     }
 
+    if (this.meta.currentExpressionType &&
+        this.meta.currentExpressionType.type === 'tuple'
+    ) {
+        return this._inferTupleExpression(node);
+    }
+
     var type = null;
     for (var i = 0; i < elems.length; i++) {
         var newType = this.meta.verifyNode(elems[i], null);
@@ -140,6 +146,26 @@ function inferArrayExpression(node) {
     }
 
     return JsigAST.generic(JsigAST.literal('Array'), [type]);
+};
+
+TypeInference.prototype._inferTupleExpression =
+function _inferTupleExpression(node) {
+    var values = [];
+
+    assert(this.meta.currentExpressionType &&
+        this.meta.currentExpressionType.type === 'tuple',
+        'must be a tuple...'
+    );
+
+    var tupleTypes = this.meta.currentExpressionType.values;
+
+    for (var i = 0; i < node.elements.length; i++) {
+        var expected = tupleTypes[i];
+
+        values[i] = this.meta.verifyNode(node.elements[i], expected);
+    }
+
+    return JsigAST.tuple(values);
 };
 
 TypeInference.prototype.inferObjectExpression =

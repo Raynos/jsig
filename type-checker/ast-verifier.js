@@ -522,35 +522,90 @@ function _getTypeFromFunctionCall(node) {
     return defn;
 };
 
+ASTVerifier.prototype._resolveInternalFnCall =
+function _resolveInternalFnCall(node, defn) {
+    assert(node.callee.type === 'MemberExpression',
+        'Can only fn.call() in a member expression');
+    var fnToCall = this.meta.verifyNode(node.callee.object, null);
+
+    assert(fnToCall && fnToCall.type === 'function',
+        'function being called must be a function');
+    assert(fnToCall.thisArg,
+        'function being call() must have thisArg');
+
+    var argTypes = [
+        JsigAST.param('thisArg', fnToCall.thisArg.value)
+    ];
+
+    for (var i = 0; i < fnToCall.args.length; i++) {
+        argTypes.push(fnToCall.args[i]);
+    }
+
+    var callFuncType = JsigAST.functionType({
+        args: argTypes,
+        result: JsigAST.literal('void'),
+        thisArg: JsigAST.param('this', fnToCall)
+    });
+
+    return callFuncType;
+};
+
+ASTVerifier.prototype._resolveInternalFnBind =
+function _resolveInternalFnBind(node, defn) {
+    assert(node.callee.type === 'MemberExpression',
+        'Can only fn.bind() in a member expression');
+    var fnToCall = this.meta.verifyNode(node.callee.object, null);
+
+    assert(fnToCall && fnToCall.type === 'function',
+        'function being called must be a function');
+    assert(fnToCall.thisArg,
+        'function being bind() must have thisArg');
+
+    var argTypes = [
+        JsigAST.param('thisArg', fnToCall.thisArg.value),
+        JsigAST.param('firstArg', fnToCall.args[0].value)
+    ];
+
+    var returnArgs = [];
+
+    for (var i = 1; i < fnToCall.args.length; i++) {
+        returnArgs.push(fnToCall.args[i]);
+    }
+
+    var callFuncType = JsigAST.functionType({
+        args: argTypes,
+        result: JsigAST.functionType({
+            args: returnArgs,
+            result: fnToCall.result
+        }),
+        thisArg: JsigAST.param('this', fnToCall)
+    });
+
+    return callFuncType;
+};
+
 ASTVerifier.prototype._tryResolveInternalFunction =
 function _tryResolveInternalFunction(node, defn) {
     if (defn.type === 'typeLiteral' && defn.builtin &&
         defn.name === '%InternalFunction%%FnCall'
     ) {
-        assert(node.callee.type === 'MemberExpression',
-            'Can only fn.call() in a member expression');
-        var fnToCall = this.meta.verifyNode(node.callee.object, null);
+        return this._resolveInternalFnCall(node, defn);
+    } else if (defn.type === 'typeLiteral' && defn.builtin &&
+        defn.name === '%InternalFunction%%FnBind'
+    ) {
+        return this._resolveInternalFnBind(node, defn);
+    }
 
-        assert(fnToCall && fnToCall.type === 'function',
-            'function being called must be a function');
-        assert(fnToCall.thisArg,
-            'function being call() must have thisArg');
+    return defn;
+};
 
-        var argTypes = [
-            JsigAST.param('thisArg', fnToCall.thisArg.value)
-        ];
+ASTVerifier.prototype._tryResolveMacroCall =
+function _tryResolveMacroCall(node, defn) {
+    if (defn.type === 'macroLiteral') {
+        var macroImpl = this.meta.getOrCreateMacro(defn);
 
-        for (var i = 0; i < fnToCall.args.length; i++) {
-            argTypes.push(fnToCall.args[i]);
-        }
-
-        var callFuncType = JsigAST.functionType({
-            args: argTypes,
-            result: JsigAST.literal('void'),
-            thisArg: JsigAST.param('this', fnToCall)
-        });
-
-        return callFuncType;
+        var fnToCall = macroImpl.resolveFunction(node, defn);
+        return fnToCall;
     }
 
     return defn;
@@ -567,6 +622,11 @@ function verifyCallExpression(node) {
     }
 
     var defn = this._getTypeFromFunctionCall(node);
+    if (!defn) {
+        return null;
+    }
+
+    defn = this._tryResolveMacroCall(node, defn);
     if (!defn) {
         return null;
     }

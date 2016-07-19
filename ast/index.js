@@ -20,6 +20,7 @@ var RenamedLiteralNode = require('./renamed-literal.js');
 var CommentNode = require('./comment.js');
 var DefaultExportNode = require('./default-export.js');
 var FunctionParameterNode = require('./function-parameter.js');
+var MacroLiteralNode = require('./macro-literal.js');
 
 module.exports = {
     CONFIG: ASTConfig,
@@ -79,5 +80,8 @@ module.exports = {
     },
     defaultExport: function defaultExport(type) {
         return new DefaultExportNode(type);
+    },
+    macroLiteral: function macroLiteral(macroName, macroFile) {
+        return new MacroLiteralNode(macroName, macroFile);
     }
 };

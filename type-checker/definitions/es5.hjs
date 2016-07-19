@@ -37,7 +37,8 @@ type TNumber : {
 }
 
 type TFunction : {
-    call: %InternalFunction%%FnCall
+    call: %InternalFunction%%FnCall,
+    bind: %InternalFunction%%FnBind
 }
 
 String : (Number) => String
@@ -63,3 +64,6 @@ Object : {
     keys: <K, V>(Object<K, V>) => Array<String>
 }
 
+JSON : {
+    stringify: (%Boolean%%Mixed) => String
+}

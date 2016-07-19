@@ -60,6 +60,8 @@ function TypeChecker(entryFile, options) {
     this.traces = [];
     this.moduleExportsType = null;
     this.currentMeta = null;
+
+    this.errorType = null;
 }
 
 TypeChecker.prototype.serializeType =
@@ -148,6 +150,7 @@ function loadLanguageIdentifiers() {
 
     var errType = es5HeaderFile.getToken('Error');
     errType.brand = 'Error';
+    this.errorType = errType;
 
     this.globalScope._addVirtualType(
         'TString', es5HeaderFile.getToken('TString')

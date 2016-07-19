@@ -18,7 +18,8 @@ var serializers = {
     tuple: serializeTuple,
     freeLiteral: serializeFreeLiteral,
     renamedLiteral: serializeRenamedLiteral,
-    param: serializeParam
+    param: serializeParam,
+    macroLiteral: serializeMacroLiteral
 };
 
 module.exports = serialize;
@@ -243,6 +244,10 @@ function serializeIntersection(node, opts) {
 
 function serializeFreeLiteral(node, opts) {
     return node.name;
+}
+
+function serializeMacroLiteral(node, opts) {
+    return node.macroName;
 }
 
 function serializeLiteral(node, opts) {
