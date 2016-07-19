@@ -1209,7 +1209,14 @@ function verifyUnaryExpression(node) {
         return null;
     }
 
-    var token = this.meta.getOperator(node.operator);
+    var operator = node.operator;
+    if (operator === '+') {
+        operator = '%Unary%%Plus';
+    } else if (operator === '-') {
+        operator = '%Unary%%Minus';
+    }
+
+    var token = this.meta.getOperator(operator);
     assert(token, 'do not support unknown operators: ' + node.operator);
 
     var defn = token.defn;

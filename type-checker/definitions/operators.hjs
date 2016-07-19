@@ -35,3 +35,6 @@ void : (%Boolean%%Mixed) => void
 
 -- Do not use %Boolean%%Mixed here...
 typeof : (%Boolean%%Mixed) => String
+
+%Unary%%Minus : (Number) => Number
+%Unary%%Plus : (Number) => Number
