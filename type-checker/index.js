@@ -207,8 +207,24 @@ function tryReadHeaderFile(fileName) {
     return true;
 };
 
+TypeChecker.prototype._readAndParseHeaderFile =
+function _readAndParseHeaderFile(source, fileName) {
+    var res = parseJSigAST(source);
+    if (res.error) {
+        res.error.fileName = fileName;
+        this.addError(res.error);
+        return null;
+    }
+
+    if (!res.value) {
+        return null;
+    }
+
+    return res.value;
+};
+
 TypeChecker.prototype.getOrCreateHeaderFile =
-function getOrCreateHeaderFile(fileName) {
+function getOrCreateHeaderFile(fileName, node, importSourceText) {
     if (!this.files[fileName]) {
         fileName = path.resolve(fileName);
     }
@@ -227,7 +243,10 @@ function getOrCreateHeaderFile(fileName) {
     if (!source) {
         if (!fs.existsSync(fileName)) {
             this.addError(Errors.CouldNotFindHeaderFile({
-                fileName: fileName
+                fileName: fileName,
+                loc: node ? node.loc : null,
+                line: node ? node.line : null,
+                source: importSourceText ? importSourceText : null
             }));
             return null;
         }
@@ -235,18 +254,17 @@ function getOrCreateHeaderFile(fileName) {
         source = fs.readFileSync(fileName, 'utf8');
     }
 
-    var res = parseJSigAST(source);
-    if (res.error) {
-        res.error.fileName = fileName;
-        this.addError(res.error);
+    return this._createHeaderFile(source, fileName);
+};
+
+TypeChecker.prototype._createHeaderFile =
+function _createHeaderFile(source, fileName) {
+    var jsigAST = this._readAndParseHeaderFile(source, fileName);
+    if (!jsigAST) {
         return null;
     }
 
-    if (!res.value) {
-        return null;
-    }
-
-    headerFile = new HeaderFile(this, res.value, fileName, source);
+    var headerFile = new HeaderFile(this, jsigAST, fileName, source);
     this.headerFiles[fileName] = headerFile;
 
     headerFile.resolveReferences();

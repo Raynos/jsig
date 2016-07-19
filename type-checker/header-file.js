@@ -88,12 +88,17 @@ function replaceImport(ast, rawAst) {
     if (fileName === null) {
         // Could not resolve header
         this.errors.push(Errors.CouldNotFindHeaderFile({
-            otherFile: depPath
+            otherFile: depPath,
+            loc: ast.loc,
+            line: ast.line,
+            source: this.source
         }));
         return ast;
     }
 
-    var otherHeader = this.checker.getOrCreateHeaderFile(fileName);
+    var otherHeader = this.checker.getOrCreateHeaderFile(
+        fileName, ast, this.source
+    );
     if (!otherHeader) {
         return ast;
     }
