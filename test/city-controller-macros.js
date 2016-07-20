@@ -24,10 +24,6 @@ test('working method calls within a closure', function t(assert) {
     assert.equal(meta.errors.length, 0, 'expected one error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
 
-    if (meta.errors.length) {
-        console.error(meta.prettyPrintAllErrors());
-    }
-
     assert.end();
 });
 

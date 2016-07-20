@@ -5,10 +5,6 @@ var async = require('async');
 /*eslint-enable no-restricted-modules*/
 var RequestEnv = require('request-env');
 
-var JSON_HEADER = {
-    'content-type': 'application/json'
-};
-
 function CityController(deps) {
     this.RequestEnv = RequestEnv;
     this.deps = deps;
