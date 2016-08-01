@@ -6,7 +6,7 @@ var multiline = require('multiline');
 var console = require('console');
 var process = global.process;
 
-var compileJSIG = require('../../type-checker/');
+var compileJSIG = require('../../type-checker/').compile;
 
 JSigSnippet.test = tapeCluster(tape, JSigSnippet);
 module.exports = JSigSnippet;

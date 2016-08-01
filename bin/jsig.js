@@ -9,7 +9,7 @@ var assert = require('assert');
 var TermColor = require('term-color');
 
 var $package = require('../package.json');
-var TypeChecker = require('../type-checker/').TypeChecker;
+var TypeChecker = require('../type-checker/');
 var ArgsVerify = require('./lib/args-verify.js');
 var findFiles = require('./find-files.js');
 

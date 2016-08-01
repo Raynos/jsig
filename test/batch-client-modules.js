@@ -3,7 +3,7 @@
 var test = require('tape');
 var path = require('path');
 
-var compile = require('../type-checker/');
+var compile = require('../type-checker/').compile;
 
 var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-modules');
 

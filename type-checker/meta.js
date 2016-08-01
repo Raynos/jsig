@@ -151,6 +151,16 @@ ProgramMeta.prototype.parseRules = function parseRules() {
 
     for (var i = 0; i < segments.length; i++) {
         var parts = segments[i].split(':');
+
+        if (parts.length !== 2) {
+            this.addError(Errors.UnrecognisedOption({
+                key: segments[i],
+                loc: firstComment.loc,
+                line: firstComment.loc.start.line
+            }));
+            continue;
+        }
+
         var key = parts[0].trim();
         var value = parts[1].trim();
 

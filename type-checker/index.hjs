@@ -1,0 +1,6 @@
+
+type TypeChecker : {
+    entryFiles: Array<String>
+}
+
+TypeChecker : (this: TypeChecker, entryFile: String, options: {}) => void

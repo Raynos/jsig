@@ -1,5 +1,11 @@
 'use strict';
 
+/*  @jsig
+    allowUnknownRequire: true,
+    allowUnusedFunction: true,
+    partialExport: true
+*/
+
 var esprima = require('esprima');
 var fs = require('fs');
 var path = require('path');
@@ -20,15 +26,13 @@ var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
 var isHeaderR = /\.hjs$/;
 var BIN_HEADER = '#!/usr/bin/env node\n';
 
-compile.TypeChecker = TypeChecker;
-
-module.exports = compile;
-
-function compile(fileName, options) {
+TypeChecker.compile = function compile(fileName, options) {
     var checker = new TypeChecker(fileName, options);
     checker.checkProgram();
     return checker;
-}
+};
+
+module.exports = TypeChecker;
 
 function TypeChecker(entryFile, options) {
     options = options || {};

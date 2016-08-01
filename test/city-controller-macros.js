@@ -5,7 +5,7 @@
 var test = require('tape');
 var path = require('path');
 
-var compile = require('../type-checker/');
+var compile = require('../type-checker/').compile;
 
 var cityControllerDir = path.join(
     __dirname, 'fixtures', 'city-controller-macros'
@@ -14,7 +14,7 @@ var definitionsDir = path.join(
     __dirname, 'fixtures', 'city-controller-macros', 'definitions'
 );
 
-test('working method calls within a closure', function t(assert) {
+test('working macro import', function t(assert) {
     var file = getFile('good-city-controller-macro.js');
 
     var meta = compile(file, {
