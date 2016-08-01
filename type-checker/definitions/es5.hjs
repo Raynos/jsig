@@ -47,7 +47,9 @@ Boolean : (Boolean | undefined) => Boolean
 
 Error : (this: Error, String) => void
 
-Array : <T>(this: Array<T>, size: Number) => void
+Array : {
+    isArray: (%Boolean%%Mixed) => Boolean
+} & <T>(this: Array<T>, size: Number) => void
 
 Date : {
     now: () => Number
