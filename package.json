@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "check": "./bin/jsig.js . --optin --ignore ./test/fixtures",
     "lint": "eslint $(git ls-files | grep '\\.js$')",
     "test": "npm run lint && node test/index.js && bash scripts/check_files.sh",
     "cover": "istanbul cover --report html --print detail test/index.js",
