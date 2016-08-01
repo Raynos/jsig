@@ -16,6 +16,13 @@ var findFiles = require('./find-files.js');
 function TypeCheckBinary(args) {
     this.args = args;
     this.fileName = args._[0];
+    this.ignore = args.ignore || [];
+    for (var i = 0; i < this.ignore.length; i++) {
+        // If relative
+        if (this.ignore[i][0] !== '/') {
+            this.ignore[i] = path.join(process.cwd(), this.ignore[i]);
+        }
+    }
 
     this.entryFiles = null;
     this.checker = null;
@@ -33,17 +40,21 @@ TypeCheckBinary.args.addPositional('fileName');
 
 TypeCheckBinary.args.add('definitions', {
     help: 'path to a folder of type definition files',
-    type: 'string'
+    type: 'directory'
 });
 TypeCheckBinary.args.add('globalsFile', {
     help: 'path to file defining global types',
-    type: 'string'
+    type: 'filePath'
+});
+TypeCheckBinary.args.add('ignore', {
+    help: 'directory to ignore',
+    type: 'directory',
+    multiple: true
 });
 TypeCheckBinary.args.add('optin', {
     boolean: true,
     help: 'Turn on optin only mode'
 });
-
 TypeCheckBinary.args.add('trace', {
     boolean: true,
     help: 'Turns on tracing mode, lots of extra output...'
@@ -68,7 +79,11 @@ TypeCheckBinary.prototype.run = function run() {
 };
 
 TypeCheckBinary.prototype.check = function check() {
-    this.entryFiles = findFiles(path.resolve(process.cwd(), this.fileName));
+    var rootFile = path.resolve(process.cwd(), this.fileName);
+
+    this.entryFiles = findFiles(rootFile, {
+        ignore: this.ignore
+    });
     this.checker = new TypeChecker(this.entryFiles, {
         definitions: this.args.definitions || null,
         globalsFile: this.args.globals || null,

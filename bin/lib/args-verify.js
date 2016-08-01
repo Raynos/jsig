@@ -9,6 +9,7 @@ function ArgsOption(name, opts) {
     this.positional = (opts && opts.positional) || false;
     this.boolean = (opts && opts.boolean) || false;
     this.type = (opts && opts.type) || '';
+    this.multiple = (opts && opts.multiple) || false;
 }
 
 function ArgsVerify(opts) {
@@ -62,6 +63,7 @@ ArgsVerify.prototype._validate = function _validate(opts) {
 
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
+        var value = opts[key];
 
         if (key === '_') {
             var len = opts._.length;
@@ -80,6 +82,10 @@ ArgsVerify.prototype._validate = function _validate(opts) {
             correct = false;
             this.errors.push('Unknown argument: ' + key);
             continue;
+        }
+
+        if (option.multiple && !Array.isArray(value)) {
+            opts[key] = [value];
         }
     }
 
@@ -130,9 +136,14 @@ function createHelpText() {
                 opts.help
             ]);
         } else {
+            var help = opts.help;
+            if (opts.multiple) {
+                help += ' (can be repeated)';
+            }
+
             lines.push([
                 '  --' + opts.name + '=[' + opts.type + ']',
-                opts.help
+                help
             ]);
         }
     }

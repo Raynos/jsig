@@ -11,7 +11,7 @@ module.exports = findFiles;
 
     if a folder then recurse.
 */
-function findFiles(fileName) {
+function findFiles(fileName, opts) {
     if (!fs.existsSync(fileName)) {
         return [fileName];
     }
@@ -21,13 +21,18 @@ function findFiles(fileName) {
         return [fileName];
     } else if (stat.isDirectory()) {
         var files = [];
-        return crawlFolder(files, fileName);
+        return crawlFolder(files, fileName, opts);
     } else {
         assert(false, 'does not support non file/folder');
     }
 }
 
-function crawlFolder(list, folderName) {
+function crawlFolder(list, folderName, opts) {
+    // Do not crawl ignored folders
+    if (opts.ignore.indexOf(folderName) !== -1) {
+        return list;
+    }
+
     var files = fs.readdirSync(folderName);
 
     for (var i = 0; i < files.length; i++) {
@@ -48,7 +53,7 @@ function crawlFolder(list, folderName) {
                 list.push(fileName);
             }
         } else if (stat.isDirectory()) {
-            crawlFolder(list, fileName);
+            crawlFolder(list, fileName, opts);
         } else {
             assert(false, 'does not support non file/folder');
         }
