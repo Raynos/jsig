@@ -71,11 +71,11 @@ TypeCheckBinary.prototype.run = function run() {
 
     if (!this.fileName) {
         this.shortHelp();
-        console.log('WARN: unknown fileName');
+        this.log('WARN: unknown fileName');
         return null;
     }
 
-    this.check();
+    return this.check();
 };
 
 TypeCheckBinary.prototype.check = function check() {
@@ -94,19 +94,19 @@ TypeCheckBinary.prototype.check = function check() {
 
     /* eslint-disable no-process-env */
     if (process.env.TRACE || this.args.trace) {
-        console.log(this.checker.prettyPrintTraces());
+        this.log(this.checker.prettyPrintTraces());
     }
     /* eslint-enable no-process-env */
 
     if (success && this.checker.errors.length === 0) {
-        console.log('No type errors');
+        this.log('No type errors');
 
-        return this.exit(0);
+        return true;
     }
 
-    console.log(this.checker.prettyPrintAllErrors());
+    this.log(this.checker.prettyPrintAllErrors());
 
-    this.exit(1);
+    return false;
 };
 
 TypeCheckBinary.prototype.checkProgram =
@@ -126,25 +126,21 @@ function checkProgram() {
 };
 
 TypeCheckBinary.prototype.warnError = function warnError(error) {
-    console.log(TermColor.red('Fatal Exception: '), {
+    this.log(TermColor.red('Fatal Exception: '), {
         message: error.message,
         stackLine: error.stack && error.stack.split('\n')[1],
         rawStack: error.stack && error.stack.split('\n')
     });
 
     var currMeta = this.checker.currentMeta;
-    console.log('was processing the following text: ');
-    console.log();
-    console.log(TermColor.red(
+    this.log('was processing the following text: ');
+    this.log();
+    this.log(TermColor.red(
         currMeta.serializeAST(currMeta.currentNode)
     ));
-    console.log();
-    console.log('on: ' + currMeta.fileName + ':' +
+    this.log();
+    this.log('on: ' + currMeta.fileName + ':' +
         currMeta.currentNode.loc.start.line);
-};
-
-TypeCheckBinary.prototype.exit = function exit(code) {
-    process.exit(code);
 };
 
 TypeCheckBinary.prototype.unknownFilename =
@@ -154,18 +150,18 @@ function unknownFilename() {
 
 TypeCheckBinary.prototype.shortHelp =
 function shortHelp() {
-    console.log(TypeCheckBinary.args.createHelpText());
+    this.log(TypeCheckBinary.args.createHelpText());
 };
 
 TypeCheckBinary.prototype.version =
 function version() {
-    console.log('version: ' + $package.version);
+    this.log('version: ' + $package.version);
     var commit = $package.gitHead;
     if (!commit) {
         commit = this._getHeadCommit();
     }
 
-    console.log('commit: ' + commit);
+    this.log('commit: ' + commit);
 };
 
 TypeCheckBinary.prototype._getHeadCommit =
@@ -177,6 +173,17 @@ function _getHeadCommit() {
 
     var ref = headText.slice(5).trim();
     return fs.readFileSync(path.join(gitFolder, ref), 'utf8');
+};
+
+TypeCheckBinary.prototype.log =
+function log(str, meta) {
+    if (!str) {
+        console.log();
+    } else if (!meta) {
+        console.log(str);
+    } else {
+        console.log(str, meta);
+    }
 };
 
 /*eslint no-process-exit: 0*/
@@ -197,7 +204,12 @@ function main(argv) {
     }
 
     var bin = new TypeCheckBinary(opts);
-    bin.run();
+    
+    if (bin.run()) {
+        process.exit(0);
+    }
+
+    process.exit(1);
 }
 
 if (require.main === module) {
