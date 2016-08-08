@@ -13,16 +13,44 @@ var TypeChecker = require('../type-checker/');
 var ArgsVerify = require('./lib/args-verify.js');
 var findFiles = require('./find-files.js');
 
-function TypeCheckBinary(args) {
-    this.args = args;
-    this.fileName = args._[0];
-    this.ignore = args.ignore || [];
-    for (var i = 0; i < this.ignore.length; i++) {
-        // If relative
-        if (this.ignore[i][0] !== '/') {
-            this.ignore[i] = path.join(process.cwd(), this.ignore[i]);
-        }
+function TypeCheckOptions() {
+    this.color = false;
+    this.definitions = null;
+    this.globalsFile = null;
+    this.ignore = [];
+    this.optin = false;
+    this.trace = false;
+}
+
+TypeCheckOptions.prototype.mergeWith =
+function mergeWith(args) {
+    if ('color' in args) {
+        this.color = args.color;
     }
+    if ('definitions' in args) {
+        this.definitions = args.definitions;
+    }
+    if ('globalsFile' in args) {
+        this.globalsFile = args.globalsFile;
+    }
+    if ('ignore' in args) {
+        this.ignore = this.ignore.concat(args.ignore);
+    }
+    if ('optin' in args) {
+        this.optin = args.optin;
+    }
+    if ('trace' in args) {
+        this.trace = args.trace;
+    }
+};
+
+function TypeCheckBinary(args) {
+    this.fileName = args._[0];
+
+    this.options = new TypeCheckOptions();
+    this.options.mergeWith(args);
+
+    this.dirname = process.cwd();
 
     this.entryFiles = null;
     this.checker = null;
@@ -35,8 +63,7 @@ TypeCheckBinary.args.addBoolean('h');
 TypeCheckBinary.args.addBoolean('v');
 TypeCheckBinary.args.addBoolean('help');
 TypeCheckBinary.args.addBoolean('version');
-TypeCheckBinary.args.addBoolean('color');
-TypeCheckBinary.args.addPositional('fileName');
+TypeCheckBinary.args.addPositional('fileName/dirname');
 
 TypeCheckBinary.args.add('definitions', {
     help: 'path to a folder of type definition files',
@@ -59,41 +86,76 @@ TypeCheckBinary.args.add('trace', {
     boolean: true,
     help: 'Turns on tracing mode, lots of extra output...'
 });
+TypeCheckBinary.args.add('color', {
+    boolean: true,
+    help: 'Turns on colors'
+});
 
 TypeCheckBinary.prototype.run = function run() {
-    if (this.args.h || this.args.help) {
+    if (this.options.h || this.options.help) {
         return this.shortHelp();
     }
 
-    if (this.args.v || this.args.version) {
+    if (this.options.v || this.options.version) {
         return this.version();
     }
 
     if (!this.fileName) {
         this.shortHelp();
-        this.log('WARN: unknown fileName');
+        this.log(TermColor.yellow('WARN:') +
+            ' Must pass in a fileName or dirname.');
+        this.log(TermColor.yellow('WARN:') +
+            ' e.g. `jsig .` or `jsig lib/my-file.js`');
         return null;
     }
 
     return this.check();
 };
 
-TypeCheckBinary.prototype.check = function check() {
-    var rootFile = path.resolve(process.cwd(), this.fileName);
+TypeCheckBinary.prototype.processOptions =
+function processOptions() {
+    var configFile = path.resolve(this.dirname, 'jsigconfig.json');
+    if (fs.existsSync(configFile)) {
+        /*eslint-disable global-require*/
+        var json = require(configFile);
+        /*eslint-enable global-require*/
+        this.options.mergeWith(json);
+    }
 
-    this.entryFiles = findFiles(rootFile, {
-        ignore: this.ignore
+    this.fileName = path.resolve(this.dirname, this.fileName);
+
+    for (var i = 0; i < this.options.ignore.length; i++) {
+        // If relative
+        if (this.options.ignore[i][0] !== '/') {
+            this.options.ignore[i] = path.join(
+                this.dirname, this.options.ignore[i]
+            );
+        }
+    }
+
+    if (this.options.color) {
+        TermColor.enabled = true;
+    }
+};
+
+TypeCheckBinary.prototype.check = function check() {
+    this.processOptions();
+
+    this.entryFiles = findFiles(this.fileName, {
+        ignore: this.options.ignore
     });
-    this.checker = new TypeChecker(this.entryFiles, {
-        definitions: this.args.definitions || null,
-        globalsFile: this.args.globals || null,
-        optin: this.args.optin || false
-    });
+
+    var opts = {
+        definitions: this.options.definitions || null,
+        globalsFile: this.options.globals || null,
+        optin: this.options.optin || false
+    };
+    this.checker = new TypeChecker(this.entryFiles, opts);
 
     var success = this.checkProgram();
 
     /* eslint-disable no-process-env */
-    if (process.env.TRACE || this.args.trace) {
+    if (process.env.TRACE || this.options.trace) {
         this.log(this.checker.prettyPrintTraces());
     }
     /* eslint-enable no-process-env */
@@ -198,13 +260,12 @@ function main(argv) {
         console.log('');
 
         for (var i = 0; i < errors.length; i++) {
-            console.log('WARN: ' + errors[i]);
+            console.log(TermColor.yellow('WARN:') + ' ' + errors[i]);
         }
         return process.exit(1);
     }
 
     var bin = new TypeCheckBinary(opts);
-    
     if (bin.run()) {
         process.exit(0);
     }

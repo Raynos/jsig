@@ -1,2 +1,2 @@
 check:
-	./bin/jsig.js . --color --optin --ignore ./test/fixtures
+	./bin/jsig.js .
