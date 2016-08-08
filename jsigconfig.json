@@ -3,5 +3,7 @@
     "optin": true,
     "ignore": [
         "test/fixtures"
-    ]
+    ],
+    "globalsFile": "globals.hjs",
+    "definitions": "definitions"
 }

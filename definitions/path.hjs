@@ -1,0 +1,8 @@
+
+
+path : {
+    join : (
+        ((String, String) => String) &
+        ((String, String, String) => String)
+    )
+}

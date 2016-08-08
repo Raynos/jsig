@@ -147,7 +147,7 @@ TypeCheckBinary.prototype.check = function check() {
 
     var opts = {
         definitions: this.options.definitions || null,
-        globalsFile: this.options.globals || null,
+        globalsFile: this.options.globalsFile || null,
         optin: this.options.optin || false
     };
     this.checker = new TypeChecker(this.entryFiles, opts);
