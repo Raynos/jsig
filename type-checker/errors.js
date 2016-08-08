@@ -41,7 +41,8 @@ Errors.CouldNotFindHeaderFile = TypedError({
 
 Errors.CouldNotFindFile = TypedError({
     type: 'jsig.checker.could-not-find-file',
-    message: 'Cannot find javascript file: {fileName}',
+    message: 'Cannot find javascript file: {fileName}.\n' +
+        '{origMessage}',
     fileName: null
 });
 

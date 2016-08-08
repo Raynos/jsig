@@ -326,7 +326,8 @@ function getOrCreateMeta(fileName) {
         var tuple = tryResolveSync(fileName, this.basedir);
         if (tuple[0]) {
             this.addError(Errors.CouldNotFindFile({
-                fileName: fileName
+                fileName: fileName,
+                origMessage: tuple[0].message
             }));
             return null;
         }
