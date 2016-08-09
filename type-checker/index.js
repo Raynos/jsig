@@ -114,10 +114,12 @@ function checkProgram() {
 
     var meta;
     for (var i = 0; i < this.entryFiles.length; i++) {
+        /*jsig ignore next*/
         meta = this.getOrCreateMeta(this.entryFiles[i]);
     }
 
     if (this.entryFiles.length === 1 && meta) {
+        /*jsig ignore next*/
         this.moduleExportsType = meta.moduleExportsType;
     }
 };
@@ -146,6 +148,8 @@ function loadLanguageIdentifiers() {
         if (a.identifier === 'Error') {
             // Must know that in ES5 the new Error() constructor
             // brands the result as an Error instance.
+
+            /*jsig ignore next*/
             a.typeExpression.brand = 'Error';
         }
 
