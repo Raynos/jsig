@@ -220,6 +220,17 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
 
     assert(exprType !== undefined, 'must pass in exprType');
 
+    if (node.leadingComments) {
+        var lastComment = node.leadingComments[
+            node.leadingComments.length - 1
+        ].value.trim();
+
+        // Add jsig ignore next support
+        if (lastComment === 'jsig ignore next') {
+            return null;
+        }
+    }
+
     var parent = this.currentNode;
     this.currentNode = node;
     var oldExprType = this.currentExpressionType;

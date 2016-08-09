@@ -310,6 +310,7 @@ function tryEsprimaParse(source) {
     try {
         tuple[1] = esprima.parse(source, {
             loc: true,
+            attachComment: true,
             comment: true
         });
     } catch (err) {
@@ -367,10 +368,7 @@ function getOrCreateMeta(fileName) {
         return null;
     }
 
-    var ast = esprima.parse(source, {
-        loc: true,
-        comment: true
-    });
+    var ast = tuple[1];
 
     var meta = new ProgramMeta(this, ast, fileName, source);
     this.metas[fileName] = meta;
