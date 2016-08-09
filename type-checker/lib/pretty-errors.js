@@ -39,6 +39,32 @@ function prettyPrintAllErrors(checker) {
     return parts.join('\n');
 }
 
+function lineGreen(text) {
+    if (text.indexOf('\n') === -1) {
+        return TermColor.green(text);
+    }
+
+    var lines = text.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        lines[i] = TermColor.green(lines[i]);
+    }
+
+    return lines.join('\n');
+}
+
+function lineRed(text) {
+    if (text.indexOf('\n') === -1) {
+        return TermColor.red(text);
+    }
+
+    var lines = text.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        lines[i] = TermColor.red(lines[i]);
+    }
+
+    return lines.join('\n');
+}
+
 function prettyPrintError(checker, error, opts) {
     var parts = [];
 
@@ -84,9 +110,9 @@ function prettyPrintError(checker, error, opts) {
 
     if (error.expected && error.actual) {
         parts.push(opts.prefix +
-            'Expected : ' + TermColor.green(error.expected));
+            'Expected : ' + lineGreen(error.expected));
         parts.push(opts.prefix +
-            'Actual   : ' + TermColor.red(error.actual));
+            'Actual   : ' + lineRed(error.actual));
         parts.push('');
     }
 
@@ -146,8 +172,8 @@ function prettyPrintTrace(checker, trace) {
     var expected = serializeType(trace.expected);
     var actual = serializeType(trace.actual);
 
-    parts.push('Expected : ' + TermColor.green(expected));
-    parts.push('Actual : ' + TermColor.red(actual));
+    parts.push('Expected : ' + lineGreen(expected));
+    parts.push('Actual : ' + lineRed(actual));
     parts.push('');
 
     return parts.join('\n');
