@@ -157,6 +157,7 @@ function loadLanguageIdentifiers() {
     }
 
     var errType = es5HeaderFile.getToken('Error');
+    /*jsig ignore next*/
     errType.brand = 'Error';
     this.errorType = errType;
 

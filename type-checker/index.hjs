@@ -6,11 +6,14 @@ type JsigAssignment : {
 }
 
 type GlobalScope : {
-    _addOperator: (this: GlobalScope, id: String, type: JsigType) => void
+    _addOperator: (this: GlobalScope, id: String, typeDefn: JsigType) => void,
+    _addVar: (this: GlobalScope, id: String, typeDefn: JsigType) => void
 }
 
 type HeaderFile : {
-    getResolvedAssignments: (this: HeaderFile) => Array<JsigAssignment>
+    getResolvedAssignments: (this: HeaderFile) => Array<JsigAssignment>,
+
+    getToken: (this: HeaderFile, name: String) => JsigType
 }
 
 type Meta : {
@@ -23,6 +26,7 @@ type TypeChecker : {
     globalScope: GlobalScope,
 
     moduleExportsType: JsigType,
+    errorType: JsigType,
 
     checkProgram : (this: TypeChecker) => void,
     loadLanguageIdentifiers: (this: TypeChecker) => void,
