@@ -2,31 +2,6 @@
 
 From scratch type-checker
 
-# progress ( 0.1.0 )
-
-The `v0.1.0` tag was cut. I skipped on a few tests...
-
- - [x] type check constructor
- - [x] type check method definition
- - [x] type check new Foo()
- - [x] type check method calls 
- - [x] support module system
- - [ ] write more module system tests
- - [x] create binary with pretty errors.
-
-# progress ( 0.2.0 )
-
-The `v0.2.0` will be cut once a full reference library type checks
-
- - [x] define type definitions for npm modules
- - [ ] write more type definition tests
- - [ ] support more JavaScript features.
- - [x] basic support for logic expressions.
- - [ ] write more logic expression tests.
- - [ ] basic support for nullables
- - [ ] basic support for if branches and flow analysis
- - [ ] basic support for generics
-
 # Stability status: Experimental
 
 This project is pre-alpha and an experimental type checker.
@@ -186,3 +161,28 @@ test/batch-client-calls/bad-calling-method-on-wrong-object.hjs
 test/batch-client-calls/bad-calling-method-with-extra-args.hjs
 ...
 ```
+
+# progress ( 0.1.0 )
+
+The `v0.1.0` tag was cut. I skipped on a few tests...
+
+ - [x] type check constructor
+ - [x] type check method definition
+ - [x] type check new Foo()
+ - [x] type check method calls 
+ - [x] support module system
+ - [ ] write more module system tests
+ - [x] create binary with pretty errors.
+
+# progress ( 0.2.0 )
+
+The `v0.2.0` will be cut once a full reference library type checks
+
+ - [x] define type definitions for npm modules
+ - [x] write more type definition tests
+ - [ ] support more JavaScript features.
+ - [x] basic support for logic expressions.
+ - [ ] write more logic expression tests.
+ - [x] basic support for nullables
+ - [ ] basic support for if branches and flow analysis
+ - [ ] basic support for generics
