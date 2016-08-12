@@ -5,22 +5,22 @@ type JsigAssignment : {
     typeExpression: JsigType
 }
 
-type GlobalScope : {
-    _addOperator: (this: GlobalScope, id: String, typeDefn: JsigType) => void,
-    _addVar: (this: GlobalScope, id: String, typeDefn: JsigType) => void
+interface GlobalScope {
+    _addOperator(id: String, typeDefn: JsigType) => void,
+    _addVar(id: String, typeDefn: JsigType) => void
 }
 
-type HeaderFile : {
+interface HeaderFile {
     getResolvedAssignments: (this: HeaderFile) => Array<JsigAssignment>,
 
-    getToken: (this: HeaderFile, name: String) => JsigType
+    getToken(name: String) => JsigType
 }
 
 type Meta : {
     moduleExportsType: JsigType
 }
 
-type TypeChecker : {
+interface TypeChecker {
     entryFiles: Array<String>,
     errors: Array<Error>,
     globalScope: GlobalScope,
@@ -28,12 +28,12 @@ type TypeChecker : {
     moduleExportsType: JsigType,
     errorType: JsigType,
 
-    checkProgram : (this: TypeChecker) => void,
-    loadLanguageIdentifiers: (this: TypeChecker) => void,
-    preloadDefinitions: (this: TypeChecker) => void,
-    preloadGlobals: (this: TypeChecker) => void,
-    getOrCreateMeta: (this: TypeChecker, file: String) => Meta,
-    getOrCreateHeaderFile: (this: TypeChecker, file: String) => HeaderFile
+    checkProgram() => void,
+    loadLanguageIdentifiers() => void,
+    preloadDefinitions() => void,
+    preloadGlobals() => void,
+    getOrCreateMeta(file: String) => Meta,
+    getOrCreateHeaderFile(file: String) => HeaderFile
 }
 
 type TypeCheckerOpts : {}
