@@ -42,6 +42,7 @@ test('export default { a: String }', function t(assert) {
         brand: 'Object',
         keyValues: [{
             type: 'keyValue',
+            isMethod: false,
             _raw: null,
             key: 'a',
             optional: false,

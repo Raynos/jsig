@@ -7,5 +7,6 @@ function KeyValueNode(key, value, opts) {
     this.key = key;
     this.value = value;
     this.optional = (opts && opts.optional) || false;
+    this.isMethod = false;
     this._raw = null;
 }
