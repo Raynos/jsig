@@ -27,6 +27,7 @@ var lexemes = {
     openAngularBrace: lexeme(Parsimmon.string('<')),
     closeAngularBrace: lexeme(Parsimmon.string('>')),
     typeWord: lexeme(Parsimmon.string('type')),
+    interfaceWord: lexeme(Parsimmon.string('interface')),
     unionSeperator: lexeme(Parsimmon.string('|')),
     intersectionSeperator: lexeme(Parsimmon.string('&')),
     openRoundBrace: lexeme(Parsimmon.string('(')),

@@ -1,30 +1,9 @@
 'use strict';
 
-var typeDefinition = require('./type-definition.js');
+var typeKeyValue = require('./type-key-value.js');
 var lexemes = require('./lexemes.js');
 var AST = require('../ast/');
 var join = require('./lib/join.js');
-
-var objectKey = lexemes.labelName
-    .skip(lexemes.labelSeperator);
-
-var typeKeyValue = objectKey
-    .chain(function captureOptional(keyName) {
-        var optional = keyName[keyName.length - 1] === '?';
-
-        if (optional) {
-            keyName = keyName.substr(0, keyName.length - 1);
-        }
-
-        return typeDefinition
-            .map(function toKeyValue(keyValue) {
-                return AST.keyValue(keyName, keyValue, {
-                    optional: optional
-                });
-            });
-    });
-
-var typeKeyValues = join(typeKeyValue, lexemes.comma);
 
 var singleRowType = lexemes.rowTypeVariable
     .times(0, 1);
@@ -32,6 +11,8 @@ var singleRowType = lexemes.rowTypeVariable
 var rowType = lexemes.comma
     .then(lexemes.rowTypeVariable)
     .times(0, 1);
+
+var typeKeyValues = join(typeKeyValue, lexemes.comma);
 
 var typeObject = lexemes.openCurlyBrace
     .then(typeKeyValues)
