@@ -298,17 +298,24 @@ function verifyAssignmentExpression(node) {
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Null%%Default'
     );
+    var isVoidUninitialized = (
+        leftType.type === 'typeLiteral' &&
+        leftType.builtin && leftType.name === '%Void%%Uninitialized'
+    );
     var isOpenField = (
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Mixed%%OpenField'
     );
 
-    var canGrow = isNullDefault || isOpenField;
+    var canGrow = isNullDefault || isVoidUninitialized || isOpenField;
     if (!canGrow) {
         this.meta.checkSubType(node, leftType, rightType);
     }
 
     if (node.left.type === 'Identifier' && isNullDefault) {
+        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+    }
+    if (node.left.type === 'Identifier' && isVoidUninitialized) {
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
