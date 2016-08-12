@@ -12,6 +12,16 @@ function updateObject(targetType, keyPath, newValue) {
         return _updateObject(targetType, keyPath, newValue);
     }
 
+    // Handle Array<X>
+    if (targetType.type === 'genericLiteral' &&
+        targetType.value.type === 'typeLiteral' &&
+        targetType.value.name === 'Array' &&
+        targetType.value.builtin
+    ) {
+        // We are not going to mutate the builtin array...
+        return targetType;
+    }
+
     assert(targetType.type === 'intersectionType');
 
     var clone = cloneJSIG(targetType);
