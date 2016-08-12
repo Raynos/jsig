@@ -4,5 +4,7 @@ path : {
     join : (
         ((String, String) => String) &
         ((String, String, String) => String)
-    )
+    ),
+
+    resolve : (String) => String
 }
