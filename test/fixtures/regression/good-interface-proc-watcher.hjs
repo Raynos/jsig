@@ -1,0 +1,91 @@
+-- vim: set ft=Haskell:
+type TTimer : {}
+
+type TFS : {
+    readFile: (
+        filePath: String,
+        encoding: String,
+        cb: (error: Error | null, result: String) => void
+    ) => void
+}
+
+interface TFlamer {
+    minCyclesDuration: Number,
+
+    handleError(err: Error, ctx: TProcWatcher) => void,
+    onCPUHot(windowInfo: TWindowInfo) => void
+}
+
+interface TProcWatcher {
+    type: String,
+    flamer: TFlamer,
+    pid: Number,
+    cmdline: String,
+    fs: TFS,
+    probeInterval: Number,
+
+    minCyclesDuration: Number,
+    minTimeSlices: Number,
+
+    filePath: String,
+    nextProbe: Number,
+    timer: TTimer | null,
+    seenFirstRunning: Boolean,
+
+    timeSlices: Array<TProcInfo>,
+    windowReported: Boolean,
+    destroyed: Boolean,
+    paused: Boolean,
+
+    boundOnProbe() => void,
+    boundOnFile(err: Error | null, text: String) => void,
+
+    scheduleNextProbe() => void,
+    watch() => void,
+    onProbe() => void,
+    onFile(err: Error | null, text: String) => void,
+    destroy() => void,
+    reset() => void,
+    pause() => void,
+    resume() => void,
+    handleProcInfo(procInfo: TProcInfo) => void,
+    getTimeWindowInfo() => TWindowInfo
+}
+
+ProcWatcher : (this: TProcWatcher, flamer: TFlamer, pid: Number, options?: {
+    cmdline?: String,
+    fs?: TFS
+}) => void
+
+
+type TProcInfo : {
+    timestamp: Number,
+    pid: Number,
+    state: String,
+    utime: Number,
+    stime: Number,
+    ttime: Number,
+    processor: Number,
+    guestTime: Number
+}
+
+ProcInfo : (
+    this: TProcInfo, pid: Number, state: String, utime: String,
+    stime: String, processor: String, guestTime: String
+) => void
+
+type TWindowInfo : {
+    timestamp: Number,
+    pid: Number,
+    elapsedTime: Number,
+    cpuTicks: Number,
+    cmdline: String,
+    uuid: String,
+    filePath: null | String,
+    cpuPercentage: Number
+}
+
+TimeWindowInfo : (
+    this: TWindowInfo, pid: Number, elapsedTime: Number, cpuTicks: Number,
+    cmdline: String
+) => void

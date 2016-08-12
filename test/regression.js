@@ -23,6 +23,20 @@ test('regression: ProcWatcher', function t(assert) {
     assert.end();
 });
 
+test('regression: (interface) ProcWatcher', function t(assert) {
+    var file = getFile('good-interface-proc-watcher.js');
+
+    var meta = compile(file, {
+        definitions: definitionsDir,
+        globalsFile: globalsFile
+    });
+    assert.ok(meta, 'expected meta to exist');
+    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    assert.end();
+});
+
 // TODO: unbreak test suite...
 test.skip('regression: HttpHash', function t(assert) {
     var file = getFile('good-http-hash.js');
