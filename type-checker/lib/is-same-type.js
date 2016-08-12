@@ -10,6 +10,13 @@ function isSameType(left, right) {
         return true;
     }
 
+    if (
+        (right && left === null) ||
+        (left && right === null)
+    ) {
+        return false;
+    }
+
     if (left.type !== right.type) {
         // console.log('EARLY BAIL');
         return false;
