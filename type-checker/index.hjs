@@ -11,7 +11,7 @@ interface GlobalScope {
 }
 
 interface HeaderFile {
-    getResolvedAssignments: (this: HeaderFile) => Array<JsigAssignment>,
+    getResolvedAssignments() => Array<JsigAssignment>,
 
     getToken(name: String) => JsigType
 }
