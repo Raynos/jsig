@@ -268,6 +268,10 @@ function checkFunctionSubType(node, parent, child) {
     }
 
     if (parent.thisArg) {
+        if (!child.thisArg) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
         assert(!parent.thisArg.optional, 'do not support optional thisArg');
         assert(!child.thisArg.optional, 'do not support optional thisArg');
 
