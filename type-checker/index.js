@@ -114,12 +114,10 @@ function checkProgram() {
 
     var meta;
     for (var i = 0; i < this.entryFiles.length; i++) {
-        /*jsig ignore next*/
         meta = this.getOrCreateMeta(this.entryFiles[i]);
     }
 
     if (this.entryFiles.length === 1 && meta) {
-        /*jsig ignore next*/
         this.moduleExportsType = meta.moduleExportsType;
     }
 };
