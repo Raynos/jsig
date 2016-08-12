@@ -1,4 +1,6 @@
 
+type JSNode : {}
+
 type JsigType : {}
 type JsigAssignment : {
     identifier: String,
@@ -7,12 +9,14 @@ type JsigAssignment : {
 
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,
-    _addVar(id: String, typeDefn: JsigType) => void
+    _addVar(id: String, typeDefn: JsigType) => void,
+    _addVirtualType(id: String, typeDefn: JsigType) => void
 }
 
 interface HeaderFile {
-    getResolvedAssignments() => Array<JsigAssignment>,
+    errors: Array<Error>,
 
+    getResolvedAssignments() => Array<JsigAssignment>,
     getToken(name: String) => JsigType
 }
 
@@ -24,6 +28,8 @@ interface TypeChecker {
     entryFiles: Array<String>,
     errors: Array<Error>,
     globalScope: GlobalScope,
+    files: Object<String, String>,
+    headerFiles: Object<String, HeaderFile>,
 
     moduleExportsType: JsigType,
     errorType: JsigType,
@@ -33,7 +39,9 @@ interface TypeChecker {
     preloadDefinitions() => void,
     preloadGlobals() => void,
     getOrCreateMeta(file: String) => Meta,
-    getOrCreateHeaderFile(file: String) => HeaderFile
+    getOrCreateHeaderFile(
+        file: String, node?: JSNode, importSourceText?: String
+    ) => HeaderFile
 }
 
 type TypeCheckerOpts : {}
