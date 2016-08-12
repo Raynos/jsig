@@ -47,8 +47,10 @@ function mergeWith(args) {
 function TypeCheckBinary(args) {
     this.fileName = args._[0];
 
+    this.args = args;
+
     this.options = new TypeCheckOptions();
-    this.options.mergeWith(args);
+    // this.options.mergeWith(args);
 
     this.dirname = process.cwd();
 
@@ -92,11 +94,11 @@ TypeCheckBinary.args.add('color', {
 });
 
 TypeCheckBinary.prototype.run = function run() {
-    if (this.options.h || this.options.help) {
+    if (this.args.h || this.args.help) {
         return this.shortHelp();
     }
 
-    if (this.options.v || this.options.version) {
+    if (this.args.v || this.args.version) {
         return this.version();
     }
 
@@ -136,6 +138,8 @@ function processOptions() {
     if (this.options.color) {
         TermColor.enabled = true;
     }
+
+    this.options.mergeWith(this.args);
 };
 
 TypeCheckBinary.prototype.check = function check() {

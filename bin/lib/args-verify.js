@@ -87,6 +87,10 @@ ArgsVerify.prototype._validate = function _validate(opts) {
         if (option.multiple && !Array.isArray(value)) {
             opts[key] = [value];
         }
+
+        if (option.boolean && typeof opts[key] !== 'boolean') {
+            opts[key] = (opts[key] !== 'false');
+        }
     }
 
     return correct;
@@ -95,9 +99,7 @@ ArgsVerify.prototype._validate = function _validate(opts) {
 ArgsVerify.prototype.parse = function parse(argv) {
     this._buildIndex();
 
-    var opts = minimist(argv.slice(2), {
-        boolean: this._booleanArgs
-    });
+    var opts = minimist(argv.slice(2));
 
     if (this._validate(opts)) {
         return opts;
