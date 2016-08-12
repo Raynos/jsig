@@ -36,7 +36,7 @@ var rawTypeDeclaration = lexemes.typeWord
     });
 
 var methodKeyValue = Parsimmon.seq(
-    lexemes.identifier,
+    lexemes.labelName,
     typeFunction
 ).map(function createType(list) {
     var name = list[0];
