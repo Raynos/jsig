@@ -41,7 +41,8 @@ interface TypeChecker {
     getOrCreateMeta(file: String) => Meta,
     getOrCreateHeaderFile(
         file: String, node?: JSNode, importSourceText?: String
-    ) => HeaderFile
+    ) => HeaderFile,
+    addError(err: Error) => void
 }
 
 type TypeCheckerOpts : {}
