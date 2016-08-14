@@ -7,11 +7,13 @@ var TermColor = require('term-color');
 
 var serializeType = require('../../serialize.js');
 
+var isJSFileR = /\.js$/;
 var STRAIGHT_LINE = '-----------------------------------------' +
     '------------------------';
 
 module.exports = {
     prettyPrintAllErrors: prettyPrintAllErrors,
+    prettyPrintAllErrorsWithTrace: prettyPrintAllErrorsWithTrace,
     prettyPrintTraces: prettyPrintTraces
 };
 
@@ -21,15 +23,7 @@ function prettyPrintAllErrors(checker) {
 
     for (var i = 0; i < checker.errors.length; i++) {
         var error = checker.errors[i];
-
-        assert(error.fileName, 'error must have fileName');
-        var relativePath = path.relative(process.cwd(), error.fileName);
-
-        parts.push(TermColor.underline(relativePath));
-
-        parts.push(prettyPrintError(checker, error, {
-            prefix: ''
-        }));
+        parts.push(prettyPrintErrorStatement(checker, error));
     }
 
     var word = checker.errors.length === 1 ? 'error' : 'errors';
@@ -37,6 +31,92 @@ function prettyPrintAllErrors(checker) {
     parts.push('');
 
     return parts.join('\n');
+}
+
+function prettyPrintAllErrorsWithTrace(checker) {
+    var parts = [];
+    parts.push('');
+
+    for (var i = 0; i < checker.errors.length; i++) {
+        var error = checker.errors[i];
+
+        if (error.loc && isJSFileR.test(error.fileName)) {
+            var extraTraces = findContextTraces(checker, error);
+            for (var j = 0; j < extraTraces.length; j++) {
+                var trace = extraTraces[j];
+                parts.push(prettyPrintTraceStatement(checker, trace));
+            }
+        }
+
+        parts.push(prettyPrintErrorStatement(checker, error));
+    }
+
+    var word = checker.errors.length === 1 ? 'error' : 'errors';
+    parts.push(TermColor.red('Found (' + checker.errors.length + ') ' + word));
+    parts.push('');
+
+    return parts.join('\n');
+}
+
+function prettyPrintTraces(checker) {
+    var traces = checker.traces;
+    var parts = [];
+    parts.push('');
+
+    for (var i = 0; i < traces.length; i++) {
+        var trace = traces[i];
+        parts.push(prettyPrintTraceStatement(checker, trace));
+    }
+
+    return parts.join('\n');
+}
+
+function prettyPrintTraceStatement(checker, trace) {
+    var str = '';
+
+    assert(trace.fileName, 'trace must have fileName');
+    var relativePath = path.relative(process.cwd(), trace.fileName);
+
+    str += TermColor.underline(relativePath) + '\n';
+    str += prettyPrintTrace(checker, trace);
+
+    return str;
+}
+
+function findContextTraces(checker, error) {
+    var contextTraces = [];
+
+    for (var i = 0; i < checker.traces.length; i++) {
+        var trace = checker.traces[i];
+
+        if (trace.fileName !== error.fileName) {
+            continue;
+        }
+
+        var traceLoc = trace.node.loc;
+        if (traceLoc.start.line < error.loc.start.line ||
+            traceLoc.end.line > error.loc.end.line
+        ) {
+            continue;
+        }
+
+        contextTraces.push(trace);
+    }
+
+    return contextTraces;
+}
+
+function prettyPrintErrorStatement(checker, error) {
+    assert(error.fileName, 'error must have fileName');
+    var relativePath = path.relative(process.cwd(), error.fileName);
+
+    var str = '';
+    str += TermColor.underline(relativePath) + '\n';
+    str += prettyPrintError(checker, error, {
+        prefix: ''
+    });
+
+    return str;
 }
 
 function lineGreen(text) {
@@ -133,24 +213,6 @@ function prettyPrintError(checker, error, opts) {
             }));
             parts.push('');
         }
-    }
-
-    return parts.join('\n');
-}
-
-function prettyPrintTraces(checker) {
-    var traces = checker.traces;
-    var parts = [];
-    parts.push('');
-
-    for (var i = 0; i < traces.length; i++) {
-        var trace = traces[i];
-
-        assert(trace.fileName, 'trace must have fileName');
-        var relativePath = path.relative(process.cwd(), trace.fileName);
-
-        parts.push(TermColor.underline(relativePath));
-        parts.push(prettyPrintTrace(checker, trace));
     }
 
     return parts.join('\n');

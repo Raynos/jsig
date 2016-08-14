@@ -20,6 +20,7 @@ function TypeCheckOptions() {
     this.ignore = [];
     this.optin = false;
     this.trace = false;
+    this.fullTrace = false;
 }
 
 TypeCheckOptions.prototype.mergeWith =
@@ -41,6 +42,9 @@ function mergeWith(args) {
     }
     if ('trace' in args) {
         this.trace = args.trace;
+    }
+    if ('fullTrace' in args) {
+        this.fullTrace = args.fullTrace;
     }
 };
 
@@ -86,7 +90,11 @@ TypeCheckBinary.args.add('optin', {
 });
 TypeCheckBinary.args.add('trace', {
     boolean: true,
-    help: 'Turns on tracing mode, lots of extra output...'
+    help: 'Adds line-local traces for all errors.'
+});
+TypeCheckBinary.args.add('fullTrace', {
+    boolean: true,
+    help: 'Turns on full tracing mode, lots of extra output...'
 });
 TypeCheckBinary.args.add('color', {
     boolean: true,
@@ -159,7 +167,7 @@ TypeCheckBinary.prototype.check = function check() {
     var success = this.checkProgram();
 
     /* eslint-disable no-process-env */
-    if (process.env.TRACE || this.options.trace) {
+    if (process.env.TRACE_FULL || this.options.fullTrace) {
         this.log(this.checker.prettyPrintTraces());
     }
     /* eslint-enable no-process-env */
@@ -170,7 +178,11 @@ TypeCheckBinary.prototype.check = function check() {
         return true;
     }
 
-    this.log(this.checker.prettyPrintAllErrors());
+    if (process.env.TRACE) {
+        this.log(this.checker.prettyPrintAllErrorsWithTrace());
+    } else {
+        this.log(this.checker.prettyPrintAllErrors());
+    }
 
     return false;
 };
