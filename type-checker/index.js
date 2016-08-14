@@ -260,7 +260,7 @@ function getOrCreateHeaderFile(fileName, node, importSourceText) {
             this.addError(Errors.CouldNotFindHeaderFile({
                 fileName: fileName,
                 loc: node ? node.loc : null,
-                line: node ? node.line : null,
+                line: node ? node.loc.start.line : null,
                 source: importSourceText ? importSourceText : null
             }));
             return null;
