@@ -10,6 +10,7 @@ type JSNode : {
     }
 }
 
+type JsigProgram : {}
 type JsigType : {}
 type JsigAssignment : {
     identifier: String,
@@ -51,7 +52,9 @@ interface TypeChecker {
     getOrCreateHeaderFile(
         file: String, node?: JSNode, importSourceText?: String
     ) => HeaderFile,
-    addError(err: Error) => void
+    addError(err: Error) => void,
+    _createHeaderFile(source: String, fileName: String) => HeaderFile,
+    _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram
 }
 
 type TypeCheckerOpts : {}
