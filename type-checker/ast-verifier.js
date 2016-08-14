@@ -434,7 +434,7 @@ function verifyMemberExpression(node) {
             requireType.builtin &&
             this.meta.checkerRules.allowUnknownRequire
         ) {
-            return null;
+            return JsigAST.literal('%Mixed%%UnknownRequire', true);
         }
     }
 
