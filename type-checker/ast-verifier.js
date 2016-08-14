@@ -542,10 +542,21 @@ function _getTypeFromFunctionCall(node) {
             defn = this.meta.inferType(node);
         }
 
-        if (!defn) {
-            var err = Errors.UnTypedFunctionCall({
+        var funcNode = this.meta.currentScope.getFunction(node.callee.name);
+
+        var err;
+        if (!defn && funcNode) {
+            err = Errors.UnTypedFunctionCall({
                 funcName: node.callee.name,
                 callExpression: this.meta.serializeAST(node.callee),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        } else if (!defn) {
+            err = Errors.UnknownIdentifier({
+                tokenName: node.callee.name,
                 loc: node.loc,
                 line: node.loc.start.line
             });
