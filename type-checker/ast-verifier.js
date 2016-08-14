@@ -405,6 +405,39 @@ function verifyMemberExpression(node) {
         return null;
     }
 
+    /*  For the allowUnknownRequire rule, we want to allow people
+        to de-reference a field from a require callsite like
+
+        var foo = require('bar').foo;
+
+        This means in the member expression check we have to double
+        check if we are in the variable initialization phase
+        instead of being in the usage phase.
+
+        For example
+
+        var bar = require('bar');
+        bar.foo;
+
+        Should still be invalid because we are using bar without
+        knowing what its type is.
+    */
+    if (objType.name === '%Mixed%%UnknownRequire' &&
+        objType.builtin &&
+        node.object.type === 'CallExpression' &&
+        node.object.callee.type === 'Identifier' &&
+        node.object.callee.name === 'require'
+    ) {
+        var requireType = this.meta.verifyNode(node.object.callee, null);
+
+        if (requireType.name === '%Require%%RequireFunction' &&
+            requireType.builtin &&
+            this.meta.checkerRules.allowUnknownRequire
+        ) {
+            return null;
+        }
+    }
+
     var valueType;
     if (!node.computed) {
         valueType = this._findPropertyInType(node, objType, propName);
