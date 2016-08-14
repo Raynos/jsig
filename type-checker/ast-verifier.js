@@ -622,9 +622,17 @@ ASTVerifier.prototype.verifyCallExpression =
 function verifyCallExpression(node) {
     var err;
 
+    // TODO: support shadowing require...
     if (node.callee.type === 'Identifier' &&
         node.callee.name === 'require'
     ) {
+        var typeDefn = this.meta.verifyNode(node.callee, null);
+        assert(
+            typeDefn.name === '%Require%%RequireFunction' &&
+            typeDefn.builtin,
+            'require must be the require function'
+        );
+
         return this._getTypeFromRequire(node);
     }
 
