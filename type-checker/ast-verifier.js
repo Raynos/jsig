@@ -1472,14 +1472,25 @@ function verifyThrowStatement(node) {
 
 ASTVerifier.prototype.verifyConditionalExpression =
 function verifyConditionalExpression(node) {
+    // TODO: support branch scopes
+
     this.meta.verifyNode(node.test, null);
 
+    var ifBranch = this.meta.allocateBranchScope();
+    var elseBranch = this.meta.allocateBranchScope();
+
+    this.meta.narrowType(node.test, ifBranch, elseBranch);
+
+    this.meta.enterBranchScope(ifBranch);
     var left = this.meta.verifyNode(node.consequent, null);
+    this.meta.exitBranchScope();
     if (!left) {
         return null;
     }
 
+    this.meta.enterBranchScope(elseBranch);
     var right = this.meta.verifyNode(node.alternate, null);
+    this.meta.exitBranchScope();
     if (!right) {
         return null;
     }
