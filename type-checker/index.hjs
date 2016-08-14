@@ -1,5 +1,14 @@
 
-type JSNode : {}
+type JSNode : {
+    loc: {
+        start: {
+            line: Number
+        },
+        end: {
+            line: Number
+        }
+    }
+}
 
 type JsigType : {}
 type JsigAssignment : {
