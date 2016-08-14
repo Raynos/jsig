@@ -173,7 +173,9 @@ function inferObjectExpression(node) {
     var properties = node.properties;
 
     if (properties.length === 0) {
-        return JsigAST.object([]);
+        var openObj = JsigAST.object([]);
+        openObj.open = true;
+        return openObj;
     }
 
     var currentExpressionType = this.meta.currentExpressionType;
