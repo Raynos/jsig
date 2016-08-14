@@ -1,0 +1,4 @@
+
+type TypedError : (opts: Object) => Error
+
+error/typed: (defn: Object) => TypedError

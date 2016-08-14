@@ -1,0 +1,5 @@
+
+
+fs : {
+    existsSync: (filePath: String) => Boolean
+}
