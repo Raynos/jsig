@@ -255,7 +255,9 @@ function loadModuleTokens() {
         exports: JsigAST.literal('%Export%%ModuleExports', true)
     });
     var exportsType = JsigAST.literal('%Export%%ExportsObject', true);
+    var requireType = JsigAST.literal('%Require%%RequireFunction', true);
 
+    this.addVar('require', requireType);
     this.addVar('module', moduleType);
     this.addVar('exports', exportsType);
     this.addVar('__dirname', JsigAST.literal('String'));

@@ -1959,6 +1959,14 @@ function _getTypeFromRequire(node) {
         return null;
     }
 
+    if (!otherMeta.moduleExportsType) {
+        if (this.meta.checkerRules.allowUnknownRequire) {
+            return JsigAST.literal('%Mixed%%UnknownRequire', true);
+        }
+
+        return null;
+    }
+
     return otherMeta.moduleExportsType;
 };
 
