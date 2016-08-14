@@ -182,7 +182,10 @@ function checkValueLiteralSubType(node, parent, child) {
             return new Error('[Internal] Not a string');
         }
 
-        if (child.value !== parent.value) {
+        var childValue = child.value.replace(/\'/g, '"');
+        var parentValue = parent.value.replace(/\'/g, '"');
+
+        if (childValue !== parentValue) {
             return reportTypeMisMatch(node, parent, child);
         }
     } else {
