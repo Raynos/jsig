@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var TypedError = require('error/typed');
 
 var Errors = {};
