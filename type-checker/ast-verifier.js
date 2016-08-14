@@ -812,7 +812,7 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             actualType = this.meta.verifyNode(node.arguments[i], wantedType);
         }
 
-        /* If a literal string value is expected AND
+        /*  If a literal string value is expected AND
             A literal string value is passed as an argument
             a.k.a not an alias or field.
 
