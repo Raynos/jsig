@@ -244,6 +244,17 @@ Errors.CallingNewOnPlainFunction = TypedError({
     line: null
 });
 
+Errors.CallingNewOnNonFunction = TypedError({
+    type: 'jsig.verify.calling-new-on-non-function',
+    message: '@{line}: Cannot invoke `new` on non-function {funcName}. ' +
+        'The new expr {newExpression} does not work for type: {objType}',
+    newExpression: null,
+    funcName: null,
+    objType: null,
+    loc: null,
+    line: null
+});
+
 Errors.CallingNonFunctionObject = TypedError({
     type: 'jsig.verify.calling-non-function-object',
     message: '@{line}: Cannot call non-function object. ' +

@@ -991,9 +991,21 @@ function verifyNewExpression(node) {
         }
     }
 
+    var err;
+    if (fnType.type !== 'function') {
+        err = Errors.CallingNewOnNonFunction({
+            objType: this.meta.serializeType(fnType),
+            funcName: node.callee.name,
+            newExpression: this.meta.serializeAST(node.callee),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     assert(fnType.type === 'function', 'only support defined constructors');
 
-    var err;
     if (!fnType.thisArg) {
         err = Errors.CallingNewOnPlainFunction({
             funcName: node.callee.name,
