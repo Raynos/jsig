@@ -11,9 +11,6 @@ function main() {
 
     replicate(db1, db2);
     replicate(db2, db1);
-
-    // console.log('db1', db1._values);
-    // console.log('db2', db2._values);
 }
 
 function replicate(db1, db2) {

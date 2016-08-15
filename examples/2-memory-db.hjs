@@ -1,10 +1,10 @@
 -- vim: set ft=Haskell:
-type TDB : {
+interface DB {
     _values: Object<String, String>,
 
-    get : (this: TDB, key: String) => String,
-    set : (this: TDB, key: String, value: String) => void,
-    keys : (this: TDB) => Array<String>
+    get(key: String) => String,
+    set(key: String, value: String) => void,
+    keys() => Array<String>
 }
 
-DB : (this: TDB) => void
+DB : (this: DB) => void
