@@ -1,6 +1,6 @@
 # jsig
 
-From scratch type-checker
+TypeChecker with native ES5 support.
 
 # Stability status: Experimental
 
@@ -9,8 +9,84 @@ This project is pre-alpha and an experimental type checker.
 There are a lot of rough edges, sometimes the type checker will
 report pretty errors and sometimes it just aborts.
 
-This project is only interesting if you actually want to implement
-or contribute to a type checker.
+This project is very early on, contribution & ideas are welcome.
+
+# Documentation
+
+Currently documentation is sparse, there are some examples
+and there are a few documents:
+
+ - [Language overview](overview.md)
+ - [Spec (incomplete)](spec.md)
+
+# Hello world example
+
+There is a small hello world example that shows inference.
+
+```js
+'use strict';
+
+function foo(x) {
+    return x * 10;
+}
+
+foo('Hello, world!');
+```
+
+![screenshot of cli](http://i.imgur.com/pNlAxsF.png)
+
+## More examples
+
+```
+raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
+$ jsig examples/2-main.js --optin=false
+No type errors
+```
+
+There is a `2-main.js` that shows a small program that type checks
+
+This includes the module system and the definition files.
+
+```js
+// 2-memory-db.js
+module.exports = DB;
+
+function DB() {
+    this._values = Object.create(null);
+}
+
+DB.prototype.get = get;
+function get(key) {
+    var value = this._values[key];
+    if (!value) {
+        value = '';
+    }
+    return value;
+}
+
+DB.prototype.set = set;
+function set(key, value) {
+    this._values[key] = value;
+}
+
+DB.prototype.keys = keys;
+function keys() {
+    return Object.keys(this._values);
+}
+```
+
+```hs
+// 2-memory-db.hjs
+interface DB {
+    _values: Object<String, String>,
+
+    get(key: String) => String,
+    set(key: String, value: String) => void,
+    keys() => Array<String>
+}
+
+DB : (this: DB) => void
+```
 
 # Motivation
 
@@ -66,77 +142,9 @@ JSIG takes a different approach by focusing on ES5 and external
 annotations as a first class citizen. JSIG also heavily relies
 on inference but will complain if it cannot safely infer something.
 
-# Documentation
-
-Currently documentation is sparse, there are some examples
-and there are a few documents:
-
- - [Language overview](overview.md)
- - [Spec (incomplete)](spec.md)
-
-# Hello world example
-
-There is a small hello world example that shows inference.
-
-```js
-'use strict';
-
-function foo(x) {
-    return x * 10;
-}
-
-foo('Hello, world!');
-```
-
-```
-raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
-$ jsig ./examples/hello.js 
-
-examples/hello.js
-Found error: jsig.sub-type.type-class-mismatch
-@4: Got unexpected type class. Expected Number but got String
-
-2. function foo(x) {
-3.     return x * 10;
-4. }
-
-Expected : Number
-Actual   : String
-
-Found (1) error
-```
-
-## More examples
-
-```
-raynos at raynos-Dell-Precision-M3800  ~/projects/jsig on master*
-$ jsig examples/2-main.js 
-No type errors
-```
-
-There is a `2-main.js` that shows a small program that type checks
-
-This includes the module system and the definition files.
-
 ## Definitions example
 
-```
-raynos at raynos-ThinkPad-T440p  ~/projects/jsig on master*
-$ jsig ./examples/3-node_modules.js --definitions ./test/lib/definitions/
-
-examples/3-node_modules.js
-Found error: jsig.sub-type.type-class-mismatch
-@21: Got unexpected type class. Expected Number but got result: String
-
-19.             headLine: str.split('\n').slice(0, 3),
-20.             invalidField: str * 2
-21.         });
-
-Expected : Number
-Actual   : result: String
-
-Found (1) error
-```
+![screenshot of cli](http://i.imgur.com/97USHhB.png)
 
 There is a `3-node_modules.js` example that shows how to use external
 definitions. In this case we pass the `./definitions/` folder that
