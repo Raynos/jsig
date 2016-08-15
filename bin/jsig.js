@@ -178,11 +178,13 @@ TypeCheckBinary.prototype.check = function check() {
         return true;
     }
 
+    /* eslint-disable no-process-env */
     if (process.env.TRACE) {
         this.log(this.checker.prettyPrintAllErrorsWithTrace());
     } else {
         this.log(this.checker.prettyPrintAllErrors());
     }
+    /* eslint-enable no-process-env */
 
     return false;
 };
