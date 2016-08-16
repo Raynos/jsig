@@ -134,6 +134,8 @@ function processOptions() {
 
     this.fileName = path.resolve(this.dirname, this.fileName);
 
+    this.options.mergeWith(this.args);
+
     for (var i = 0; i < this.options.ignore.length; i++) {
         // If relative
         if (this.options.ignore[i][0] !== '/') {
@@ -146,8 +148,6 @@ function processOptions() {
     if (this.options.color) {
         TermColor.enabled = true;
     }
-
-    this.options.mergeWith(this.args);
 };
 
 TypeCheckBinary.prototype.check = function check() {
