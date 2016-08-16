@@ -19,7 +19,9 @@ var serializers = {
     freeLiteral: serializeFreeLiteral,
     renamedLiteral: serializeRenamedLiteral,
     param: serializeParam,
-    macroLiteral: serializeMacroLiteral
+    macroLiteral: serializeMacroLiteral,
+    comment: serializeComment,
+    defaultExport: serializeDefaultExport
 };
 
 module.exports = serialize;
@@ -326,9 +328,17 @@ function serializeTuple(node, opts) {
 }
 
 function serializeRenamedLiteral(node, opts) {
-
     return spaces(opts.indent) +
         serialize(node.original) + ' as ' + node.name;
+}
+
+function serializeComment(node, opts) {
+    return spaces(opts.indent) + node.text;
+}
+
+function serializeDefaultExport(node, opts) {
+    return spaces(opts.indent) + 'export default ' +
+        serialize(node.typeExpression);
 }
 
 function spaces(n) {
