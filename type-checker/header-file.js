@@ -195,6 +195,10 @@ function resolveReferences() {
         var line = copyAst.statements[i];
 
         if (line.type === 'typeDeclaration') {
+            if (line.typeExpression.type === 'typeLiteral') {
+                assert(line.typeExpression.builtin,
+                    'cannot alias non-builtin types...');
+            }
             this.addToken(line.identifier, line.typeExpression);
         } else if (line.type === 'defaultExport') {
             this.addDefaultExport(line.typeExpression);
