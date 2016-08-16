@@ -77,6 +77,14 @@ Errors.UnrecognisedOption = TypedError({
     line: null
 });
 
+Errors.InvalidIgnoreComment = TypedError({
+    type: 'jsig.meta.invalid-ignore-comment',
+    message: '@{line}: Invalid jsig ignore next comment. {reason}',
+    reason: null,
+    line: null,
+    loc: null
+});
+
 Errors.UnknownIdentifier = TypedError({
     type: 'jsig.verify.unknown-identifier',
     message: '@{line}: Could not find identifier {tokenName}.',

@@ -225,13 +225,32 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
     assert(exprType !== undefined, 'must pass in exprType');
 
     if (node.leadingComments) {
-        var lastComment = node.leadingComments[
+        var lastCommentNode = node.leadingComments[
             node.leadingComments.length - 1
-        ].value.trim();
+        ];
+        var lastComment = lastCommentNode.value.trim()
 
         // Add jsig ignore next support
-        if (lastComment === 'jsig ignore next') {
-            return null;
+        if (lastComment.indexOf('jsig ignore next') === 0) {
+            var seperatorIndex = lastComment.indexOf(':');
+            var head = lastComment.slice(0, seperatorIndex);
+            var rest = lastComment.slice(seperatorIndex, lastComment.length);
+
+            if (seperatorIndex === -1 || head !== 'jsig ignore next') {
+                this.addError(Errors.InvalidIgnoreComment({
+                    loc: lastCommentNode.loc,
+                    line: lastCommentNode.loc.start.line,
+                    reason: 'Must specify a reason. e.g. `jsig ignore next: {reason}`'
+                }));
+            } else if (rest.length < 10) {
+                this.addError(Errors.InvalidIgnoreComment({
+                    loc: lastCommentNode.loc,
+                    line: lastCommentNode.loc.start.line,
+                    reason: 'reason specific must be at least 10 characters.'
+                }));
+            } else {
+                return null;
+            }
         }
     }
 
