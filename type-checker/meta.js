@@ -207,6 +207,10 @@ ProgramMeta.prototype.verify = function verify() {
     if (this.checker.optin) {
         if (this.checkerRules.optin) {
             this.verifyNode(node, null);
+        } else {
+            this.moduleExportsType = JsigAST.literal(
+                '%Mixed%%UnknownRequire', true
+            );
         }
     } else {
         this.verifyNode(node, null);

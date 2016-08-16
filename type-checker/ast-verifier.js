@@ -2015,11 +2015,7 @@ function _getTypeFromRequire(node) {
     }
 
     if (!otherMeta.moduleExportsType) {
-        if (this.meta.checkerRules.allowUnknownRequire) {
-            return JsigAST.literal('%Mixed%%UnknownRequire', true);
-        }
-
-        return null;
+        return JsigAST.literal('void', true);
     }
 
     return otherMeta.moduleExportsType;
