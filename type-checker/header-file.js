@@ -207,6 +207,8 @@ function resolveReferences() {
 
     // Hoist default export only after inlining it.
     for (i = 0; i < copyAst.statements.length; i++) {
+        line = copyAst.statements[i];
+
         if (line.type === 'defaultExport') {
             this.addDefaultExport(line.typeExpression);
         }
