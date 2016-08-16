@@ -56,6 +56,15 @@ function checkSubType(node, parent, child) {
 
     var result;
 
+    if (parent.type === 'typeLiteral' && !parent.builtin) {
+        assert(false,
+            'parent cannot be non-builtin type literal: ' + parent.name);
+    }
+    if (child.type === 'typeLiteral' && !child.builtin) {
+        assert(false,
+            'child cannot be non-builtin type literal: ' + child.name);
+    }
+
     // console.log('checkSubType(' + parent.type + ',' + child.type + ')');
     // console.log('parent: ' + this.meta.serializeType(parent));
     // console.log('child: ' + this.meta.serializeType(child));
