@@ -200,12 +200,17 @@ function resolveReferences() {
                     'cannot alias non-builtin types...');
             }
             this.addToken(line.identifier, line.typeExpression);
-        } else if (line.type === 'defaultExport') {
-            this.addDefaultExport(line.typeExpression);
         }
     }
 
     copyAst = this.astReplacer.inlineReferences(copyAst, ast);
+
+    // Hoist default export only after inlining it.
+    for (i = 0; i < copyAst.statements.length; i++) {
+        if (line.type === 'defaultExport') {
+            this.addDefaultExport(line.typeExpression);
+        }
+    }
 
     this.resolvedJsigAst = copyAst;
 };
