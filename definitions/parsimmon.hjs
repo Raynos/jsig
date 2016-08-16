@@ -1,0 +1,25 @@
+interface Parser {
+    then(other: Parser) => Parser,
+    skip(other: Parser) => Parser,
+    many() => Parser,
+    map(
+        fn: (%Boolean%%Mixed) => %Boolean%%Mixed
+    ) => Parser
+}
+
+
+
+type Result : {
+    status: Boolean,
+    index?: {
+        line: Number
+    }
+}
+
+type Parsimmon : {
+    optWhitespace: Parser,
+
+    formatError: (source: String, res: Result) => void
+}
+
+parsimmon : Parsimmon

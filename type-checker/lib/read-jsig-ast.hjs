@@ -1,0 +1,12 @@
+import { Program } from "../../parser/program.hjs"
+
+type Result : {
+    error: Error | null,
+    value: Program | null
+}
+
+Result : (this: Result, err: Error | null, value: Program | null) => void
+
+readJSigAST : {
+    parseJSigAST: (source: String) => Result
+} & (fileName: String) => Result

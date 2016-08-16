@@ -152,7 +152,7 @@ function loadLanguageIdentifiers() {
             // Must know that in ES5 the new Error() constructor
             // brands the result as an Error instance.
 
-            /*jsig ignore next*/
+            /*jsig ignore next: narrow type cannot narrow by string*/
             a.typeExpression.brand = 'Error';
         }
 
@@ -160,7 +160,7 @@ function loadLanguageIdentifiers() {
     }
 
     var errType = es5HeaderFile.getToken('Error');
-    /*jsig ignore next*/
+    /*jsig ignore next: need to implement narrow by assert()*/
     errType.brand = 'Error';
     this.errorType = errType;
 
@@ -226,6 +226,7 @@ TypeChecker.prototype._readAndParseHeaderFile =
 function _readAndParseHeaderFile(source, fileName) {
     var res = parseJSigAST(source);
     if (res.error) {
+        /*jsig ignore next: Support narrowing member expr? */
         res.error.fileName = fileName;
         this.addError(res.error);
         return null;

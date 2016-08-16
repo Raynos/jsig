@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var fs = require('fs');
 var Parsimmon = require('parsimmon');
 var program = require('../../parser/program.js');

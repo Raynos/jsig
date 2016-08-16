@@ -1,0 +1,16 @@
+
+type Program : {}
+
+type Result : {
+    status: Boolean,
+    value?: Program,
+    index?: {
+        line: Number
+    }
+}
+
+type Parser : {
+    parse: (input: String) => Result
+}
+
+export default Parser

@@ -1,3 +1,4 @@
+type JsigProgram : {}
 
 type JSNode : {
     loc: {
@@ -10,7 +11,6 @@ type JSNode : {
     }
 }
 
-type JsigProgram : {}
 type JsigType : {}
 type JsigAssignment : {
     identifier: String,
@@ -54,7 +54,7 @@ interface TypeChecker {
     ) => HeaderFile,
     addError(err: Error) => void,
     _createHeaderFile(source: String, fileName: String) => HeaderFile,
-    _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram
+    _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram | null
 }
 
 type TypeCheckerOpts : {}
