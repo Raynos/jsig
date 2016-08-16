@@ -228,7 +228,7 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
         var lastCommentNode = node.leadingComments[
             node.leadingComments.length - 1
         ];
-        var lastComment = lastCommentNode.value.trim()
+        var lastComment = lastCommentNode.value.trim();
 
         // Add jsig ignore next support
         if (lastComment.indexOf('jsig ignore next') === 0) {
@@ -240,7 +240,8 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
                 this.addError(Errors.InvalidIgnoreComment({
                     loc: lastCommentNode.loc,
                     line: lastCommentNode.loc.start.line,
-                    reason: 'Must specify a reason. e.g. `jsig ignore next: {reason}`'
+                    reason: 'Must specify a reason. e.g. ' +
+                        '`jsig ignore next: {reason}`'
                 }));
             } else if (rest.length < 10) {
                 this.addError(Errors.InvalidIgnoreComment({
