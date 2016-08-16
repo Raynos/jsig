@@ -62,7 +62,9 @@ function resolveFunction(node, macroToken) {
                             AST.param('err', AST.union([
                                 this.errorType, AST.value('null')
                             ])),
-                            AST.param('result', AST.literal('WeirdPlaceHolder', true))
+                            AST.param('result',
+                                AST.literal('WeirdPlaceHolder', true)
+                            )
                         ],
                         result: AST.literal('void')
                     }))
