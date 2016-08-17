@@ -320,11 +320,11 @@ function verifyAssignmentExpression(node) {
     }
 
     if (isOpenField && node.left.type === 'MemberExpression' &&
-        node.left.property.type === 'Identifier'
+        node.left.property.type === 'Identifier' &&
+        // Cannot track new type for nested objected assignment
+        node.left.object.type === 'Identifier'
     ) {
         var propertyName = node.left.property.name;
-
-        assert(node.left.object.type === 'Identifier');
         var targetType = this.meta.verifyNode(node.left.object, null);
 
         var newObjType = updateObject(
