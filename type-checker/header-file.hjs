@@ -5,7 +5,9 @@ interface HeaderFile {
     errors: Array<Error>,
 
     getResolvedAssignments() => Array<JsigAssignment>,
-    getToken(name: String) => JsigType
+    getToken(name: String) => JsigType,
+    hasErrors() => Boolean,
+    resolveReferences() => void
 }
 
 HeaderFile : (

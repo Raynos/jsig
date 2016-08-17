@@ -1,5 +1,7 @@
 
-type JsigProgram : {}
+type JsigProgram : {
+    type: "program"
+}
 
 type JsigType : {}
 

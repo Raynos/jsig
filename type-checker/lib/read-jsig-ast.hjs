@@ -1,11 +1,11 @@
-import { Program } from "../../parser/program.hjs"
+import { JsigProgram } from "../../ast/index.hjs"
 
 type Result : {
     error: Error | null,
-    value: Program | null
+    value: JsigProgram | null
 }
 
-Result : (this: Result, err: Error | null, value: Program | null) => void
+Result : (this: Result, err: Error | null, value: JsigProgram | null) => void
 
 readJSigAST : {
     parseJSigAST: (source: String) => Result

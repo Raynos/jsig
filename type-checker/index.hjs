@@ -24,9 +24,11 @@ type Meta : {
 
 interface TypeChecker {
     entryFiles: Array<String>,
+    files: Object<String, String>,
+    basedir: String,
+
     errors: Array<Error>,
     globalScope: GlobalScope,
-    files: Object<String, String>,
     headerFiles: Object<String, HeaderFile>,
 
     moduleExportsType: JsigType,

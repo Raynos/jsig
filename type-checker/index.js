@@ -300,6 +300,7 @@ function tryResolveSync(fileName, basedir) {
     var tuple = [null, null];
 
     /*eslint-disable no-restricted-syntax*/
+    /*jsig ignore next: think harder about how to try statement */
     try {
         tuple[1] = resolve.sync(fileName, {
             basedir: basedir
