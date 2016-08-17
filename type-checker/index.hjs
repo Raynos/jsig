@@ -1,4 +1,5 @@
-type JsigProgram : {}
+import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { HeaderFile } from "./header-file.hjs"
 
 type JSNode : {
     loc: {
@@ -11,23 +12,10 @@ type JSNode : {
     }
 }
 
-type JsigType : {}
-type JsigAssignment : {
-    identifier: String,
-    typeExpression: JsigType
-}
-
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,
     _addVar(id: String, typeDefn: JsigType) => void,
     _addVirtualType(id: String, typeDefn: JsigType) => void
-}
-
-interface HeaderFile {
-    errors: Array<Error>,
-
-    getResolvedAssignments() => Array<JsigAssignment>,
-    getToken(name: String) => JsigType
 }
 
 type Meta : {

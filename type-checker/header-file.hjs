@@ -1,0 +1,17 @@
+import { JsigType, JsigProgram, JsigAssignment } from "../ast/index.hjs"
+import { TypeChecker } from "./index.hjs"
+
+interface HeaderFile {
+    errors: Array<Error>,
+
+    getResolvedAssignments() => Array<JsigAssignment>,
+    getToken(name: String) => JsigType
+}
+
+HeaderFile : (
+    this: HeaderFile,
+    checker: TypeChecker,
+    ast: JsigProgram,
+    fileName: String,
+    source: String
+) => void

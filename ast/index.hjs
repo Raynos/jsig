@@ -1,0 +1,9 @@
+
+type JsigProgram : {}
+
+type JsigType : {}
+
+type JsigAssignment : {
+    identifier: String,
+    typeExpression: JsigType
+}
