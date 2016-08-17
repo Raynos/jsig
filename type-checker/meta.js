@@ -94,12 +94,12 @@ function serializeAST(ast) {
         this.sourceLines[startLine - 1].slice(ast.loc.start.column)
     ];
 
-    for (var i = startLine + 1; i < endLine; i++) {
-        segments.push(this.sourceLines[i - 1]);
+    for (var i = startLine; i < endLine - 1; i++) {
+        segments.push(this.sourceLines[i]);
     }
 
     segments.push(
-        this.sourceLines[endLine - 1].slice(0, -ast.loc.end.column)
+        this.sourceLines[endLine - 1].slice(0, ast.loc.end.column)
     );
 
     return segments.join('\n');
