@@ -111,8 +111,14 @@ function replaceImport(ast, rawAst) {
     }
 
     var otherHeader = this._getHeaderFile(ast);
-    if (!otherHeader) {
-        return ast;
+    if (!otherHeader || otherHeader.errors.length) {
+        this.errors.push(Errors.CannotImport({
+            otherFile: ast.dependency,
+            loc: ast.loc,
+            line: ast.line,
+            source: this.source
+        }));
+        return null;
     }
 
     for (var i = 0; i < ast.types.length; i++) {

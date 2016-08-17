@@ -25,6 +25,15 @@ Errors.CannotImportToken = TypedError({
     otherFile: null
 });
 
+Errors.CannotImport = TypedError({
+    type: 'jsig.header-file.cannot-import',
+    message: '@{line}: Cannot import from broken header: {otherFile}.',
+    line: null,
+    loc: null,
+    source: null,
+    otherFile: null
+});
+
 Errors.CannotParseHeaderFile = TypedError({
     type: 'jsig.parser.cannot-parse-header-file',
     message: '@{line}: {msg}.',
