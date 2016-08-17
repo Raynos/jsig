@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 var updateObject = require('./lib/update-object.js');
+var isSameType = require('./lib/is-same-type.js');
 
 module.exports = NarrowType;
 
@@ -183,6 +184,9 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     var newType = updateObject(
         objType, keyPath.slice(1), valueType
     );
-    branch.restrictType(keyPath[0], newType);
+
+    if (!isSameType(newType, objType)) {
+        branch.restrictType(keyPath[0], newType);
+    }
 }
 
