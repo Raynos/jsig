@@ -22,6 +22,7 @@ function HeaderFile(checker, jsigAst, fileName, source) {
     this.indexTable = Object.create(null);
     this.exportType = null;
     this.errors = [];
+    this.dependentHeaders = Object.create(null);
     this.astReplacer = new JsigASTReplacer(this);
 }
 
@@ -98,6 +99,7 @@ function _getHeaderFile(importNode) {
     var otherHeader = this.checker.getOrCreateHeaderFile(
         fileName, importNode, this.source
     );
+    this.dependentHeaders[otherHeader.fileName] = otherHeader;
     return otherHeader;
 };
 
@@ -111,7 +113,7 @@ function replaceImport(ast, rawAst) {
     }
 
     var otherHeader = this._getHeaderFile(ast);
-    if (!otherHeader || otherHeader.errors.length) {
+    if (!otherHeader || otherHeader.hasErrors()) {
         this.errors.push(Errors.CannotImport({
             otherFile: ast.dependency,
             loc: ast.loc,
@@ -239,6 +241,24 @@ function getResolvedAssignments() {
     }
 
     return statements;
+};
+
+HeaderFile.prototype.hasErrors =
+function hasErrors() {
+    if (this.errors.length > 0) {
+        return true;
+    }
+
+    var keys = Object.keys(this.dependentHeaders);
+    for (var i = 0; i < keys.length; i++) {
+        var otherHeader = this.dependentHeaders[keys[i]];
+
+        if (otherHeader.errors.length > 0) {
+            return true;
+        }
+    }
+
+    return false;
 };
 
 HeaderFile.prototype.getExportType =

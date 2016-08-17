@@ -205,7 +205,7 @@ function tryReadHeaderFile(fileName) {
     var headerFile;
     if (this.headerFiles[fileName]) {
         headerFile = this.headerFiles[fileName];
-        if (headerFile.errors.length) {
+        if (headerFile.hasErrors()) {
             return true;
         }
 
@@ -248,7 +248,7 @@ function getOrCreateHeaderFile(fileName, node, importSourceText) {
     var headerFile;
     if (this.headerFiles[fileName]) {
         headerFile = this.headerFiles[fileName];
-        if (headerFile.errors.length) {
+        if (headerFile.hasErrors()) {
             return null;
         }
 
@@ -285,7 +285,7 @@ function _createHeaderFile(source, fileName) {
 
     headerFile.resolveReferences();
 
-    if (headerFile.errors.length) {
+    if (headerFile.hasErrors()) {
         for (var i = 0; i < headerFile.errors.length; i++) {
             headerFile.errors[i].fileName = fileName;
             this.addError(headerFile.errors[i]);
