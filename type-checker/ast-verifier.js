@@ -1317,6 +1317,23 @@ function verifyIfStatement(node) {
         }
     }
 
+    // Support an early return if statement
+    // If the `consequent` is a `ReturnStatement` then
+    // copy over all type restrictions from the `elseBranch`
+    // onto the current scope
+    if (node.consequent.type === 'BlockStatement' &&
+        node.consequent.body.length === 1 &&
+        node.consequent.body[0].type === 'ReturnStatement'
+    ) {
+        keys = Object.keys(elseBranch.typeRestrictions);
+        for (i = 0; i < keys.length; i++) {
+            name = keys[i];
+            elseType = elseBranch.typeRestrictions[name];
+
+            this.meta.currentScope.restrictType(name, elseType.defn);
+        }
+    }
+
     // TODO create unions based on typeRestrictions & mutations...
 };
 
