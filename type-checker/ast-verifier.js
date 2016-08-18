@@ -83,6 +83,10 @@ ASTVerifier.prototype.verifyNode = function verifyNode(node) {
         return this.verifyWhileStatement(node);
     } else if (node.type === 'BreakStatement') {
         return this.verifyBreakStatement(node);
+    } else if (node.type === 'TryStatement') {
+        return this.verifyTryStatement(node);
+    } else if (node.type === 'CatchClause') {
+        return this.verifyCatchClause(node);
     } else {
         throw new Error('!! skipping verifyNode: ' + node.type);
     }
@@ -1543,6 +1547,32 @@ function verifyWhileStatement(node) {
     this.meta.enterBranchScope(ifBranch);
     this.meta.verifyNode(node.body, null);
     this.meta.exitBranchScope();
+};
+
+ASTVerifier.prototype.verifyTryStatement =
+function verifyTryStatement(node) {
+    assert(!node.finalizer, 'do not support try finally');
+
+    var tryBranch = this.meta.allocateBranchScope();
+    this.meta.enterBranchScope(tryBranch);
+    this.meta.verifyNode(node.block, null);
+    this.meta.exitBranchScope();
+
+    var catchBranch = this.meta.allocateBranchScope();
+    this.meta.enterBranchScope(catchBranch);
+    this.meta.verifyNode(node.handler, null);
+    this.meta.exitBranchScope();
+};
+
+ASTVerifier.prototype.verifyCatchClause =
+function verifyCatchClause(node) {
+    assert(node.param.type === 'Identifier',
+        'catch block param must be Identifier');
+
+    this.meta.currentScope.addVar(
+        node.param.name, this.checker.errorType
+    );
+    this.meta.verifyNode(node.body, null);
 };
 
 ASTVerifier.prototype._checkFunctionOverloadType =
