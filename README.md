@@ -16,8 +16,8 @@ This project is very early on, contribution & ideas are welcome.
 Currently documentation is sparse, there are some examples
 and there are a few documents:
 
- - [Language overview](overview.md)
- - [Spec (incomplete)](spec.md)
+ - [Language overview](docs/overview.md)
+ - [Spec (incomplete)](docs/spec.md)
 
 # Hello world example
 
