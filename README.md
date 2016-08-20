@@ -18,6 +18,7 @@ and there are a few documents:
 
  - [Language overview](docs/overview.md)
  - [Spec (incomplete)](docs/spec.md)
+ - [TypeChecker Pragmas](docs/pragmas.md)
 
 # Hello world example
 
