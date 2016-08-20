@@ -170,7 +170,7 @@ test/batch-client-calls/bad-calling-method-with-extra-args.hjs
 ...
 ```
 
-# progress ( 0.1.0 )
+# progress ( 0.1.0 ) Basic support
 
 The `v0.1.0` tag was cut. I skipped on a few tests...
 
@@ -182,9 +182,12 @@ The `v0.1.0` tag was cut. I skipped on a few tests...
  - [ ] write more module system tests
  - [x] create binary with pretty errors.
 
-# progress ( 0.2.0 )
+# progress ( 0.2.0 ) Reference library
 
-The `v0.2.0` will be cut once a full reference library type checks
+The `v0.2.0` will be cut once a full reference library type checks.
+
+This tag was also cut early since we completed enough feature
+coverage to get a reference library checked ( `http-hash-server` ).
 
  - [x] define type definitions for npm modules
  - [x] write more type definition tests
@@ -194,3 +197,13 @@ The `v0.2.0` will be cut once a full reference library type checks
  - [x] basic support for nullables
  - [ ] basic support for if branches and flow analysis
  - [ ] basic support for generics
+
+# progress ( 0.3.0 ) Docs & Self reliance
+
+The `v0.3.0` will be cut once we've documented the adoption process
+of the `jsig` type checker. We also want to get the type checker
+type checking itself
+
+ - [ ] type check the typechecker.
+ - [ ] document breadth first adoption
+ - [ ] document depth first adoption
