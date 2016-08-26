@@ -1,9 +1,9 @@
 {
   "name": "jsig",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "index.js",
-  "author": "Raynos <raynos2@gmail.com>",
+  "author": "",
   "repository": "git://github.com/Raynos/jsig.git",
   "bugs": {
     "url": "https://github.com/Raynos/jsig/issues",
@@ -37,7 +37,6 @@
   "bin": {
     "jsig": "./bin/jsig.js"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "error": "^7.0.2",
