@@ -3,6 +3,18 @@
   "version": "0.2.0",
   "description": "",
   "main": "index.js",
+  "author": "Raynos <raynos2@gmail.com>",
+  "repository": "git://github.com/Raynos/jsig.git",
+  "bugs": {
+    "url": "https://github.com/Raynos/jsig/issues",
+    "email": "raynos2@gmail.com"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/Raynos/jsig/raw/master/LICENSE"
+    }
+  ],
   "scripts": {
     "check": "make check",
     "lint": "eslint $(git ls-files | grep '\\.js$')",
