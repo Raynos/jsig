@@ -1,0 +1,7 @@
+
+
+resolve : {
+    sync: (fileName: String, opts?: {
+        basedir?: String
+    }) => String
+}
