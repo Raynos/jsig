@@ -21,8 +21,12 @@ var GlobalScope = require('./scope.js').GlobalScope;
 var pretty = require('./lib/pretty-errors.js');
 var serialize = require('../serialize.js');
 
-var operatorsFile = path.join(__dirname, 'definitions', 'operators.hjs');
-var es5File = path.join(__dirname, 'definitions', 'es5.hjs');
+var operatorsFile = path.join(
+    __dirname, 'builtin-definitions', 'operators.hjs'
+);
+var es5File = path.join(
+    __dirname, 'builtin-definitions', 'es5.hjs'
+);
 var isHeaderR = /\.hjs$/;
 var BIN_HEADER = '#!/usr/bin/env node\n';
 
