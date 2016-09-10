@@ -201,14 +201,14 @@ function loadJavaScriptIntoIndexTable(indexTable) {
 };
 
 TypeChecker.prototype.tryReadHeaderFile =
-function tryReadHeaderFile(fileName) {
-    if (!this.files[fileName]) {
-        fileName = path.resolve(fileName);
+function tryReadHeaderFile(primaryFileName) {
+    if (!this.files[primaryFileName]) {
+        primaryFileName = path.resolve(primaryFileName);
     }
 
     var headerFile;
-    if (this.headerFiles[fileName]) {
-        headerFile = this.headerFiles[fileName];
+    if (this.headerFiles[primaryFileName]) {
+        headerFile = this.headerFiles[primaryFileName];
         if (headerFile.hasErrors()) {
             return true;
         }
@@ -216,14 +216,16 @@ function tryReadHeaderFile(fileName) {
         return true;
     }
 
-    var source = this.files[fileName];
-    if (!source) {
-        if (!fs.existsSync(fileName)) {
-            return false;
-        }
+    var source = this.files[primaryFileName];
+    if (source) {
+        return true;
     }
 
-    return true;
+    if (fs.existsSync(primaryFileName)) {
+        return true;
+    }
+
+    return false;
 };
 
 TypeChecker.prototype._readAndParseHeaderFile =
@@ -243,6 +245,7 @@ function _readAndParseHeaderFile(source, fileName) {
     return res.value;
 };
 
+/* getOrCreateHeaderFile by headerFileName */
 TypeChecker.prototype.getOrCreateHeaderFile =
 function getOrCreateHeaderFile(fileName, node, importSourceText) {
     if (!this.files[fileName]) {
