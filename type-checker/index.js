@@ -225,8 +225,34 @@ function tryReadHeaderFile(primaryFileName) {
         return true;
     }
 
+    var secondaryFileName = getSecondaryFileName(primaryFileName);
+    if (fs.existsSync(secondaryFileName)) {
+        return true;
+    }
+
     return false;
 };
+
+/*
+    For each js + hjs file it can exist in two locations
+
+    /foo/bar/x.js
+    /foo/bar/x.hjs
+
+    or
+
+    /foo/bar/x.js
+    /foo/bar/_types/x.hjs
+*/
+function getSecondaryFileName(primaryFileName) {
+    var segments = primaryFileName.split(path.sep);
+    var basename = segments[segments.length - 1];
+    segments[segments.length - 1] = '_types';
+    segments[segments.length] = basename;
+
+    var secondaryFileName = segments.join(path.sep);
+    return secondaryFileName;
+}
 
 TypeChecker.prototype._readAndParseHeaderFile =
 function _readAndParseHeaderFile(source, fileName) {
@@ -247,14 +273,14 @@ function _readAndParseHeaderFile(source, fileName) {
 
 /* getOrCreateHeaderFile by headerFileName */
 TypeChecker.prototype.getOrCreateHeaderFile =
-function getOrCreateHeaderFile(fileName, node, importSourceText) {
-    if (!this.files[fileName]) {
-        fileName = path.resolve(fileName);
+function getOrCreateHeaderFile(primaryFileName, node, importSourceText) {
+    if (!this.files[primaryFileName]) {
+        primaryFileName = path.resolve(primaryFileName);
     }
 
     var headerFile;
-    if (this.headerFiles[fileName]) {
-        headerFile = this.headerFiles[fileName];
+    if (this.headerFiles[primaryFileName]) {
+        headerFile = this.headerFiles[primaryFileName];
         if (headerFile.hasErrors()) {
             return null;
         }
@@ -262,22 +288,28 @@ function getOrCreateHeaderFile(fileName, node, importSourceText) {
         return headerFile;
     }
 
-    var source = this.files[fileName];
+    var source = this.files[primaryFileName];
     if (!source) {
-        if (!fs.existsSync(fileName)) {
-            this.addError(Errors.CouldNotFindHeaderFile({
-                fileName: fileName,
-                loc: node ? node.loc : null,
-                line: node ? node.loc.start.line : null,
-                source: importSourceText ? importSourceText : null
-            }));
-            return null;
+        if (!fs.existsSync(primaryFileName)) {
+            var secondaryFileName = getSecondaryFileName(primaryFileName);
+
+            if (fs.existsSync(secondaryFileName)) {
+                primaryFileName = secondaryFileName;
+            } else {
+                this.addError(Errors.CouldNotFindHeaderFile({
+                    primaryFileName: primaryFileName,
+                    loc: node ? node.loc : null,
+                    line: node ? node.loc.start.line : null,
+                    source: importSourceText ? importSourceText : null
+                }));
+                return null;
+            }
         }
 
-        source = fs.readFileSync(fileName, 'utf8');
+        source = fs.readFileSync(primaryFileName, 'utf8');
     }
 
-    return this._createHeaderFile(source, fileName);
+    return this._createHeaderFile(source, primaryFileName);
 };
 
 TypeChecker.prototype._createHeaderFile =
