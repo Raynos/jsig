@@ -14,6 +14,7 @@ var builtinTypes = [
     '%Boolean%%Mixed',
     '%Object%%Empty',
     '%InternalFunction%%FnCall',
+    '%InternalFunction%%FnApply',
     '%InternalFunction%%FnBind'
 ];
 

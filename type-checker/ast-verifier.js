@@ -605,6 +605,35 @@ function _resolveInternalFnCall(node, defn) {
     return callFuncType;
 };
 
+ASTVerifier.prototype._resolveInternalFnApply =
+function _resolveInternalFnApply(node, defn) {
+    assert(node.callee.type === 'MemberExpression',
+        'Can only fn.apply() in a member expression');
+    var fnToCall = this.meta.verifyNode(node.callee.object, null);
+
+    assert(fnToCall && fnToCall.type === 'function',
+        'function being called must be a function');
+    assert(fnToCall.thisArg,
+        'function being call() must have thisArg');
+
+    var argTypes = [];
+
+    for (var i = 0; i < fnToCall.args.length; i++) {
+        argTypes.push(fnToCall.args[i]);
+    }
+
+    var callFuncType = JsigAST.functionType({
+        args: [
+            JsigAST.param('thisArg', fnToCall.thisArg.value),
+            JsigAST.param('args', JsigAST.tuple(argTypes))
+        ],
+        result: JsigAST.literal('void'),
+        thisArg: JsigAST.param('this', fnToCall)
+    });
+
+    return callFuncType;
+};
+
 ASTVerifier.prototype._resolveInternalFnBind =
 function _resolveInternalFnBind(node, defn) {
     assert(node.callee.type === 'MemberExpression',
@@ -649,6 +678,10 @@ function _tryResolveInternalFunction(node, defn) {
         defn.name === '%InternalFunction%%FnBind'
     ) {
         return this._resolveInternalFnBind(node, defn);
+    } else if (defn.type === 'typeLiteral' && defn.builtin &&
+        defn.name === '%InternalFunction%%FnApply'
+    ) {
+        return this._resolveInternalFnApply(node, defn);
     }
 
     return defn;

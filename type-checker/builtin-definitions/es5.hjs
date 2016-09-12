@@ -38,6 +38,7 @@ type TNumber : {
 
 type TFunction : {
     call: %InternalFunction%%FnCall,
+    apply: %InternalFunction%%FnApply,
     bind: %InternalFunction%%FnBind
 }
 
