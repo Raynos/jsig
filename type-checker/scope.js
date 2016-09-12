@@ -363,6 +363,8 @@ FunctionScope.prototype.loadTypes =
 function loadTypes(funcNode, typeDefn) {
     var len = Math.min(typeDefn.args.length, funcNode.params.length);
 
+    var argumentsTypes = [];
+
     for (var i = 0; i < len; i++) {
         var param = funcNode.params[i];
         var argType = typeDefn.args[i].value;
@@ -373,8 +375,12 @@ function loadTypes(funcNode, typeDefn) {
             ]);
         }
 
+        argumentsTypes.push(argType);
         this.addVar(param.name, argType);
     }
+
+    // Add the arguments type to scope as a tuple
+    this.addVar('arguments', JsigAST.tuple(argumentsTypes));
 
     this._thisValueType = null;
     if (typeDefn.thisArg) {
