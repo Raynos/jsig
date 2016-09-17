@@ -355,8 +355,8 @@ function FunctionScope(parent, funcName, funcNode) {
     this.isConstructor = /[A-Z]/.test(funcName[0]);
 
     this.knownFields = [];
-    this.knownReturnType = null;
-    this.returnStatementASTNode = null;
+    this.knownReturnTypes = [];
+    this.returnStatementASTNodes = [];
     this.funcASTNode = funcNode;
     this.writableTokenLookup = false;
 }
@@ -462,8 +462,8 @@ function addKnownField(fieldName) {
 
 FunctionScope.prototype.markReturnType =
 function markReturnType(defn, node) {
-    this.knownReturnType = defn;
-    this.returnStatementASTNode = node;
+    this.knownReturnTypes.push(defn);
+    this.returnStatementASTNodes.push(node);
 };
 
 FunctionScope.prototype.getFunctionScope =

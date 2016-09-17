@@ -1673,12 +1673,36 @@ function _verifyFunctionType(node, defn) {
 
     this.meta.verifyNode(node.body, null);
 
+    var scope;
     if (this.meta.currentScope.isConstructor) {
         this._checkHiddenClass(node);
-        this._checkVoidReturnType(node);
+
+        scope = this.meta.currentScope;
+        if (scope.knownReturnTypes.length > 0) {
+            for (i = 0; i < scope.knownReturnTypes.length; i++) {
+                this._checkVoidReturnType(
+                    node,
+                    scope.knownReturnTypes[i],
+                    scope.returnStatementASTNodes[i]
+                );
+            }
+        } else {
+            this._checkVoidReturnType(node, null, null);
+        }
     } else {
         // TODO: verify return.
-        this._checkReturnType(node);
+        scope = this.meta.currentScope;
+        if (scope.knownReturnTypes.length > 0) {
+            for (i = 0; i < scope.knownReturnTypes.length; i++) {
+                this._checkReturnType(
+                    node,
+                    scope.knownReturnTypes[i],
+                    scope.returnStatementASTNodes[i]
+                );
+            }
+        } else {
+            this._checkReturnType(node, null, null);
+        }
     }
 };
 
@@ -1742,10 +1766,8 @@ function _checkHiddenClass(node) {
 };
 
 ASTVerifier.prototype._checkReturnType =
-function _checkReturnType(node) {
+function _checkReturnType(node, actual, returnNode) {
     var expected = this.meta.currentScope.returnValueType;
-    var actual = this.meta.currentScope.knownReturnType;
-    var returnNode = this.meta.currentScope.returnStatementASTNode;
     var err;
 
     // If we never inferred the return type then it may or may not return
@@ -1788,10 +1810,8 @@ function _checkReturnType(node) {
 };
 
 ASTVerifier.prototype._checkVoidReturnType =
-function _checkVoidReturnType(node) {
+function _checkVoidReturnType(node, actualReturnType, returnNode) {
     var returnType = this.meta.currentScope.returnValueType;
-    var actualReturnType = this.meta.currentScope.knownReturnType;
-    var returnNode = this.meta.currentScope.returnStatementASTNode;
 
     var err;
     if (returnNode || actualReturnType !== null) {

@@ -78,8 +78,11 @@ function inferCallExpression(node) {
         );
         var funcScope = funcScopes[0];
 
-        if (funcScope.knownReturnType) {
-            funcType.result = funcScope.knownReturnType;
+        if (funcScope.knownReturnTypes.length > 0) {
+            // TODO: grab the smallest union?
+            assert(funcScope.knownReturnTypes.length === 1,
+                'only support trivial single return funcs');
+            funcType.result = funcScope.knownReturnTypes[0];
         }
     }
 
