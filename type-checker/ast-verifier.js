@@ -1346,6 +1346,8 @@ function verifyIfStatement(node) {
         this.meta.exitBranchScope();
     }
 
+    var isRestricted = [];
+
     var keys = Object.keys(ifBranch.typeRestrictions);
     for (var i = 0; i < keys.length; i++) {
         var name = keys[i];
@@ -1357,6 +1359,7 @@ function verifyIfStatement(node) {
         }
 
         if (isSameType(ifType.defn, elseType.defn)) {
+            isRestricted.push(name);
             this.meta.currentScope.restrictType(name, ifType.defn);
         }
     }
@@ -1374,7 +1377,9 @@ function verifyIfStatement(node) {
             name = keys[i];
             elseType = elseBranch.typeRestrictions[name];
 
-            this.meta.currentScope.restrictType(name, elseType.defn);
+            if (isRestricted.indexOf(name) === -1) {
+                this.meta.currentScope.restrictType(name, elseType.defn);
+            }
         }
     }
 
