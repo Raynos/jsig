@@ -15,6 +15,7 @@ module.exports = {
 
 function BaseScope(parent) {
     this.parent = parent;
+    this.checker = parent.checker;
     this.type = 'base';
 
     this.identifiers = Object.create(null);
@@ -188,7 +189,9 @@ function _addFunctionOverloadScope(funcScope) {
     currScope.funcScopes.push(funcScope);
 };
 
-function GlobalScope() {
+function GlobalScope(checker) {
+    this.checker = checker;
+    this.parent = null;
     this.type = 'global';
 
     this.identifiers = Object.create(null);
