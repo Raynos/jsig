@@ -97,7 +97,7 @@ function _getHeaderFile(importNode) {
     }
 
     var otherHeader = this.checker.getOrCreateHeaderFile(
-        fileName, importNode, this.source
+        fileName, importNode, this.source, this.fileName
     );
     this.dependentHeaders[otherHeader.fileName] = otherHeader;
     return otherHeader;

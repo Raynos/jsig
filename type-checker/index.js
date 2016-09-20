@@ -273,7 +273,9 @@ function _readAndParseHeaderFile(source, fileName) {
 
 /* getOrCreateHeaderFile by headerFileName */
 TypeChecker.prototype.getOrCreateHeaderFile =
-function getOrCreateHeaderFile(primaryFileName, node, importSourceText) {
+function getOrCreateHeaderFile(
+    primaryFileName, node, importSourceText, importFileName
+) {
     if (!this.files[primaryFileName]) {
         primaryFileName = path.resolve(primaryFileName);
     }
@@ -297,7 +299,8 @@ function getOrCreateHeaderFile(primaryFileName, node, importSourceText) {
                 primaryFileName = secondaryFileName;
             } else {
                 this.addError(Errors.CouldNotFindHeaderFile({
-                    primaryFileName: primaryFileName,
+                    fileName: importFileName,
+                    otherFile: primaryFileName,
                     loc: node ? node.loc : null,
                     line: node ? node.loc.start.line : null,
                     source: importSourceText ? importSourceText : null
