@@ -4,6 +4,6 @@
     "ignore": [
         "test/fixtures"
     ],
-    "globalsFile": "globals.hjs",
-    "definitions": "definitions"
+    "globalsFile": "_types/globals.hjs",
+    "definitions": "_types/definitions"
 }
