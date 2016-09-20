@@ -213,14 +213,21 @@ TypeCheckBinary.prototype.warnError = function warnError(error) {
     });
 
     var currMeta = this.checker.currentMeta;
-    this.log('was processing the following text: ');
-    this.log();
-    this.log(TermColor.red(
-        currMeta.serializeAST(currMeta.currentNode)
-    ));
-    this.log();
-    this.log('on: ' + currMeta.fileName + ':' +
-        currMeta.currentNode.loc.start.line);
+    if (currMeta.currentNode) {
+        this.log();
+        this.log('was processing the following text: ');
+        this.log();
+        this.log(TermColor.red(
+            currMeta.serializeAST(currMeta.currentNode)
+        ));
+        this.log();
+        this.log('on: ' + currMeta.fileName + ':' +
+            currMeta.currentNode.loc.start.line);
+    } else {
+        this.log();
+        this.log('was processing header file: ' + currMeta.headerFileName);
+        this.log();
+    }
 };
 
 TypeCheckBinary.prototype.unknownFilename =
