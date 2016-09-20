@@ -65,6 +65,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.fatalError = false;
 
     this.headerFile = null;
+    this.headerFileName = '';
     this.subType = new SubTypeChecker(this);
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
@@ -81,6 +82,10 @@ function serializeType(type, opts) {
 
 ProgramMeta.prototype.serializeAST =
 function serializeAST(ast) {
+    if (!ast) {
+        return '';
+    }
+
     var startLine = ast.loc.start.line;
     var endLine = ast.loc.end.line;
 
@@ -469,15 +474,15 @@ function loadHeaderFile(required) {
     var extName = path.extname(this.fileName);
     var extIndex = this.fileName.lastIndexOf(extName);
 
-    var headerFileName = this.fileName.slice(0, extIndex) + '.hjs';
+    this.headerFileName = this.fileName.slice(0, extIndex) + '.hjs';
 
     // if the header file is not required and we could not read it
     // then this is expected and we continue on
-    if (!required && !this.checker.tryReadHeaderFile(headerFileName)) {
+    if (!required && !this.checker.tryReadHeaderFile(this.headerFileName)) {
         return true;
     }
 
-    this.headerFile = this.checker.getOrCreateHeaderFile(headerFileName);
+    this.headerFile = this.checker.getOrCreateHeaderFile(this.headerFileName);
 
     if (!this.headerFile) {
         return false;
