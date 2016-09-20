@@ -6,5 +6,7 @@ path : {
         ((String, String, String) => String)
     ),
 
-    resolve : (String) => String
+    resolve : (String) => String,
+
+    sep: String
 }

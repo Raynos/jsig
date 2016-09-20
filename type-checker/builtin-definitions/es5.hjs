@@ -9,6 +9,7 @@ type Error : {
 type TArray : {
     length: Number,
     push: <T>(this: Array<T>, T) => Number,
+    join: <T>(this: Array<T>, sep: String) => String,
     slice: <T>(this: Array<T>, Number, Number) => Array<T>
 }
 

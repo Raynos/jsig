@@ -40,8 +40,11 @@ interface TypeChecker {
     preloadGlobals() => void,
     getOrCreateMeta(file: String) => Meta,
     getOrCreateHeaderFile(
-        file: String, node?: JSNode, importSourceText?: String
-    ) => HeaderFile,
+        file: String,
+        node?: JSNode,
+        importSourceText?: String,
+        importFileName?: String
+    ) => HeaderFile | null,
     addError(err: Error) => void,
     _createHeaderFile(source: String, fileName: String) => HeaderFile,
     _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram | null
