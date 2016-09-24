@@ -13,6 +13,28 @@ module.exports = {
     BranchScope: BranchScope
 };
 
+/*
+    identifiers : A dictionary of TypeDefinitions for tokens
+        in this scope
+
+    unknownIdentifiers : A dictionary of tokens that exist in
+        scope but have no type because evaluation their initial
+        type turned into a type error
+
+    typeRestrictions : The type of an identifier after a restriction
+        as applied, for example inside an if branch a token might
+        have a smaller type. This type is used for reading, however
+        if you want to assign to the token we use the original
+        unrestricted type.
+
+    untypedFunctions : A dictionary of tokens that are known to
+        be functions but do not currently have a type. Their
+        type will be guessed via call-based inference on the
+        first call site.
+
+    functionScopes : ...
+
+*/
 function BaseScope(parent) {
     this.parent = parent;
     this.checker = parent.checker;
@@ -418,6 +440,12 @@ FunctionScope.prototype.getFunction = function getFunction(id) {
     return this.untypedFunctions[id] || this.parent.getFunction(id);
 };
 
+/*
+    updateFunction()
+
+    Move a function `id` from `untypedFunction` predeclared
+        into `identifiers`.
+*/
 FunctionScope.prototype.updateFunction = function updateFunction(id, type) {
     var func = this.untypedFunctions[id];
     if (func) {
@@ -428,6 +456,12 @@ FunctionScope.prototype.updateFunction = function updateFunction(id, type) {
     return this.parent.updateFunction(id, type);
 };
 
+/*
+    revertFunction()
+
+    Move a function `id` from identifiers back into the untypedFunctions
+        table.
+*/
 FunctionScope.prototype.revertFunction = function revertFunction(id, token) {
     if (this.identifiers[id]) {
         this.identifiers[id] = null;
