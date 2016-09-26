@@ -583,11 +583,13 @@ function tryUpdateFunction(name, newType) {
         // console.log('getKnownFunctionScope()', name);
         var info = this.currentScope.getKnownFunctionScope(name);
 
-        assert(info.funcScopes.length === 1,
+        assert(!info || info.funcScopes.length === 1,
             'expected only one function info obj');
 
         // verifyNode() failed
-        t.currentScope.revertFunctionScope(name);
+        if (info) {
+            t.currentScope.revertFunctionScope(name);
+        }
         this.currentScope.revertFunction(name, t);
         return false;
     }
