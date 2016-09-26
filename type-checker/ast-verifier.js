@@ -197,7 +197,9 @@ function verifyFunctionDeclaration(node) {
     }
 
     var isFunction = token.defn.type === 'function';
-    if (!isFunction && token.defn.type !== 'intersectionType') {
+    if (!isFunction && token.defn.type !== 'intersectionType' &&
+        token.defn.type !== 'unionType'
+    ) {
         err = Errors.UnexpectedFunction({
             funcName: funcName,
             expected: this.meta.serializeType(token.defn),
@@ -209,7 +211,9 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
-    if (token.defn.type !== 'intersectionType') {
+    if (token.defn.type === 'function' ||
+        token.defn.type === 'unionType'
+    ) {
         this._checkFunctionType(node, token.defn);
         return token.defn;
     }
@@ -1523,7 +1527,9 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
-    if (potentialType.type !== 'function') {
+    if (potentialType.type !== 'function' &&
+        potentialType.type !== 'unionType'
+    ) {
         err = Errors.UnexpectedFunction({
             expected: this.meta.serializeType(potentialType),
             actual: 'Function',
@@ -1656,6 +1662,35 @@ function _checkFunctionOverloadType(node, defn) {
 
 ASTVerifier.prototype._checkFunctionType =
 function _checkFunctionType(node, defn) {
+    if (defn.type === 'unionType') {
+        var functionCount = 0;
+        var lastFunc = null;
+        for (var i = 0; i < defn.unions.length; i++) {
+            var maybeFunc = defn.unions[i];
+            if (maybeFunc.type === 'function') {
+                functionCount++;
+                lastFunc = maybeFunc;
+            }
+        }
+
+        assert(functionCount <= 1,
+            'cannot verify against union of functions');
+        if (functionCount === 1) {
+            this._checkFunctionType(node, lastFunc);
+            return lastFunc;
+        } else {
+            var err = Errors.UnexpectedFunction({
+                expected: this.meta.serializeType(defn),
+                actual: 'Function',
+                funcName: getFunctionName(node),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
+    }
+
     this.meta.enterFunctionScope(node, defn);
 
     this._verifyFunctionType(node, defn);

@@ -9,23 +9,25 @@ JSIGSnippet.test('allow optional function fields', {
         }
 
         var f = new Foo();
-        f.y = function noop() {};
-        f.y = noop;
+        f.y = function stringer() {
+            return '';
+        };
+        f.y = stringer;
 
-        function noop() {}
+        function stringer() {
+            return '';
+        }
     */},
     header: function h() {/*
         type Foo : {
-            y: null | (String) => String
+            y: null | () => String
         }
 
         Foo : (this: Foo) => void
     */}
 }, function t(snippet, assert) {
-    var meta = snippet.compile(assert);
+    var meta = snippet.compileAndCheck(assert);
 
-    // TODO: fix error
-    assert.equal(meta.errors.length, 3);
-
+    assert.equal(meta.errors.length, 0);
     assert.end();
 });
