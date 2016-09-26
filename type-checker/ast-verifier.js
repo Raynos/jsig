@@ -1523,6 +1523,18 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
+    if (potentialType.type !== 'function') {
+        err = Errors.UnexpectedFunction({
+            expected: this.meta.serializeType(potentialType),
+            actual: 'Function',
+            funcName: getFunctionName(node),
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
     this._checkFunctionType(node, potentialType);
     return potentialType;
 };

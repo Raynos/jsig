@@ -539,6 +539,9 @@ function getFunctionName(node) {
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
     var funcName = this.getFunctionName(funcNode);
+    assert(typeDefn && typeDefn.type === 'function',
+        'can only enterFunctionScope() with function');
+
     var funcScope = new FunctionScope(
         this.currentScope, funcName, funcNode
     );
