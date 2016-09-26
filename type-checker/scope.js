@@ -309,8 +309,8 @@ function addFunction(id, node) {
     };
 };
 
-FileScope.prototype.getFunction =
-function getFunction(id) {
+FileScope.prototype.getUntypedFunction =
+function getUntypedFunction(id) {
     return this.untypedFunctions[id] || null;
 };
 
@@ -359,8 +359,8 @@ function addFunctionOverloadScope(funcScope) {
     this._addFunctionOverloadScope(funcScope);
 };
 
-FileScope.prototype.getKnownFunctionInfo =
-function getKnownFunctionInfo(funcName) {
+FileScope.prototype.getKnownFunctionScope =
+function getKnownFunctionScope(funcName) {
     return this.functionScopes[funcName];
 };
 
@@ -436,8 +436,9 @@ FunctionScope.prototype.addFunction = function addFunction(id, node) {
     };
 };
 
-FunctionScope.prototype.getFunction = function getFunction(id) {
-    return this.untypedFunctions[id] || this.parent.getFunction(id);
+FunctionScope.prototype.getUntypedFunction =
+function getUntypedFunction(id) {
+    return this.untypedFunctions[id] || this.parent.getUntypedFunction(id);
 };
 
 /*
@@ -540,10 +541,10 @@ function addFunctionOverloadScope(funcScope) {
     this._addFunctionOverloadScope(funcScope);
 };
 
-FunctionScope.prototype.getKnownFunctionInfo =
-function getKnownFunctionInfo(funcName) {
+FunctionScope.prototype.getKnownFunctionScope =
+function getKnownFunctionScope(funcName) {
     return this.functionScopes[funcName] ||
-        this.parent.getKnownFunctionInfo(funcName);
+        this.parent.getKnownFunctionScope(funcName);
 };
 
 function BranchScope(parent) {
@@ -590,9 +591,9 @@ function updateRestriction(id, typeDefn) {
     };
 };
 
-BranchScope.prototype.getFunction =
-function getFunction(id) {
-    return this.parent.getFunction(id);
+BranchScope.prototype.getUntypedFunction =
+function getUntypedFunction(id) {
+    return this.parent.getUntypedFunction(id);
 };
 
 BranchScope.prototype.addFunctionScope =
@@ -641,7 +642,7 @@ function exitReturnStatement() {
     this.parent.exitReturnStatement();
 };
 
-BranchScope.prototype.getKnownFunctionInfo =
-function getKnownFunctionInfo(funcName) {
-    return this.parent.getKnownFunctionInfo(funcName);
+BranchScope.prototype.getKnownFunctionScope =
+function getKnownFunctionScope(funcName) {
+    return this.parent.getKnownFunctionScope(funcName);
 };

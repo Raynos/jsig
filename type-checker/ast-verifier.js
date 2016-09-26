@@ -163,7 +163,7 @@ function verifyFunctionDeclaration(node) {
     // console.log('verifyFunctionDeclaration', funcName);
 
     var err;
-    if (this.meta.currentScope.getFunction(funcName)) {
+    if (this.meta.currentScope.getUntypedFunction(funcName)) {
         // console.log('found untyped');
         err = Errors.UnTypedFunctionFound({
             funcName: funcName,
@@ -175,9 +175,9 @@ function verifyFunctionDeclaration(node) {
     }
 
     var token;
-    if (this.meta.currentScope.getKnownFunctionInfo(funcName)) {
+    if (this.meta.currentScope.getKnownFunctionScope(funcName)) {
         // console.log('found known function info', funcName);
-        // throw new Error('has getKnownFunctionInfo');
+        // throw new Error('has getKnownFunctionScope');
         token = this.meta.currentScope.getVar(funcName);
         assert(token, 'must have var for function');
         this._checkFunctionType(node, token.defn);
@@ -275,7 +275,7 @@ function verifyAssignmentExpression(node) {
 
     var rightType;
     if (node.right.type === 'Identifier' &&
-        this.meta.currentScope.getFunction(node.right.name)
+        this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
         if (leftType.name === '%Export%%ModuleExports') {
             this.meta.addError(Errors.UnknownModuleExports({
@@ -495,7 +495,7 @@ function verifyIdentifier(node) {
 
     if (this.meta.currentExpressionType &&
         this.meta.currentExpressionType.type === 'function' &&
-        this.meta.currentScope.getFunction(node.name)
+        this.meta.currentScope.getUntypedFunction(node.name)
     ) {
         var exprType = this.meta.currentExpressionType;
         var bool = this.meta.tryUpdateFunction(node.name, exprType);
@@ -546,7 +546,8 @@ function _getTypeFromFunctionCall(node) {
             defn = this.meta.inferType(node);
         }
 
-        var funcNode = this.meta.currentScope.getFunction(node.callee.name);
+        var funcNode = this.meta.currentScope
+            .getUntypedFunction(node.callee.name);
 
         var err;
         if (!defn && funcNode) {
@@ -848,7 +849,7 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
 
         var actualType;
         if (node.arguments[i].type === 'Identifier' &&
-            this.meta.currentScope.getFunction(node.arguments[i].name)
+            this.meta.currentScope.getUntypedFunction(node.arguments[i].name)
         ) {
             var funcName = node.arguments[i].name;
             if (!this.meta.tryUpdateFunction(funcName, wantedType)) {

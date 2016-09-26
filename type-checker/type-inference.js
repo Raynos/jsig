@@ -28,7 +28,8 @@ TypeInference.prototype.inferType = function inferType(node) {
 
 TypeInference.prototype.inferCallExpression =
 function inferCallExpression(node) {
-    var untypedFunc = this.meta.currentScope.getFunction(node.callee.name);
+    var untypedFunc = this.meta.currentScope
+        .getUntypedFunction(node.callee.name);
     if (!untypedFunc) {
         return null;
     }
@@ -69,7 +70,7 @@ function inferCallExpression(node) {
 
     if (returnType.builtin && returnType.name === '%Void%%UnknownReturn') {
         // Grab the scope for the known function
-        var funcScopes = this.meta.currentScope.getKnownFunctionInfo(
+        var funcScopes = this.meta.currentScope.getKnownFunctionScope(
             node.callee.name
         ).funcScopes;
 

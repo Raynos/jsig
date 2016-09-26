@@ -562,7 +562,8 @@ function exitFunctionScope() {
 */
 ProgramMeta.prototype.tryUpdateFunction =
 function tryUpdateFunction(name, newType) {
-    var t = this.currentScope.getFunction(name);
+    // console.log('tryUpdateFunction()', name);
+    var t = this.currentScope.getUntypedFunction(name);
     this.currentScope.updateFunction(name, newType);
 
     // Snap into scope of function decl
@@ -571,12 +572,16 @@ function tryUpdateFunction(name, newType) {
 
     var beforeErrors = this.countErrors();
 
+    // console.log('verifyNode()', {
+    //     node: this.serializeAST(t.node)
+    // });
     this.verifyNode(t.node, null);
     this.currentScope = oldScope;
 
     var afterErrors = this.countErrors();
     if (beforeErrors !== afterErrors) {
-        var info = this.currentScope.getKnownFunctionInfo(name);
+        // console.log('getKnownFunctionScope()', name);
+        var info = this.currentScope.getKnownFunctionScope(name);
 
         assert(info.funcScopes.length === 1,
             'expected only one function info obj');
