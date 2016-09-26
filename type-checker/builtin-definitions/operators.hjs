@@ -33,6 +33,10 @@ void : (%Boolean%%Mixed) => void
 
 !== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
 
+!= : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+
+== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+
 -- Do not use %Boolean%%Mixed here...
 typeof : (%Boolean%%Mixed) => String
 
