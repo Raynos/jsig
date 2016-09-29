@@ -43,6 +43,7 @@ test('export default { a: String }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             _raw: null,
             key: 'a',
             optional: false,

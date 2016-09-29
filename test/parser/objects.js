@@ -16,6 +16,7 @@ test('foo : { text: String }', function t(assert) {
             type: 'keyValue',
             key: 'text',
             isMethod: false,
+            isOverloaded: false,
             value: {
                 type: 'typeLiteral',
                 line: 1,
@@ -60,6 +61,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'text',
             value: {
                 type: 'typeLiteral',
@@ -85,6 +87,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
         }, {
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'type',
             value: {
                 type: 'valueLiteral',
@@ -118,12 +121,14 @@ test('foo : { nested: { nodeType: 3 } }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'nested',
             value: {
                 type: 'object',
                 keyValues: [{
                     type: 'keyValue',
                     isMethod: false,
+                    isOverloaded: false,
                     key: 'nodeType',
                     value: {
                         type: 'valueLiteral',
@@ -160,6 +165,7 @@ test('foo : { bar?: Baz }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'bar',
             value: {
                 type: 'typeLiteral',
@@ -202,6 +208,7 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'bar',
             value: {
                 type: 'typeLiteral',

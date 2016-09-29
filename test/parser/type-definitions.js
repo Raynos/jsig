@@ -44,6 +44,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
         keyValues: [{
             type: 'keyValue',
             isMethod: false,
+            isOverloaded: false,
             key: 'option',
             value: {
                 type: 'typeLiteral',
