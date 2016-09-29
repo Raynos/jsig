@@ -520,19 +520,27 @@ function exitBranchScope() {
     this.currentScope = this.currentScope.parent;
 };
 
+ProgramMeta.prototype.getFunctionName =
 function getFunctionName(node) {
+    var prefix = '';
+    if (node.type === 'FunctionExpression') {
+        prefix = '(expression @ ' + node.loc.start.line +
+            ' : ' + node.loc.start.column + ') ';
+    }
+
     if (node.id) {
-        return node.id.name;
+        return prefix + node.id.name;
     }
 
     return '(anonymous @ ' + node.loc.start.line +
-        ' : ' + node.loc.start.column;
-}
+        ' : ' + node.loc.start.column + ' )';
+};
 
 ProgramMeta.prototype.enterFunctionScope =
 function enterFunctionScope(funcNode, typeDefn) {
+    var funcName = this.getFunctionName(funcNode);
     var funcScope = new FunctionScope(
-        this.currentScope, getFunctionName(funcNode), funcNode
+        this.currentScope, funcName, funcNode
     );
     funcScope.loadTypes(funcNode, typeDefn);
 
@@ -543,7 +551,7 @@ function enterFunctionScope(funcNode, typeDefn) {
 ProgramMeta.prototype.enterFunctionOverloadScope =
 function enterFunctionOverloadScope(funcNode, typeDefn) {
     var funcScope = new FunctionScope(
-        this.currentScope, getFunctionName(funcNode), funcNode
+        this.currentScope, this.getFunctionName(funcNode), funcNode
     );
     funcScope.loadTypes(funcNode, typeDefn);
 

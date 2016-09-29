@@ -857,6 +857,18 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             }
 
             actualType = wantedType;
+        } else if (node.arguments[i].type === 'FunctionExpression' &&
+            isOverload
+        ) {
+            var beforeErrors = this.meta.countErrors();
+            actualType = this.meta.verifyNode(node.arguments[i], wantedType);
+            var afterErrors = this.meta.countErrors();
+            if (!actualType || (beforeErrors !== afterErrors)) {
+                this.meta.currentScope.revertFunctionScope(
+                    this.meta.getFunctionName(node.arguments[i])
+                );
+                return null;
+            }
         } else {
             actualType = this.meta.verifyNode(node.arguments[i], wantedType);
         }

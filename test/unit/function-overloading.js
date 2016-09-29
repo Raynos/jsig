@@ -101,3 +101,61 @@ JSIGSnippet.test('string argument disallows aliases', {
 
     assert.end();
 });
+
+JSIGSnippet.test('overloading a getter-style interface', {
+    snippet: function m() {/*
+        config.get("key1").split('a');
+
+        config.get("key2") + 5;
+
+        config.get("key3").a.split('b');
+    */},
+    header: function h() {/*
+        type Config : {
+            get: (
+                ((this: Config, str: "key1") => String) &
+                ((this: Config, str: "key2") => Number) &
+                ((this: Config, str: "key3") => { a: String })
+            )
+        }
+
+        config: Config
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('overloading an event emitter object', {
+    snippet: function m() {/*
+        events.on("key1", function f(x) {
+            x.split('a');
+        });
+
+        events.on("key2", function f(x) {
+            x + 5;
+        });
+
+        events.on("key3", function f(x) {
+            x.a.split('b');
+        });
+    */},
+    header: function h() {/*
+        type MyEvents : {
+            on: (
+                ((this: MyEvents, str: "key1", cb: (String) => void) => void) &
+                ((this: MyEvents, str: "key2", cb: (Number) => void) => void) &
+                ((
+                    this: MyEvents,
+                    str: "key3",
+                    cb: ({ a: String }) => void
+                ) => void)
+            )
+        }
+
+        events: MyEvents
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
