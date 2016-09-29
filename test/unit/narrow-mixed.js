@@ -2,7 +2,7 @@
 
 var JSIGSnippet = require('../lib/jsig-snippet.js');
 
-JSIGSnippet.test('overloading an event emitter object', {
+JSIGSnippet.test('narrowing mixed into a number', {
     snippet: function m() {/*
         function parseJSONNumber(str) {
             var x = JSON.parse(str);
