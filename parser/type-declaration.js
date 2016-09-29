@@ -60,9 +60,13 @@ var interfaceDeclaration = lexemes.interfaceWord
             .then(typeKeyValues)
             .skip(lexemes.closeCurlyBrace)
             .map(function capturePairs(pairs) {
+                var newPairs = [];
+                var namedPairs = Object.create(null);
+
                 for (var i = 0; i < pairs.length; i++) {
                     var p = pairs[i];
                     if (!p.isMethod) {
+                        newPairs.push(p);
                         continue;
                     }
 
@@ -71,9 +75,22 @@ var interfaceDeclaration = lexemes.interfaceWord
                     assert(!v.thisArg, 'method cannot have thisArg');
 
                     v.thisArg = AST.param('this', AST.literal(id));
+
+                    if (!namedPairs[p.key]) {
+                        namedPairs[p.key] = p;
+                        newPairs.push(p);
+                    } else {
+                        var pair = namedPairs[p.key];
+                        if (!pair.isOverloaded) {
+                            pair.isOverloaded = true;
+                            pair.value = AST.intersection([pair.value]);
+                        }
+
+                        pair.value.intersections.push(p.value);
+                    }
                 }
 
-                var obj = AST.object(pairs);
+                var obj = AST.object(newPairs);
 
                 return AST.typeDeclaration(id, obj, []);
             });
