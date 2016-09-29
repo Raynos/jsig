@@ -69,5 +69,6 @@ Object : {
 }
 
 JSON : {
-    stringify: (%Boolean%%Mixed) => String
+    stringify: (%Boolean%%Mixed) => String,
+    parse: (String) => %Boolean%%Mixed
 }

@@ -5,6 +5,7 @@ var assert = require('assert');
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 var updateObject = require('./lib/update-object.js');
 var isSameType = require('./lib/is-same-type.js');
+var JsigAST = require('../ast/');
 
 module.exports = NarrowType;
 
@@ -69,8 +70,57 @@ function narrowIdentifier(node, ifBranch, elseBranch) {
 
 NarrowType.prototype.narrowBinaryExpression =
 function narrowBinaryExpression(node, ifBranch, elseBranch) {
+    if (node.left.type === 'UnaryExpression' &&
+        node.left.operator === 'typeof'
+    ) {
+        return this.narrowTypeofExpression(node, ifBranch, elseBranch);
+    }
+
     // TODO: support `x === null`
-    // TODO: support `typeof y === "{{tag}}"`
+};
+
+NarrowType.prototype.narrowTypeofExpression =
+function narrowTypeofExpression(node, ifBranch, elseBranch) {
+    var identifier = node.left.argument;
+    if (identifier.type !== 'Identifier') {
+        // TODO: support non trivial expressions
+        return null;
+    }
+
+    if (node.operator !== '===') {
+        // TODO: support !==, and others... ?
+        return null;
+    }
+
+    var type = this.meta.verifyNode(identifier, null);
+    if (!type) {
+        return null;
+    }
+
+    if (type.type !== 'typeLiteral' ||
+        !type.builtin || type.name !== '%Boolean%%Mixed'
+    ) {
+        // TODO: support narrowing other things then Mixed
+        return null;
+    }
+
+    var typeTagNode = node.right;
+    if (node.right.type !== 'Literal') {
+        // Right hand side of equal operator
+        return null;
+    }
+
+    var typeTagValue = typeTagNode.value;
+    if (typeTagValue === 'number') {
+        if (ifBranch) {
+            ifBranch.restrictType(
+                identifier.name, JsigAST.literal('Number')
+            );
+        }
+    } else {
+        // TODO: support other tags
+        return null;
+    }
 };
 
 NarrowType.prototype.narrowLiteral =

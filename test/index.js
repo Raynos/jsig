@@ -34,6 +34,7 @@ require('./unit/intersection-types.js');
 require('./unit/construct-builtins.js');
 require('./unit/prototype-inheritance.js');
 require('./unit/multiple-returns.js');
+require('./unit/narrow-mixed.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
