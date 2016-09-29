@@ -12,20 +12,18 @@ type THttpRes : {
     end: (this: THttpRes, TBuffer) => void
 }
 
-type THttpServer : {
-    listen: (Number, String, cb: () => void) => void,
-    address: () => {
+interface THttpServer {
+    listen(Number, String, cb: () => void) => void,
+    address() => {
         address: String,
         family: String,
         port: Number
     },
-    close: (cb: () => void) => void,
+    close(cb: () => void) => void,
 
-    on: (
-        ((str: "request", fn: (req: THttpReq, res: THttpRes) => void) => void) &
-        ((str: "connection", fn: (socket: TSocket) => void) => void) &
-        ((str: "error", fn: (err: Error) => void) => void)
-    )
+    on("request", fn: (req: THttpReq, res: THttpRes) => void) => void,
+    on("connection", fn: (socket: TSocket) => void) => void,
+    on("error", fn: (err: Error) => void) => void
 }
 
 http : {
