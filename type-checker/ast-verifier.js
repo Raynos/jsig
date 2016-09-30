@@ -2161,6 +2161,12 @@ function _getTypeFromRequire(node) {
     // Handle pre-defined npm case
     var externDefn = this.checker.getDefinition(depPath);
     if (externDefn) {
+        if (depPath === 'assert' &&
+            externDefn.defn.type === 'function'
+        ) {
+            externDefn.defn.specialKind = 'assert';
+        }
+
         return externDefn.defn;
     }
 
