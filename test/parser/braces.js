@@ -160,6 +160,7 @@ test('foo : (A) => B | C', function t(assert) {
             _raw: null
         },
         brand: 'Object',
+        specialKind: null,
         generics: [],
         _raw: null
     });
@@ -243,6 +244,7 @@ test('foo : (A) => (B | C)', function t(assert) {
             _raw: null
         },
         brand: 'Object',
+        specialKind: null,
         generics: [],
         _raw: null
     });
@@ -326,6 +328,7 @@ test('foo : ((A) => B | C)', function t(assert) {
             _raw: null
         },
         brand: 'Object',
+        specialKind: null,
         generics: [],
         _raw: null
     });
@@ -409,6 +412,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
             _raw: null
         },
         brand: 'Object',
+        specialKind: null,
         generics: [],
         _raw: null
     });
@@ -472,6 +476,7 @@ test('foo : ((A) => B) | C', function t(assert) {
                 _raw: null
             },
             brand: 'Object',
+            specialKind: null,
             generics: [],
             _raw: null
         }, {
@@ -555,6 +560,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                 _raw: null
             },
             brand: 'Object',
+            specialKind: null,
             generics: [],
             _raw: null
         }, {
@@ -605,6 +611,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                 _raw: null
             },
             brand: 'Object',
+            specialKind: null,
             generics: [],
             _raw: null
         }],

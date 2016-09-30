@@ -241,6 +241,7 @@ test('foo : () => Number', function t(assert) {
             _raw: null
         },
         brand: 'Object',
+        specialKind: null,
         _raw: null
     });
 
@@ -283,6 +284,7 @@ test('two statements', function t(assert) {
                 _raw: null
             },
             brand: 'Object',
+            specialKind: null,
             _raw: null
         },
         _raw: null

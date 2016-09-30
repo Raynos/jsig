@@ -200,6 +200,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
         },
         generics: [],
         brand: 'Object',
+        specialKind: null,
         thisArg: null,
         _raw: null
     });

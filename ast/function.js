@@ -15,7 +15,13 @@ function FunctionNode(opts) {
     this.args = opts.args || [];
     this.result = opts.result;
     this.thisArg = opts.thisArg || null;
+    // Brand is used if this function is a constructor
+    // This will brand the object instance allocated with `new`
     this.brand = opts.brand || 'Object';
+    // specialKind is used to store singleton information
+    // For example the assert function has special type narrow
+    // semantics so its FunctionNode is the "assert" specialKind
+    this.specialKind = opts.specialKind || null;
     this._raw = null;
 
     var generics = opts.generics || [];
