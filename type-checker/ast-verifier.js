@@ -973,6 +973,25 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         }
     }
 
+    if (defn.type === 'function' && defn.specialKind === 'assert') {
+        var ifBranch = this.meta.allocateBranchScope();
+        var elseBranch = this.meta.allocateBranchScope();
+
+        this.meta.narrowType(node.arguments[0], ifBranch, elseBranch);
+
+        // Since the assertion must hold true
+        // We can copy over all type restrictions from the ifBranch
+        // into the current scope of the call expression
+
+        var keys = Object.keys(ifBranch.typeRestrictions);
+        for (i = 0; i < keys.length; i++) {
+            var name = keys[i];
+            var ifType = ifBranch.typeRestrictions[name];
+
+            this.meta.currentScope.restrictType(name, ifType.defn);
+        }
+    }
+
     return defn.result;
 };
 
