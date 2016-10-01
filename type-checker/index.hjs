@@ -46,7 +46,9 @@ interface TypeChecker {
         importFileName?: String
     ) => HeaderFile | null,
     addError(err: Error) => void,
-    _createHeaderFile(source: String, fileName: String) => HeaderFile,
+    _createHeaderFile(
+        source: String, fileName: String
+    ) => HeaderFile | null,
     _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram | null
 }
 
