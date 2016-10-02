@@ -21,8 +21,8 @@ function LiteralTypeNode(name, builtin, opts) {
     this.loc = (ASTConfig.loc && opts && opts.loc) || null;
 
     // TODO: gaurd against re-assignment...
-    this.concreteValue = (opts && typeof opts.concreteValue === 'string') ?
-        ('"' + opts.concreteValue + '"') : null;
+    this.concreteValue = (opts && 'concreteValue' in opts) ?
+        opts.concreteValue : null;
 
     this.isGeneric = false;
     this.genericIdentifierUUID = null;

@@ -891,7 +891,9 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             actualType.name === 'String' &&
             typeof actualType.concreteValue === 'string'
         ) {
-            actualType = JsigAST.value(actualType.concreteValue, 'string');
+            actualType = JsigAST.value(
+                '"' + actualType.concreteValue + '"', 'string'
+            );
         }
 
         if (!actualType) {
