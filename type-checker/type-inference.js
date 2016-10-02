@@ -169,6 +169,9 @@ function _inferTupleExpression(node) {
         var expected = tupleTypes[i];
 
         values[i] = this.meta.verifyNode(node.elements[i], expected);
+        if (!values[i]) {
+            return null;
+        }
     }
 
     return JsigAST.tuple(values);
