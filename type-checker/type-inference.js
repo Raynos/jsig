@@ -99,7 +99,9 @@ function inferLiteral(node) {
             concreteValue: value
         });
     } else if (typeof value === 'number') {
-        return JsigAST.literal('Number');
+        return JsigAST.literal('Number', true, {
+            concreteValue: value
+        });
     } else if (value === null) {
         return JsigAST.value('null');
     } else if (Object.prototype.toString.call(value) === '[object RegExp]') {
