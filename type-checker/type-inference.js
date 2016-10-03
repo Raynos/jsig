@@ -138,20 +138,33 @@ function inferArrayExpression(node) {
         return this._inferTupleExpression(node);
     }
 
-    var type = null;
+    var values = [];
+
     for (var i = 0; i < elems.length; i++) {
         var newType = this.meta.verifyNode(elems[i], null);
-        if (type) {
-            assert(isSameType(newType, type), 'arrays must be homogenous');
+        if (!newType) {
+            return null;
         }
-        type = newType;
+
+        values[i] = newType;
     }
 
-    if (!type) {
-        return null;
-    }
+    return JsigAST.tuple(values);
 
-    return JsigAST.generic(JsigAST.literal('Array'), [type]);
+    // var type = null;
+    // for (var i = 0; i < elems.length; i++) {
+    //     var newType = this.meta.verifyNode(elems[i], null);
+    //     if (type) {
+    //         assert(isSameType(newType, type), 'arrays must be homogenous');
+    //     }
+    //     type = newType;
+    // }
+
+    // if (!type) {
+    //     return null;
+    // }
+
+    // return JsigAST.generic(JsigAST.literal('Array'), [type]);
 };
 
 TypeInference.prototype._inferTupleExpression =
