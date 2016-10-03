@@ -125,6 +125,19 @@ function inlineReferences(ast, rawAst, stack) {
 
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
+    } else if (ast.type === 'tuple') {
+        stack.push('values');
+        for (i = 0; i < ast.values.length; i++) {
+            stack.push(i);
+            ast.values[i] = this.inlineReferences(
+                ast.values[i], rawAst.values[i], stack
+            );
+            stack.pop();
+        }
+        stack.pop();
+
+        ast._raw = this.neverRaw ? null : (ast._raw | rawAst);
+        return ast;
     } else if (ast.type === 'keyValue') {
         stack.push('value');
         ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
