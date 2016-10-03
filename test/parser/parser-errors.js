@@ -56,6 +56,7 @@ test('good identifier callbak', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'String',
             _raw: null

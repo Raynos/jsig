@@ -27,6 +27,7 @@ test('foo : [Number, Number]', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Number',
             _raw: null
@@ -45,6 +46,7 @@ test('foo : [Number, Number]', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Number',
             _raw: null
@@ -78,6 +80,7 @@ test('bar : [String, Object, Array]', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'String',
             _raw: null
@@ -96,6 +99,7 @@ test('bar : [String, Object, Array]', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Object',
             _raw: null
@@ -114,6 +118,7 @@ test('bar : [String, Object, Array]', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Array',
             _raw: null

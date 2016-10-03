@@ -25,6 +25,7 @@ test('foo : (String)', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         builtin: true,
         name: 'String',
         _raw: null
@@ -56,6 +57,7 @@ test('foo : (String | Number)', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'String',
             builtin: true,
             _raw: null
@@ -74,6 +76,7 @@ test('foo : (String | Number)', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Number',
             builtin: true,
             _raw: null
@@ -113,6 +116,7 @@ test('foo : (A) => B | C', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'A',
                 _raw: null
@@ -135,6 +139,7 @@ test('foo : (A) => B | C', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'B',
                 builtin: false,
                 _raw: null
@@ -153,6 +158,7 @@ test('foo : (A) => B | C', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'C',
                 builtin: false,
                 _raw: null
@@ -197,6 +203,7 @@ test('foo : (A) => (B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'A',
                 _raw: null
@@ -219,6 +226,7 @@ test('foo : (A) => (B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'B',
                 builtin: false,
                 _raw: null
@@ -237,6 +245,7 @@ test('foo : (A) => (B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'C',
                 builtin: false,
                 _raw: null
@@ -281,6 +290,7 @@ test('foo : ((A) => B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'A',
                 _raw: null
@@ -303,6 +313,7 @@ test('foo : ((A) => B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'B',
                 builtin: false,
                 _raw: null
@@ -321,6 +332,7 @@ test('foo : ((A) => B | C)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'C',
                 builtin: false,
                 _raw: null
@@ -365,6 +377,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'A',
                 _raw: null
@@ -387,6 +400,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'B',
                 builtin: false,
                 _raw: null
@@ -405,6 +419,7 @@ test('foo : ((A) => (B | C))', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'C',
                 builtin: false,
                 _raw: null
@@ -451,6 +466,7 @@ test('foo : ((A) => B) | C', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: false,
                     name: 'A',
                     _raw: null
@@ -471,6 +487,7 @@ test('foo : ((A) => B) | C', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'B',
                 builtin: false,
                 _raw: null
@@ -494,6 +511,7 @@ test('foo : ((A) => B) | C', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: false,
             name: 'C',
             _raw: null
@@ -535,6 +553,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: true,
                     name: 'String',
                     _raw: null
@@ -555,6 +574,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'String',
                 builtin: true,
                 _raw: null
@@ -586,6 +606,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: true,
                     name: 'Number',
                     _raw: null
@@ -606,6 +627,7 @@ test('foo : ((String) => String) | ((Number) => Number)', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'Number',
                 builtin: true,
                 _raw: null

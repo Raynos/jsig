@@ -1,6 +1,7 @@
 'use strict';
 
 var assert = require('assert');
+var uuid = require('uuid');
 
 var LocationLiteralNode = require('./location-literal.js');
 var JsigASTReplacer = require('../type-checker/lib/jsig-ast-replacer.js');
@@ -45,6 +46,10 @@ function GenericReplacer(node, generics) {
     this.node = node;
 
     this.knownGenerics = generics;
+    this.genericUUIDs = Object.create(null);
+    for (var i = 0; i < this.knownGenerics.length; i++) {
+        this.genericUUIDs[this.knownGenerics[i]] = uuid();
+    }
     this.seenGenerics = [];
 }
 
@@ -56,5 +61,6 @@ GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
     this.seenGenerics.push(new LocationLiteralNode(ast.name, stack.slice()));
 
     ast.isGeneric = true;
+    ast.genericIdentifierUUID = this.genericUUIDs[ast.name];
     return ast;
 };

@@ -251,6 +251,13 @@ test('the continuable-mongo type definition', function t(assert) {
     var result = parse(content);
     AST.CONFIG.loc = true;
 
+    result.statements[5].typeExpression.intersections[0]
+        .keyValues[5].value.args[0].value
+        .generics[0].genericIdentifierUUID = null;
+    ASTFixture.statements[5].typeExpression.intersections[0]
+        .keyValues[5].value.args[0].value
+        .generics[0].genericIdentifierUUID = null;
+
     // showDiff(result, ASTFixture);
     assert.deepEqual(result, ASTFixture);
 

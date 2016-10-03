@@ -27,6 +27,7 @@ test('foo : Object<String, String>', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Object',
             _raw: null
@@ -46,6 +47,7 @@ test('foo : Object<String, String>', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'String',
             _raw: null
@@ -64,6 +66,7 @@ test('foo : Object<String, String>', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'String',
             _raw: null

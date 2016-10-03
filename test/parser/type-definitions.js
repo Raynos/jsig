@@ -25,6 +25,7 @@ test('type Foo : String', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         builtin: true,
         name: 'String',
         _raw: null
@@ -36,6 +37,8 @@ test('type Foo : String', function t(assert) {
 test('type OptionError<T> : { option: T }', function t(assert) {
     var content = 'type OptionError<T> : { option: T }';
     var result = parse(content).statements[0];
+
+    var TUUID = result.typeExpression.keyValues[0].value.genericIdentifierUUID;
 
     assert.equal(result.type, 'typeDeclaration');
     assert.equal(result.identifier, 'OptionError');
@@ -61,6 +64,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: true,
+                genericIdentifierUUID: TUUID,
                 name: 'T',
                 builtin: false,
                 _raw: null
@@ -87,6 +91,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'T',
         builtin: false,
         _raw: null

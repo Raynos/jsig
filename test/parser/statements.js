@@ -25,6 +25,7 @@ test('foo : String', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         builtin: true,
         name: 'String',
         _raw: null
@@ -54,6 +55,7 @@ test('foo : Error', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         builtin: false,
         name: 'Error',
         _raw: null
@@ -99,6 +101,7 @@ test('foo : RegExp', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'RegExp',
         builtin: true,
         _raw: null
@@ -128,6 +131,7 @@ test('foo : Symbol', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'Symbol',
         builtin: true,
         _raw: null
@@ -173,6 +177,7 @@ test('foo : Array', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'Array',
         builtin: true,
         _raw: null
@@ -202,6 +207,7 @@ test('foo-bar : Number', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         builtin: true,
         name: 'Number',
         _raw: null
@@ -236,6 +242,7 @@ test('foo : () => Number', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Number',
             _raw: null
@@ -279,6 +286,7 @@ test('two statements', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'Number',
                 _raw: null
@@ -307,6 +315,7 @@ test('two statements', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'String',
             _raw: null
@@ -339,6 +348,7 @@ test('foo-baz/bar-boz : Number', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Number',
             _raw: null

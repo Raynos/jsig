@@ -27,6 +27,7 @@ test('foo : Bar & Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Bar',
             builtin: false,
             _raw: null
@@ -45,6 +46,7 @@ test('foo : Bar & Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Baz',
             builtin: false,
             _raw: null

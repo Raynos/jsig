@@ -24,6 +24,7 @@ test('export default String', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'String',
         builtin: true,
         _raw: null
@@ -62,6 +63,7 @@ test('export default { a: String }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 name: 'String',
                 builtin: true,
                 _raw: null

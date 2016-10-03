@@ -33,6 +33,7 @@ test('foo : (String, Number) => Object', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'String',
                 _raw: null
@@ -57,6 +58,7 @@ test('foo : (String, Number) => Object', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'Number',
                 _raw: null
@@ -77,6 +79,7 @@ test('foo : (String, Number) => Object', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             builtin: true,
             name: 'Object',
             _raw: null
@@ -116,6 +119,7 @@ test('foo : () => CustomType', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'CustomType',
                 _raw: null
@@ -160,6 +164,7 @@ test('foo : (tagName: String) => void', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: true,
                     name: 'String',
                     _raw: null
@@ -185,6 +190,7 @@ test('foo : (tagName: String) => void', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'void',
                 _raw: null
@@ -225,6 +231,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: true,
                     name: 'Number',
                     _raw: null
@@ -250,6 +257,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: false,
                     name: 'DOMText',
                     _raw: null
@@ -272,6 +280,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'void',
                 _raw: null
@@ -314,6 +323,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: true,
                     name: 'String',
                     _raw: null
@@ -338,6 +348,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     builtin: false,
                     name: 'Bar',
                     _raw: null
@@ -361,6 +372,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'Baz',
                 _raw: null
@@ -377,6 +389,8 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
 test('foo : <T>(a: T, b: T) => T', function t(assert) {
     var content = 'foo : <T>(a: T, b: T) => T';
     var result = parse(content).statements[0];
+
+    var TUUID = result.typeExpression.args[0].value.genericIdentifierUUID;
 
     assert.deepEqual(result, {
         type: 'assignment',
@@ -403,6 +417,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: true,
+                    genericIdentifierUUID: TUUID,
                     builtin: false,
                     name: 'T',
                     _raw: null
@@ -427,6 +442,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: true,
+                    genericIdentifierUUID: TUUID,
                     builtin: false,
                     name: 'T',
                     _raw: null
@@ -450,6 +466,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: true,
+                genericIdentifierUUID: TUUID,
                 builtin: false,
                 name: 'T',
                 _raw: null

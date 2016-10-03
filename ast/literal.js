@@ -25,5 +25,6 @@ function LiteralTypeNode(name, builtin, opts) {
         ('"' + opts.concreteValue + '"') : null;
 
     this.isGeneric = false;
+    this.genericIdentifierUUID = null;
     this._raw = null;
 }

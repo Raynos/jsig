@@ -32,6 +32,7 @@ test('foo : { text: String }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'String',
                 _raw: null
@@ -78,6 +79,7 @@ test('foo : { text: String, type: "DOMTextNode" }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: true,
                 name: 'String',
                 _raw: null
@@ -182,6 +184,7 @@ test('foo : { bar?: Baz }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'Baz',
                 _raw: null
@@ -225,6 +228,7 @@ test('foo : { bar: Baz, ..R }', function t(assert) {
                 },
                 concreteValue: null,
                 isGeneric: false,
+                genericIdentifierUUID: null,
                 builtin: false,
                 name: 'Baz',
                 _raw: null

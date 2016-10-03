@@ -25,6 +25,7 @@ test('import { Foo } from "bar"', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'Foo',
         builtin: false,
         _raw: null
@@ -54,6 +55,7 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'Foo',
         builtin: false,
         _raw: null
@@ -72,6 +74,7 @@ test('import { Foo, Bar } from "bar"', function t(assert) {
         },
         concreteValue: null,
         isGeneric: false,
+        genericIdentifierUUID: null,
         name: 'Bar',
         builtin: false,
         _raw: null
@@ -105,6 +108,7 @@ test('import { Foo as Bar } from "bar"', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Foo',
             builtin: false,
             _raw: null

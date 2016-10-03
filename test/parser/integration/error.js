@@ -87,6 +87,16 @@ test('the error type definition', function t(assert) {
     var result = parse(content);
     AST.CONFIG.loc = true;
 
+    ASTFixture.statements[0].typeExpression.keyValues[0]
+        .value.unions[0].genericIdentifierUUID = null;
+    result.statements[0].typeExpression.keyValues[0]
+        .value.unions[0].genericIdentifierUUID = null;
+
+    result.statements[1].typeExpression.keyValues[1]
+        .value.genericIdentifierUUID = null;
+    ASTFixture.statements[1].typeExpression.keyValues[1]
+        .value.genericIdentifierUUID = null;
+
     // showDiff(result, ASTFixture);
     assert.deepEqual(result, ASTFixture);
 

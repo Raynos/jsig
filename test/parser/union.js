@@ -27,6 +27,7 @@ test('type Foo : Bar | Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Bar',
             builtin: false,
             _raw: null
@@ -45,6 +46,7 @@ test('type Foo : Bar | Baz', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'Baz',
             builtin: false,
             _raw: null
@@ -78,6 +80,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'ObjectE',
             builtin: false,
             _raw: null
@@ -96,6 +99,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'C',
             builtin: false,
             _raw: null
@@ -114,6 +118,7 @@ test('type A : ObjectE | C | D', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'D',
             builtin: false,
             _raw: null
@@ -154,6 +159,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     name: 'Number',
                     builtin: true,
                     _raw: null
@@ -172,6 +178,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
                     },
                     concreteValue: null,
                     isGeneric: false,
+                    genericIdentifierUUID: null,
                     name: 'String',
                     builtin: true,
                     _raw: null
@@ -194,6 +201,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
             },
             concreteValue: null,
             isGeneric: false,
+            genericIdentifierUUID: null,
             name: 'void',
             builtin: true,
             _raw: null
