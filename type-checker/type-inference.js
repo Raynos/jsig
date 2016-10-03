@@ -100,7 +100,7 @@ function inferLiteral(node) {
         });
     } else if (typeof value === 'number') {
         return JsigAST.literal('Number', true, {
-            concreteValue: value
+            concreteValue: parseFloat(value, 10)
         });
     } else if (value === null) {
         return JsigAST.value('null');
