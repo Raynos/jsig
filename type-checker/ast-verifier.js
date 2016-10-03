@@ -2209,6 +2209,10 @@ ASTVerifier.prototype._findTypeInSingleContainer =
 function _findTypeInSingleContainer(node, objType, propType) {
     var valueType;
 
+    if (objType.type === 'tuple') {
+        return this._findTypeInTuple(node, objType, propType);
+    }
+
     if (objType.type !== 'genericLiteral') {
         this.meta.addError(Errors.NonGenericPropertyLookup({
             expected: 'Array<T> | Object<K, V>',
@@ -2234,6 +2238,65 @@ function _findTypeInSingleContainer(node, objType, propType) {
 
     assert(valueType, 'expected valueType to exist');
     return valueType;
+};
+
+ASTVerifier.prototype._findTypeInTuple =
+function _findTypeInTuple(node, objType, propType) {
+    if (node.property.type === 'Literal' &&
+        propType.type === 'typeLiteral' &&
+        propType.name === 'Number' &&
+        propType.concreteValue !== null
+    ) {
+        var propIndex = propType.concreteValue;
+        if (objType.values[propIndex]) {
+            return objType.values[propIndex];
+        }
+
+        this.meta.addError(Errors.OutOfBoundsTupleAccess({
+            actual: this.meta.serializeType(objType),
+            index: propIndex,
+            actualLength: objType.values.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
+    } else if (
+        node.property.type === 'UnaryExpression' &&
+        node.property.operator === '-' &&
+        node.property.argument.type === 'Literal' &&
+        propType.type === 'typeLiteral' &&
+        propType.name === 'Number' &&
+        propType.concreteValue !== null
+    ) {
+        this.meta.addError(Errors.OutOfBoundsTupleAccess({
+            actual: this.meta.serializeType(objType),
+            index: propType.concreteValue,
+            actualLength: objType.values.length,
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
+    } else if (
+        propType.type === 'typeLiteral' &&
+        propType.name === 'Number'
+    ) {
+        this.meta.addError(Errors.DynamicTupleAccess({
+            actual: this.meta.serializeType(objType),
+            identifier: this.meta.serializeAST(node.property),
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
+        return null;
+    }
+
+    this.meta.addError(Errors.NonNumericTupleAccess({
+        actual: this.meta.serializeType(propType),
+        expected: 'Number',
+        tupleValue: this.meta.serializeType(objType),
+        loc: node.loc,
+        line: node.loc.start.line
+    }));
+    return null;
 };
 
 ASTVerifier.prototype._createNonExistantFieldError =
