@@ -1460,6 +1460,16 @@ function verifyUnaryExpression(node) {
 
     this.meta.checkSubType(node.argument, defn.args[0].value, firstType);
 
+    if (operator === '%Unary%%Minus' &&
+        firstType.type === 'typeLiteral' &&
+        firstType.name === 'Number' &&
+        firstType.concreteValue !== null
+    ) {
+        return JsigAST.literal('Number', true, {
+            concreteValue: -firstType.concreteValue
+        });
+    }
+
     return defn.result;
 };
 
