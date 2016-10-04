@@ -56,11 +56,15 @@ function checkSubType(node, parent, child) {
 
     var result;
 
-    if (parent.type === 'typeLiteral' && !parent.builtin) {
+    if (parent.type === 'typeLiteral' && !parent.builtin &&
+        !parent.isGeneric
+    ) {
         assert(false,
             'parent cannot be non-builtin type literal: ' + parent.name);
     }
-    if (child.type === 'typeLiteral' && !child.builtin) {
+    if (child.type === 'typeLiteral' && !child.builtin &&
+        !child.isGeneric
+    ) {
         assert(false,
             'child cannot be non-builtin type literal: ' + child.name);
     }
@@ -136,6 +140,12 @@ function checkTypeLiteralSubType(node, parent, child) {
         }
 
         if (parent.name !== child.name) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        if (parent.genericIdentifierUUID !==
+            child.genericIdentifierUUID
+        ) {
             return reportTypeMisMatch(node, parent, child);
         }
 
