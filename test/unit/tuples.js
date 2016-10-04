@@ -95,3 +95,94 @@ JSIGSnippet.test('accessing without numeric index', {
     assert.end();
 });
 
+JSIGSnippet.test('function inference for tuple', {
+    snippet: function m() {/*
+        function makeTuple(str, num) {
+            return [str, num];
+        }
+
+        var tuple = makeTuple('foo', 42);
+        tuple[0] + 'bar';
+        tuple[1] + 5;
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
+JSIGSnippet.test('passing a tuple to a function', {
+    snippet: function m() {/*
+        function makeTuple(str, num) {
+            return [str, num];
+        }
+
+        function getFirst(tuple) {
+            return tuple[0];
+        }
+
+        var tuple = makeTuple('foo', 42);
+        getFirst(tuple) + 'bar';
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
+JSIGSnippet.test('Explicit tuple functions', {
+    snippet: function m() {/*
+        function makeTuple1(str, num) {
+            return [str, num];
+        }
+        function makeTuple2(num, str) {
+            return [num, str];
+        }
+
+        function getFirst(tuple) {
+            return tuple[0];
+        }
+
+        var tuple1 = makeTuple1('foo', 42);
+        var tuple2 = makeTuple2(42, 'foo');
+
+        getFirst(tuple1) + 'bar';
+        getFirst(tuple2) + 10;
+    */},
+    header: function h() {/*
+        getFirst : <T, S>(tuple: [T, S]) => T
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
+JSIGSnippet.test('Explicit tuple functions 2', {
+    snippet: function m() {/*
+        function makeTuple1(str, num) {
+            return [str, num];
+        }
+        function makeTuple2(num, str) {
+            return [num, str];
+        }
+
+        function getSecond(tuple) {
+            return tuple[1];
+        }
+
+        var tuple1 = makeTuple1('foo', 42);
+        var tuple2 = makeTuple2(42, 'foo');
+
+        getSecond(tuple1) + 10;
+        getSecond(tuple2) + 'bar';
+    */},
+    header: function h() {/*
+        getSecond : <T, S>(tuple: [T, S]) => S
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
