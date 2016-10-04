@@ -228,6 +228,7 @@ ProgramMeta.prototype.verifyNode = function verifyNode(node, exprType) {
     }
 
     assert(exprType !== undefined, 'must pass in exprType');
+    assert(node, 'must pass in a node');
 
     if (node.leadingComments) {
         var lastCommentNode = node.leadingComments[
