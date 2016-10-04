@@ -283,6 +283,10 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
 
         if (stack[0] === 'args') {
             referenceNode = node.arguments[stack[1]];
+            if (!referenceNode) {
+                return null;
+            }
+
             newType = this.meta.verifyNode(referenceNode, null);
             if (!newType) {
                 return null;
