@@ -76,3 +76,5 @@ JSIGSnippet.test('disallow writing supertypes into generics', function m() {/*
 
     assert.end();
 });
+
+// TODO: alias an empty array and mutate it twice...
