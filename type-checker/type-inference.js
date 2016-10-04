@@ -179,7 +179,7 @@ function _inferTupleExpression(node) {
     var tupleTypes = this.meta.currentExpressionType.values;
 
     for (var i = 0; i < node.elements.length; i++) {
-        var expected = tupleTypes[i];
+        var expected = tupleTypes[i] || null;
 
         values[i] = this.meta.verifyNode(node.elements[i], expected);
         if (!values[i]) {
