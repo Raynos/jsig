@@ -186,3 +186,21 @@ JSIGSnippet.test('Explicit tuple functions 2', {
     assert.end();
 });
 
+JSIGSnippet.test('delayed function inference for tuple', {
+    snippet: function m() {/*
+        function makeTuple(str, num) {
+            var tuple = [null, null];
+            tuple[0] = str;
+            tuple[1] = num;
+            return tuple;
+        }
+
+        var tuple = makeTuple('foo', 42);
+        tuple[0] + 'bar';
+        tuple[1] + 5;
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
