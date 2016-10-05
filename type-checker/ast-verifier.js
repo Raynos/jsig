@@ -320,30 +320,42 @@ function verifyAssignmentExpression(node) {
         this.meta.checkSubType(node, leftType, rightType);
     }
 
-    if (node.left.type === 'Identifier' && isNullDefault) {
-        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+    if (isNullDefault) {
+        if (node.left.type === 'Identifier') {
+            this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+        } else {
+            assert(false, 'Cannot forceUpdateVar() Null%%Default');
+        }
     }
-    if (node.left.type === 'Identifier' && isVoidUninitialized) {
-        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+    if (isVoidUninitialized) {
+        if (node.left.type === 'Identifier') {
+            this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+        } else {
+            assert(false, 'Cannot forceUpdateVar() Void%%Uninitialized');
+        }
     }
 
-    if (isOpenField && node.left.type === 'MemberExpression' &&
-        node.left.property.type === 'Identifier' &&
-        // Cannot track new type for nested objected assignment
-        node.left.object.type === 'Identifier'
-    ) {
-        var propertyName = node.left.property.name;
-        var targetType = this.meta.verifyNode(node.left.object, null);
+    if (isOpenField) {
+        if (node.left.type === 'MemberExpression' &&
+            node.left.property.type === 'Identifier' &&
+            // Cannot track new type for nested objected assignment
+            node.left.object.type === 'Identifier'
+        ) {
+            var propertyName = node.left.property.name;
+            var targetType = this.meta.verifyNode(node.left.object, null);
 
-        var newObjType = updateObject(
-            targetType, [propertyName], rightType
-        );
-        newObjType.open = targetType.open;
-        newObjType.brand = targetType.brand;
+            var newObjType = updateObject(
+                targetType, [propertyName], rightType
+            );
+            newObjType.open = targetType.open;
+            newObjType.brand = targetType.brand;
 
-        this.meta.currentScope.forceUpdateVar(
-            node.left.object.name, newObjType
-        );
+            this.meta.currentScope.forceUpdateVar(
+                node.left.object.name, newObjType
+            );
+        } else {
+            assert(false, 'Cannot forceUpdateVar() Mixed%%OpenField');
+        }
     }
 
     if (leftType.name === '%Export%%ModuleExports') {
