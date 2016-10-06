@@ -155,7 +155,9 @@ function inferArrayExpression(node) {
         values[i] = newType;
     }
 
-    return JsigAST.tuple(values);
+    return JsigAST.tuple(values, null, {
+        inferred: true
+    });
 };
 
 TypeInference.prototype._inferArrayExpression =
