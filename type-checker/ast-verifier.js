@@ -2080,7 +2080,7 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
         }
     }
 
-    // Naive intersection support, find first object.
+    // TODO: Naive intersection support, find first object.
     if (jsigType.type === 'intersectionType') {
         intersections = jsigType.intersections;
         for (i = 0; i < intersections.length; i++) {
