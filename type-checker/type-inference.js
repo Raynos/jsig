@@ -132,10 +132,16 @@ function inferArrayExpression(node) {
         );
     }
 
-    if (this.meta.currentExpressionType &&
-        this.meta.currentExpressionType.type === 'tuple'
-    ) {
+    var currExpr = this.meta.currentExpressionType;
+    if (currExpr && currExpr.type === 'tuple') {
         return this._inferTupleExpression(node);
+    }
+
+    if (currExpr && currExpr.type === 'genericLiteral' &&
+        currExpr.value.type === 'typeLiteral' &&
+        currExpr.value.name === 'Array' && currExpr.value.builtin
+    ) {
+        return this._inferArrayExpression(node);
     }
 
     var values = [];
@@ -150,21 +156,35 @@ function inferArrayExpression(node) {
     }
 
     return JsigAST.tuple(values);
+};
 
-    // var type = null;
-    // for (var i = 0; i < elems.length; i++) {
-    //     var newType = this.meta.verifyNode(elems[i], null);
-    //     if (type) {
-    //         assert(isSameType(newType, type), 'arrays must be homogenous');
-    //     }
-    //     type = newType;
-    // }
+TypeInference.prototype._inferArrayExpression =
+function _inferArrayExpression(node) {
+    var currExpr = this.meta.currentExpressionType;
 
-    // if (!type) {
-    //     return null;
-    // }
+    assert(currExpr && currExpr.type === 'genericLiteral' &&
+        currExpr.value.type === 'typeLiteral' &&
+        currExpr.value.name === 'Array' && currExpr.value.builtin,
+        'must be an array...'
+    );
 
-    // return JsigAST.generic(JsigAST.literal('Array'), [type]);
+    var arrayType = currExpr.generics[0];
+    var elems = node.elements;
+
+    var type = null;
+    for (var i = 0; i < elems.length; i++) {
+        var newType = this.meta.verifyNode(elems[i], arrayType);
+        if (type) {
+            assert(isSameType(newType, type), 'arrays must be homogenous');
+        }
+        type = newType;
+    }
+
+    if (!type) {
+        return null;
+    }
+
+    return JsigAST.generic(JsigAST.literal('Array'), [type]);
 };
 
 TypeInference.prototype._inferTupleExpression =
