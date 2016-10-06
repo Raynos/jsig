@@ -54,6 +54,7 @@ function IdentifierToken(defn, preloaded) {
     this.preloaded = preloaded || false;
     this.defn = defn;
     this.inferred = 'inferred' in defn ? defn.inferred : false;
+    this.aliasCount = 0;
 }
 
 BaseScope.prototype.addVar =
