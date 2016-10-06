@@ -49,6 +49,12 @@ function BaseScope(parent) {
     this.writableTokenLookup = false;
 }
 
+function IdentifierToken(defn, preloaded) {
+    this.type = 'variable';
+    this.preloaded = preloaded || false;
+    this.defn = defn;
+}
+
 BaseScope.prototype.addVar =
 function addVar(id, typeDefn) {
     if (this.identifiers[id]) {
@@ -57,11 +63,7 @@ function addVar(id, typeDefn) {
 
     assert(typeDefn, 'addVar() must have typeDefn');
 
-    var token = {
-        type: 'variable',
-        preloaded: false,
-        defn: typeDefn
-    };
+    var token = new IdentifierToken(typeDefn, false);
     this.identifiers[id] = token;
     return token;
 };
@@ -71,11 +73,7 @@ function preloadVar(id, typeDefn) {
     assert(!this.identifiers[id], 'identifier must not exist');
     assert(typeDefn, 'addVar() must have typeDefn');
 
-    var token = {
-        type: 'variable',
-        preloaded: true,
-        defn: typeDefn
-    };
+    var token = new IdentifierToken(typeDefn, true);
     this.identifiers[id] = token;
     return token;
 };
@@ -143,10 +141,7 @@ function forceUpdateVar(id, typeDefn) {
     assert(this.identifiers[id], 'identifier must already exist');
     assert(typeDefn, 'cannot force update to null');
 
-    var token = {
-        type: 'variable',
-        defn: typeDefn
-    };
+    var token = new IdentifierToken(typeDefn, false);
     this.identifiers[id] = token;
     return token;
 };
@@ -236,10 +231,7 @@ GlobalScope.prototype.getVirtualType = function getVirtualType(id) {
 };
 
 GlobalScope.prototype._addVar = function _addVar(id, typeDefn) {
-    this.identifiers[id] = {
-        type: 'variable',
-        defn: typeDefn
-    };
+    this.identifiers[id] = new IdentifierToken(typeDefn, false);
 };
 GlobalScope.prototype._addOperator = function _addOperator(id, typeDefn) {
     this.operators[id] = {
