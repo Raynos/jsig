@@ -203,3 +203,45 @@ JSIGSnippet.test('delayed function inference for tuple', {
 
     assert.end();
 });
+
+JSIGSnippet.test('convert tuple to array', function m() {/*
+    var foo = ["foo"];
+    foo.push("bar");
+
+    var isStr = "";
+    isStr = foo[1];
+*/}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test.skip('conditional tuples', {
+    snippet: function m() {/*
+        function makeTuple(source) {
+            var tuple = null;
+
+            if (source) {
+                var json = JSON.parse(source);
+                tuple = [null, json];
+            } else {
+                tuple = [new Error('no source'), null];
+            }
+
+            return tuple;
+        }
+
+        var tuple = makeTuple('foo');
+        if (tuple[1]) {
+            if (typeof tuple[1] === 'string') {
+                tuple[1] + 'foo';
+            }
+        }
+        if (tuple[0]) {
+            tuple[0].message;
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
