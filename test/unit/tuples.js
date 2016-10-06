@@ -189,10 +189,9 @@ JSIGSnippet.test('Explicit tuple functions 2', {
 JSIGSnippet.test('delayed function inference for tuple', {
     snippet: function m() {/*
         function makeTuple(str, num) {
-            var tuple = [null, null];
-            tuple[0] = str;
-            tuple[1] = num;
-            return tuple;
+            var val1 = str;
+            var val2 = num;
+            return [val1, val2];
         }
 
         var tuple = makeTuple('foo', 42);
