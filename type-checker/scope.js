@@ -32,7 +32,9 @@ module.exports = {
         type will be guessed via call-based inference on the
         first call site.
 
-    functionScopes : ...
+    functionScopes : A dictionary of FunctionScope instances
+        for functions in the file, or nested closures in a
+        function.
 
 */
 function BaseScope(parent) {
