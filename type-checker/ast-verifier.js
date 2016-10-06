@@ -2136,6 +2136,26 @@ function _findPropertyInObject(
             return JsigAST.literal('%Mixed%%UnknownExportsField', true);
         }
 
+        // Handle tuple -> array mis-inference
+        if (jsigType.type === 'tuple' && jsigType.inferred) {
+            // TODO: check that there is IdentifierToken
+            // for this `jsigType` and that is inferred=true
+
+            // Only safe to convert to array
+            // If there are no aliases
+            // Track aliases on the scope.IdentifierToken
+            // Increment alias count when
+            //  - VarStatement with init is reference
+            //  - Assignment where right hand side is reference
+
+            // Then we want to try() to convert to array
+            // and see if the property lookup succeeds
+            // if so change, forceUpdateVar() and set the
+            // inferred flag on the IdentifierToken to false
+
+            console.log('possibly misinferred tuple');
+        }
+
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
             line: node.loc.start.line,
