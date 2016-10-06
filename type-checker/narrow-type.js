@@ -117,6 +117,12 @@ function narrowTypeofExpression(node, ifBranch, elseBranch) {
                 identifier.name, JsigAST.literal('Number')
             );
         }
+    } else if (typeTagValue === 'string') {
+        if (ifBranch) {
+            ifBranch.restrictType(
+                identifier.name, JsigAST.literal('String')
+            );
+        }
     } else {
         // TODO: support other tags
         return null;
