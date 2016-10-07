@@ -70,6 +70,18 @@ function addVar(id, typeDefn) {
     return token;
 };
 
+BaseScope.prototype.markVarAsAlias =
+function markVarAsAlias(name, aliasName) {
+    console.log('markVarAsAlias()', name, aliasName);
+    var token = this.getVar(name);
+
+    if (token.type === 'variable' &&
+        token.inferred
+    ) {
+        token.aliasCount++;
+    }
+};
+
 BaseScope.prototype.preloadVar =
 function preloadVar(id, typeDefn) {
     assert(!this.identifiers[id], 'identifier must not exist');

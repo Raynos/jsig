@@ -1310,6 +1310,12 @@ function verifyVariableDeclaration(node) {
             return null;
         }
 
+        if (decl.init.type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                decl.init.name, id
+            );
+        }
+
         if (token) {
             this.meta.checkSubType(node, token.defn, type);
             type = token.defn;
