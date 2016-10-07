@@ -298,6 +298,12 @@ function verifyAssignmentExpression(node) {
         rightType = this.meta.verifyNode(node.right, leftType);
     }
 
+    if (node.right.type === 'Identifier') {
+        this.meta.currentScope.markVarAsAlias(
+            node.right.name, null
+        );
+    }
+
     if (!rightType) {
         return null;
     }
