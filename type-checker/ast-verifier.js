@@ -2138,22 +2138,14 @@ function _findPropertyInObject(
 
         // Handle tuple -> array mis-inference
         if (jsigType.type === 'tuple' && jsigType.inferred) {
-            // TODO: check that there is IdentifierToken
-            // for this `jsigType` and that is inferred=true
-
-            // Only safe to convert to array
-            // If there are no aliases
-            // Track aliases on the scope.IdentifierToken
-            // Increment alias count when
-            //  - VarStatement with init is reference
-            //  - Assignment where right hand side is reference
-
-            // Then we want to try() to convert to array
-            // and see if the property lookup succeeds
-            // if so change, forceUpdateVar() and set the
-            // inferred flag on the IdentifierToken to false
-
-            console.log('possibly misinferred tuple');
+            var newType = this._maybeConvertToArray(
+                node, jsigType, propertyName
+            );
+            if (newType) {
+                return this._findPropertyInType(
+                    node, newType, propertyName
+                );
+            }
         }
 
         this.meta.addError(Errors.NonObjectFieldAccess({
@@ -2191,6 +2183,80 @@ function _findPropertyInObject(
     var err = this._createNonExistantFieldError(node, propertyName);
     this.meta.addError(err);
     return null;
+};
+
+ASTVerifier.prototype._maybeConvertToArray =
+function _maybeConvertToArray(node, oldType, propertyName) {
+    // TODO: check that there is IdentifierToken
+    // for this `jsigType` and that is inferred=true
+
+    // Only safe to convert to array
+    // If there are no aliases
+    // Track aliases on the scope.IdentifierToken
+    // Increment alias count when
+    //  - VarStatement with init is reference
+    //  - Assignment where right hand side is reference
+
+    // Then we want to try() to convert to array
+    // and see if the property lookup succeeds
+    // if so change, forceUpdateVar() and set the
+    // inferred flag on the IdentifierToken to false
+
+    if (node.object.type !== 'Identifier') {
+        return null;
+    }
+
+    var identifierName = node.object.name;
+    var token = this.meta.currentScope.getVar(identifierName);
+
+    if (!token || !token.inferred || token.aliasCount > 0) {
+        return null;
+    }
+
+    var invalidArray = false;
+    var arrayItemType = oldType.values[0];
+    for (var i = 1; i < oldType.values.length; i++) {
+        var t = oldType.values[i];
+        if (!isSameType(t, arrayItemType)) {
+            invalidArray = true;
+            break;
+        }
+    }
+
+    if (invalidArray) {
+        return null;
+    }
+
+    var possibleArray = JsigAST.generic(
+        JsigAST.literal('Array'), [arrayItemType]
+    );
+
+    var prevErrors = this.meta.getErrors();
+    var beforeErrors = this.meta.countErrors();
+
+    var lookupType = this._findPropertyInType(
+        node, possibleArray, propertyName
+    );
+
+    var afterErrors = this.meta.countErrors();
+
+    // Could not resolve MemberExpression with array.
+    if (!lookupType || (beforeErrors !== afterErrors)) {
+        this.meta.setErrors(prevErrors);
+        return null;
+    }
+
+    // Convert tuple identifier -> array identifier
+    this.meta.currentScope.forceUpdateVar(identifierName, possibleArray);
+
+    // console.log('possibly misinferred tuple', {
+    //     jsigType: this.meta.serializeType(oldType),
+    //     token: token,
+    //     node: node,
+    //     possibleArray: this.meta.serializeType(possibleArray)
+    // });
+
+    return possibleArray;
 };
 
 ASTVerifier.prototype._findTypeInContainer =
