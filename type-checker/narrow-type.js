@@ -106,11 +106,18 @@ function narrowTypeofExpression(node, ifBranch, elseBranch) {
         return null;
     }
 
-    var typeTagNode = node.right;
     if (node.right.type !== 'Literal') {
         // Right hand side of equal operator
         return null;
     }
+
+    return this._narrowByTypeofTag(node, ifBranch, elseBranch);
+};
+
+NarrowType.prototype._narrowByTypeofTag =
+function _narrowByTypeofTag(node, ifBranch, elseBranch) {
+    var identifier = node.left.argument;
+    var typeTagNode = node.right;
 
     var typeTagValue = typeTagNode.value;
     if (typeTagValue === 'number') {
