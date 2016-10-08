@@ -20,7 +20,7 @@ require('./parser/integration/error.js');
 require('./parser/integration/continuable-mongo.js');
 require('./parser/integration/jsonml-stringify.js');
 
-// require('./unit/generics.js');
+require('./unit/generics.js');
 require('./unit/function-inference.js');
 require('./unit/optional-fields.js');
 require('./unit/union-folding.js');
@@ -36,6 +36,7 @@ require('./unit/prototype-inheritance.js');
 require('./unit/multiple-returns.js');
 require('./unit/narrow-mixed.js');
 require('./unit/optional-functions.js');
+require('./unit/tuples.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
