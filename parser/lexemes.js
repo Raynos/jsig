@@ -16,7 +16,7 @@ var lexemes = {
     quote: lexeme(Parsimmon.regex(/['"]/)),
     identifier: lexeme(Parsimmon.regex(/[a-z\-\/]+/i)),
     assignmentIdentifier: lexeme(
-        Parsimmon.regex(/[a-z+*/%<=>!\|\-\/\\]+/i)
+        Parsimmon.regex(/[a-z0-9+*/%<=>!\|\-\/\\]+/i)
     ),
     moduleName: lexeme(Parsimmon.regex(/[a-z0-9_\-\/\.]+/i)),
     labelName: lexeme(Parsimmon.regex(/[a-z0-9_\?]+/i)),
