@@ -138,6 +138,18 @@ function isSameType(left, right) {
         }
 
         return true;
+    } else if (left.type === 'tuple') {
+        if (left.values.length !== right.values.length) {
+            return false;
+        }
+
+        for (i = 0; i < left.values.length; i++) {
+            if (!isSameType(left.values[i], right.values[i])) {
+                return false;
+            }
+        }
+
+        return true;
     } else {
         assert(false, 'isSameType unexpected type: ' + left.type);
     }
