@@ -923,6 +923,12 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         }
 
         this.meta.checkSubType(node.arguments[i], wantedType, actualType);
+
+        if (node.arguments[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                node.arguments[i].name, null
+            );
+        }
     }
 
     // TODO: figure out thisType in call verification
