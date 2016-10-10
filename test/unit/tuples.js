@@ -496,7 +496,7 @@ JSIGSnippet.test('cannot convert re-typed var tuple', {
     assert.end();
 });
 
-JSIGSnippet.test.skip('conditional tuples', {
+JSIGSnippet.test('conditional tuples', {
     snippet: function m() {/*
         function makeTuple(source) {
             var tuple = null;
@@ -513,16 +513,21 @@ JSIGSnippet.test.skip('conditional tuples', {
 
         var tuple = makeTuple('foo');
         if (tuple[1]) {
-            if (typeof tuple[1] === 'string') {
-                tuple[1] + 'foo';
+            var maybeJson = tuple[1];
+            if (typeof maybeJson === 'string') {
+                maybeJson + 'foo';
             }
         }
+
         if (tuple[0]) {
             tuple[0].message;
         }
     */}
 }, function t(snippet, assert) {
-    snippet.compileAndCheck(assert);
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0);
+    // console.log('first', meta.errors[0]);
 
     assert.end();
 });

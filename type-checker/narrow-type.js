@@ -324,6 +324,9 @@ function _narrowTupleMemberExpression(
     if (ifBranch && ifType) {
         updateObjectAndRestrict(ifBranch, objType, keyPath, ifType);
     }
+    if (elseBranch && elseType) {
+        updateObjectAndRestrict(elseBranch, objType, keyPath, elseType);
+    }
 
     return null;
 };
