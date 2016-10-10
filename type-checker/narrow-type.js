@@ -226,6 +226,28 @@ function narrowLogicalExpression(node, ifBranch, elseBranch) {
     }
 };
 
+function isTuple(jsigType) {
+    if (!jsigType) {
+        return false;
+    }
+
+    if (jsigType.type === 'tuple') {
+        return true;
+    }
+
+    if (jsigType.type !== 'unionType') {
+        return false;
+    }
+
+    for (var i = 0; i < jsigType.unions.length; i++) {
+        if (jsigType.unions[i].type !== 'tuple') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 NarrowType.prototype.narrowMemberExpression =
 function narrowMemberExpression(node, ifBranch, elseBranch) {
     // Type of field itself
@@ -236,6 +258,14 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
 
     // Cannot narrow based on object index operator
     if (node.computed) {
+        var objType = this.meta.verifyNode(node.object, null);
+
+        if (isTuple(objType)) {
+            return this._narrowTupleMemberExpression(
+                node, ifBranch, elseBranch, fieldType, objType
+            );
+        }
+
         return null;
     }
 
@@ -270,6 +300,39 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
         updateObjectAndRestrict(elseBranch, targetType, keyPath, elseType);
     }
     // TODO: support nullable field check
+};
+
+NarrowType.prototype._narrowTupleMemberExpression =
+function _narrowTupleMemberExpression(
+    node, ifBranch, elseBranch, fieldType, objType
+) {
+    var ifType = getUnionWithoutBool(fieldType, true);
+    var elseType = getUnionWithoutBool(fieldType, false);
+
+    console.log('narrow computed()', {
+        node: this.meta.serializeAST(node),
+        fieldType: this.meta.serializeType(fieldType),
+        ifType: this.meta.serializeType(ifType),
+        elseType: this.meta.serializeType(elseType)
+    });
+
+    // only support direct checks
+    if (node.object.type !== 'Identifier' ||
+        node.property.type !== 'Literal'
+    ) {
+        return null;
+    }
+
+    var name = node.object.name;
+    var numeralLiteral = node.property.value;
+
+    var keyPath = [name, numeralLiteral];
+
+    if (ifBranch && ifType) {
+        updateObjectAndRestrict(ifBranch, objType, keyPath, ifType);
+    }
+
+    return null;
 };
 
 function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
