@@ -73,6 +73,29 @@ function checkSubType(node, parent, child) {
     // console.log('parent: ' + this.meta.serializeType(parent));
     // console.log('child: ' + this.meta.serializeType(child));
 
+    if (parent.type !== 'unionType' && child.type === 'unionType') {
+        /* handle assigning union into parent */
+
+        // TODO: better error message?
+        for (var i = 0; i < child.unions.length; i++) {
+            result = this._checkSubType(node, parent, child.unions[i]);
+            if (result) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    result = this._checkSubType(node, parent, child);
+    assert(typeof result !== 'boolean', 'must return error or null');
+    return result;
+};
+
+SubTypeChecker.prototype._checkSubType =
+function _checkSubType(node, parent, child) {
+    var result;
+
     if (parent === child) {
         result = null;
     } else if (parent.type === 'typeLiteral') {
@@ -97,9 +120,8 @@ function checkSubType(node, parent, child) {
         throw new Error('not implemented sub type: ' + parent.type);
     }
 
-    assert(typeof result !== 'boolean', 'must return error or null');
     return result;
-};
+}
 
 SubTypeChecker.prototype._checkSpecialTypeLiteralSubType =
 function _checkSpecialTypeLiteralSubType(node, parent, child) {
