@@ -2395,7 +2395,7 @@ function addPossibleType(list, maybeType) {
     }
 
     for (var i = 0; i < maybeType.unions.length; i++) {
-        list.push(maybeType.unions[i]);
+        addPossibleType(list, maybeType.unions[i]);
     }
 }
 
