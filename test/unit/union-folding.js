@@ -48,11 +48,10 @@ JSIGSnippet.test('fold empty object into optional object', {
 
     assert.equal(errors.length, 1);
 
-    assert.equal(errors[0].type, 'jsig.verify.non-existant-field');
+    assert.equal(errors[0].type, 'jsig.verify.accessing-field-on-union');
     assert.equal(errors[0].fieldName, 'foo');
-    assert.equal(errors[0].objName, 'b');
+    assert.equal(errors[0].unionType, '{ fieldOne?: String } | {}');
     assert.equal(errors[0].line, 9);
-    assert.equal(errors[0].actual, '{ fieldOne?: String }');
 
     assert.end();
 });
@@ -82,11 +81,10 @@ JSIGSnippet.test('fold empty object into optional object reverse', {
 
     assert.equal(errors.length, 1);
 
-    assert.equal(errors[0].type, 'jsig.verify.non-existant-field');
+    assert.equal(errors[0].type, 'jsig.verify.accessing-field-on-union');
     assert.equal(errors[0].fieldName, 'foo');
-    assert.equal(errors[0].objName, 'b');
+    assert.equal(errors[0].unionType, '{} | { fieldOne?: String }');
     assert.equal(errors[0].line, 9);
-    assert.equal(errors[0].actual, '{}');
 
     assert.end();
 });

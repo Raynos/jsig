@@ -2360,18 +2360,20 @@ function _computeSmallestCommonTypes(node, list) {
         var toAdd = sample;
 
         for (var j = 0; j < minimal.length; j++) {
-            if (isSameType(sample, minimal[j])) {
+            var possible = minimal[j];
+
+            if (isSameType(sample, possible)) {
                 toAdd = null;
                 break;
             }
 
             /* if a super type of the other then remove from union */
             // TODO: this seems so naive...
-            var isSuper = this.meta.isSubType(node, minimal[j], sample);
-            if (isSuper) {
-                toAdd = null;
-                break;
-            }
+            // var isSuper = this.meta.isSubType(node, possible, sample);
+            // if (isSuper) {
+            //     toAdd = null;
+            //     break;
+            // }
         }
 
         if (toAdd) {
