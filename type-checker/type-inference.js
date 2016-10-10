@@ -210,6 +210,12 @@ function inferObjectExpression(node) {
             expectedType = index[keyName];
         }
 
+        if (prop.value.type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                prop.value.name, null
+            );
+        }
+
         var value = this.meta.verifyNode(prop.value, expectedType);
         if (!value) {
             return null;
