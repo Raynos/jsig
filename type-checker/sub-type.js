@@ -121,7 +121,7 @@ function _checkSubType(node, parent, child) {
     }
 
     return result;
-}
+};
 
 SubTypeChecker.prototype._checkSpecialTypeLiteralSubType =
 function _checkSpecialTypeLiteralSubType(node, parent, child) {
