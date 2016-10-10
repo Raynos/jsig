@@ -707,3 +707,42 @@ BranchScope.prototype.getKnownFunctionScope =
 function getKnownFunctionScope(funcName) {
     return this.parent.getKnownFunctionScope(funcName);
 };
+
+/*
+    This permanently mutates the read-only and write-only
+    state of a variable.
+
+    When this is applied it must be applied up the chain if
+    necessary as it changes the type inside and outside a scope
+
+    However, if the type of the variable currently is
+    Null%%Default or Void%%Uninitialized then only locally
+    mark it as a new identifier
+*/
+BranchScope.prototype.forceUpdateVar =
+function forceUpdateVar(id, typeDefn) {
+    var currentType = this.getVar(id);
+    var token;
+    if (currentType && currentType.defn &&
+        currentType.defn.type === 'typeLiteral' &&
+        (
+            currentType.defn.name === '%Null%%Default' ||
+            currentType.defn.name === '%Void%%Uninitialized'
+        )
+    ) {
+        assert(typeDefn, 'cannot force update to null');
+
+        return this.restrictType(id, typeDefn);
+    }
+
+    if (!this.identifiers[id] && this.parent) {
+        return this.parent.forceUpdateVar(id, typeDefn);
+    }
+
+    assert(this.identifiers[id], 'identifier must already exist');
+    assert(typeDefn, 'cannot force update to null');
+
+    token = new IdentifierToken(typeDefn, false);
+    this.identifiers[id] = token;
+    return token;
+};
