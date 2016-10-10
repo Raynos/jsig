@@ -2153,6 +2153,38 @@ function _findPropertyInObject(
 
 ASTVerifier.prototype._findTypeInContainer =
 function _findTypeInContainer(node, objType, propType) {
+    // Do union logic
+    if (objType.type === 'unionType') {
+        var unionTypes = [];
+        for (var i = 0; i < objType.unions.length; i++) {
+            var valueType = this._findTypeInSingleContainer(
+                node, objType.unions[i], propType
+            );
+
+            if (!valueType) {
+                return null;
+            }
+
+            unionTypes.push(valueType);
+        }
+
+        var union = this._computeSmallestUnion(
+            node, JsigAST.union(unionTypes)
+        );
+
+        // console.log('_findTypeInContainer()', {
+        //     unionTypes: unionTypes.map(this.meta.serializeType),
+        //     union: this.meta.serializeType(union)
+        // });
+
+        return union;
+    }
+
+    return this._findTypeInSingleContainer(node, objType, propType);
+};
+
+ASTVerifier.prototype._findTypeInSingleContainer =
+function _findTypeInSingleContainer(node, objType, propType) {
     var valueType;
 
     if (objType.type !== 'genericLiteral') {
