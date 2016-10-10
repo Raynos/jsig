@@ -147,6 +147,12 @@ function inferArrayExpression(node) {
     var values = [];
 
     for (var i = 0; i < elems.length; i++) {
+        if (elems[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                elems[i].name, null
+            );
+        }
+
         var newType = this.meta.verifyNode(elems[i], null);
         if (!newType) {
             return null;
@@ -175,6 +181,12 @@ function _inferArrayExpression(node) {
 
     var type = null;
     for (var i = 0; i < elems.length; i++) {
+        if (elems[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                elems[i].name, null
+            );
+        }
+
         var newType = this.meta.verifyNode(elems[i], arrayType);
         if (type) {
             assert(isSameType(newType, type), 'arrays must be homogenous');
@@ -202,6 +214,12 @@ function _inferTupleExpression(node) {
 
     for (var i = 0; i < node.elements.length; i++) {
         var expected = tupleTypes[i] || null;
+
+        if (node.elements[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                node.elements[i].name, null
+            );
+        }
 
         values[i] = this.meta.verifyNode(node.elements[i], expected);
         if (!values[i]) {
