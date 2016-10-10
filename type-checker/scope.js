@@ -73,6 +73,7 @@ function addVar(id, typeDefn) {
 BaseScope.prototype.markVarAsAlias =
 function markVarAsAlias(name, aliasName) {
     var token = this.getVar(name);
+    assert(token, 'expected token to exist: ' + name);
 
     if (token.type === 'variable' && token.inferred) {
         token.aliasCount++;
@@ -303,6 +304,25 @@ function setExportedIdentifier(name) {
     this.exportedIdentifier = name;
 };
 
+FileScope.prototype.markVarAsAlias =
+function markVarAsAlias(name, aliasName) {
+    var token = this.getVar(name);
+
+    if (!token) {
+        /* skip mark alias for untyped functions */
+        var untyped = this.getUntypedFunction(name);
+        if (untyped) {
+            return null;
+        }
+    }
+
+    assert(token, 'expected token to exist: ' + name);
+
+    if (token.type === 'variable' && token.inferred) {
+        token.aliasCount++;
+    }
+};
+
 FileScope.prototype.addFunction =
 function addFunction(id, node) {
     assert(!this.identifiers[id], 'cannot shadow identifier');
@@ -429,6 +449,25 @@ function loadTypes(funcNode, typeDefn) {
 FunctionScope.prototype.getThisType =
 function getThisType() {
     return this._thisValueType;
+};
+
+FunctionScope.prototype.markVarAsAlias =
+function markVarAsAlias(name, aliasName) {
+    var token = this.getVar(name);
+
+    if (!token) {
+        /* skip mark alias for untyped functions */
+        var untyped = this.getUntypedFunction(name);
+        if (untyped) {
+            return null;
+        }
+    }
+
+    assert(token, 'expected token to exist: ' + name);
+
+    if (token.type === 'variable' && token.inferred) {
+        token.aliasCount++;
+    }
 };
 
 FunctionScope.prototype.addFunction = function addFunction(id, node) {
