@@ -677,13 +677,15 @@ BranchScope.prototype.restrictType = function restrictType(id, type) {
     assert(type, 'cannot restrict to null');
     if (id === 'this') {
         this._restrictedThisValueType = type;
-        return;
+        return null;
     }
 
-    this.typeRestrictions[id] = {
+    var token = {
         type: 'restriction',
         defn: type
     };
+    this.typeRestrictions[id] = token;
+    return token;
 };
 
 BranchScope.prototype.enterReturnStatement =
