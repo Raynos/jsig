@@ -303,7 +303,9 @@ function verifyAssignmentExpression(node) {
             node.right.name, null
         );
     }
-    if (node.left.type === 'Identifier' && !rightType.inferred) {
+    if (rightType && node.left.type === 'Identifier' &&
+        !rightType.inferred
+    ) {
         var token = this.meta.currentScope.getVar(node.left.name);
         token.inferred = false;
     }
