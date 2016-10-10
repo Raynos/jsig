@@ -1435,6 +1435,13 @@ function verifyIfStatement(node) {
         if (isSameType(ifType.defn, elseType.defn)) {
             isRestricted.push(name);
             this.meta.currentScope.restrictType(name, ifType.defn);
+        } else {
+            var union = this._computeSmallestUnion(
+                node, ifType.defn, elseType.defn
+            );
+
+            isRestricted.push(name);
+            this.meta.currentScope.restrictType(name, union);
         }
     }
 
