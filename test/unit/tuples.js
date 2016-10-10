@@ -215,6 +215,287 @@ JSIGSnippet.test('convert tuple to array', function m() {/*
     assert.end();
 });
 
+JSIGSnippet.test('cannot convert aliased tuple', function m() {/*
+    var foo = ["foo"];
+    var bar = foo;
+
+    foo.pop();
+
+    bar[0] + '5';
+*/}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 4);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert object-aliased tuple', function m() {/*
+    var foo = ["foo"];
+    var bar = {
+        foo: ["bar"]
+    };
+
+    bar.foo = foo;
+
+    foo.pop();
+
+    bar.foo[0] + '5';
+*/}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 8);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert object-literal-aliased tuple', {
+    snippet: function m() {/*
+        var foo = ["foo"];
+        var bar = {
+            foo: foo
+        };
+
+        foo.pop();
+
+        bar.foo[0] + '5';
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 6);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert tuple-literal-aliased tuple', {
+    snippet: function m() {/*
+        var foo = ["foo"];
+        var bar = [foo];
+
+        foo.pop();
+
+        bar[0][0] + '5';
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 4);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert array-literal-aliased tuple', {
+    snippet: function m() {/*
+        var foo = ["foo"];
+        var bar = [foo];
+
+        foo.pop();
+
+        bar[0][0] + '5';
+    */},
+    header: function h() {/*
+        bar : Array<[String]>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 4);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert explicit-tuple-literal-aliased tuple', {
+    snippet: function m() {/*
+        var foo = ["foo"];
+        var bar = [foo];
+
+        foo.pop();
+
+        bar[0][0] + '5';
+    */},
+    header: function h() {/*
+        bar : [[String]]
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 4);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert object-field tuple', {
+    snippet: function m() {/*
+        var foo = {
+            bar: ['baz']
+        };
+
+        foo.bar.pop();
+
+        foo.bar[0] + '5';
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 5);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert function-call-aliased tuple', {
+    snippet: function m() {/*
+        var foo = ['bar'];
+
+        doSomething(foo);
+
+        foo.pop();
+    */},
+    header: function h() {/*
+        doSomething : ([String]) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 5);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert explicitely typed tuple', {
+    snippet: function m() {/*
+        var foo = ['bar'];
+
+        foo.pop();
+    */},
+    header: function h() {/*
+        foo: [String]
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 3);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert explicitely typed tuple', {
+    snippet: function m() {/*
+        var bar = foo();
+
+        bar.pop();
+    */},
+    header: function h() {/*
+        foo: () => [String]
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 3);
+
+    assert.end();
+});
+
+JSIGSnippet.test('can convert return inferred tuple', {
+    snippet: function m() {/*
+        function foo() {
+            return ["bar"];
+        }
+
+        var bar = foo();
+
+        bar.pop();
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot convert explicitely typed tuple', {
+    snippet: function m() {/*
+        var bar = ['foo'];
+        bar = foo();
+
+        bar.pop();
+    */},
+    header: function h() {/*
+        foo: () => [String]
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
+    assert.equal(err.fieldName, 'pop');
+    assert.equal(err.nonObjectType, '[String]');
+    assert.equal(err.line, 4);
+
+    assert.end();
+});
+
 JSIGSnippet.test.skip('conditional tuples', {
     snippet: function m() {/*
         function makeTuple(source) {
