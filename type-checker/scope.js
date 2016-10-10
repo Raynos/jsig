@@ -72,6 +72,11 @@ function addVar(id, typeDefn) {
 
 BaseScope.prototype.markVarAsAlias =
 function markVarAsAlias(name, aliasName) {
+    if (name === 'undefined') {
+        // FFFF---
+        return null;
+    }
+
     var token = this.getVar(name);
     assert(token, 'expected token to exist: ' + name);
 
@@ -306,6 +311,11 @@ function setExportedIdentifier(name) {
 
 FileScope.prototype.markVarAsAlias =
 function markVarAsAlias(name, aliasName) {
+    if (name === 'undefined') {
+        // FFFF---
+        return null;
+    }
+
     var token = this.getVar(name);
 
     if (!token) {
@@ -453,6 +463,11 @@ function getThisType() {
 
 FunctionScope.prototype.markVarAsAlias =
 function markVarAsAlias(name, aliasName) {
+    if (name === 'undefined') {
+        // FFFF---
+        return null;
+    }
+
     var token = this.getVar(name);
 
     if (!token) {
