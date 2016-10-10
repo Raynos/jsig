@@ -309,13 +309,6 @@ function _narrowTupleMemberExpression(
     var ifType = getUnionWithoutBool(fieldType, true);
     var elseType = getUnionWithoutBool(fieldType, false);
 
-    console.log('narrow computed()', {
-        node: this.meta.serializeAST(node),
-        fieldType: this.meta.serializeType(fieldType),
-        ifType: this.meta.serializeType(ifType),
-        elseType: this.meta.serializeType(elseType)
-    });
-
     // only support direct checks
     if (node.object.type !== 'Identifier' ||
         node.property.type !== 'Literal'
