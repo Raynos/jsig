@@ -433,7 +433,7 @@ JSIGSnippet.test('cannot convert explicitely typed tuple', {
     assert.end();
 });
 
-JSIGSnippet.test('cannot convert explicitely typed tuple', {
+JSIGSnippet.test('cannot convert function return typed tuple', {
     snippet: function m() {/*
         var bar = foo();
 
@@ -472,7 +472,7 @@ JSIGSnippet.test('can convert return inferred tuple', {
     assert.end();
 });
 
-JSIGSnippet.test('cannot convert explicitely typed tuple', {
+JSIGSnippet.test('cannot convert re-typed var tuple', {
     snippet: function m() {/*
         var bar = ['foo'];
         bar = foo();
