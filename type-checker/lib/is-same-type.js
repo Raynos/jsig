@@ -4,7 +4,7 @@ var assert = require('assert');
 
 module.exports = isSameType;
 
-/*eslint complexity: 0, max-statements: [2,60]*/
+/*eslint complexity: 0, max-statements: [2,80]*/
 function isSameType(left, right) {
     if (left === right) {
         return true;
