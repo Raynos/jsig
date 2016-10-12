@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint complexity: [2, 25] */
+
 var assert = require('assert');
 
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
