@@ -1435,11 +1435,11 @@ function verifyIfStatement(node) {
             narrowing and restricting.
     */
 
-    var keys = Object.keys(ifBranch.typeRestrictions);
-    for (var i = 0; i < keys.length; i++) {
-        var name = keys[i];
-        var ifType = ifBranch.typeRestrictions[name];
-        var elseType = elseBranch.typeRestrictions[name];
+    var restrictedTypes = ifBranch.getRestrictedTypes();
+    for (var i = 0; i < restrictedTypes.length; i++) {
+        var name = restrictedTypes[i];
+        var ifType = ifBranch.getOwnVar(name);
+        var elseType = elseBranch.getOwnVar(name);
 
         if (!ifType || !elseType) {
             continue;
@@ -1473,10 +1473,10 @@ function verifyIfStatement(node) {
         node.consequent.body.length === 1 &&
         node.consequent.body[0].type === 'ReturnStatement'
     ) {
-        keys = Object.keys(elseBranch.typeRestrictions);
-        for (i = 0; i < keys.length; i++) {
-            name = keys[i];
-            elseType = elseBranch.typeRestrictions[name];
+        restrictedTypes = elseBranch.getRestrictedTypes();
+        for (i = 0; i < restrictedTypes.length; i++) {
+            name = restrictedTypes[i];
+            elseType = elseBranch.getOwnVar(name);
 
             if (isRestricted.indexOf(name) === -1) {
                 this.meta.currentScope.restrictType(name, elseType.defn);
