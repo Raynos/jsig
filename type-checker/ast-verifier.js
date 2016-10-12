@@ -278,6 +278,7 @@ function verifyAssignmentExpression(node) {
     }
 
     var rightType;
+    beforeError = this.meta.countErrors();
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
@@ -297,22 +298,29 @@ function verifyAssignmentExpression(node) {
     } else {
         rightType = this.meta.verifyNode(node.right, leftType);
     }
+    afterError = this.meta.countErrors();
+
+    if (!rightType) {
+        return null;
+    }
 
     if (node.right.type === 'Identifier') {
         this.meta.currentScope.markVarAsAlias(
             node.right.name, null
         );
     }
-    if (rightType && node.left.type === 'Identifier' &&
-        !rightType.inferred
-    ) {
+    if (node.left.type === 'Identifier' && !rightType.inferred) {
         var token = this.meta.currentScope.getVar(node.left.name);
         token.inferred = false;
     }
-
-    if (!rightType) {
-        return null;
+    if (afterError === beforeError &&
+        node.left.type === 'Identifier' &&
+        this.meta.currentScope.type === 'branch' &&
+        !isSameType(leftType, rightType)
+    ) {
+        this.meta.currentScope.restrictType(node.left.name, rightType);
     }
+
 
     var isNullDefault = (
         leftType.type === 'typeLiteral' &&
