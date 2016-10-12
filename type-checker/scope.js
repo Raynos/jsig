@@ -564,6 +564,23 @@ function getFunctionScope() {
 /*
     restrictType() is used to create a typeRestriction which
     is a read only construct.
+
+    restrictType() is only done on a FunctionScope to apply
+    a consistent type restriction after an if statement, for
+    example:
+
+    ```
+    foo : Foo | null
+    if (!foo) {
+        foo = DEFAULT_FOO;
+    }
+    // type is restricted foo : Foo
+    ```
+
+    The other place where a type restriction can happen in
+    a FunctionScope ( or FileScope... ) is with an assert
+    statement. An assert(expr, msg) function call will restrict
+    the type of the expression.
 */
 FunctionScope.prototype.restrictType = function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
