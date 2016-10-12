@@ -1464,9 +1464,16 @@ function verifyIfStatement(node) {
     // If the `consequent` is a `ReturnStatement` then
     // copy over all type restrictions from the `elseBranch`
     // onto the current scope
+
+    var lastStatement = null;
+    if (node.consequent.type === 'BlockStatement') {
+        var statements = node.consequent.body;
+        lastStatement = statements[statements.length - 1];
+    }
+
     if (node.consequent.type === 'BlockStatement' &&
-        node.consequent.body.length === 1 &&
-        node.consequent.body[0].type === 'ReturnStatement'
+        node.consequent.body.length > 0 &&
+        lastStatement.type === 'ReturnStatement'
     ) {
         restrictedTypes = elseBranch.getRestrictedTypes();
         for (i = 0; i < restrictedTypes.length; i++) {
