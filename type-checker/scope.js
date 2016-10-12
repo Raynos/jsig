@@ -95,18 +95,18 @@ function preloadVar(id, typeDefn) {
     return token;
 };
 
-BaseScope.prototype.getVar = function getVar(id) {
+BaseScope.prototype.getVar = function getVar(id, isWritable) {
     // console.log('getVar(', id, ',', this.writableTokenLookup, ')');
-    if (this.writableTokenLookup) {
-        return this.identifiers[id] || this.parent.getVar(id);
+    if (isWritable || this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id, true);
     }
 
     return this.typeRestrictions[id] || this.identifiers[id] ||
-        this.parent.getVar(id);
+        this.parent.getVar(id, isWritable);
 };
 
-BaseScope.prototype.getOwnVar = function getOwnVar(id) {
-    if (this.writableTokenLookup) {
+BaseScope.prototype.getOwnVar = function getOwnVar(id, isWritable) {
+    if (isWritable || this.writableTokenLookup) {
         return this.identifiers[id];
     }
 
@@ -649,18 +649,18 @@ function getFunctionScope() {
     return parent;
 };
 
-BranchScope.prototype.getVar = function getVar(id) {
+BranchScope.prototype.getVar = function getVar(id, isWritable) {
     // console.log('getVar(', id, ',', this.writableTokenLookup, ')');
-    if (this.writableTokenLookup) {
-        return this.identifiers[id] || this.parent.getVar(id);
+    if (isWritable || this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id, true);
     }
 
     return this.typeRestrictions[id] || this.narrowedTypes[id] ||
-        this.identifiers[id] || this.parent.getVar(id);
+        this.identifiers[id] || this.parent.getVar(id, isWritable);
 };
 
-BranchScope.prototype.getOwnVar = function getOwnVar(id) {
-    if (this.writableTokenLookup) {
+BranchScope.prototype.getOwnVar = function getOwnVar(id, isWritable) {
+    if (isWritable || this.writableTokenLookup) {
         return this.identifiers[id];
     }
 
