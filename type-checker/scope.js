@@ -624,6 +624,8 @@ function BranchScope(parent) {
     this.type = 'branch';
 
     this._restrictedThisValueType = null;
+    this._narrowedThisValueType = null;
+    this.narrowedTypes = Object.create(null);
 }
 util.inherits(BranchScope, BaseScope);
 
@@ -633,7 +635,8 @@ function getThisType() {
         return this.parent.getThisType();
     }
 
-    return this._restrictedThisValueType || this.parent.getThisType();
+    return this._restrictedThisValueType ||
+        this._narrowedThisValueType || this.parent.getThisType();
 };
 
 BranchScope.prototype.getFunctionScope =
@@ -644,6 +647,25 @@ function getFunctionScope() {
     }
 
     return parent;
+};
+
+BranchScope.prototype.getVar = function getVar(id) {
+    // console.log('getVar(', id, ',', this.writableTokenLookup, ')');
+    if (this.writableTokenLookup) {
+        return this.identifiers[id] || this.parent.getVar(id);
+    }
+
+    return this.typeRestrictions[id] || this.narrowedTypes[id] ||
+        this.identifiers[id] || this.parent.getVar(id);
+};
+
+BranchScope.prototype.getOwnVar = function getOwnVar(id) {
+    if (this.writableTokenLookup) {
+        return this.identifiers[id];
+    }
+
+    return this.typeRestrictions[id] || this.narrowedTypes[id] ||
+        this.identifiers[id];
 };
 
 BranchScope.prototype.getUntypedFunction =
@@ -664,6 +686,24 @@ function updateFunction(id, defn) {
 BranchScope.prototype.revertFunction =
 function revertFunction(id, token) {
     return this.parent.revertFunction(id, token);
+};
+
+BranchScope.prototype.narrowType = function narrowType(id, type) {
+    // TODO: gaurd against double narrow ?
+    assert(!this.narrowedTypes[id], 'cannot doulbe narrow type: ' + id);
+    assert(type, 'cannot restrict to null');
+
+    if (id === 'this') {
+        this._narrowedThisValueType = type;
+        return null;
+    }
+
+    var token = {
+        type: 'narrowedType',
+        defn: type
+    };
+    this.narrowedTypes[id] = token;
+    return token;
 };
 
 BranchScope.prototype.restrictType = function restrictType(id, type) {
@@ -719,6 +759,7 @@ BranchScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
     var currentType = this.getVar(id);
     var token;
+
     if (currentType && currentType.defn &&
         currentType.defn.type === 'typeLiteral' &&
         (
