@@ -781,7 +781,7 @@ function getKnownFunctionScope(funcName) {
 */
 BranchScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
-    var currentType = this.getVar(id);
+    var currentType = this.getVar(id, true);
     var token;
 
     if (currentType && currentType.defn &&
