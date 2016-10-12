@@ -59,13 +59,13 @@ function narrowIdentifier(node, ifBranch, elseBranch) {
     if (ifBranch) {
         var ifType = getUnionWithoutBool(type, true);
         if (ifType) {
-            ifBranch.restrictType(node.name, ifType);
+            ifBranch.narrowType(node.name, ifType);
         }
     }
     if (elseBranch) {
         var elseType = getUnionWithoutBool(type, false);
         if (elseType) {
-            elseBranch.restrictType(node.name, elseType);
+            elseBranch.narrowType(node.name, elseType);
         }
     }
 };
@@ -122,13 +122,13 @@ function _narrowByTypeofTag(node, ifBranch, elseBranch) {
     var typeTagValue = typeTagNode.value;
     if (typeTagValue === 'number') {
         if (ifBranch) {
-            ifBranch.restrictType(
+            ifBranch.narrowType(
                 identifier.name, JsigAST.literal('Number')
             );
         }
     } else if (typeTagValue === 'string') {
         if (ifBranch) {
-            ifBranch.restrictType(
+            ifBranch.narrowType(
                 identifier.name, JsigAST.literal('String')
             );
         }
@@ -251,7 +251,7 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     );
 
     if (!isSameType(newType, objType)) {
-        branch.restrictType(keyPath[0], newType);
+        branch.narrowType(keyPath[0], newType);
     }
 }
 
