@@ -321,7 +321,6 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.restrictType(node.left.name, rightType);
     }
 
-
     var isNullDefault = (
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Null%%Default'
