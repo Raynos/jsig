@@ -1727,6 +1727,26 @@ function verifyTryStatement(node) {
     this.meta.enterBranchScope(catchBranch);
     this.meta.verifyNode(node.handler, null);
     this.meta.exitBranchScope();
+
+    var restrictedTypes = tryBranch.getRestrictedTypes();
+    for (var i = 0; i < restrictedTypes.length; i++) {
+        var name = restrictedTypes[i];
+        var tryType = tryBranch.getOwnVar(name);
+        var catchType = catchBranch.getOwnVar(name);
+
+        if (!tryType || !catchType) {
+            continue;
+        }
+
+        if (tryType.type === 'restriction' &&
+            catchType.type === 'restriction'
+        ) {
+            var union = this._computeSmallestUnion(
+                node, tryType.defn, catchType.defn
+            );
+            this.meta.currentScope.restrictType(name, union);
+        }
+    }
 };
 
 ASTVerifier.prototype.verifyCatchClause =
