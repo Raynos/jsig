@@ -688,6 +688,20 @@ function revertFunction(id, token) {
     return this.parent.revertFunction(id, token);
 };
 
+BranchScope.prototype.getRestrictedTypes =
+function getRestrictedTypes() {
+    var restricted = Object.keys(this.typeRestrictions);
+    var narrowed = Object.keys(this.narrowedTypes);
+
+    for (var i = 0; i < narrowed.length; i++) {
+        if (restricted.indexOf(narrowed[i]) === -1) {
+            restricted.push(narrowed[i]);
+        }
+    }
+
+    return restricted;
+};
+
 BranchScope.prototype.narrowType = function narrowType(id, type) {
     // TODO: gaurd against double narrow ?
     assert(!this.narrowedTypes[id], 'cannot doulbe narrow type: ' + id);
