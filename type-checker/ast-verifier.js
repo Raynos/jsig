@@ -271,7 +271,7 @@ function verifyAssignmentExpression(node) {
 
     if (!leftType) {
         if (afterError === beforeError) {
-            assert(false, '!!! could not find leftType: ',
+            assert(false, '!!! could not find leftType: ' +
                 this.meta.serializeAST(node));
         }
         return null;
@@ -1329,8 +1329,15 @@ function verifyVariableDeclaration(node) {
     if (decl.init) {
         var leftType = token ? token.defn : null;
 
+        var beforeErrors = this.meta.countErrors();
         type = this.meta.verifyNode(decl.init, leftType);
+        var afterErrors = this.meta.countErrors();
         if (!type) {
+            if (beforeErrors === afterErrors) {
+                assert(false, '!!! could not find initType: ' +
+                    this.meta.serializeAST(decl.init));
+            }
+
             this.meta.currentScope.addUnknownVar(id);
             return null;
         }
