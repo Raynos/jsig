@@ -1022,10 +1022,10 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         // We can copy over all type restrictions from the ifBranch
         // into the current scope of the call expression
 
-        var keys = Object.keys(ifBranch.typeRestrictions);
-        for (i = 0; i < keys.length; i++) {
-            var name = keys[i];
-            var ifType = ifBranch.typeRestrictions[name];
+        var restrictedTypes = ifBranch.getRestrictedTypes();
+        for (i = 0; i < restrictedTypes.length; i++) {
+            var name = restrictedTypes[i];
+            var ifType = ifBranch.getVar(name);
 
             this.meta.currentScope.restrictType(name, ifType.defn);
         }
