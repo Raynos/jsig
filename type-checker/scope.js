@@ -221,6 +221,40 @@ function _addFunctionOverloadScope(funcScope) {
     currScope.funcScopes.push(funcScope);
 };
 
+/*
+    restrictType() is used to create a typeRestriction which
+    is a read only construct.
+
+    restrictType() is only done on a FunctionScope to apply
+    a consistent type restriction after an if statement, for
+    example:
+
+    ```
+    foo : Foo | null
+    if (!foo) {
+        foo = DEFAULT_FOO;
+    }
+    // type is restricted foo : Foo
+    ```
+
+    The other place where a type restriction can happen in
+    a FunctionScope ( or FileScope... ) is with an assert
+    statement. An assert(expr, msg) function call will restrict
+    the type of the expression.
+*/
+BaseScope.prototype._restrictType =
+function restrictType(id, type) {
+    // TODO: gaurd against weird restrictions? ...
+    assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
+    assert(id !== 'this', 'cannot restrict this');
+    assert(type, 'cannot restrictType to null');
+
+    this.typeRestrictions[id] = {
+        type: 'restriction',
+        defn: type
+    };
+};
+
 function GlobalScope(checker) {
     this.checker = checker;
     this.parent = null;
@@ -395,6 +429,10 @@ function getKnownFunctionScope(funcName) {
     return this.functionScopes[funcName];
 };
 
+FileScope.prototype.restrictType = function restrictType(name, type) {
+    return this._restrictType(name, type);
+};
+
 function FunctionScope(parent, funcName, funcNode) {
     BaseScope.call(this, parent);
     this.type = 'function';
@@ -561,39 +599,6 @@ function getFunctionScope() {
     return this;
 };
 
-/*
-    restrictType() is used to create a typeRestriction which
-    is a read only construct.
-
-    restrictType() is only done on a FunctionScope to apply
-    a consistent type restriction after an if statement, for
-    example:
-
-    ```
-    foo : Foo | null
-    if (!foo) {
-        foo = DEFAULT_FOO;
-    }
-    // type is restricted foo : Foo
-    ```
-
-    The other place where a type restriction can happen in
-    a FunctionScope ( or FileScope... ) is with an assert
-    statement. An assert(expr, msg) function call will restrict
-    the type of the expression.
-*/
-FunctionScope.prototype.restrictType = function restrictType(id, type) {
-    // TODO: gaurd against weird restrictions? ...
-    assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
-    assert(id !== 'this', 'cannot restrict this');
-    assert(type, 'cannot restrictType to null');
-
-    this.typeRestrictions[id] = {
-        type: 'restriction',
-        defn: type
-    };
-};
-
 FunctionScope.prototype.addFunctionScope =
 function addFunctionScope(funcScope) {
     this._addFunctionScope(funcScope);
@@ -617,6 +622,11 @@ FunctionScope.prototype.getKnownFunctionScope =
 function getKnownFunctionScope(funcName) {
     return this.functionScopes[funcName] ||
         this.parent.getKnownFunctionScope(funcName);
+};
+
+FunctionScope.prototype.restrictType =
+function restrictType(name, type) {
+    return this._restrictType(name, type);
 };
 
 function BranchScope(parent) {
