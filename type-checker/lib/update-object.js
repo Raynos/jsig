@@ -40,18 +40,16 @@ function updateObject(targetType, keyPath, newValue) {
 
 function _updateUnion(targetType, keyPath, newValue) {
     var clone = cloneJSIG(targetType);
+    var oldUnions = clone.unions;
     var unions = clone.unions = [];
 
-    for (var i = 0; i < unions.length; i++) {
-        var possibleType = unions[i];
+    for (var i = 0; i < oldUnions.length; i++) {
+        var possibleType = oldUnions[i];
 
         var currentValue = findObject(possibleType, keyPath);
         if (isSameType(currentValue, newValue)) {
             unions.push(possibleType);
         }
-
-        // var newType = updateObject(possibleType, keyPath, newValue);
-        // unions[i] = newType;
     }
 
     return clone;
