@@ -89,20 +89,19 @@ function narrowTypeofExpression(node, ifBranch, elseBranch) {
         return null;
     }
 
-    if (node.operator !== '===') {
+    if (node.operator !== '===' && node.operator !== '!==') {
         // TODO: support !==, and others... ?
         return null;
     }
 
-    var type = this.meta.verifyNode(identifier, null);
-    if (!type) {
-        return null;
+    if (node.operator === '!==') {
+        var tempBranch = ifBranch;
+        ifBranch = elseBranch;
+        elseBranch = tempBranch;
     }
 
-    if (type.type !== 'typeLiteral' ||
-        !type.builtin || type.name !== '%Boolean%%Mixed'
-    ) {
-        // TODO: support narrowing other things then Mixed
+    var type = this.meta.verifyNode(identifier, null);
+    if (!type) {
         return null;
     }
 
@@ -111,32 +110,60 @@ function narrowTypeofExpression(node, ifBranch, elseBranch) {
         return null;
     }
 
-    return this._narrowByTypeofTag(node, ifBranch, elseBranch);
+    return this._narrowByTypeofTag(node, type, ifBranch, elseBranch);
 };
 
 NarrowType.prototype._narrowByTypeofTag =
-function _narrowByTypeofTag(node, ifBranch, elseBranch) {
+function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
     var identifier = node.left.argument;
     var typeTagNode = node.right;
 
     var typeTagValue = typeTagNode.value;
-    if (typeTagValue === 'number') {
+    if (typeTagValue === 'number' &&
+        containsLiteral(type, 'Number')
+    ) {
         if (ifBranch) {
             ifBranch.narrowType(
                 identifier.name, JsigAST.literal('Number')
             );
         }
-    } else if (typeTagValue === 'string') {
+        // TODO: elseBranch
+    } else if (typeTagValue === 'string' &&
+        containsLiteral(type, 'String')
+    ) {
         if (ifBranch) {
             ifBranch.narrowType(
                 identifier.name, JsigAST.literal('String')
             );
         }
+        // TODO: elseBranch
     } else {
         // TODO: support other tags
         return null;
     }
 };
+
+function containsLiteral(type, literalName) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return true;
+    }
+
+    if (type.type === 'unionType') {
+        for (var i = 0; i < type.unions.length; i++) {
+            var possibleType = type.unions[i];
+            if (possibleType.type === 'typeLiteral' &&
+                possibleType.builtin &&
+                possibleType.name === literalName
+            ) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 NarrowType.prototype.narrowLiteral =
 function narrowLiteral(node, ifBranch, elseBranch) {
