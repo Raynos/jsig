@@ -294,10 +294,14 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     var targetType = this.meta.verifyNode(parent, null);
 
     if (ifBranch && ifType) {
-        this._updateObjectAndRestrict(ifBranch, targetType, keyPath, ifType);
+        this._updateObjectAndRestrict(
+            ifBranch, targetType, keyPath, ifType
+        );
     }
     if (elseBranch && elseType) {
-        this._updateObjectAndRestrict(elseBranch, targetType, keyPath, elseType);
+        this._updateObjectAndRestrict(
+            elseBranch, targetType, keyPath, elseType
+        );
     }
     // TODO: support nullable field check
 };
