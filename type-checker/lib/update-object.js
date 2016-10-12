@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var JsigAST = require('../../ast/');
 var cloneJSIG = require('./clone-ast.js');
+var isSameType = require('./is-same-type.js');
 
 module.exports = updateObject;
 
@@ -39,16 +40,57 @@ function updateObject(targetType, keyPath, newValue) {
 
 function _updateUnion(targetType, keyPath, newValue) {
     var clone = cloneJSIG(targetType);
-    clone.unions = clone.unions.slice();
-    var unions = clone.unions;
+    var unions = clone.unions = [];
 
     for (var i = 0; i < unions.length; i++) {
         var possibleType = unions[i];
-        var newType = updateObject(possibleType, keyPath, newValue);
-        unions[i] = newType;
+
+        var currentValue = findObject(possibleType, keyPath);
+        if (isSameType(currentValue, newValue)) {
+            unions.push(possibleType);
+        }
+
+        // var newType = updateObject(possibleType, keyPath, newValue);
+        // unions[i] = newType;
     }
 
     return clone;
+}
+
+function findObject(targetType, keyPath) {
+    if (targetType.type === 'object') {
+        for (var i = 0; i < targetType.keyValues.length; i++) {
+            var pair = targetType.keyValues[i];
+            var fieldName = keyPath[0];
+
+            if (pair.key !== fieldName) {
+                continue;
+            }
+
+            var fieldValue;
+            if (keyPath.length === 1) {
+                fieldValue = pair.value;
+            } else {
+                fieldValue = findObject(pair.value, keyPath.slice(1));
+            }
+
+            return fieldValue;
+        }
+
+        return null;
+    } else if (targetType.type === 'tuple') {
+        var index = keyPath[0];
+
+        assert(keyPath.length === 1, 'only support trivial keyPath');
+        assert(typeof index === 'number', 'must be numeric index');
+        assert(index >= 0 && index <= targetType.values.length,
+            'index must be within values of tuple');
+
+        return targetType.values[index];
+    } else {
+        assert(false, 'unsupported type for findObject(): ' +
+            targetType.type);
+    }
 }
 
 function _updateIntersection(targetType, keyPath, newValue) {
