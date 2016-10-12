@@ -163,10 +163,6 @@ function forceUpdateVar(id, typeDefn) {
     return token;
 };
 
-BaseScope.prototype.updateRestriction =
-function updateRestriction() {
-};
-
 BaseScope.prototype.getGlobalType =
 function getGlobalType() {
     return this.parent.getGlobalType();
@@ -631,23 +627,6 @@ function getFunctionScope() {
     }
 
     return parent;
-};
-
-/*
-    updateRestriction() changes a type restriction.
-    Again a typeRestriction is a read only view.
-*/
-BranchScope.prototype.updateRestriction =
-function updateRestriction(id, typeDefn) {
-    var restriction = this.typeRestrictions[id];
-    if (!restriction) {
-        return;
-    }
-
-    this.typeRestrictions[id] = {
-        type: 'restriction',
-        defn: typeDefn
-    };
 };
 
 BranchScope.prototype.getUntypedFunction =
