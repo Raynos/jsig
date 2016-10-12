@@ -1430,11 +1430,6 @@ function verifyIfStatement(node) {
 
     var isRestricted = [];
 
-    /*  TODO: massive TODO...
-            Different data structures for
-            narrowing and restricting.
-    */
-
     var restrictedTypes = ifBranch.getRestrictedTypes();
     for (var i = 0; i < restrictedTypes.length; i++) {
         var name = restrictedTypes[i];
@@ -1448,20 +1443,21 @@ function verifyIfStatement(node) {
         if (isSameType(ifType.defn, elseType.defn)) {
             isRestricted.push(name);
             this.meta.currentScope.restrictType(name, ifType.defn);
-        } else {
-            // TODO: make this safe...
+        } else if (
+            ifType.type === 'restriction' &&
+            elseType.type === 'restriction'
+        ) {
+            var union = this._computeSmallestUnion(
+                node, ifType.defn, elseType.defn
+            );
 
-            // var union = this._computeSmallestUnion(
-            //     node, ifType.defn, elseType.defn
-            // );
-
-            // isRestricted.push(name);
+            isRestricted.push(name);
             // console.log('wtf', {
             //     scopeType: this.meta.currentScope.type,
             //     name: name,
             //     union: this.meta.serializeType(union)
             // });
-            // this.meta.currentScope.restrictType(name, union);
+            this.meta.currentScope.restrictType(name, union);
         }
     }
 
