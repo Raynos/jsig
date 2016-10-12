@@ -294,10 +294,10 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     var targetType = this.meta.verifyNode(parent, null);
 
     if (ifBranch && ifType) {
-        updateObjectAndRestrict(ifBranch, targetType, keyPath, ifType);
+        this._updateObjectAndRestrict(ifBranch, targetType, keyPath, ifType);
     }
     if (elseBranch && elseType) {
-        updateObjectAndRestrict(elseBranch, targetType, keyPath, elseType);
+        this._updateObjectAndRestrict(elseBranch, targetType, keyPath, elseType);
     }
     // TODO: support nullable field check
 };
@@ -322,15 +322,16 @@ function _narrowTupleMemberExpression(
     var keyPath = [name, numeralLiteral];
 
     if (ifBranch && ifType) {
-        updateObjectAndRestrict(ifBranch, objType, keyPath, ifType);
+        this._updateObjectAndRestrict(ifBranch, objType, keyPath, ifType);
     }
     if (elseBranch && elseType) {
-        updateObjectAndRestrict(elseBranch, objType, keyPath, elseType);
+        this._updateObjectAndRestrict(elseBranch, objType, keyPath, elseType);
     }
 
     return null;
 };
 
+NarrowType.prototype._updateObjectAndRestrict =
 function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     var newType = updateObject(
         objType, keyPath.slice(1), valueType
@@ -339,5 +340,5 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     if (!isSameType(newType, objType)) {
         branch.narrowType(keyPath[0], newType);
     }
-}
+};
 
