@@ -339,15 +339,15 @@ function _createHeaderFile(source, fileName) {
 };
 
 function tryResolveSync(fileName, basedir) {
-    var tuple = [null, null];
+    var tuple = null;
 
     /*eslint-disable no-restricted-syntax*/
     try {
-        tuple[1] = resolve.sync(fileName, {
+        tuple = [null, resolve.sync(fileName, {
             basedir: basedir
-        });
+        })];
     } catch (err) {
-        tuple[0] = err;
+        tuple = [err, null];
     }
     /*eslint-enable no-restricted-syntax*/
 
@@ -355,17 +355,17 @@ function tryResolveSync(fileName, basedir) {
 }
 
 function tryEsprimaParse(source) {
-    var tuple = [null, null];
+    var tuple = null;
 
     /*eslint-disable no-restricted-syntax*/
     try {
-        tuple[1] = esprima.parse(source, {
+        tuple = [null, esprima.parse(source, {
             loc: true,
             attachComment: true,
             comment: true
-        });
+        })];
     } catch (err) {
-        tuple[0] = err;
+        tuple = [err, null];
     }
     /*eslint-enable no-restricted-syntax*/
 
