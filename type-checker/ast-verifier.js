@@ -373,7 +373,7 @@ function verifyAssignmentExpression(node) {
                 node.left.object.name, newObjType
             );
         } else {
-            assert(false, 'Cannot forceUpdateVar() Mixed%%OpenField');
+            // TODO: anything to do here?
         }
     }
 
