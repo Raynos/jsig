@@ -393,6 +393,7 @@ function checkObjectSubType(node, parent, child) {
 
     // If parent has optional keys, then child must have
     // somewhere between "required keys" and "all keys"
+    // TODO: extra safety for objects with extra fields
     if (childFieldCount < minimumFields) {
         return Errors.IncorrectFieldCount({
             expected: serialize(parent._raw || parent),
