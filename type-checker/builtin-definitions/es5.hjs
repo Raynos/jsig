@@ -17,11 +17,21 @@ type TArray : {
 type TString : {
     length: Number,
     split: (this: String, String) => Array<String>,
-    replace: (this: String, RegExp, String) => String,
-    indexOf: (this: String, String) => Number,
+    replace: (this: String, regexp: RegExp, other: String) => String,
+    indexOf: (this: String, searchStr: String) => Number,
+    lastIndexOf : (this: String, searchStr: String) => Number,
     charAt : (this: String, index: Number) => String,
+    charCodeAt : (this: String, index: Number) => String,
     toUpperCase: (this: String) => String,
-    toString: (this: String) => String
+    concat: (this: String, other: String) => String,
+    toString: (this: String) => String,
+    match : (this: String, regexp: RegExp) => Array<String> | null,
+    search : (this: String, regexp: RegExp) => Number,
+    slice : (this: String, start: Number, end?: Number) => String,
+    substring : (this: String, start: Number, end?: Number) => String,
+    toLowerCase : (this: String) => String,
+    toUpperCase : (this: String) => String,
+    trim : (this: String) => String
 }
 
 type TObject : {
