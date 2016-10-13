@@ -1,0 +1,16 @@
+type JSNode : {
+    loc: {
+        start: {
+            line: Number
+        },
+        end: {
+            line: Number
+        }
+    }
+}
+
+esprima : {
+    parse : (source: String, opts: {
+
+    }) => JSNode
+}

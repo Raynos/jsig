@@ -1,16 +1,6 @@
 import { JsigType, JsigProgram } from "../ast/index.hjs"
 import { HeaderFile } from "./header-file.hjs"
-
-type JSNode : {
-    loc: {
-        start: {
-            line: Number
-        },
-        end: {
-            line: Number
-        }
-    }
-}
+import { JSNode } from "../_types/definitions/esprima.hjs"
 
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,
@@ -60,3 +50,12 @@ TypeChecker : {
 } & (
     this: TypeChecker, entryFile: String, options: TypeCheckerOpts
 ) => void
+
+tryEsprimaParse : (source: String) => (
+    [Error & {
+        lineNumber: Number,
+        description: String,
+        index: Number
+    }, null] |
+    [null, JSNode]
+)
