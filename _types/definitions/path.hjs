@@ -6,6 +6,8 @@ path : {
         ((String, String, String) => String)
     ),
 
+    extname: (String) => String,
+
     resolve : (String) => String,
 
     sep: String
