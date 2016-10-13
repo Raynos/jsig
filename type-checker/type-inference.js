@@ -132,15 +132,62 @@ function inferArrayExpression(node) {
         );
     }
 
-    if (this.meta.currentExpressionType &&
-        this.meta.currentExpressionType.type === 'tuple'
-    ) {
+    var currExpr = this.meta.currentExpressionType;
+    if (currExpr && currExpr.type === 'tuple') {
         return this._inferTupleExpression(node);
     }
 
+    if (currExpr && currExpr.type === 'genericLiteral' &&
+        currExpr.value.type === 'typeLiteral' &&
+        currExpr.value.name === 'Array' && currExpr.value.builtin
+    ) {
+        return this._inferArrayExpression(node);
+    }
+
+    var values = [];
+
+    for (var i = 0; i < elems.length; i++) {
+        if (elems[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                elems[i].name, null
+            );
+        }
+
+        var newType = this.meta.verifyNode(elems[i], null);
+        if (!newType) {
+            return null;
+        }
+
+        values[i] = newType;
+    }
+
+    return JsigAST.tuple(values, null, {
+        inferred: true
+    });
+};
+
+TypeInference.prototype._inferArrayExpression =
+function _inferArrayExpression(node) {
+    var currExpr = this.meta.currentExpressionType;
+
+    assert(currExpr && currExpr.type === 'genericLiteral' &&
+        currExpr.value.type === 'typeLiteral' &&
+        currExpr.value.name === 'Array' && currExpr.value.builtin,
+        'must be an array...'
+    );
+
+    var arrayType = currExpr.generics[0];
+    var elems = node.elements;
+
     var type = null;
     for (var i = 0; i < elems.length; i++) {
-        var newType = this.meta.verifyNode(elems[i], null);
+        if (elems[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                elems[i].name, null
+            );
+        }
+
+        var newType = this.meta.verifyNode(elems[i], arrayType);
         if (type) {
             assert(isSameType(newType, type), 'arrays must be homogenous');
         }
@@ -166,7 +213,13 @@ function _inferTupleExpression(node) {
     var tupleTypes = this.meta.currentExpressionType.values;
 
     for (var i = 0; i < node.elements.length; i++) {
-        var expected = tupleTypes[i];
+        var expected = tupleTypes[i] || null;
+
+        if (node.elements[i].type === 'Identifier') {
+            this.meta.currentScope.markVarAsAlias(
+                node.elements[i].name, null
+            );
+        }
 
         values[i] = this.meta.verifyNode(node.elements[i], expected);
         if (!values[i]) {

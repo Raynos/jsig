@@ -12,6 +12,7 @@ test('foo : [Number, Number]', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'tuple',
+        inferred: false,
         values: [{
             type: 'typeLiteral',
             line: 1,
@@ -65,6 +66,7 @@ test('bar : [String, Object, Array]', function t(assert) {
     assert.equal(result.identifier, 'bar');
     assert.deepEqual(result.typeExpression, {
         type: 'tuple',
+        inferred: false,
         values: [{
             type: 'typeLiteral',
             line: 1,

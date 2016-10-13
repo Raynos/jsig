@@ -456,4 +456,38 @@ Errors.MissingExpectedField = TypedError({
     line: null
 });
 
+Errors.OutOfBoundsTupleAccess = TypedError({
+    type: 'jsig.verify.out-of-bounds-tuple-access',
+    message: '@{line}: Cannot access out of bounds ' +
+        'index [{index}] of tuple.\n' +
+        'Tuple {actual} only has {actualLength} fields.',
+    actual: null,
+    index: null,
+    actualLength: null,
+    loc: null,
+    line: null
+});
+
+Errors.DynamicTupleAccess = TypedError({
+    type: 'jsig.verify.dynamic-tuple-access',
+    message: '@{line}: Cannot access tuple field using dynamic ' +
+        'identifier.\n' +
+        'Expected fixed numeric access for {actual} but found {identifier}',
+    actual: null,
+    identifier: null,
+    loc: null,
+    line: null
+});
+
+Errors.NonNumericTupleAccess = TypedError({
+    type: 'jsig.verify.non-numeric-tuple-access',
+    message: '@{line}: Cannot access non-numeric field on tuple.' +
+        'Expected numeric access on tuple: {tupleValue}',
+    actual: null,
+    expected: null,
+    tupleValue: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

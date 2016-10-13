@@ -36,6 +36,8 @@ require('./unit/prototype-inheritance.js');
 require('./unit/multiple-returns.js');
 require('./unit/narrow-mixed.js');
 require('./unit/optional-functions.js');
+require('./unit/tuples.js');
+require('./unit/narrow-types.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');

@@ -22,8 +22,36 @@ function updateObject(targetType, keyPath, newValue) {
         return targetType;
     }
 
-    assert(targetType.type === 'intersectionType');
+    if (targetType.type === 'tuple') {
+        return _updateTuple(targetType, keyPath, newValue);
+    }
 
+    if (targetType.type === 'intersectionType') {
+        return _updateIntersection(targetType, keyPath, newValue);
+    }
+
+    if (targetType.type === 'unionType') {
+        return _updateUnion(targetType, keyPath, newValue);
+    }
+
+    assert(false, 'unsupported type for updateObject(): ' + targetType.type);
+}
+
+function _updateUnion(targetType, keyPath, newValue) {
+    var clone = cloneJSIG(targetType);
+    clone.unions = clone.unions.slice();
+    var unions = clone.unions;
+
+    for (var i = 0; i < unions.length; i++) {
+        var possibleType = unions[i];
+        var newType = updateObject(possibleType, keyPath, newValue);
+        unions[i] = newType;
+    }
+
+    return clone;
+}
+
+function _updateIntersection(targetType, keyPath, newValue) {
     var clone = cloneJSIG(targetType);
     clone.intersections = clone.intersections.slice();
     var intersections = clone.intersections;
@@ -37,6 +65,7 @@ function updateObject(targetType, keyPath, newValue) {
             continue;
         }
 
+        // TODO: only narrows the first type found
         for (var j = 0; j < possibleObject.keyValues.length; j++) {
             var pair = possibleObject.keyValues[j];
             if (pair.key === primaryKey) {
@@ -52,6 +81,25 @@ function updateObject(targetType, keyPath, newValue) {
     intersections[foundIndex] = obj;
 
     return clone;
+}
+
+function _updateTuple(targetType, keyPath, newValue) {
+    assert(targetType.type === 'tuple', 'targetType must be tuple');
+    assert(newValue, 'newValue cannot be null');
+
+    var newValues = targetType.values.slice();
+    var index = keyPath[0];
+
+    assert(keyPath.length === 1, 'only support trivial keyPath');
+    assert(typeof index === 'number', 'must be numeric index');
+    assert(index >= 0 && index <= newValues.length,
+        'index must be within values of tuple');
+
+    newValues[index] = newValue;
+
+    return JsigAST.tuple(newValues, null, {
+        inferred: targetType.inferred
+    });
 }
 
 function _updateObject(targetType, keyPath, newValue) {
