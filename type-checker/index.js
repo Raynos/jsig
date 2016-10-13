@@ -406,9 +406,9 @@ function getOrCreateMeta(fileName) {
         source = source.slice(BIN_HEADER.length);
     }
 
-    tuple = tryEsprimaParse(source);
-    if (tuple[0]) {
-        var parseError = tuple[0];
+    var parserTuple = tryEsprimaParse(source);
+    if (parserTuple[0]) {
+        var parseError = parserTuple[0];
         this.addError(Errors.CouldNotParseJavaScript({
             fileName: fileName,
             line: parseError.lineNumber,
@@ -419,7 +419,7 @@ function getOrCreateMeta(fileName) {
         return null;
     }
 
-    var ast = tuple[1];
+    var ast = parserTuple[1];
 
     var meta = new ProgramMeta(this, ast, fileName, source);
     this.metas[fileName] = meta;
