@@ -213,6 +213,10 @@ TypeCheckBinary.prototype.warnError = function warnError(error) {
     });
 
     var currMeta = this.checker.currentMeta;
+    if (!currMeta) {
+        return;
+    }
+
     if (currMeta.currentNode) {
         this.log();
         this.log('was processing the following text: ');
