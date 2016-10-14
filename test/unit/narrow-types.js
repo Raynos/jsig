@@ -150,3 +150,35 @@ JSIGSnippet.test('early continue if null logic', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('typeof checks against number/string', {
+    snippet: function m() {/*
+        if (typeof foo === 'string') {
+            foo + '5';
+        } else if (typeof foo === 'number') {
+            foo + 5;
+        }
+    */},
+    header: function h() {/*
+        foo : String | Number
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('normalizing variables with typeof', {
+    snippet: function m() {/*
+        if (typeof foo === 'string') {
+            foo = 5;
+        }
+
+        foo + 4;
+    */},
+    header: function h() {/*
+        foo : String | Number
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
