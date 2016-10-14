@@ -73,3 +73,40 @@ JSIGSnippet.test('early return if null logic', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('early return on this type', {
+    snippet: function m() {/*
+        function Foo() {
+            this.value = null;
+        }
+
+        Foo.prototype.get = function get() {
+            if (!this.value) {
+                return '';
+            }
+
+            return this.value;
+        };
+
+        Foo.prototype.set = function set(x) {
+            this.value = x;
+        };
+
+        var f = new Foo();
+        f.get() + '5';
+    */},
+    header: function h() {/*
+        interface Foo {
+            value: String | null,
+
+            set(String) => void,
+            get() => String
+        }
+
+        Foo : (this: Foo) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
