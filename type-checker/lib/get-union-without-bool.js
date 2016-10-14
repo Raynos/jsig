@@ -46,5 +46,8 @@ function isAlwaysTruthy(t) {
 
 function isAlwaysFalsey(t) {
     return (t.type === 'valueLiteral' && t.name === 'undefined') ||
-        (t.type === 'valueLiteral' && t.name === 'null');
+        (t.type === 'valueLiteral' && t.name === 'null') ||
+        (t.type === 'typeLiteral' && t.builtin &&
+            t.name === '%Void%%Uninitialized'
+        );
 }
