@@ -1510,7 +1510,10 @@ function verifyIfStatement(node) {
 
     if (node.consequent.type === 'BlockStatement' &&
         node.consequent.body.length > 0 &&
-        lastStatement.type === 'ReturnStatement'
+        (
+            lastStatement.type === 'ReturnStatement' ||
+            lastStatement.type === 'ContinueStatement'
+        )
     ) {
         restrictedTypes = elseBranch.getRestrictedTypes();
         for (i = 0; i < restrictedTypes.length; i++) {
