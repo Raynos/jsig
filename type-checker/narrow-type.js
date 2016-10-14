@@ -191,6 +191,12 @@ function containsLiteral(type, literalName) {
         return true;
     }
 
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === literalName
+    ) {
+        return true;
+    }
+
     if (type.type === 'unionType') {
         for (var i = 0; i < type.unions.length; i++) {
             var possibleType = type.unions[i];
