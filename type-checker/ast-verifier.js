@@ -1375,7 +1375,37 @@ function verifyForStatement(node) {
     ), 'for loop condition statement must be a Boolean expression');
 
     this.meta.verifyNode(node.update, null);
+
+    var forBranch = this.meta.allocateBranchScope();
+    this.meta.enterBranchScope(forBranch);
     this.meta.verifyNode(node.body, null);
+    this.meta.exitBranchScope();
+
+    /*  A for loop runs 0 or more times.
+
+        If a type changed in the body of the loop, then let the
+        type outside of the loop be the union of the initial
+        type and the loop body type
+    */
+    var currScope = this.meta.currentScope;
+    var restrictedTypes = forBranch.getRestrictedTypes();
+    for (var i = 0; i < restrictedTypes.length; i++) {
+        var name = restrictedTypes[i];
+        var forType = forBranch.getOwnVar(name);
+        var outerType = currScope.getOwnVar(name);
+
+        if (!forType || !outerType) {
+            continue;
+        }
+
+        if (forType.type === 'restriction') {
+            var union = this._computeSmallestUnion(
+                node, forType.defn, outerType.defn
+            );
+
+            currScope.restrictType(name, union);
+        }
+    }
 };
 
 ASTVerifier.prototype.verifyUpdateExpression =
