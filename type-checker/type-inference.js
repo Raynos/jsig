@@ -113,6 +113,17 @@ function inferLiteral(node) {
     }
 };
 
+function isTypeTuple(jsigType) {
+    return jsigType && jsigType.type === 'tuple';
+}
+
+function isTypeArray(jsigType) {
+    return jsigType && jsigType.type === 'genericLiteral' &&
+        jsigType.value.type === 'typeLiteral' &&
+        jsigType.value.name === 'Array' &&
+        jsigType.value.builtin;
+}
+
 TypeInference.prototype.inferArrayExpression =
 function inferArrayExpression(node) {
     var elems = node.elements;
@@ -133,20 +144,33 @@ function inferArrayExpression(node) {
     }
 
     var currExpr = this.meta.currentExpressionType;
-    if (currExpr && currExpr.type === 'tuple') {
+    if (isTypeTuple(currExpr)) {
         return this._inferTupleExpression(node);
     }
 
-    if (currExpr && currExpr.type === 'genericLiteral' &&
-        currExpr.value.type === 'typeLiteral' &&
-        currExpr.value.name === 'Array' && currExpr.value.builtin
-    ) {
+    if (isTypeArray(currExpr)) {
         return this._inferArrayExpression(node);
+    }
+
+    var i = 0;
+
+    if (currExpr && currExpr.type === 'unionType') {
+        var unions = currExpr.unions;
+        for (i = 0; i < unions.length; i++) {
+            var possibleType = unions[i];
+            if (isTypeTuple(possibleType)) {
+                return this._inferTupleExpression(node);
+            }
+
+            if (isTypeArray(possibleType)) {
+                return this._inferArrayExpression(node);
+            }
+        }
     }
 
     var values = [];
 
-    for (var i = 0; i < elems.length; i++) {
+    for (i = 0; i < elems.length; i++) {
         if (elems[i].type === 'Identifier') {
             this.meta.currentScope.markVarAsAlias(
                 elems[i].name, null
@@ -168,19 +192,25 @@ function inferArrayExpression(node) {
 
 TypeInference.prototype._inferArrayExpression =
 function _inferArrayExpression(node) {
+    var i = 0;
     var currExpr = this.meta.currentExpressionType;
+    if (currExpr.type === 'unionType') {
+        for (i = 0; i < currExpr.unions.length; i++) {
+            var possibleType = currExpr.unions[i];
+            if (isTypeArray(possibleType)) {
+                currExpr = possibleType;
+                break;
+            }
+        }
+    }
 
-    assert(currExpr && currExpr.type === 'genericLiteral' &&
-        currExpr.value.type === 'typeLiteral' &&
-        currExpr.value.name === 'Array' && currExpr.value.builtin,
-        'must be an array...'
-    );
+    assert(isTypeArray(currExpr), 'must be an array...');
 
     var arrayType = currExpr.generics[0];
     var elems = node.elements;
 
     var type = null;
-    for (var i = 0; i < elems.length; i++) {
+    for (i = 0; i < elems.length; i++) {
         if (elems[i].type === 'Identifier') {
             this.meta.currentScope.markVarAsAlias(
                 elems[i].name, null
@@ -204,15 +234,22 @@ function _inferArrayExpression(node) {
 TypeInference.prototype._inferTupleExpression =
 function _inferTupleExpression(node) {
     var values = [];
+    var i = 0;
+    var currExpr = this.meta.currentExpressionType;
+    if (currExpr.type === 'unionType') {
+        for (i = 0; i < currExpr.unions.length; i++) {
+            var possibleType = currExpr.unions[i];
+            if (isTypeTuple(possibleType)) {
+                currExpr = possibleType;
+                break;
+            }
+        }
+    }
 
-    assert(this.meta.currentExpressionType &&
-        this.meta.currentExpressionType.type === 'tuple',
-        'must be a tuple...'
-    );
+    assert(isTypeTuple(currExpr), 'must be a tuple...');
 
-    var tupleTypes = this.meta.currentExpressionType.values;
-
-    for (var i = 0; i < node.elements.length; i++) {
+    var tupleTypes = currExpr.values;
+    for (i = 0; i < node.elements.length; i++) {
         var expected = tupleTypes[i] || null;
 
         if (node.elements[i].type === 'Identifier') {
