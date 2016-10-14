@@ -58,7 +58,7 @@ type TypeCheckerOpts : {}
 TypeChecker : {
     compile: (fileName: String, options: TypeCheckerOpts) => TypeChecker
 } & (
-    this: TypeChecker, entryFile: String, options: TypeCheckerOpts
+    this: TypeChecker, entryFile: String | Array<String>, options: TypeCheckerOpts
 ) => void
 
 tryEsprimaParse : (source: String) => (

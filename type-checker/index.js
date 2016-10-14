@@ -41,12 +41,12 @@ module.exports = TypeChecker;
 function TypeChecker(entryFile, options) {
     options = options || {};
 
-    var entryFiles = null;
-    if (typeof entryFile === 'string') {
-        entryFiles = [entryFile];
-    } else if (Array.isArray(entryFile)) {
-        entryFiles = entryFile;
-    } else {
+    var entryFiles = entryFile;
+    if (typeof entryFiles === 'string') {
+        entryFiles = [entryFiles];
+    }
+
+    if (!Array.isArray(entryFiles)) {
         assert(false, 'entryFile must be string or array');
     }
 
