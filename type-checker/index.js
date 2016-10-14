@@ -358,6 +358,7 @@ function tryResolveSync(fileName, basedir) {
     return tuple;
 }
 
+/*jsig ignore next: cannot return err with extra fields*/
 function tryEsprimaParse(source) {
     var tuple = null;
 
