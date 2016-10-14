@@ -119,6 +119,7 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
     var typeTagNode = node.right;
 
     var typeTagValue = typeTagNode.value;
+    var elseType;
     if (typeTagValue === 'number' &&
         containsLiteral(type, 'Number')
     ) {
@@ -127,7 +128,13 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
                 identifier.name, JsigAST.literal('Number')
             );
         }
-        // TODO: elseBranch
+        if (elseBranch) {
+            // TODO: elseBranch
+            elseType = getUnionWithoutLiteral(type, 'Number');
+            if (elseType) {
+                elseBranch.narrowType(identifier.name, elseType);
+            }
+        }
     } else if (typeTagValue === 'string' &&
         containsLiteral(type, 'String')
     ) {
@@ -136,12 +143,46 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
                 identifier.name, JsigAST.literal('String')
             );
         }
-        // TODO: elseBranch
+        if (elseBranch) {
+            // TODO: elseBranch
+            elseType = getUnionWithoutLiteral(type, 'String');
+            if (elseType) {
+                elseBranch.narrowType(identifier.name, elseType);
+            }
+        }
     } else {
         // TODO: support other tags
         return null;
     }
 };
+
+function getUnionWithoutLiteral(type, literalName) {
+    if (type.type !== 'unionType') {
+        if (containsLiteral(type, literalName)) {
+            return null;
+        } else {
+            return type;
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (!containsLiteral(t, literalName)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return null;
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
 
 function containsLiteral(type, literalName) {
     if (type.type === 'typeLiteral' && type.builtin &&
