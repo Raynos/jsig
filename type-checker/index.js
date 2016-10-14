@@ -138,8 +138,9 @@ function loadLanguageIdentifiers() {
     assert(opHeaderFile, 'must be able to load operators');
 
     var assignments = opHeaderFile.getResolvedAssignments();
+    var a;
     for (var i = 0; i < assignments.length; i++) {
-        var a = assignments[i];
+        a = assignments[i];
         this.globalScope._addOperator(a.identifier, a.typeExpression);
     }
 
