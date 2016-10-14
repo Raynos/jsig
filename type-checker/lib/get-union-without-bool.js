@@ -26,6 +26,10 @@ function getUnionWithoutBool(type, truthy) {
         }
     }
 
+    if (unions.length === 0) {
+        return null;
+    }
+
     if (unions.length === 1) {
         return unions[0];
     }
