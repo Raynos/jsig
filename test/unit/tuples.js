@@ -472,6 +472,32 @@ JSIGSnippet.test('can convert return inferred tuple', {
     assert.end();
 });
 
+JSIGSnippet.test('can assign tuple to array', {
+    snippet: function m() {/*
+        var bar = ['foo'];
+    */},
+    header: function h() {/*
+        bar : Array<String>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
+JSIGSnippet.test('can assign tuple to array union', {
+    snippet: function m() {/*
+        var bar = ['foo'];
+    */},
+    header: function h() {/*
+        bar : Array<String> | Number
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
+
 JSIGSnippet.test('cannot convert re-typed var tuple', {
     snippet: function m() {/*
         var bar = ['foo'];
