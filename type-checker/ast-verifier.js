@@ -1491,6 +1491,11 @@ function verifyIfStatement(node) {
                 this.meta.currentScope.restrictType(name, elseType.defn);
             }
         }
+
+        var restrictedThisType = elseBranch.getRestrictedThisType();
+        if (restrictedThisType) {
+            this.meta.currentScope.restrictType('this', restrictedThisType);
+        }
     }
 
     // TODO create unions based on typeRestrictions & mutations...
