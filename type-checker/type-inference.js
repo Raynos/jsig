@@ -277,7 +277,9 @@ function inferObjectExpression(node) {
         keyValues.push(JsigAST.keyValue(keyName, value));
     }
 
-    return JsigAST.object(keyValues);
+    return JsigAST.object(keyValues, null, {
+        inferred: true
+    });
 };
 
 TypeInference.prototype.resolveGeneric =
