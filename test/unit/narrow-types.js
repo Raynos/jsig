@@ -110,3 +110,20 @@ JSIGSnippet.test('early return on this type', {
 
     assert.end();
 });
+
+JSIGSnippet.test('for loop type restrictions are copied', {
+    snippet: function m() {/*
+        var foo;
+
+        for (var i = 0; i < 5; i++) {
+            foo = 'bar';
+        }
+
+        if (foo) {
+            foo + '5';
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
