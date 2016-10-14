@@ -432,6 +432,25 @@ function checkObjectSubType(node, parent, child) {
         }
     }
 
+    if (child.inferred) {
+        var parentIndex = parent.buildObjectIndex();
+        for (i = 0; i < child.keyValues.length; i++) {
+            pair = child.keyValues[i];
+
+            var fieldName = pair.key;
+
+            if (!parentIndex[fieldName]) {
+                return Errors.UnexpectedExtraField({
+                    expected: serialize(parent._raw || parent),
+                    actual: serialize(child._raw || child),
+                    fieldName: fieldName,
+                    loc: node.loc,
+                    line: node.loc.start.line
+                });
+            }
+        }
+    }
+
     // For all extra keys, they are allowed...
     return null;
 };
