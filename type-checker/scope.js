@@ -47,6 +47,7 @@ function BaseScope(parent) {
     this.typeRestrictions = Object.create(null);
     this.functionScopes = Object.create(null);
     this.writableTokenLookup = false;
+    this._restrictedThisValueType = null;
 }
 
 function IdentifierToken(defn, preloaded) {
@@ -246,8 +247,12 @@ BaseScope.prototype._restrictType =
 function restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
-    assert(id !== 'this', 'cannot restrict this');
     assert(type, 'cannot restrictType to null');
+
+    if (id === 'this') {
+        this._restrictedThisValueType = type;
+        return null;
+    }
 
     this.typeRestrictions[id] = {
         type: 'restriction',
@@ -492,7 +497,11 @@ function loadTypes(funcNode, typeDefn) {
 
 FunctionScope.prototype.getThisType =
 function getThisType() {
-    return this._thisValueType;
+    if (this.writableTokenLookup) {
+        return this._thisValueType;
+    }
+
+    return this._restrictedThisValueType || this._thisValueType;
 };
 
 FunctionScope.prototype.markVarAsAlias =
@@ -710,6 +719,12 @@ function getRestrictedTypes() {
     }
 
     return restricted;
+};
+
+BranchScope.prototype.getRestrictedThisType =
+function getRestrictedThisType() {
+    return this._restrictedThisValueType ||
+        this._narrowedThisValueType;
 };
 
 BranchScope.prototype.narrowType = function narrowType(id, type) {
