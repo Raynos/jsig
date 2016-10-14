@@ -18,8 +18,13 @@ interface TypeChecker {
     errors: Array<Error>,
     currentMeta: ProgramMeta,
     globalScope: GlobalScope,
+    globalsFile: String | null,
     headerFiles: Object<String, HeaderFile>,
     definitionsFolder: String | null,
+    definitions: Object<String, {
+        type: String,
+        defn: JsigType
+    }>,
 
     moduleExportsType: JsigType,
     errorType: JsigType,
@@ -39,7 +44,13 @@ interface TypeChecker {
     _createHeaderFile(
         source: String, fileName: String
     ) => HeaderFile | null,
-    _readAndParseHeaderFile(source: String, fileName: String) => JsigProgram | null
+    _readAndParseHeaderFile(
+        source: String, fileName: String
+    ) => JsigProgram | null,
+    _addDefinition(id: String, typeDefn: JsigType) => {
+        type: String,
+        defn: JsigType
+    }
 }
 
 type TypeCheckerOpts : {}
