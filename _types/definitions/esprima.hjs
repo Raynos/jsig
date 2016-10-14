@@ -11,6 +11,8 @@ type JSNode : {
 
 esprima : {
     parse : (source: String, opts: {
-
+        loc: Boolean,
+        attachComment:Boolean,
+        comment: Boolean
     }) => JSNode
 }
