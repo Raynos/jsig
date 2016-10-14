@@ -1,6 +1,6 @@
 
-
 fs : {
     existsSync: (filePath: String) => Boolean,
-    readFileSync: (filePath: String, encoding: 'utf8') => String
+    readFileSync: (filePath: String, encoding: 'utf8') => String,
+    readdirSync: (filePath: String) => Array<String>
 }

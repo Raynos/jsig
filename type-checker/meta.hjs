@@ -1,0 +1,17 @@
+import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { TypeChecker } from "./index.hjs"
+import { JSNode } from "../_types/definitions/esprima.hjs"
+
+interface ProgramMeta {
+    moduleExportsType: JsigType,
+
+    verify() => void
+}
+
+ProgramMeta : (
+    this: ProgramMeta,
+    checker: TypeChecker,
+    ast: JSNode,
+    fileName: String,
+    source: String
+) => void

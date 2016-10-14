@@ -1,6 +1,7 @@
 import { JsigType, JsigProgram } from "../ast/index.hjs"
 import { HeaderFile } from "./header-file.hjs"
 import { JSNode } from "../_types/definitions/esprima.hjs"
+import { ProgramMeta } from "./meta.hjs"
 
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,
@@ -8,19 +9,17 @@ interface GlobalScope {
     _addVirtualType(id: String, typeDefn: JsigType) => void
 }
 
-type Meta : {
-    moduleExportsType: JsigType
-}
-
 interface TypeChecker {
     entryFiles: Array<String>,
     files: Object<String, String>,
     basedir: String,
-    metas: Object<String, Meta>,
+    metas: Object<String, ProgramMeta>,
 
     errors: Array<Error>,
+    currentMeta: ProgramMeta,
     globalScope: GlobalScope,
     headerFiles: Object<String, HeaderFile>,
+    definitionsFolder: String | null,
 
     moduleExportsType: JsigType,
     errorType: JsigType,
@@ -29,7 +28,7 @@ interface TypeChecker {
     loadLanguageIdentifiers() => void,
     preloadDefinitions() => void,
     preloadGlobals() => void,
-    getOrCreateMeta(file: String) => Meta,
+    getOrCreateMeta(file: String) => ProgramMeta | null,
     getOrCreateHeaderFile(
         file: String,
         node?: JSNode,
