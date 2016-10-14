@@ -1,0 +1,12 @@
+import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { TypeChecker } from "./index.hjs"
+
+interface GlobalScope {
+    _addOperator(id: String, typeDefn: JsigType) => void,
+    _addVar(id: String, typeDefn: JsigType) => void,
+    _addVirtualType(id: String, typeDefn: JsigType) => void
+}
+
+export default {
+    GlobalScope: (this: GlobalScope, checker: TypeChecker) => void
+}

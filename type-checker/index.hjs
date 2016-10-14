@@ -2,32 +2,32 @@ import { JsigType, JsigProgram } from "../ast/index.hjs"
 import { HeaderFile } from "./header-file.hjs"
 import { JSNode } from "../_types/definitions/esprima.hjs"
 import { ProgramMeta } from "./meta.hjs"
-
-interface GlobalScope {
-    _addOperator(id: String, typeDefn: JsigType) => void,
-    _addVar(id: String, typeDefn: JsigType) => void,
-    _addVirtualType(id: String, typeDefn: JsigType) => void
-}
+import { GlobalScope } from "./scope.hjs"
 
 interface TypeChecker {
     entryFiles: Array<String>,
     files: Object<String, String>,
     basedir: String,
-    metas: Object<String, ProgramMeta>,
 
-    errors: Array<Error>,
-    currentMeta: ProgramMeta,
     globalScope: GlobalScope,
-    globalsFile: String | null,
+    metas: Object<String, ProgramMeta>,
     headerFiles: Object<String, HeaderFile>,
-    definitionsFolder: String | null,
+
     definitions: Object<String, {
         type: String,
         defn: JsigType
     }>,
 
-    moduleExportsType: JsigType,
-    errorType: JsigType,
+    definitionsFolder: String | null,
+    globalsFile: String | null,
+    optin: Boolean,
+
+    errors: Array<Error>,
+    traces: Array<{}>,
+    moduleExportsType: JsigType | null,
+    currentMeta: ProgramMeta | null,
+
+    errorType: JsigType | null,
 
     checkProgram() => void,
     loadLanguageIdentifiers() => void,
@@ -53,7 +53,12 @@ interface TypeChecker {
     }
 }
 
-type TypeCheckerOpts : {}
+type TypeCheckerOpts : {
+    files?: Object<String, String>,
+    definitions?: String,
+    globalsFile?: String,
+    optin?: Boolean
+}
 
 TypeChecker : {
     compile: (fileName: String, options: TypeCheckerOpts) => TypeChecker
