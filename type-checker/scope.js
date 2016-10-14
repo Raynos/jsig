@@ -729,7 +729,7 @@ function getRestrictedThisType() {
 
 BranchScope.prototype.narrowType = function narrowType(id, type) {
     // TODO: gaurd against double narrow ?
-    assert(!this.narrowedTypes[id], 'cannot doulbe narrow type: ' + id);
+    // assert(!this.narrowedTypes[id], 'cannot doulbe narrow type: ' + id);
     assert(type, 'cannot restrict to null');
 
     if (id === 'this') {
