@@ -2045,6 +2045,10 @@ function _tryResolveVirtualType(type) {
         type.name === 'Date' && type.builtin
     ) {
         newType = this.meta.getVirtualType('TDate').defn;
+    } else if (type.type === 'typeLiteral' &&
+        type.name === 'RegExp' && type.builtin
+    ) {
+        newType = this.meta.getVirtualType('TRegExp').defn;
     } else if (type.type === 'genericLiteral' &&
         type.value.type === 'typeLiteral' &&
         type.value.name === 'Object' && type.value.builtin

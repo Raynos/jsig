@@ -54,6 +54,10 @@ type TFunction : {
     bind: %InternalFunction%%FnBind
 }
 
+type TRegExp : {
+    test: (this: RegExp, pattern: String) => Boolean
+}
+
 String : (Number) => String
 
 Boolean : (Boolean | undefined) => Boolean
