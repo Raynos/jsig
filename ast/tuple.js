@@ -10,6 +10,7 @@ function TupleNode(values, label, opts) {
 
     this.type = 'tuple';
     this.values = values;
-    this.inferred = (opts && 'inferred' in opts) ? opts.inferred : false;
+    this.inferred = (opts && 'inferred' in opts) ?
+        opts.inferred : false;
     this._raw = null;
 }

@@ -41,6 +41,7 @@ test('export default { a: String }', function t(assert) {
     assert.deepEqual(result.typeExpression, {
         type: 'object',
         brand: 'Object',
+        inferred: false,
         keyValues: [{
             type: 'keyValue',
             isMethod: false,

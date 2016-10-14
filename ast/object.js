@@ -18,6 +18,8 @@ function ObjectNode(keyValues, label, opts) {
     this.keyValues = keyValues;
     this.open = (opts && opts.open) || false;
     this.brand = (opts && opts.brand) || 'Object';
+    this.inferred = (opts && 'inferred' in opts) ?
+        opts.inferred : false;
     this._raw = null;
 }
 

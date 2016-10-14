@@ -73,6 +73,7 @@ test('type OptionError<T> : { option: T }', function t(assert) {
             _raw: null
         }],
         brand: 'Object',
+        inferred: false,
         open: false,
         _raw: null
     });
