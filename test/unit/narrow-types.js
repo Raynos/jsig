@@ -127,3 +127,26 @@ JSIGSnippet.test('for loop type restrictions are copied', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('early continue if null logic', {
+    snippet: function m() {/*
+        function wat() {
+            for (var i = 0; i < 2; i++) {
+                if (typeof foo !== 'string') {
+                    continue;
+                }
+
+                foo.split('baz');
+            }
+        }
+
+        wat();
+    */},
+    header: function h() {/*
+        foo : String | null
+        bar : null
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
