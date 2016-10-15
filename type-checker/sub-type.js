@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 
+var JsigAST = require('../ast/');
 var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
 var isSameType = require('./lib/is-same-type.js');
@@ -197,12 +198,29 @@ function checkTypeLiteralSubType(node, parent, child) {
     }
 };
 
+SubTypeChecker.prototype._maybeConvertToValueLiteral =
+function _maybeConvertToValueLiteral(childType) {
+    if (childType.type === 'typeLiteral' &&
+        childType.builtin && childType.name === 'String' &&
+        typeof childType.concreteValue === 'string'
+    ) {
+        return JsigAST.value(
+            '"' + childType.concreteValue + '"', 'string'
+        );
+    }
+    return childType;
+};
+
 SubTypeChecker.prototype.checkValueLiteralSubType =
 function checkValueLiteralSubType(node, parent, child) {
     if (parent.name === 'null' && child.type === 'typeLiteral' &&
         child.builtin && child.name === '%Null%%Default'
     ) {
         return null;
+    }
+
+    if (child.type === 'typeLiteral') {
+        child = this._maybeConvertToValueLiteral(child);
     }
 
     if (child.type !== 'valueLiteral') {
