@@ -8,6 +8,14 @@ interface ProgramMeta {
     verify() => void
 }
 
+interface TraceInfo {
+    node: JSNode,
+    expected: String,
+    actual: String,
+    type: JsigType,
+    fileName: String
+}
+
 ProgramMeta : (
     this: ProgramMeta,
     checker: TypeChecker,

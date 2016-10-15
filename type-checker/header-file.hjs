@@ -3,6 +3,7 @@ import { TypeChecker } from "./index.hjs"
 
 interface HeaderFile {
     errors: Array<Error>,
+    indexTable: Object<String, JsigType>,
 
     getResolvedAssignments() => Array<JsigAssignment>,
     getToken(name: String) => JsigType,

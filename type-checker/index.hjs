@@ -1,8 +1,13 @@
 import { JsigType, JsigProgram } from "../ast/index.hjs"
 import { HeaderFile } from "./header-file.hjs"
 import { JSNode } from "../_types/definitions/esprima.hjs"
-import { ProgramMeta } from "./meta.hjs"
+import { ProgramMeta, TraceInfo } from "./meta.hjs"
 import { GlobalScope } from "./scope.hjs"
+
+interface DefinitionToken {
+    type: String,
+    defn: JsigType
+}
 
 interface TypeChecker {
     entryFiles: Array<String>,
@@ -13,17 +18,14 @@ interface TypeChecker {
     metas: Object<String, ProgramMeta>,
     headerFiles: Object<String, HeaderFile>,
 
-    definitions: Object<String, {
-        type: String,
-        defn: JsigType
-    }>,
+    definitions: Object<String, DefinitionToken>,
 
     definitionsFolder: String | null,
     globalsFile: String | null,
     optin: Boolean,
 
     errors: Array<Error>,
-    traces: Array<{}>,
+    traces: Array<TraceInfo>,
     moduleExportsType: JsigType | null,
     currentMeta: ProgramMeta | null,
 
@@ -47,10 +49,19 @@ interface TypeChecker {
     _readAndParseHeaderFile(
         source: String, fileName: String
     ) => JsigProgram | null,
-    _addDefinition(id: String, typeDefn: JsigType) => {
-        type: String,
-        defn: JsigType
-    }
+    _addDefinition(id: String, typeDefn: JsigType) => DefinitionToken,
+    serializeType(type: JsigType, opts: Object) => void,
+    addTrace(trace: TraceInfo) => void,
+    countErrors() => Number,
+    getErrors() => Array<Error>,
+    setErrors(Array<Error>) => void,
+    prettyPrintAllErrors() => void,
+    prettyPrintAllErrorsWithTrace() => void,
+    prettyPrintTraces() => void,
+    loadJavaScriptIntoIndexTable(indexTable: Object<String, JsigType>) => void,
+    tryReadHeaderFile(fileName: String) => Boolean,
+    getDefinition(id: String) => DefinitionToken,
+    getDefinitionFilePath(packageName: String) => String | null
 }
 
 type TypeCheckerOpts : {

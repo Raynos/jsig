@@ -11,7 +11,7 @@ type TArray : {
     push: <T>(this: Array<T>, T) => Number,
     pop: <T>(this: Array<T>) => T,
     join: <T>(this: Array<T>, sep: String) => String,
-    slice: <T>(this: Array<T>, Number, Number) => Array<T>
+    slice: <T>(this: Array<T>, start?: Number, end?: Number) => Array<T>
 }
 
 type TString : {

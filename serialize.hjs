@@ -1,0 +1,3 @@
+import { JsigType, JsigProgram } from "./ast/index.hjs"
+
+serialize : (ast: JsigType, opts: Object) => void
