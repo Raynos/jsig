@@ -1,10 +1,6 @@
 'use strict';
 
-/*  @jsig
-    allowUnknownRequire: true,
-    allowUnusedFunction: true,
-    partialExport: true
-*/
+/* @jsig */
 
 var esprima = require('esprima');
 var fs = require('fs');
