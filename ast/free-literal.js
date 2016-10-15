@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 module.exports = FreeLiteralNode;
 
 function FreeLiteralNode(name) {

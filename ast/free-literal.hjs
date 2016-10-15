@@ -1,0 +1,8 @@
+
+interface JsigFreeLiteralNode {
+    type: "freeLiteral",
+    name: String,
+    _raw: JsigFreeLiteralNode | null
+}
+
+FreeLiteralNode : (this: JsigFreeLiteralNode, name: String) => void
