@@ -313,6 +313,17 @@ function verifyAssignmentExpression(node) {
         var token = this.meta.currentScope.getVar(node.left.name);
         token.inferred = false;
     }
+
+    if (node.left.type === 'Identifier' &&
+        leftType.type === 'typeLiteral' &&
+        leftType.concreteValue !== null
+    ) {
+        // In assignment of a value with concreteValue,
+        // Must change the concreteValue
+        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+    }
+
+
     if (afterError === beforeError &&
         node.left.type === 'Identifier' &&
         this.meta.currentScope.type === 'branch' &&

@@ -73,9 +73,10 @@ JSIGSnippet.test('overloading based on string argument', {
     assert.end();
 });
 
-JSIGSnippet.test('string argument disallows aliases', {
+JSIGSnippet.test('string argument disallows mutations', {
     snippet: function m() {/*
         var foo = "str";
+        foo = "bar"
         on(foo, x);
 
         function x(a) {
@@ -89,15 +90,15 @@ JSIGSnippet.test('string argument disallows aliases', {
         on: (str: "str", (String) => void) => void
     */}
 }, function t(snippet, assert) {
-    var meta = snippet.compile();
+    var meta = snippet.compile(assert);
 
     assert.equal(meta.errors.length, 1, 'expected one error');
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.expected, '"str"');
-    assert.equal(err.actual, 'String');
-    assert.equal(err.line, 2);
+    assert.equal(err.actual, '"bar"');
+    assert.equal(err.line, 3);
 
     assert.end();
 });
