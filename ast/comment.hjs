@@ -1,0 +1,8 @@
+
+interface JsigCommentNode {
+    type: "comment",
+    text: String,
+    _raw: JsigCommentNode | null
+}
+
+CommentNode : (this: JsigCommentNode, text: String) => void
