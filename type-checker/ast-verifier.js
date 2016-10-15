@@ -845,8 +845,8 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         if (!defn) {
             var args = [];
             if (oldDefn.thisArg) {
-                var obj = this.meta.verifyNode(node.callee.object, null);
-                args.push('this: ' + this.meta.serializeType(obj));
+                var objType = this.meta.verifyNode(node.callee.object, null);
+                args.push('this: ' + this.meta.serializeType(objType));
             }
             for (var i = 0; i < node.arguments.length; i++) {
                 var argType = this.meta.verifyNode(node.arguments[i], null);
