@@ -323,7 +323,6 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
-
     if (afterError === beforeError &&
         node.left.type === 'Identifier' &&
         this.meta.currentScope.type === 'branch' &&
