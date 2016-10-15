@@ -1,0 +1,18 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigFunctionParameterNode {
+    type: "param",
+    name: String,
+    value: JsigType,
+    optional: Boolean,
+    _raw: JsigFunctionParameterNode | null
+}
+
+FunctionParameterNode : (
+    this: JsigFunctionParameterNode,
+    name: String,
+    value: JsigType,
+    opts?: {
+        optional?: Boolean
+    }
+) => void

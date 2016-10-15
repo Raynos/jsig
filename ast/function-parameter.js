@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 module.exports = FunctionParameterNode;
 
 function FunctionParameterNode(name, value, opts) {
