@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 /**
     In some future we will convert the JsigAST parser to a grown
     up system like pegjs
