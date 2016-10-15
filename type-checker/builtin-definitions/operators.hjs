@@ -1,4 +1,7 @@
 -- vim: set ft=Haskell:
+
+-- Numberic operators
+
 + : 
     ((String, String) => String) &
     ((Number, Number) => Number)
@@ -11,6 +14,12 @@
 
 - : (Number, Number) => Number
 
+++ : (Number) => Number
+
+\-\- : (Number) => Number
+
+-- Logical operators
+
 < : (Number, Number) => Boolean
 
 <= : (Number, Number) => Boolean
@@ -19,17 +28,25 @@
 
 >= : (Number, Number) => Boolean
 
-in : (String, Object) => Boolean
-
-++ : (Number) => Number
-
-\-\- : (Number) => Number
-
 ! : (%Boolean%%Mixed) => Boolean
+
+-- Bit operators
+
+>> : (Number, Number) => Boolean
+
+<< : (Number, Number) => Boolean
+
+>>> : (Number, Number) => Boolean
+
+~ : (Number) => Number
 
 | : (Number, Number) => Number
 
-void : (%Boolean%%Mixed) => void
+& : (Number, Number) => Number
+
+^ : (Number, Number) => Number
+
+-- Equality operators
 
 === : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
 
@@ -39,8 +56,16 @@ void : (%Boolean%%Mixed) => void
 
 == : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
 
+-- Operator keywords
+
 -- Do not use %Boolean%%Mixed here...
 typeof : (%Boolean%%Mixed) => String
+
+in : (String, Object) => Boolean
+
+instanceof : (Object, Function) => Boolean
+
+void : (%Boolean%%Mixed) => void
 
 %Unary%%Minus : (Number) => Number
 %Unary%%Plus : (Number) => Number
