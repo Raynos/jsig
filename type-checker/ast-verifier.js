@@ -846,11 +846,23 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
             var args = [];
             if (oldDefn.thisArg) {
                 var objType = this.meta.verifyNode(node.callee.object, null);
-                args.push('this: ' + this.meta.serializeType(objType));
+                if (objType) {
+                    args.push('this: ' + this.meta.serializeType(objType));
+                } else {
+                    args.push('<TypeError for js expr `' +
+                        this.meta.serializeAST(node.callee.object) + '`>'
+                    );
+                }
             }
             for (var i = 0; i < node.arguments.length; i++) {
                 var argType = this.meta.verifyNode(node.arguments[i], null);
-                args.push(this.meta.serializeType(argType));
+                if (argType) {
+                    args.push(this.meta.serializeType(argType));
+                } else {
+                    args.push('<TypeError for js expr `' +
+                        this.meta.serializeAST(node.arguments[i]) + '`>'
+                    );
+                }
             }
 
             var actualStr = '[' + args.join(', ') + ']';
