@@ -8,6 +8,7 @@ type Error : {
 
 type TArray : {
     length: Number,
+    indexOf: <T>(this: Array<T>, item: T) => Number,
     push: <T>(this: Array<T>, value: T) => Number,
     pop: <T>(this: Array<T>) => T,
     join: <T>(this: Array<T>, sep: String) => String,

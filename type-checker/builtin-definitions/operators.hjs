@@ -19,6 +19,8 @@
 
 >= : (Number, Number) => Boolean
 
+in : (String, Object) => Boolean
+
 ++ : (Number) => Number
 
 \-\- : (Number) => Number
