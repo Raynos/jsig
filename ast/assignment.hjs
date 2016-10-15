@@ -1,0 +1,12 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigAssignmentNode {
+    type: "assignment",
+    identifier: String,
+    typeExpression: JsigType,
+    _raw: JsigAssignmentNode | null
+}
+
+AssignmentNode : (
+    this: JsigAssignmentNode, id: String, expr: JsigType
+) => void

@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 module.exports = AssignmentNode;
 
 function AssignmentNode(id, expr) {
