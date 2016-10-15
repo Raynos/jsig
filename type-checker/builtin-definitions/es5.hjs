@@ -9,10 +9,22 @@ type Error : {
 type TArray : {
     length: Number,
     indexOf: <T>(this: Array<T>, item: T) => Number,
+    lastIndexOf: <T>(this: Array<T>, item: T) => Number,
     push: <T>(this: Array<T>, value: T) => Number,
     pop: <T>(this: Array<T>) => T,
+    shift: <T>(this: Array<T>) => T,
+    unshift: <T>(this: Array<T>, value: T) => Number,
     join: <T>(this: Array<T>, sep: String) => String,
-    slice: <T>(this: Array<T>, start?: Number, end?: Number) => Array<T>
+    slice: <T>(this: Array<T>, start?: Number, end?: Number) => Array<T>,
+    toString: <T>(this: Array<T>) => String,
+    concat: <T>(this: Array<T>, other: Array<T>) => Array<T>,
+    reverse: <T>(this: Array<T>) => Array<T>,
+
+    sort: <T>(this: Array<T>, sortFn?: (T, T) => Number) => void,
+
+    splice: <T>(
+        this: Array<T>, start: Number, deleteCount: Number, item?: T
+    ) => Array<T>
 }
 
 type TString : {
@@ -46,17 +58,23 @@ type TDate : {
 
 type TNumber : {
     toFixed : (this: Number, digits?: Number) => String,
+    toExponential : (this: Number, digits?: Number) => String,
+    toPrecision: (this: Number, precision?: Number) => String,
     toString : (this: Number) => String
 }
 
 type TFunction : {
     call: %InternalFunction%%FnCall,
     apply: %InternalFunction%%FnApply,
-    bind: %InternalFunction%%FnBind
+    bind: %InternalFunction%%FnBind,
+
+    toString: (this: Function) => String,
+    length: Number
 }
 
 type TRegExp : {
-    test: (this: RegExp, pattern: String) => Boolean
+    test: (this: RegExp, pattern: String) => Boolean,
+    exec: (this: RegExp, pattern: String) => Array<String> | null
 }
 
 String : (Number) => String
@@ -70,11 +88,21 @@ Array : {
 } & <T>(this: Array<T>, size: Number) => void
 
 Date : {
-    now: () => Number
+    now: () => Number,
+    parse: (format: String) => Number
 } & (this: Date) => void
 
 Math : {
-    floor: (Number) => Number
+    floor: (Number) => Number,
+    sqrt: (Number) => Number,
+    round: (Number) => Number,
+    random: () => Number
+    pow : (Number, Number) => Number
+    min : (Number, Number) => Number,
+    max : (Number, Number) => Number,
+    log : (Number) => Number,
+    ceil : (Number) => Number,
+    abs : (Number) => Number
 }
 
 parseInt : (String, Number) => Number
