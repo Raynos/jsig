@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "check": "make check",
-    "lint": "eslint $(git ls-files | grep '\\.js$')",
+    "lint": "eslint $(git ls-files | grep '\\.js$') && npm run check",
     "test": "npm run lint && node test/index.js && bash scripts/check_files.sh",
     "cover": "istanbul cover --report html --print detail test/index.js",
     "view-cover": "istanbul report html && opn ./coverage/index.html"
