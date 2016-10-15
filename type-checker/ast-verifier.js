@@ -845,6 +845,77 @@ function verifyCallExpression(node) {
     return result;
 };
 
+ASTVerifier.prototype._checkFunctionCallArgument =
+function _checkFunctionCallArgument(node, defn, index, isOverload) {
+    var wantedType = defn.args[index].value;
+    if (defn.args[index].optional) {
+        wantedType = JsigAST.union([
+            wantedType, JsigAST.value('undefined')
+        ]);
+    }
+
+    var actualType;
+    if (node.arguments[index].type === 'Identifier' &&
+        this.meta.currentScope.getUntypedFunction(
+            node.arguments[index].name
+        )
+    ) {
+        var funcName = node.arguments[index].name;
+        if (!this.meta.tryUpdateFunction(funcName, wantedType)) {
+            return false;
+        }
+
+        actualType = wantedType;
+    } else if (node.arguments[index].type === 'FunctionExpression' &&
+        isOverload
+    ) {
+        var beforeErrors = this.meta.countErrors();
+        actualType = this.meta.verifyNode(node.arguments[index], wantedType);
+        var afterErrors = this.meta.countErrors();
+        if (!actualType || (beforeErrors !== afterErrors)) {
+            this.meta.currentScope.revertFunctionScope(
+                this.meta.getFunctionName(node.arguments[index])
+            );
+            return false;
+        }
+    } else {
+        actualType = this.meta.verifyNode(node.arguments[index], wantedType);
+    }
+
+    /*  If a literal string value is expected AND
+        A literal string value is passed as an argument
+        a.k.a not an alias or field.
+
+        Then convert the TypeLiteral into a ValueLiteral
+     */
+    if (wantedType.type === 'valueLiteral' &&
+        wantedType.name === 'string' &&
+        node.arguments[index].type === 'Literal' &&
+        actualType.type === 'typeLiteral' &&
+        actualType.builtin &&
+        actualType.name === 'String' &&
+        typeof actualType.concreteValue === 'string'
+    ) {
+        actualType = JsigAST.value(
+            '"' + actualType.concreteValue + '"', 'string'
+        );
+    }
+
+    if (!actualType) {
+        return false;
+    }
+
+    this.meta.checkSubType(node.arguments[index], wantedType, actualType);
+
+    if (node.arguments[index].type === 'Identifier') {
+        this.meta.currentScope.markVarAsAlias(
+            node.arguments[index].name, null
+        );
+    }
+
+    return true;
+};
+
 ASTVerifier.prototype._checkFunctionCallExpr =
 function _checkFunctionCallExpr(node, defn, isOverload) {
     var err;
@@ -918,68 +989,11 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
 
     var minLength = Math.min(defn.args.length, node.arguments.length);
     for (i = 0; i < minLength; i++) {
-        var wantedType = defn.args[i].value;
-        if (defn.args[i].optional) {
-            wantedType = JsigAST.union([
-                wantedType, JsigAST.value('undefined')
-            ]);
-        }
-
-        var actualType;
-        if (node.arguments[i].type === 'Identifier' &&
-            this.meta.currentScope.getUntypedFunction(node.arguments[i].name)
-        ) {
-            var funcName = node.arguments[i].name;
-            if (!this.meta.tryUpdateFunction(funcName, wantedType)) {
-                return null;
-            }
-
-            actualType = wantedType;
-        } else if (node.arguments[i].type === 'FunctionExpression' &&
-            isOverload
-        ) {
-            var beforeErrors = this.meta.countErrors();
-            actualType = this.meta.verifyNode(node.arguments[i], wantedType);
-            var afterErrors = this.meta.countErrors();
-            if (!actualType || (beforeErrors !== afterErrors)) {
-                this.meta.currentScope.revertFunctionScope(
-                    this.meta.getFunctionName(node.arguments[i])
-                );
-                return null;
-            }
-        } else {
-            actualType = this.meta.verifyNode(node.arguments[i], wantedType);
-        }
-
-        /*  If a literal string value is expected AND
-            A literal string value is passed as an argument
-            a.k.a not an alias or field.
-
-            Then convert the TypeLiteral into a ValueLiteral
-         */
-        if (wantedType.type === 'valueLiteral' &&
-            wantedType.name === 'string' &&
-            node.arguments[i].type === 'Literal' &&
-            actualType.type === 'typeLiteral' &&
-            actualType.builtin &&
-            actualType.name === 'String' &&
-            typeof actualType.concreteValue === 'string'
-        ) {
-            actualType = JsigAST.value(
-                '"' + actualType.concreteValue + '"', 'string'
-            );
-        }
-
-        if (!actualType) {
+        var success = this._checkFunctionCallArgument(
+            node, defn, i, isOverload
+        );
+        if (!success) {
             return null;
-        }
-
-        this.meta.checkSubType(node.arguments[i], wantedType, actualType);
-
-        if (node.arguments[i].type === 'Identifier') {
-            this.meta.currentScope.markVarAsAlias(
-                node.arguments[i].name, null
-            );
         }
     }
 
