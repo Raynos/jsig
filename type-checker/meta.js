@@ -214,7 +214,7 @@ ProgramMeta.prototype.verify = function verify() {
             this.verifyNode(node, null);
         } else if (!this.moduleExportsType) {
             this.moduleExportsType = JsigAST.literal(
-                '%Mixed%%UnknownRequire', true
+                '%Mixed%%UnknownExports', true
             );
         }
     } else {
