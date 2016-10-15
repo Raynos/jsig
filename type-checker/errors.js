@@ -490,4 +490,14 @@ Errors.NonNumericTupleAccess = TypedError({
     line: null
 });
 
+Errors.CannotCallGenericFunction = TypedError({
+    type: 'jsig.verify.cannot-call-generic-function',
+    message: 'Cannot call generic function {funcName} with arguments {actual}',
+    funcName: null,
+    actual: null,
+    expected: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

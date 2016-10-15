@@ -260,7 +260,7 @@ function verifyExpressionStatement(node) {
     return this.meta.verifyNode(node.expression, null);
 };
 
-/*eslint max-statements: [2, 80]*/
+/*eslint max-statements: [2, 100]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
     this.meta.currentScope.setWritableTokenLookup();
@@ -840,14 +840,34 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
 
     if (defn.generics.length > 0) {
         // TODO: resolve generics
+        var oldDefn = defn;
         defn = this.meta.resolveGeneric(defn, node);
         if (!defn) {
+            var args = [];
+            if (oldDefn.thisArg) {
+                var obj = this.meta.verifyNode(node.callee.object, null);
+                args.push('this: ' + this.meta.serializeType(obj));
+            }
+            for (var i = 0; i < node.arguments.length; i++) {
+                var argType = this.meta.verifyNode(node.arguments[i], null);
+                args.push(this.meta.serializeType(argType));
+            }
+
+            var actualStr = '[' + args.join(', ') + ']';
+
+            this.meta.addError(Errors.CannotCallGenericFunction({
+                funcName: this.meta.serializeAST(node.callee),
+                expected: this.meta.serializeType(oldDefn),
+                actual: actualStr,
+                loc: node.loc,
+                line: node.loc.start.line
+            }));
             return null;
         }
     }
 
     var minArgs = defn.args.length;
-    for (var i = 0; i < defn.args.length; i++) {
+    for (i = 0; i < defn.args.length; i++) {
         if (defn.args[i].optional) {
             minArgs--;
         }
