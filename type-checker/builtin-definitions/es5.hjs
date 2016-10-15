@@ -96,8 +96,8 @@ Math : {
     floor: (Number) => Number,
     sqrt: (Number) => Number,
     round: (Number) => Number,
-    random: () => Number
-    pow : (Number, Number) => Number
+    random: () => Number,
+    pow : (Number, Number) => Number,
     min : (Number, Number) => Number,
     max : (Number, Number) => Number,
     log : (Number) => Number,
