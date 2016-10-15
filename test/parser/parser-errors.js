@@ -5,17 +5,17 @@ var test = require('tape');
 var parse = require('../../parser.js');
 
 test('bad identifier', function t(assert) {
-    var content = 'foo-baz~bar-boz : Number';
+    var content = 'foo-baz@bar-boz : Number';
 
     assert.throws(function throwIt() {
         parse(content);
-    }, /expected ':' at line 1 column 8, got '...~bar-boz/);
+    }, /expected ':' at line 1 column 8, got '...@bar-boz/);
 
     assert.end();
 });
 
 test('bad identifier with cb', function t(assert) {
-    var content = 'foo-baz~bar-boz : Number';
+    var content = 'foo-baz@bar-boz : Number';
 
     parse(content, onError);
 
@@ -23,7 +23,7 @@ test('bad identifier with cb', function t(assert) {
         assert.ok(err);
         assert.equal(err.message,
             'expected \':\' at line 1 column 8, ' +
-            'got \'...~bar-boz : N...\''
+            'got \'...@bar-boz : N...\''
         );
 
         assert.end();
