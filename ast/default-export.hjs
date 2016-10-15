@@ -1,0 +1,9 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigDefaultExportNode {
+    type: "defaultExport",
+    typeExpression: JsigType,
+    _raw: JsigDefaultExportNode | null
+}
+
+DefaultExportNode : (this: JsigDefaultExportNode, expr: JsigType) => void
