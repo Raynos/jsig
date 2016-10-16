@@ -2269,10 +2269,24 @@ function _findPropertyInObject(
         }
 
         // Handle tuple -> array mis-inference
-        if (jsigType.type === 'tuple' && jsigType.inferred) {
+        if (jsigType.type === 'tuple' && jsigType.inferred &&
+            node.object.type === 'Identifier'
+        ) {
+            var identifierName = node.object.name;
+            var token = this.meta.currentScope.getVar(identifierName);
+
+            var self = this;
             var newType = this._maybeConvertToArray(
-                node, jsigType, propertyName
+                token,
+                identifierName,
+                jsigType,
+                function verify(possibleArray) {
+                    return self._findPropertyInType(
+                        node, possibleArray, propertyName
+                    );
+                }
             );
+
             if (newType) {
                 return this._findPropertyInType(
                     node, newType, propertyName
@@ -2318,7 +2332,7 @@ function _findPropertyInObject(
 };
 
 ASTVerifier.prototype._maybeConvertToArray =
-function _maybeConvertToArray(node, oldType, propertyName) {
+function _maybeConvertToArray(token, identifierName, oldType, verify) {
     // TODO: check that there is IdentifierToken
     // for this `jsigType` and that is inferred=true
 
@@ -2333,14 +2347,6 @@ function _maybeConvertToArray(node, oldType, propertyName) {
     // and see if the property lookup succeeds
     // if so change, forceUpdateVar() and set the
     // inferred flag on the IdentifierToken to false
-
-    if (node.object.type !== 'Identifier') {
-        return null;
-    }
-
-    var identifierName = node.object.name;
-    var token = this.meta.currentScope.getVar(identifierName);
-
     if (!token || !token.inferred || token.aliasCount > 0) {
         return null;
     }
@@ -2366,9 +2372,7 @@ function _maybeConvertToArray(node, oldType, propertyName) {
     var prevErrors = this.meta.getErrors();
     var beforeErrors = this.meta.countErrors();
 
-    var lookupType = this._findPropertyInType(
-        node, possibleArray, propertyName
-    );
+    var lookupType = verify(possibleArray);
 
     var afterErrors = this.meta.countErrors();
 
