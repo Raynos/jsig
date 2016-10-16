@@ -1,0 +1,13 @@
+
+interface JsigLocationLiteralNode {
+    type: "locationLiteral",
+    name: String,
+    location: Array<String | Number>,
+    _raw: JsigLocationLiteralNode | null
+}
+
+LocationLiteralNode : (
+    this: JsigLocationLiteralNode,
+    name: String,
+    location: Array<String | Number>
+) => void
