@@ -846,6 +846,8 @@ function verifyCallExpression(node) {
 
 ASTVerifier.prototype._checkFunctionCallArgument =
 function _checkFunctionCallArgument(node, defn, index, isOverload) {
+    var argNode = node.arguments[index];
+
     var wantedType = defn.args[index].value;
     if (defn.args[index].optional) {
         wantedType = JsigAST.union([
@@ -854,31 +856,31 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
     }
 
     var actualType;
-    if (node.arguments[index].type === 'Identifier' &&
+    if (argNode.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(
-            node.arguments[index].name
+            argNode.name
         )
     ) {
-        var funcName = node.arguments[index].name;
+        var funcName = argNode.name;
         if (!this.meta.tryUpdateFunction(funcName, wantedType)) {
             return false;
         }
 
         actualType = wantedType;
-    } else if (node.arguments[index].type === 'FunctionExpression' &&
+    } else if (argNode.type === 'FunctionExpression' &&
         isOverload
     ) {
         var beforeErrors = this.meta.countErrors();
-        actualType = this.meta.verifyNode(node.arguments[index], wantedType);
+        actualType = this.meta.verifyNode(argNode, wantedType);
         var afterErrors = this.meta.countErrors();
         if (!actualType || (beforeErrors !== afterErrors)) {
             this.meta.currentScope.revertFunctionScope(
-                this.meta.getFunctionName(node.arguments[index])
+                this.meta.getFunctionName(argNode)
             );
             return false;
         }
     } else {
-        actualType = this.meta.verifyNode(node.arguments[index], wantedType);
+        actualType = this.meta.verifyNode(argNode, wantedType);
     }
 
     /*  If a literal string value is expected AND
@@ -889,7 +891,7 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
      */
     if (wantedType.type === 'valueLiteral' &&
         wantedType.name === 'string' &&
-        node.arguments[index].type === 'Literal' &&
+        argNode.type === 'Literal' &&
         actualType.type === 'typeLiteral' &&
         actualType.builtin &&
         actualType.name === 'String' &&
@@ -904,11 +906,11 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         return false;
     }
 
-    this.meta.checkSubType(node.arguments[index], wantedType, actualType);
+    this.meta.checkSubType(argNode, wantedType, actualType);
 
-    if (node.arguments[index].type === 'Identifier') {
+    if (argNode.type === 'Identifier') {
         this.meta.currentScope.markVarAsAlias(
-            node.arguments[index].name, null
+            argNode.name, null
         );
     }
 
