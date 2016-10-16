@@ -1,14 +1,4 @@
-
-type LineLocation : {
-    start: {
-        line: Number,
-        column: Number
-    },
-    end: {
-        line: Number,
-        column: Number
-    }
-}
+import { LineLocation } from "./index.hjs"
 
 interface JsigLiteralTypeNode {
     type: "typeLiteral",

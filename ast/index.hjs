@@ -9,3 +9,14 @@ type JsigAssignment : {
     identifier: String,
     typeExpression: JsigType
 }
+
+type LineLocation : {
+    start: {
+        line: Number,
+        column: Number
+    },
+    end: {
+        line: Number,
+        column: Number
+    }
+}
