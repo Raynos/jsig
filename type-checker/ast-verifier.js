@@ -2279,9 +2279,7 @@ function _findPropertyInObject(
 
             var self = this;
             var newType = this._maybeConvertToArray(
-                token,
-                identifierName,
-                jsigType,
+                token, identifierName, jsigType,
                 function verify(possibleArray) {
                     return self._findPropertyInType(
                         node, possibleArray, propertyName
