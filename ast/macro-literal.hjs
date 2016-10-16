@@ -1,0 +1,13 @@
+
+interface JsigMacroLiteralNode {
+    type: "macroLiteral",
+    macroName: String,
+    macroFile: String,
+    _raw: JsigMacroLiteralNode | null
+}
+
+MacroLiteralNode : (
+    this: JsigMacroLiteralNode,
+    macroName: String,
+    macroFile: String
+) => void
