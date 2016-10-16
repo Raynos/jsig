@@ -1,16 +1,15 @@
-import { JsigType } from "./index.hjs"
+import { JsigLiteralTypeNode } from "./literal.hjs"
 
--- Use Literal instead of JsigType
 interface JsigGenericLiteralNode {
     type: "genericLiteral",
-    value: JsigType,
-    generics: Array<JsigType>,
+    value: JsigLiteralTypeNode,
+    generics: Array<JsigLiteralTypeNode>,
     _raw: JsigGenericLiteralNode | null
 }
 
 GenericLiteralNode : (
     this: JsigGenericLiteralNode,
-    value: JsigType,
-    generics: Array<JsigType>,
+    value: JsigLiteralTypeNode,
+    generics: Array<JsigLiteralTypeNode>,
     label: String
 ) => void
