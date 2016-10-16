@@ -304,11 +304,6 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
-    if (node.right.type === 'Identifier') {
-        this.meta.currentScope.markVarAsAlias(
-            node.right.name, null
-        );
-    }
     if (node.left.type === 'Identifier' && !rightType.inferred) {
         var token = this.meta.currentScope.getVar(node.left.name);
         token.inferred = false;
@@ -393,6 +388,30 @@ function verifyAssignmentExpression(node) {
         if (this.meta.hasExportDefined()) {
             var expectedType = this.meta.getModuleExportsType();
 
+            if (expectedType.type === 'genericLiteral' &&
+                expectedType.value.name === 'Array' &&
+                expectedType.value.builtin &&
+                rightType.type === 'tuple' &&
+                rightType.inferred &&
+                node.right.type === 'Identifier'
+            ) {
+                token = this.meta.currentScope.getVar(node.right.name);
+
+                var self = this;
+                var newType = this._maybeConvertToArray(
+                    token, node.right.name, rightType,
+                    function verify(possibleArray) {
+                        return self.meta.checkSubType(
+                            node, expectedType, possibleArray
+                        );
+                    }
+                );
+
+                if (newType) {
+                    rightType = newType;
+                }
+            }
+
             this.meta.checkSubType(node, expectedType, rightType);
             this.meta.setHasModuleExports(true);
         } else {
@@ -439,6 +458,12 @@ function verifyAssignmentExpression(node) {
 
         this.meta.currentScope.addPrototypeField(
             funcName, fieldName, rightType
+        );
+    }
+
+    if (node.right.type === 'Identifier') {
+        this.meta.currentScope.markVarAsAlias(
+            node.right.name, null
         );
     }
 

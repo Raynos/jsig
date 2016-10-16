@@ -539,6 +539,23 @@ JSIGSnippet.test('passing tuple to array function', {
     assert.end();
 });
 
+JSIGSnippet.test('passing tuple to array export', {
+    snippet: function m() {/*
+        var bar = ['foo', 'bar', 'baz'];
+
+        module.exports = bar;
+    */},
+    header: function h() {/*
+        export default Array<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
+
 JSIGSnippet.test('passing aliased tuple to array function', {
     snippet: function m() {/*
         var bar = ['foo', 'bar', 'baz'];
@@ -548,6 +565,30 @@ JSIGSnippet.test('passing aliased tuple to array function', {
     */},
     header: function h() {/*
         foo : (Array<String>) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var e = meta.errors[0];
+    assert.equal(e.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(e.expected, 'Array<String>');
+    assert.equal(e.actual, '[String, String, String]');
+    assert.equal(e.line, 4);
+
+    assert.end();
+});
+
+JSIGSnippet.test('passing aliased tuple to array export', {
+    snippet: function m() {/*
+        var bar = ['foo', 'bar', 'baz'];
+        var baz = bar;
+
+        module.exports = bar;
+    */},
+    header: function h() {/*
+        export default Array<String>
     */}
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
