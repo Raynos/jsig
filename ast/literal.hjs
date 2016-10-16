@@ -1,0 +1,37 @@
+
+type LineLocation : {
+    start: {
+        line: Number,
+        column: Number
+    },
+    end: {
+        line: Number,
+        column: Number
+    }
+}
+
+interface JsigLiteralTypeNode {
+    type: "typeLiteral",
+    name: String,
+    builtin: Boolean,
+    line: Number | null,
+    loc: LineLocation | null,
+
+    concreteValue: String | null,
+    isGeneric: Boolean,
+    genericIdentifierUUID: String| null,
+    _raw: JsigLiteralTypeNode | null
+}
+
+LiteralTypeNode : (
+    this: JsigLiteralTypeNode,
+    name: String,
+    builtin: Boolean,
+    opts?: {
+        label?: String,
+        optional?: Boolean,
+        concreteValue?: String,
+        line?: Number,
+        loc?: LineLocation
+    }
+) => void

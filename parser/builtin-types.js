@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var builtinTypes = [
     'String',
     'Number',
