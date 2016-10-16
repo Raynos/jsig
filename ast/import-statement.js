@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var ASTConfig = require('./_ast-config.js');
 
 module.exports = ImportStatementNode;

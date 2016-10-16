@@ -1,0 +1,23 @@
+import { LineLocation } from "./index.hjs"
+import { JsigLiteralTypeNode } from "./literal.hjs"
+
+interface JsigImportStatementNode {
+    type: "import",
+    dependency: String,
+    types: Array<JsigLiteralTypeNode>,
+    line: Number | null,
+    loc: LineLocation | null,
+    isMacro: Boolean,
+    _raw: JsigImportStatementNode | null
+}
+
+ImportStatementNode : (
+    this: JsigImportStatementNode,
+    dependency: String,
+    types: Array<JsigLiteralTypeNode>,
+    opts?: {
+        line?: Number,
+        loc?: LineLocation,
+        isMacro?: Boolean
+    }
+) => void
