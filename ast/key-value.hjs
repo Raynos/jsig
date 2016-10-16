@@ -1,0 +1,20 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigKeyValueNode {
+    type: "keyValue",
+    key: String,
+    value: JsigType,
+    optional: Boolean,
+    isMethod: Boolean,
+    isOverloaded: Boolean,
+    _raw: JsigKeyValueNode | null
+}
+
+KeyValueNode : (
+    this: JsigKeyValueNode,
+    key: String,
+    value: JsigType,
+    opts?: {
+        optional?: Boolean
+    }
+) => void

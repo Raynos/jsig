@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 module.exports = KeyValueNode;
 
 function KeyValueNode(key, value, opts) {
