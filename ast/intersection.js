@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var assert = require('assert');
 
 module.exports = IntersectionTypeNode;
@@ -17,6 +19,7 @@ IntersectionTypeNode.prototype.buildObjectIndex =
 function buildObjectIndex(index) {
     index = index || {};
 
+    /* jsig ignore next: cannot yet narrow by string field check */
     for (var i = 0; i < this.intersections.length; i++) {
         var maybeObj = this.intersections[i];
         if (maybeObj.type !== 'object') {
