@@ -902,6 +902,30 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         );
     }
 
+    if (wantedType.type === 'genericLiteral' &&
+        wantedType.value.name === 'Array' &&
+        wantedType.value.builtin &&
+        actualType.type === 'tuple' &&
+        actualType.inferred &&
+        argNode.type === 'Identifier'
+    ) {
+        var token = this.meta.currentScope.getVar(argNode.name);
+
+        var self = this;
+        var newType = this._maybeConvertToArray(
+            token, argNode.name, actualType,
+            function verify(possibleArray) {
+                return self.meta.checkSubType(
+                    argNode, wantedType, possibleArray
+                );
+            }
+        );
+
+        if (newType) {
+            actualType = newType;
+        }
+    }
+
     if (!actualType) {
         return false;
     }

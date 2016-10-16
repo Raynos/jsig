@@ -522,6 +522,47 @@ JSIGSnippet.test('cannot convert re-typed var tuple', {
     assert.end();
 });
 
+JSIGSnippet.test('passing tuple to array function', {
+    snippet: function m() {/*
+        var bar = ['foo', 'bar', 'baz'];
+
+        foo(bar);
+    */},
+    header: function h() {/*
+        foo : (Array<String>) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
+
+JSIGSnippet.test('passing aliased tuple to array function', {
+    snippet: function m() {/*
+        var bar = ['foo', 'bar', 'baz'];
+        var baz = bar;
+
+        foo(bar);
+    */},
+    header: function h() {/*
+        foo : (Array<String>) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var e = meta.errors[0];
+    assert.equal(e.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(e.expected, 'Array<String>');
+    assert.equal(e.actual, '[String, String, String]');
+    assert.equal(e.line, 4);
+
+    assert.end();
+});
+
 JSIGSnippet.test('conditional tuples', {
     snippet: function m() {/*
         function makeTuple(source) {
