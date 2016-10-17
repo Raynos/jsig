@@ -2378,6 +2378,11 @@ function _findPropertyInObject(
     // If open and mutation then allow mixed type.
     if (jsigType.open && this.meta.currentScope.writableTokenLookup) {
         return JsigAST.literal('%Mixed%%OpenField', true);
+    } else if (jsigType.open) {
+        // If open and accessing outside of assignment
+        // Then accessing any unknown field returns undefined
+
+        return JsigAST.value('undefined');
     }
 
     if (isExportsObject && this.meta.checkerRules.partialExport) {
