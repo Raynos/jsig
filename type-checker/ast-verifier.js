@@ -27,7 +27,7 @@ function ASTVerifier(meta, checker, fileName) {
     this.folderName = path.dirname(fileName);
 }
 
-/*eslint complexity: [2, 30] */
+/*eslint complexity: [2, 50] */
 ASTVerifier.prototype.verifyNode = function verifyNode(node) {
     if (node.type === 'Program') {
         return this.verifyProgram(node);
@@ -263,7 +263,6 @@ function verifyExpressionStatement(node) {
 /*eslint max-statements: [2, 100]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
-
     if (
         node.left.type === 'Identifier' ||
         (node.left.type === 'MemberExpression' &&
@@ -755,6 +754,12 @@ function _resolveInternalFnBind(node, defn) {
     return callFuncType;
 };
 
+function isDictionary(exprType) {
+    return exprType && exprType.type === 'genericLiteral' &&
+        exprType.value.type === 'typeLiteral' &&
+        exprType.value.builtin && exprType.value.name === 'Object';
+}
+
 ASTVerifier.prototype._resolveInternalObjectCreate =
 function _resolveInternalObjectCreate(node, defn) {
     assert(node.callee.type === 'MemberExpression',
@@ -763,11 +768,19 @@ function _resolveInternalObjectCreate(node, defn) {
     var returnType = null;
 
     var currExprType = this.meta.currentExpressionType;
-    if (currExprType && currExprType.type === 'genericLiteral' &&
-        currExprType.value.type === 'typeLiteral' &&
-        currExprType.value.builtin && currExprType.value.name === 'Object'
-    ) {
+    if (isDictionary(currExprType)) {
         returnType = this.meta.currentExpressionType;
+    } else if (currExprType.type === 'unionType') {
+        for (var i = 0; i < currExprType.unions.length; i++) {
+            if (isDictionary(currExprType.unions[i])) {
+                returnType = currExprType.unions[i];
+                break;
+            }
+        }
+
+        if (!returnType) {
+            returnType = JsigAST.literal('%Object%%Empty', true);
+        }
     } else {
         // returnType = JsigAST.generic(
         //     JsigAST.literal('Object'),
