@@ -27,7 +27,14 @@ JSIGSnippet.test('function overloading works', {
     assert.equal(err1.fieldName, 'split');
     assert.equal(err1.objName, 'foo(2)');
     assert.equal(err1.expected, '{ split: T }');
-    assert.equal(err1.actual, 'Number');
+    assert.equal(err1.actual,
+        '{\n' +
+        '    toFixed: (this: Number, digits?: Number) => String,\n' +
+        '    toExponential: (this: Number, digits?: Number) => String,\n' +
+        '    toPrecision: (this: Number, precision?: Number) => String,\n' +
+        '    toString: (this: Number) => String\n' +
+        '}'
+    );
     assert.equal(err1.line, 2);
 
     var err2 = meta.errors[1];
