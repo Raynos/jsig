@@ -17,7 +17,8 @@ var builtinTypes = [
     '%Object%%Empty',
     '%InternalFunction%%FnCall',
     '%InternalFunction%%FnApply',
-    '%InternalFunction%%FnBind'
+    '%InternalFunction%%FnBind',
+    '%InternalFunction%%ObjectCreate'
 ];
 
 module.exports = builtinTypes;

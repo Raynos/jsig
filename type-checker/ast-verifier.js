@@ -742,6 +742,21 @@ function _resolveInternalFnBind(node, defn) {
     return callFuncType;
 };
 
+ASTVerifier.prototype._resolveInternalObjectCreate =
+function _resolveInternalObjectCreate(node, defn) {
+    assert(node.callee.type === 'MemberExpression',
+        'Can only object.create() in member expression');
+
+    var callFuncType = JsigAST.functionType({
+        args: [
+            JsigAST.param('parent', JsigAST.value('null'))
+        ],
+        result: JsigAST.literal('%Object%%Empty', true)
+    });
+
+    return callFuncType;
+};
+
 ASTVerifier.prototype._tryResolveInternalFunction =
 function _tryResolveInternalFunction(node, defn) {
     if (defn.type === 'typeLiteral' && defn.builtin &&
@@ -756,6 +771,10 @@ function _tryResolveInternalFunction(node, defn) {
         defn.name === '%InternalFunction%%FnApply'
     ) {
         return this._resolveInternalFnApply(node, defn);
+    } else if (defn.type === 'typeLiteral' && defn.builtin &&
+        defn.name === '%InternalFunction%%ObjectCreate'
+    ) {
+        return this._resolveInternalObjectCreate(node, defn);
     }
 
     return defn;
