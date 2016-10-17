@@ -251,7 +251,27 @@ function verifyFunctionDeclaration(node) {
 ASTVerifier.prototype.verifyBlockStatement =
 function verifyBlockStatement(node) {
     for (var i = 0; i < node.body.length; i++) {
-        this.meta.verifyNode(node.body[i], null);
+        var statement = node.body[i];
+
+        if (statement.type === 'ExpressionStatement' &&
+            statement.expression.type === 'UnaryExpression' &&
+            statement.expression.operator === 'typeof'
+        ) {
+
+            var exprNode = statement.expression.argument;
+            var valueType = this.meta.verifyNode(exprNode, null);
+
+            this.meta.addError(Errors.TypeofExpression({
+                valueType: valueType ?
+                    this.meta.serializeType(valueType) :
+                    '<TypeError>',
+                expr: this.meta.serializeAST(exprNode),
+                loc: exprNode.loc,
+                line: exprNode.loc.start.line
+            }));
+        }
+
+        this.meta.verifyNode(statement, null);
     }
 };
 

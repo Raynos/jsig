@@ -492,10 +492,20 @@ Errors.NonNumericTupleAccess = TypedError({
 
 Errors.CannotCallGenericFunction = TypedError({
     type: 'jsig.verify.cannot-call-generic-function',
-    message: 'Cannot call generic function {funcName} with arguments {actual}',
+    message: '@{line}: Cannot call generic function {funcName}' +
+        ' with arguments {actual}',
     funcName: null,
     actual: null,
     expected: null,
+    loc: null,
+    line: null
+});
+
+Errors.TypeofExpression = TypedError({
+    type: 'jsig.verify.typeof-expression',
+    message: '@{line}: typeof `{expr}` is: {valueType}.',
+    valueType: null,
+    expr: null,
     loc: null,
     line: null
 });
