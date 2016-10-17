@@ -747,11 +747,23 @@ function _resolveInternalObjectCreate(node, defn) {
     assert(node.callee.type === 'MemberExpression',
         'Can only object.create() in member expression');
 
+    var returnType = null;
+
+    var currExprType = this.meta.currentExpressionType;
+    if (currExprType && currExprType.type === 'genericLiteral' &&
+        currExprType.value.type === 'typeLiteral' &&
+        currExprType.value.builtin && currExprType.value.name === 'Object'
+    ) {
+        returnType = this.meta.currentExpressionType;
+    } else {
+        returnType = JsigAST.literal('%Object%%Empty', true);
+    }
+
     var callFuncType = JsigAST.functionType({
         args: [
             JsigAST.param('parent', JsigAST.value('null'))
         ],
-        result: JsigAST.literal('%Object%%Empty', true)
+        result: returnType
     });
 
     return callFuncType;
