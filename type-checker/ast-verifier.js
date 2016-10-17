@@ -263,11 +263,24 @@ function verifyExpressionStatement(node) {
 /*eslint max-statements: [2, 100]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
-    this.meta.currentScope.setWritableTokenLookup();
+
+    if (
+        node.left.type === 'Identifier' ||
+        (node.left.type === 'MemberExpression' &&
+            !node.left.computed)
+    ) {
+        this.meta.currentScope.setWritableTokenLookup();
+    }
     var beforeError = this.meta.countErrors();
     var leftType = this.meta.verifyNode(node.left, null);
     var afterError = this.meta.countErrors();
-    this.meta.currentScope.unsetWritableTokenLookup();
+    if (
+        node.left.type === 'Identifier' ||
+        (node.left.type === 'MemberExpression' &&
+            !node.left.computed)
+    ) {
+        this.meta.currentScope.unsetWritableTokenLookup();
+    }
 
     if (!leftType) {
         if (afterError === beforeError) {
