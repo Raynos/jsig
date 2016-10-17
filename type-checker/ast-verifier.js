@@ -2395,7 +2395,7 @@ function _findPropertyInObject(
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
-    var err = this._createNonExistantFieldError(node, propertyName);
+    var err = this._createNonExistantFieldError(node, jsigType, propertyName);
     this.meta.addError(err);
     return null;
 };
@@ -2591,7 +2591,7 @@ function _findTypeInTuple(node, objType, propType) {
 };
 
 ASTVerifier.prototype._createNonExistantFieldError =
-function _createNonExistantFieldError(node, propName) {
+function _createNonExistantFieldError(node, jsigType, propName) {
     var objName;
     if (node.object.type === 'ThisExpression') {
         objName = 'this';
@@ -2605,7 +2605,7 @@ function _createNonExistantFieldError(node, propName) {
         assert(false, 'unknown object type');
     }
 
-    var actualType = this.meta.verifyNode(node.object, null);
+    var actualType = jsigType;
 
     if (actualType.type === 'typeLiteral' &&
         actualType.builtin && actualType.name === '%Export%%ExportsObject'
