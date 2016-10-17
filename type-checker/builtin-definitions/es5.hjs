@@ -107,8 +107,6 @@ Math : {
 
 parseInt : (String, Number) => Number
 
--- (parent: null) => %Object%%Empty
-
 Object : {
     create: %InternalFunction%%ObjectCreate,
     keys: <K, V>(Object<K, V>) => Array<String>
