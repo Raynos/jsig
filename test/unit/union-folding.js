@@ -7,7 +7,7 @@ JSIGSnippet.test('folding union removes duplicates', {
         var o = {}
         var b = '' || o || '';
 
-        b.split();
+        b();
     */}
 }, function t(snippet, assert) {
     var meta = snippet.compile();
@@ -15,9 +15,9 @@ JSIGSnippet.test('folding union removes duplicates', {
 
     assert.equal(errors.length, 1);
 
-    assert.equal(errors[0].type, 'jsig.verify.accessing-field-on-union');
-    assert.equal(errors[0].fieldName, 'split');
-    assert.equal(errors[0].unionType, 'String | {}');
+    assert.equal(errors[0].type, 'jsig.verify.calling-non-function-object');
+    assert.equal(errors[0].callExpression, 'b');
+    assert.equal(errors[0].objType, 'String | {}');
     assert.equal(errors[0].line, 4);
 
     assert.end();
@@ -33,7 +33,7 @@ JSIGSnippet.test('fold empty object into optional object', {
 
         var b = opts.requestOptions || {};
 
-        b.foo();
+        b();
     */},
     header: function h() {/*
         opts : {
@@ -48,9 +48,9 @@ JSIGSnippet.test('fold empty object into optional object', {
 
     assert.equal(errors.length, 1);
 
-    assert.equal(errors[0].type, 'jsig.verify.accessing-field-on-union');
-    assert.equal(errors[0].fieldName, 'foo');
-    assert.equal(errors[0].unionType, '{ fieldOne?: String } | {}');
+    assert.equal(errors[0].type, 'jsig.verify.calling-non-function-object');
+    assert.equal(errors[0].callExpression, 'b');
+    assert.equal(errors[0].objType, '{ fieldOne?: String } | {}');
     assert.equal(errors[0].line, 9);
 
     assert.end();
@@ -66,7 +66,7 @@ JSIGSnippet.test('fold empty object into optional object reverse', {
 
         var b = {} || opts.requestOptions;
 
-        b.foo();
+        b();
     */},
     header: function h() {/*
         opts : {
@@ -81,9 +81,9 @@ JSIGSnippet.test('fold empty object into optional object reverse', {
 
     assert.equal(errors.length, 1);
 
-    assert.equal(errors[0].type, 'jsig.verify.accessing-field-on-union');
-    assert.equal(errors[0].fieldName, 'foo');
-    assert.equal(errors[0].unionType, '{} | { fieldOne?: String }');
+    assert.equal(errors[0].type, 'jsig.verify.calling-non-function-object');
+    assert.equal(errors[0].callExpression, 'b');
+    assert.equal(errors[0].objType, '{} | { fieldOne?: String }');
     assert.equal(errors[0].line, 9);
 
     assert.end();

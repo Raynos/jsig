@@ -2231,13 +2231,28 @@ function _findPropertyInType(node, jsigType, propertyName) {
 ASTVerifier.prototype._findPropertyInSet =
 function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
     if (jsigType.type === 'unionType') {
-        this.meta.addError(Errors.UnionFieldAccess({
-            loc: node.loc,
-            line: node.loc.start.line,
-            fieldName: propertyName,
-            unionType: serialize(jsigType)
-        }));
-        return null;
+        /*  Access the field on all types. Then build a union of
+            them if the access succeeds.
+        */
+
+        var fieldUnion = [];
+
+        for (var i = 0; i < jsigType.unions.length; i++) {
+            var fieldType = this._findPropertyInType(
+                node, jsigType.unions[i], propertyName, isExportsObject
+            );
+            if (!fieldType) {
+                return null;
+            }
+
+            fieldUnion.push(fieldType);
+        }
+
+        var union = this._computeSmallestUnion(
+            node, JsigAST.union(fieldUnion)
+        );
+
+        return union;
     }
 
     if (jsigType.type === 'intersectionType' &&
@@ -2247,7 +2262,7 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
         var funcCount = 0;
         var funcType = null;
         var intersections = jsigType.intersections;
-        for (var i = 0; i < intersections.length; i++) {
+        for (i = 0; i < intersections.length; i++) {
             var possibleType = intersections[i];
             if (possibleType.type === 'function') {
                 funcType = possibleType;

@@ -49,10 +49,10 @@ JSIGSnippet.test('generics support unions on read', function m() {/*
     assert.equal(meta.errors.length, 1, 'expected one error');
 
     var err = meta.errors[0];
-    assert.equal(err.type, 'jsig.verify.accessing-field-on-union');
+    assert.equal(err.type, 'jsig.verify.accessing-field-on-non-object');
     assert.equal(err.line, 5);
     assert.equal(err.fieldName, 'split');
-    assert.equal(err.unionType, 'String | null');
+    assert.equal(err.nonObjectType, 'null');
 
     assert.end();
 });
