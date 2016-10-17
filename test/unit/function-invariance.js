@@ -19,7 +19,7 @@ JSIGSnippet.test('function invariant for optional params', {
         watwat : (baz: String) => String
     */}
 }, function t(snippet, assert) {
-    var meta = snippet.compile();
+    var meta = snippet.compile(assert);
 
     assert.equal(meta.errors.length, 1, 'expected one error');
 

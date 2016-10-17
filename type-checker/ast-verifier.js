@@ -318,14 +318,6 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
-    if (afterError === beforeError &&
-        node.left.type === 'Identifier' &&
-        this.meta.currentScope.type === 'branch' &&
-        !isSameType(leftType, rightType)
-    ) {
-        this.meta.currentScope.restrictType(node.left.name, rightType);
-    }
-
     var isNullDefault = (
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Null%%Default'
@@ -340,8 +332,19 @@ function verifyAssignmentExpression(node) {
     );
 
     var canGrow = isNullDefault || isVoidUninitialized || isOpenField;
+    var beforeAssignmentError = this.meta.countErrors();
+    var afterAssignmentErrror = beforeAssignmentError;
     if (!canGrow) {
         this.meta.checkSubType(node, leftType, rightType);
+        afterAssignmentErrror = this.meta.countErrors();
+    }
+
+    if (afterError === beforeError &&
+        afterAssignmentErrror === beforeAssignmentError &&
+        node.left.type === 'Identifier' &&
+        !isSameType(leftType, rightType)
+    ) {
+        this.meta.currentScope.restrictType(node.left.name, rightType);
     }
 
     if (isNullDefault) {
