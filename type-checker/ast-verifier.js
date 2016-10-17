@@ -769,6 +769,13 @@ function _resolveInternalObjectCreate(node, defn) {
     ) {
         returnType = this.meta.currentExpressionType;
     } else {
+        // returnType = JsigAST.generic(
+        //     JsigAST.literal('Object'),
+        //     [
+        //         JsigAST.literal('String'),
+        //         JsigAST.freeLiteral('T')
+        //     ]
+        // );
         returnType = JsigAST.literal('%Object%%Empty', true);
     }
 
