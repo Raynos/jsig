@@ -153,3 +153,32 @@ JSIGSnippet.test('cannot pass extra fields outside signature', {
 
     assert.end();
 });
+
+JSIGSnippet.test('options or default pattern', {
+    snippet: function m() {/*
+        function Foo(opts) {
+            opts = opts || {};
+
+            this.bar = opts.bar || '';
+        }
+
+        new Foo();
+        new Foo({});
+        new Foo({
+            bar: 'baz'
+        });
+    */},
+    header: function h() {/*
+        type Foo : {
+            bar: String
+        }
+
+        Foo : (this: Foo, opts?: { bar?: String }) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
