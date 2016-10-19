@@ -184,6 +184,34 @@ function getUnionWithoutLiteral(type, literalName) {
     return JsigAST.union(unions);
 }
 
+function getUnionWithLiteral(type, literalName) {
+    if (type.type !== 'unionType') {
+        if (containsLiteral(type, literalName)) {
+            return type;
+        } else {
+            return null;
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (containsLiteral(t, literalName)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return null;
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
+
 function containsLiteral(type, literalName) {
     if (type.type === 'typeLiteral' && type.builtin &&
         type.name === '%Boolean%%Mixed'
@@ -224,7 +252,44 @@ function narrowObjectExpression(node, ifBranch, elseBranch) {
 
 NarrowType.prototype.narrowCallExpression =
 function narrowCallExpression(node, ifBranch, elseBranch) {
+    var fnType = this.meta.verifyNode(node.callee, null);
+    if (!fnType) {
+        return null;
+    }
+
+    if (fnType.specialKind === 'isArray') {
+        // TODO: Support Array.isArray()
+        return this.narrowIsArrayExpression(node, ifBranch, elseBranch);
+    }
+
     // TODO: Support hasOwnProperty()
+};
+
+NarrowType.prototype.narrowIsArrayExpression =
+function narrowIsArrayExpression(node, ifBranch, elseBranch) {
+    var identifier = node.arguments[0];
+    if (!identifier || identifier.type !== 'Identifier') {
+        // TODO: support non trivial expressions
+        return null;
+    }
+
+    var type = this.meta.verifyNode(identifier, null);
+    if (!type) {
+        return null;
+    }
+
+    if (containsLiteral(type, 'Array')) {
+        if (ifBranch) {
+            var ifType = getUnionWithLiteral(type, 'Array');
+            ifBranch.narrowType(identifier.name, ifType);
+        }
+        if (elseBranch) {
+            var elseType = getUnionWithoutLiteral(type, 'Array');
+            if (elseType) {
+                elseBranch.narrowType(identifier.name, elseType);
+            }
+        }
+    }
 };
 
 NarrowType.prototype.narrowAssignmentExpression =
