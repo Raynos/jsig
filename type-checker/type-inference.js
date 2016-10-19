@@ -47,7 +47,10 @@ function inferCallExpression(node) {
     }
 
     var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
-    if (this.meta.currentExpressionType) {
+    if (this.meta.currentExpressionType &&
+        this.meta.currentExpressionType.name !== '%Null%%Default' &&
+        this.meta.currentExpressionType.name !== '%Void%%Uninitialized'
+    ) {
         returnType = this.meta.currentExpressionType;
     }
 
