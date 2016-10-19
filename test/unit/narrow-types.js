@@ -182,3 +182,19 @@ JSIGSnippet.test('normalizing variables with typeof', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('narrowing with isArray()', {
+    snippet: function m() {/*
+        if (Array.isArray(foo)) {
+            foo = 5;
+        }
+
+        foo + 4;
+    */},
+    header: function h() {/*
+        foo : Number | Array<String>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
