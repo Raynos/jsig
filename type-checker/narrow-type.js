@@ -119,36 +119,31 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
     var typeTagNode = node.right;
 
     var typeTagValue = typeTagNode.value;
+    var ifType;
     var elseType;
-    if (typeTagValue === 'number' &&
-        containsLiteral(type, 'Number')
+    if (typeTagValue === 'number' // &&
+        // containsLiteral(type, 'Number')
     ) {
         if (ifBranch) {
-            ifBranch.narrowType(
-                identifier.name, JsigAST.literal('Number')
-            );
+            ifType = getUnionWithLiteral(type, 'Number');
+            ifBranch.narrowType(identifier.name, ifType);
         }
         if (elseBranch) {
             // TODO: elseBranch
             elseType = getUnionWithoutLiteral(type, 'Number');
-            if (elseType) {
-                elseBranch.narrowType(identifier.name, elseType);
-            }
+            elseBranch.narrowType(identifier.name, elseType);
         }
-    } else if (typeTagValue === 'string' &&
-        containsLiteral(type, 'String')
+    } else if (typeTagValue === 'string' // &&
+        // containsLiteral(type, 'String')
     ) {
         if (ifBranch) {
-            ifBranch.narrowType(
-                identifier.name, JsigAST.literal('String')
-            );
+            ifType = getUnionWithLiteral(type, 'String');
+            ifBranch.narrowType(identifier.name, ifType);
         }
         if (elseBranch) {
             // TODO: elseBranch
             elseType = getUnionWithoutLiteral(type, 'String');
-            if (elseType) {
-                elseBranch.narrowType(identifier.name, elseType);
-            }
+            elseBranch.narrowType(identifier.name, elseType);
         }
     } else {
         // TODO: support other tags
@@ -159,7 +154,7 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
 function getUnionWithoutLiteral(type, literalName) {
     if (type.type !== 'unionType') {
         if (containsLiteral(type, literalName)) {
-            return null;
+            return JsigAST.literal('Never', true);
         } else {
             return type;
         }
@@ -174,7 +169,7 @@ function getUnionWithoutLiteral(type, literalName) {
     }
 
     if (unions.length === 0) {
-        return null;
+        return JsigAST.literal('Never', true);
     }
 
     if (unions.length === 1) {
@@ -185,11 +180,17 @@ function getUnionWithoutLiteral(type, literalName) {
 }
 
 function getUnionWithLiteral(type, literalName) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return JsigAST.literal(literalName, true);
+    }
+
     if (type.type !== 'unionType') {
         if (containsLiteral(type, literalName)) {
             return type;
         } else {
-            return null;
+            return JsigAST.literal('Never', true);
         }
     }
 
@@ -202,7 +203,7 @@ function getUnionWithLiteral(type, literalName) {
     }
 
     if (unions.length === 0) {
-        return null;
+        return JsigAST.literal('Never', true);
     }
 
     if (unions.length === 1) {
@@ -289,9 +290,7 @@ function narrowIsArrayExpression(node, ifBranch, elseBranch) {
         }
         if (elseBranch) {
             var elseType = getUnionWithoutLiteral(type, 'Array');
-            if (elseType) {
-                elseBranch.narrowType(identifier.name, elseType);
-            }
+            elseBranch.narrowType(identifier.name, elseType);
         }
     }
 };
