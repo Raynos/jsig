@@ -67,6 +67,10 @@ function inferCallExpression(node) {
         thisArg: null
     });
 
+    // TODO: We should see if this function actually
+    // has a smaller return type. Aka given some inferred type
+    // () => X, does the function actually return Y, Y <: X.
+    // In which case we should mark this type as () => Y.
     if (!this.meta.tryUpdateFunction(node.callee.name, funcType)) {
         return null;
     }
