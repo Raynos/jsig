@@ -386,10 +386,12 @@ function verifyAssignmentExpression(node) {
 
     if (afterError === beforeError &&
         afterAssignmentErrror === beforeAssignmentError &&
-        node.left.type === 'Identifier' &&
-        !isSameType(leftType, rightType)
+        node.left.type === 'Identifier'
     ) {
-        this.meta.currentScope.restrictType(node.left.name, rightType);
+        var readLeftType = this.meta.verifyNode(node.left, null);
+        if (!isSameType(readLeftType, rightType)) {
+            this.meta.currentScope.restrictType(node.left.name, rightType);
+        }
     }
 
     if (isNullDefault) {
