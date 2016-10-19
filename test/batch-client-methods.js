@@ -189,7 +189,7 @@ test('return the wrong value from method', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
-    assert.equal(meta.errors.length, 3, 'expected 3 error');
+    assert.equal(meta.errors.length, 4, 'expected 3 error');
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
@@ -197,14 +197,20 @@ test('return the wrong value from method', function t(assert) {
     assert.equal(err.actual, 'String');
     assert.equal(err.line, 10);
 
-    var err2 = meta.errors[1];
+    var err1 = meta.errors[1];
+    assert.equal(err1.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err1.expected, 'Number');
+    assert.equal(err1.actual, 'String');
+    assert.equal(err1.line, 10);
+
+    var err2 = meta.errors[2];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
     assert.equal(err2.fieldName, '_sendRequest');
     assert.equal(err2.otherField, 'no-field');
     assert.equal(err2.funcName, 'BatchClient');
     assert.equal(err2.line, 13);
 
-    var err3 = meta.errors[2];
+    var err3 = meta.errors[3];
     assert.equal(err3.type, 'jsig.verify.untyped-function-found');
     assert.equal(err3.funcName, '_sendRequest');
     assert.equal(err3.line, 7);
@@ -246,23 +252,29 @@ test('return when it says void', function t(assert) {
 
     var meta = compile(file);
     assert.ok(meta, 'expected meta');
-    assert.equal(meta.errors.length, 3, 'expected 3 error');
+    assert.equal(meta.errors.length, 4, 'expected 3 error');
 
-    var err = meta.errors[0];
+    var err0 = meta.errors[0];
+    assert.equal(err0.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(err0.expected, 'void');
+    assert.equal(err0.actual, 'Number');
+    assert.equal(err0.line, 10);
+
+    var err = meta.errors[1];
     assert.equal(err.type, 'jsig.verify.non-void-return-type');
     assert.equal(err.expected, 'void');
     assert.equal(err.actual, 'Number');
     assert.equal(err.funcName, '_sendRequest');
     assert.equal(err.line, 10);
 
-    var err2 = meta.errors[1];
+    var err2 = meta.errors[2];
     assert.equal(err2.type, 'jsig.verify.missing-field-in-constructor');
     assert.equal(err2.fieldName, '_sendRequest');
     assert.equal(err2.otherField, 'no-field');
     assert.equal(err2.funcName, 'BatchClient');
     assert.equal(err2.line, 13);
 
-    var err3 = meta.errors[2];
+    var err3 = meta.errors[3];
     assert.equal(err3.type, 'jsig.verify.untyped-function-found');
     assert.equal(err3.funcName, '_sendRequest');
     assert.equal(err3.line, 7);

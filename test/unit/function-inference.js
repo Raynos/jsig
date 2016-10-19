@@ -24,24 +24,29 @@ JSIGSnippet.test('infer function type error', function m() {/*
         return x;
     }
 */}, function t(snippet, assert) {
-    var meta = snippet.compile();
+    var meta = snippet.compile(assert);
     var errors = meta.errors;
 
-    assert.equal(errors.length, 3);
+    assert.equal(errors.length, 4);
 
     assert.equal(errors[0].type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(errors[0].expected, 'String');
     assert.equal(errors[0].actual, 'Number');
     assert.equal(errors[0].line, 6);
 
-    assert.equal(errors[1].type, 'jsig.verify.untyped-function-call');
-    assert.equal(errors[1].funcName, 'bar');
-    assert.equal(errors[1].callExpression, 'bar');
-    assert.equal(errors[1].line, 3);
+    assert.equal(errors[1].type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(errors[1].expected, 'String');
+    assert.equal(errors[1].actual, 'Number');
+    assert.equal(errors[1].line, 6);
 
-    assert.equal(errors[2].type, 'jsig.verify.untyped-function-found');
+    assert.equal(errors[2].type, 'jsig.verify.untyped-function-call');
     assert.equal(errors[2].funcName, 'bar');
-    assert.equal(errors[2].line, 5);
+    assert.equal(errors[2].callExpression, 'bar');
+    assert.equal(errors[2].line, 3);
+
+    assert.equal(errors[3].type, 'jsig.verify.untyped-function-found');
+    assert.equal(errors[3].funcName, 'bar');
+    assert.equal(errors[3].line, 5);
 
     assert.end();
 });

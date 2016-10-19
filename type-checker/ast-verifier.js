@@ -1329,6 +1329,11 @@ function verifyReturnStatement(node) {
         }
 
         defn = this.meta.verifyNode(node.argument, exprType);
+
+        // TODO: really really need to do better job checking returns
+        if (exprType && defn) {
+            this.meta.checkSubType(node.argument, exprType, defn);
+        }
     }
 
     if (defn) {
