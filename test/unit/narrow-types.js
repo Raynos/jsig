@@ -198,3 +198,97 @@ JSIGSnippet.test('narrowing with isArray()', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('narrowing with isArray() cases 1', {
+    snippet: function m() {/*
+        if (typeof foo === 'number') {
+            typeof foo;
+        } else if (foo) {
+            typeof foo;
+        } else {
+            typeof foo;
+        }
+    */},
+    header: function h() {/*
+        foo : Number | Array<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 3);
+
+    assert.equal(meta.errors[0].valueType, 'Number');
+    assert.equal(meta.errors[1].valueType, 'Array<String>');
+    assert.equal(meta.errors[2].valueType, 'Never');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with isArray() cases 2', {
+    snippet: function m() {/*
+        if (Array.isArray(foo)) {
+            typeof foo;
+        } else if (typeof foo === 'string') {
+            typeof foo;
+        } else {
+            typeof foo;
+        }
+    */},
+    header: function h() {/*
+        foo : Number | Array<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 3);
+
+    assert.equal(meta.errors[0].valueType, 'Array<String>');
+    assert.equal(meta.errors[1].valueType, 'Never');
+    assert.equal(meta.errors[2].valueType, 'Number');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with isArray() cases 3', {
+    snippet: function m() {/*
+        if (Array.isArray(foo)) {
+            typeof foo;
+        } else {
+            typeof foo;
+        }
+    */},
+    header: function h() {/*
+        foo : Number | Array<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2);
+
+    assert.equal(meta.errors[0].valueType, 'Array<String>');
+    assert.equal(meta.errors[1].valueType, 'Number');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with isArray() cases 4', {
+    snippet: function m() {/*
+        if (!Array.isArray(foo)) {
+            typeof foo;
+        } else {
+            typeof foo;
+        }
+    */},
+    header: function h() {/*
+        foo : Number | Array<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2);
+
+    assert.equal(meta.errors[0].valueType, 'Number');
+    assert.equal(meta.errors[1].valueType, 'Array<String>');
+
+    assert.end();
+});
