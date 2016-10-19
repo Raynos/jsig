@@ -106,7 +106,16 @@ function verifyProgram(node) {
     }
 
     for (i = 0; i < parts.statements.length; i++) {
-        this.meta.verifyNode(parts.statements[i], null);
+        var statement = parts.statements[i];
+
+        if (statement.type === 'ExpressionStatement' &&
+            statement.expression.type === 'UnaryExpression' &&
+            statement.expression.operator === 'typeof'
+        ) {
+            this._handleTypeofExpression(statement);
+        }
+
+        this.meta.verifyNode(statement, null);
     }
 
     var functions = parts.functions;
@@ -257,22 +266,26 @@ function verifyBlockStatement(node) {
             statement.expression.type === 'UnaryExpression' &&
             statement.expression.operator === 'typeof'
         ) {
-
-            var exprNode = statement.expression.argument;
-            var valueType = this.meta.verifyNode(exprNode, null);
-
-            this.meta.addError(Errors.TypeofExpression({
-                valueType: valueType ?
-                    this.meta.serializeType(valueType) :
-                    '<TypeError>',
-                expr: this.meta.serializeAST(exprNode),
-                loc: exprNode.loc,
-                line: exprNode.loc.start.line
-            }));
+            this._handleTypeofExpression(statement);
         }
 
         this.meta.verifyNode(statement, null);
     }
+};
+
+ASTVerifier.prototype._handleTypeofExpression =
+function _handleTypeofExpression(statement) {
+    var exprNode = statement.expression.argument;
+    var valueType = this.meta.verifyNode(exprNode, null);
+
+    this.meta.addError(Errors.TypeofExpression({
+        valueType: valueType ?
+            this.meta.serializeType(valueType) :
+            '<TypeError>',
+        expr: this.meta.serializeAST(exprNode),
+        loc: exprNode.loc,
+        line: exprNode.loc.start.line
+    }));
 };
 
 ASTVerifier.prototype.verifyExpressionStatement =
