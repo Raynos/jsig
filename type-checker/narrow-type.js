@@ -58,15 +58,11 @@ function narrowIdentifier(node, ifBranch, elseBranch) {
 
     if (ifBranch) {
         var ifType = getUnionWithoutBool(type, true);
-        if (ifType) {
-            ifBranch.narrowType(node.name, ifType);
-        }
+        ifBranch.narrowType(node.name, ifType);
     }
     if (elseBranch) {
         var elseType = getUnionWithoutBool(type, false);
-        if (elseType) {
-            elseBranch.narrowType(node.name, elseType);
-        }
+        elseBranch.narrowType(node.name, elseType);
     }
 };
 

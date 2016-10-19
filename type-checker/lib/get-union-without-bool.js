@@ -12,7 +12,7 @@ function getUnionWithoutBool(type, truthy) {
             return type;
         }
 
-        return null;
+        return JsigAST.literal('Never', true);
     }
 
     var unions = [];
@@ -27,7 +27,7 @@ function getUnionWithoutBool(type, truthy) {
     }
 
     if (unions.length === 0) {
-        return null;
+        return JsigAST.literal('Never', true);
     }
 
     if (unions.length === 1) {
