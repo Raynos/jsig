@@ -1,0 +1,27 @@
+import { JsigType } from "./index.hjs"
+import { JsigKeyValueNode } from "./key-value.hjs"
+
+interface JsigObjectNode {
+    type: "object",
+    keyValues: Array<JsigKeyValueNode>,
+    open: Boolean,
+    brand: String,
+    inferred: Boolean,
+    _raw: JsigObjectNode | null,
+
+    buildObjectIndex(
+        index?: Object<String, JsigType>
+    ) => Object<String, JsigType>
+}
+
+ObjectNode : (
+    this: JsigObjectNode,
+    keyValues: Array<JsigKeyValueNode> | Object<String, JsigType>,
+    label: String,
+    opts?: {
+        open?: Boolean,
+        brand?: String,
+        inferred?: Boolean,
+        optional?: Boolean
+    }
+) => void

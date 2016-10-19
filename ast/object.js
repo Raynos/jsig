@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var assert = require('assert');
 
 var KeyValueNode = require('./key-value.js');
@@ -10,12 +12,16 @@ function ObjectNode(keyValues, label, opts) {
     assert(!label, 'cannot have label on object');
     assert(!(opts && opts.optional), 'cannot have optional on object');
 
+    var keyValuesArray = null;
+
     if (!Array.isArray(keyValues)) {
-        keyValues = convertToKeyValues(keyValues);
+        keyValuesArray = convertToKeyValues(keyValues);
+    } else {
+        keyValuesArray = keyValues;
     }
 
     this.type = 'object';
-    this.keyValues = keyValues;
+    this.keyValues = keyValuesArray;
     this.open = (opts && opts.open) || false;
     this.brand = (opts && opts.brand) || 'Object';
     this.inferred = (opts && 'inferred' in opts) ?
@@ -25,7 +31,7 @@ function ObjectNode(keyValues, label, opts) {
 
 ObjectNode.prototype.buildObjectIndex =
 function buildObjectIndex(index) {
-    index = index || {};
+    index = index || Object.create(null);
 
     for (var i = 0; i < this.keyValues.length; i++) {
         var pair = this.keyValues[i];
