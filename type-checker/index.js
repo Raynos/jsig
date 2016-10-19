@@ -157,6 +157,27 @@ function loadLanguageIdentifiers() {
             a.typeExpression.brand = 'Error';
         }
 
+        /*jsig ignore next: tech debt... */
+        if (a.identifier === 'Array') {
+            var arrType = a.typeExpression;
+            assert(arrType.type === 'intersectionType',
+                'builtin Array is an intersection');
+
+            var arrObj = arrType.intersections[0];
+            assert(arrObj.type === 'object',
+                'builtin Array is an object');
+
+            var index = arrObj.buildObjectIndex();
+            assert(index['isArray'] &&
+                index['isArray'].type === 'function',
+                'must implement isArray'
+            );
+
+            // Must know that isArray() function has the property
+            // that it can narrow arrays
+            index['isArray'].specialKind = 'isArray';
+        }
+
         this.globalScope._addVar(a.identifier, a.typeExpression);
     }
 
