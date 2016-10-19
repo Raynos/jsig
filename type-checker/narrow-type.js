@@ -225,13 +225,17 @@ function containsLiteral(type, literalName) {
         return true;
     }
 
+    if (type.type === 'genericLiteral' && type.value.builtin &&
+        type.value.name === literalName
+    ) {
+        return true;
+    }
+
     if (type.type === 'unionType') {
         for (var i = 0; i < type.unions.length; i++) {
             var possibleType = type.unions[i];
-            if (possibleType.type === 'typeLiteral' &&
-                possibleType.builtin &&
-                possibleType.name === literalName
-            ) {
+
+            if (containsLiteral(possibleType, literalName)) {
                 return true;
             }
         }
