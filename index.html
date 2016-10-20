@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Try Jsig Online</title>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+        <meta charset=utf-8></head>
+        <link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css"></link>
+
+        <style>
+            .main {
+                margin-left: auto;
+                margin-right: auto;
+                width: 1500px;
+                margin-top: 30px;
+            }
+
+            .CodeMirror {
+                border: 1px solid black;
+                font-size:13px
+                background-color: #f8f8f8;
+                height: 500px;
+            }
+
+            .javascript-editor {
+                width: 700px;
+                height: 500px;
+                margin-left: 10px;
+                margin-right: 10px;
+                display: inline-block;
+            }
+
+            .jsig-editor {
+                width: 700px;
+                margin-left: 10px;
+                margin-right: 10px;
+                height: 500px;
+                display: inline-block;
+            }
+
+            .controls {
+                margin-top: 20px;
+                margin-left: 50px;
+            }
+
+            .controls button {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+
+            .error-output {
+                white-space: pre;
+                font-family: monospace;
+            }
+
+            .tc-red {
+                color: red;
+            }
+            .tc-green {
+                color: green;
+            }
+            .tc-cyan {
+                color: #00cccc;
+            }
+            .tc-gray {
+                color: gray;
+            }
+            .tc-underline {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <div class="javascript-editor">
+                <h2> Javascript Editor </h2>
+                <textarea id="javascript-editor" name="javascript-editor"></textarea>
+            </div>
+            <div class="jsig-editor">
+                <h2> Header Editor </h2>
+                <textarea id="jsig-editor" name="jsig-editor"></textarea>
+            </div>
+            <div class="controls">
+                <button id="check-button">TypeCheck</button>
+                <button id="share-button">Share</button>
+            </div>
+            <div class="error-output">
+                <div id="error-output"></div>
+            </div>
+        </div>
+
+        <script src="ui/build.js"></script>
+    </body>
+</html>
