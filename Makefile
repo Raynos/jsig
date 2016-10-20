@@ -14,7 +14,7 @@ upload:
 	make clean
 	make build
 	git add --all
-	git commit --amend --all --allow-empty
+	git commit --amend --all --allow-empty -m 'build js code'
 	git push origin gh-pages -f
 	git checkout master
 
