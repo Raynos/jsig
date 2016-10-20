@@ -11,6 +11,8 @@ var isJSFileR = /\.js$/;
 var STRAIGHT_LINE = '-----------------------------------------' +
     '------------------------';
 
+var CWD = process ? process.cwd() : '/';
+
 module.exports = {
     prettyPrintAllErrors: prettyPrintAllErrors,
     prettyPrintAllErrorsWithTrace: prettyPrintAllErrorsWithTrace,
@@ -81,7 +83,7 @@ function prettyPrintTraceStatement(checker, trace, prefix) {
     var str = '';
 
     assert(trace.fileName, 'trace must have fileName');
-    var relativePath = path.relative(process.cwd(), trace.fileName);
+    var relativePath = path.relative(CWD, trace.fileName);
 
     str += prefix + TermColor.underline(relativePath) + '\n';
     str += prettyPrintTrace(checker, trace, {
@@ -116,7 +118,7 @@ function findContextTraces(checker, error) {
 
 function prettyPrintErrorStatement(checker, error) {
     assert(error.fileName, 'error must have fileName');
-    var relativePath = path.relative(process.cwd(), error.fileName);
+    var relativePath = path.relative(CWD, error.fileName);
 
     var str = '';
     str += TermColor.underline(relativePath) + '\n';

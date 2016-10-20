@@ -48,7 +48,7 @@ function TypeChecker(entryFile, options) {
 
     this.entryFiles = entryFiles;
     this.files = options.files || Object.create(null);
-    this.basedir = process.cwd();
+    this.basedir = process ? process.cwd() : '/';
 
     this.globalScope = new GlobalScope(this);
     this.metas = Object.create(null);
