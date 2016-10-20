@@ -1,0 +1,12 @@
+import { JsigType } from "./index.hjs"
+
+-- statements should be limited
+interface JsigProgramNode {
+    type: "program",
+    statements: Array<JsigType>,
+    _raw: JsigProgramNode | null
+}
+
+ProgramNode : (
+    this: JsigProgramNode, statements: Array<JsigType>
+) => void
