@@ -1962,7 +1962,9 @@ function verifyConditionalExpression(node) {
         return left;
     }
 
-    return JsigAST.union([left, right]);
+    return this._computeSmallestUnion(
+        node, left, right
+    );
 };
 
 ASTVerifier.prototype.verifyWhileStatement =
