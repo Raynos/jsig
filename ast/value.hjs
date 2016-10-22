@@ -1,0 +1,14 @@
+
+interface JsigValueLiteralNode {
+    type: "valueLiteral",
+    value: String,
+    name: String,
+    _raw: JsigValueLiteralNode | null
+}
+
+ValueLiteralNode : (
+    this: JsigValueLiteralNode,
+    value: String,
+    name?: String,
+    label?: String
+) => void
