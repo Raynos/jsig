@@ -1,0 +1,25 @@
+import { JsigLiteralTypeNode } from "../../ast/literal.hjs"
+import { JsigType } from "../../ast/index.hjs"
+
+interface Replacer {
+    replace(
+        ast: JsigLiteralTypeNode,
+        raw: JsigLiteralTypeNode,
+        stack: Array<String>
+    ) => JsigLiteralTypeNode
+}
+
+interface JsigASTReplacer {
+    replacer: Replacer,
+    neverRaw: Boolean,
+
+    inlineReferences(
+        ast: JsigType, raw: JsigType, stack?: Array<String>
+    ) => JsigType
+}
+
+JsigASTReplacer : (
+    this: JsigASTReplacer,
+    replacer: Replacer,
+    neverRaw?: Boolean
+) => void

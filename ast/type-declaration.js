@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var uuid = require('uuid');
 var JsigASTReplacer = require('../type-checker/lib/jsig-ast-replacer.js');
 

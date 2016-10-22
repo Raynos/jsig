@@ -1,0 +1,37 @@
+import { JsigType } from "./index.hjs"
+import { JsigLiteralTypeNode } from "./literal.hjs"
+
+interface JsigTypeDeclarationNode {
+    type: "typeDeclaration",
+    identifier: String,
+    typeExpression: JsigType,
+    _raw: JsigTypeDeclarationNode | null,
+    generics: Array<JsigLiteralTypeNode>,
+
+    _markGenerics(generics: Array<JsigLiteralTypeNode>) => void
+}
+
+TypeDeclarationNode : (
+    this: JsigTypeDeclarationNode,
+    identifier: String,
+    expr: JsigType,
+    generics: Array<JsigLiteralTypeNode>
+) => void
+
+interface GenericReplacer {
+    node: JsigTypeDeclarationNode,
+    knownGenerics: Array<String>,
+    genericUUIDs: Object<String, String>,
+
+    replace(
+        ast: JsigLiteralTypeNode,
+        raw: JsigLiteralTypeNode,
+        stack: Array<String>
+    ) => JsigLiteralTypeNode
+}
+
+GenericReplacer : (
+    this: GenericReplacer,
+    node: JsigTypeDeclarationNode,
+    genericNames: Array<String>
+) => void
