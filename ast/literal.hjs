@@ -16,7 +16,7 @@ interface JsigLiteralTypeNode {
 LiteralTypeNode : (
     this: JsigLiteralTypeNode,
     name: String,
-    builtin: Boolean,
+    builtin?: Boolean,
     opts?: {
         label?: String,
         optional?: Boolean,
