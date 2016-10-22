@@ -1,0 +1,18 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigTupleNode {
+    type: "tuple",
+    values: Array<JsigType>,
+    inferred: Boolean,
+    _raw: JsigTupleNode | null
+}
+
+TupleNode : (
+    this: JsigTupleNode,
+    values: Array<JsigType>,
+    label?: String,
+    opts?: {
+        optional?: Boolean,
+        inferred?: Boolean
+    }
+) => void
