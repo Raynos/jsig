@@ -1,0 +1,16 @@
+import { JsigLiteralTypeNode } from "./literal.hjs"
+
+interface JsigRenamedLiteralNode {
+    type: "renamedLiteral",
+    name: String,
+    builtin: Boolean,
+    original: JsigLiteralTypeNode,
+    _raw: JsigRenamedLiteralNode | null
+}
+
+RenamedLiteralNode : (
+    this: JsigRenamedLiteralNode,
+    token: String | JsigLiteralTypeNode,
+    original: String | JsigLiteralTypeNode,
+    opts: {}
+) => void

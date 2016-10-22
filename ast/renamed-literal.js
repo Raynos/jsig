@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var LiteralTypeNode = require('./literal.js');
 
 module.exports = RenamedLiteralNode;
