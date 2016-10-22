@@ -1,0 +1,16 @@
+import { JsigType } from "./index.hjs"
+
+interface JsigUnionTypeNode {
+    type: "unionType",
+    unions: Array<JsigType>,
+    _raw: JsigUnionTypeNode | null
+}
+
+UnionTypeNode : (
+    this: JsigUnionTypeNode,
+    unions: Array<JsigType>,
+    label?: String,
+    opts?: {
+        optional?: Boolean
+    }
+) => void
