@@ -184,6 +184,7 @@ function prettyPrintError(checker, error, opts) {
         )
     ) {
         sourceLines = error.source.split('\n');
+
         var loc = {
             start: {
                 column: 0,
