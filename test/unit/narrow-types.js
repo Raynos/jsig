@@ -292,3 +292,131 @@ JSIGSnippet.test('narrowing with isArray() cases 4', {
 
     assert.end();
 });
+
+JSIGSnippet.test('narrowing with === null cases 1', {
+    snippet: function m() {/*
+        var bar = null;
+
+        if (foo === null) {
+            typeof foo;
+            bar = 4;
+            foo = 4;
+        } else {
+            typeof foo;
+            bar = foo;
+        }
+
+        typeof bar;
+        typeof foo;
+    */},
+    header: function h() {/*
+        foo : Number | null
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 4);
+
+    assert.equal(meta.errors[0].valueType, 'null');
+    assert.equal(meta.errors[1].valueType, 'Number');
+    assert.equal(meta.errors[2].valueType, 'Number');
+    assert.equal(meta.errors[3].valueType, 'Number');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with === null cases 2', {
+    snippet: function m() {/*
+        var bar = null;
+
+        if (foo !== null) {
+            typeof foo;
+            bar = foo;
+        } else {
+            typeof foo;
+            bar = 4;
+            foo = 4;
+        }
+
+        typeof bar;
+        typeof foo;
+    */},
+    header: function h() {/*
+        foo : Number | null
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 4);
+
+    assert.equal(meta.errors[0].valueType, 'Number');
+    assert.equal(meta.errors[1].valueType, 'null');
+    assert.equal(meta.errors[2].valueType, 'Number');
+    assert.equal(meta.errors[3].valueType, 'Number');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with === undefined cases 1', {
+    snippet: function m() {/*
+        var bar = null;
+
+        if (foo === undefined) {
+            typeof foo;
+            bar = 4;
+            foo = 4;
+        } else {
+            typeof foo;
+            bar = foo;
+        }
+
+        typeof bar;
+        typeof foo;
+    */},
+    header: function h() {/*
+        foo : Number | undefined
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 4);
+
+    assert.equal(meta.errors[0].valueType, 'undefined');
+    assert.equal(meta.errors[1].valueType, 'Number');
+    assert.equal(meta.errors[2].valueType, 'Number');
+    assert.equal(meta.errors[3].valueType, 'Number');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing with === undefined cases 2', {
+    snippet: function m() {/*
+        var bar = null;
+
+        if (foo !== undefined) {
+            typeof foo;
+            bar = foo;
+        } else {
+            typeof foo;
+            bar = 4;
+            foo = 4;
+        }
+
+        typeof bar;
+        typeof foo;
+    */},
+    header: function h() {/*
+        foo : Number | undefined
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 4);
+
+    assert.equal(meta.errors[0].valueType, 'Number');
+    assert.equal(meta.errors[1].valueType, 'undefined');
+    assert.equal(meta.errors[2].valueType, 'Number');
+    assert.equal(meta.errors[3].valueType, 'Number');
+
+    assert.end();
+});

@@ -74,7 +74,57 @@ function narrowBinaryExpression(node, ifBranch, elseBranch) {
         return this.narrowTypeofExpression(node, ifBranch, elseBranch);
     }
 
-    // TODO: support `x === null`
+    var identifier = node.left;
+    if (identifier.type !== 'Identifier') {
+        // TODO: support non trivial expressions
+        return null;
+    }
+
+    if (node.operator !== '===' && node.operator !== '!==') {
+        // TODO: support others...?
+        return null;
+    }
+
+    if (node.operator === '!==') {
+        var tempBranch = ifBranch;
+        ifBranch = elseBranch;
+        elseBranch = tempBranch;
+    }
+
+    var type = this.meta.verifyNode(identifier, null);
+    if (!type) {
+        return null;
+    }
+
+    if (node.right.type !== 'Literal' &&
+        node.right.type !== 'Identifier'
+    ) {
+        // Right hand side must be null
+        return null;
+    }
+
+    return this._narrowByValue(node, type, ifBranch, elseBranch);
+};
+
+NarrowType.prototype._narrowByValue =
+function _narrowByValue(node, type, ifBranch, elseBranch) {
+    var identifier = node.left;
+    var rightValue = this.meta.verifyNode(node.right, null);
+
+    // console.log('id', identifier, rightValue);
+
+    if (rightValue.type === 'valueLiteral' &&
+        (rightValue.value === 'null' || rightValue.value === 'undefined')
+    ) {
+        if (ifBranch) {
+            var ifType = getUnionWithValue(type, rightValue);
+            ifBranch.narrowType(identifier.name, ifType);
+        }
+        if (elseBranch) {
+            var elseType = getUnionWithoutValue(type, rightValue);
+            elseBranch.narrowType(identifier.name, elseType);
+        }
+    }
 };
 
 NarrowType.prototype.narrowTypeofExpression =
@@ -146,100 +196,6 @@ function _narrowByTypeofTag(node, type, ifBranch, elseBranch) {
         return null;
     }
 };
-
-function getUnionWithoutLiteral(type, literalName) {
-    if (type.type !== 'unionType') {
-        if (containsLiteral(type, literalName)) {
-            return JsigAST.literal('Never', true);
-        } else {
-            return type;
-        }
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (!containsLiteral(t, literalName)) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 0) {
-        return JsigAST.literal('Never', true);
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions);
-}
-
-function getUnionWithLiteral(type, literalName) {
-    if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
-    ) {
-        return JsigAST.literal(literalName, true);
-    }
-
-    if (type.type !== 'unionType') {
-        if (containsLiteral(type, literalName)) {
-            return type;
-        } else {
-            return JsigAST.literal('Never', true);
-        }
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (containsLiteral(t, literalName)) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 0) {
-        return JsigAST.literal('Never', true);
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions);
-}
-
-function containsLiteral(type, literalName) {
-    if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
-    ) {
-        return true;
-    }
-
-    if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === literalName
-    ) {
-        return true;
-    }
-
-    if (type.type === 'genericLiteral' && type.value.builtin &&
-        type.value.name === literalName
-    ) {
-        return true;
-    }
-
-    if (type.type === 'unionType') {
-        for (var i = 0; i < type.unions.length; i++) {
-            var possibleType = type.unions[i];
-
-            if (containsLiteral(possibleType, literalName)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
 
 NarrowType.prototype.narrowLiteral =
 function narrowLiteral(node, ifBranch, elseBranch) {
@@ -457,3 +413,182 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     }
 };
 
+function getUnionWithValue(type, value) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return value;
+    }
+
+    if (type.type !== 'unionType') {
+        if (containsValue(type, value)) {
+            return type;
+        } else {
+            return JsigAST.literal('Never', true);
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (containsValue(t, value)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return JsigAST.literal('Never', true);
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
+
+function getUnionWithLiteral(type, literalName) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return JsigAST.literal(literalName, true);
+    }
+
+    if (type.type !== 'unionType') {
+        if (containsLiteral(type, literalName)) {
+            return type;
+        } else {
+            return JsigAST.literal('Never', true);
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (containsLiteral(t, literalName)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return JsigAST.literal('Never', true);
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
+
+function getUnionWithoutValue(type, value) {
+    if (type.type !== 'unionType') {
+        if (containsValue(type, value)) {
+            return JsigAST.literal('Never', true);
+        } else {
+            return type;
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (!containsValue(t, value)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return JsigAST.literal('Never', true);
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
+
+function getUnionWithoutLiteral(type, literalName) {
+    if (type.type !== 'unionType') {
+        if (containsLiteral(type, literalName)) {
+            return JsigAST.literal('Never', true);
+        } else {
+            return type;
+        }
+    }
+
+    var unions = [];
+    for (var i = 0; i < type.unions.length; i++) {
+        var t = type.unions[i];
+        if (!containsLiteral(t, literalName)) {
+            unions.push(t);
+        }
+    }
+
+    if (unions.length === 0) {
+        return JsigAST.literal('Never', true);
+    }
+
+    if (unions.length === 1) {
+        return unions[0];
+    }
+
+    return JsigAST.union(unions);
+}
+
+function containsValue(type, value) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return true;
+    }
+
+    if (type.type === 'valueLiteral' && type.name === value.name) {
+        return true;
+    }
+
+    if (type.type === 'unionType') {
+        for (var i = 0; i < type.unions.length; i++) {
+            var possibleType = type.unions[i];
+
+            if (containsValue(possibleType, value)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function containsLiteral(type, literalName) {
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === '%Boolean%%Mixed'
+    ) {
+        return true;
+    }
+
+    if (type.type === 'typeLiteral' && type.builtin &&
+        type.name === literalName
+    ) {
+        return true;
+    }
+
+    if (type.type === 'genericLiteral' && type.value.builtin &&
+        type.value.name === literalName
+    ) {
+        return true;
+    }
+
+    if (type.type === 'unionType') {
+        for (var i = 0; i < type.unions.length; i++) {
+            var possibleType = type.unions[i];
+
+            if (containsLiteral(possibleType, literalName)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
