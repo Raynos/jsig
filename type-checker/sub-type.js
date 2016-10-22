@@ -21,6 +21,9 @@ module.exports = SubTypeChecker;
 
 function SubTypeChecker(meta) {
     this.meta = meta;
+
+    this.leftSeen = [];
+    this.rightSeen = [];
 }
 
 // TODO: pretty sure this function is needed...
@@ -69,6 +72,18 @@ function checkSubType(node, parent, child) {
         assert(false,
             'child cannot be non-builtin type literal: ' + child.name);
     }
+
+    // Avoid cycles
+    var pIndex = this.leftSeen.indexOf(parent);
+    if (pIndex !== -1) {
+        var cIndex = this.rightSeen.indexOf(child);
+        if (pIndex === cIndex) {
+            return null;
+        }
+    }
+
+    this.leftSeen.push(parent);
+    this.rightSeen.push(child);
 
     // console.log('checkSubType(' + parent.type + ',' + child.type + ')');
     // console.log('parent: ' + this.meta.serializeType(parent));
