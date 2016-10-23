@@ -27,12 +27,12 @@ function FunctionNode(opts) {
     this.specialKind = opts.specialKind || null;
     this._raw = null;
 
-    var generics = opts.generics || [];
-    if (typeof generics[0] === 'string') {
-        generics = this._findGenerics(generics);
+    if (opts.generics && typeof opts.generics[0] === 'string') {
+        /*jsig ignore next: narrowing by array member not implemented*/
+        this.generics = this._findGenerics(opts.generics);
+    } else {
+        this.generics = [];
     }
-
-    this.generics = generics;
 }
 
 FunctionNode.prototype._findGenerics =
