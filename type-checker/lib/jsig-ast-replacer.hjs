@@ -5,7 +5,7 @@ interface Replacer {
     replace(
         ast: JsigLiteralTypeNode,
         raw: JsigLiteralTypeNode,
-        stack: Array<String>
+        stack: Array<String | Number>
     ) => JsigLiteralTypeNode
 }
 
@@ -14,7 +14,7 @@ interface JsigASTReplacer {
     neverRaw: Boolean,
 
     inlineReferences(
-        ast: JsigType, raw: JsigType, stack?: Array<String>
+        ast: JsigType, raw: JsigType, stack?: Array<String | Number>
     ) => JsigType
 }
 
