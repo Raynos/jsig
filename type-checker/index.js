@@ -320,7 +320,7 @@ function getOrCreateHeaderFile(
                 primaryFileName = secondaryFileName;
             } else {
                 this.addError(Errors.CouldNotFindHeaderFile({
-                    fileName: importFileName,
+                    fileName: importFileName || 'unknown',
                     otherFile: primaryFileName,
                     loc: node ? node.loc : null,
                     line: node ? node.loc.start.line : null,
