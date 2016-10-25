@@ -46,6 +46,12 @@ function crawlFolder(list, folderName, opts) {
         }
 
         var fileName = path.join(folderName, segmentName);
+
+        // Dead symlinks exist in readdir() but not in stat()
+        if (!fs.existsSync(fileName)) {
+            continue;
+        }
+
         var stat = fs.statSync(fileName);
 
         if (stat.isFile()) {
