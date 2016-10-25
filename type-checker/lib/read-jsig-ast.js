@@ -30,7 +30,8 @@ function parseJSigAST(source) {
     var message = Parsimmon.formatError(source, res);
 
     var error = Errors.CannotParseHeaderFile({
-        line: res.index.line - 1,
+        // Should be 1 index
+        line: res.index.line,
         msg: message,
         source: source
     });

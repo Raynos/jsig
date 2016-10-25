@@ -433,7 +433,8 @@ function getOrCreateMeta(fileName) {
         var parseError = parserTuple[0];
         this.addError(Errors.CouldNotParseJavaScript({
             fileName: fileName,
-            line: parseError.lineNumber - 1,
+            // Should be 1 index.
+            line: parseError.lineNumber,
             detail: parseError.description,
             charOffset: parseError.index,
             source: source
