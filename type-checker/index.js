@@ -24,7 +24,7 @@ var es5File = path.join(
     __dirname, 'builtin-definitions', 'es5.hjs'
 );
 var isHeaderR = /\.hjs$/;
-var BIN_HEADER = '#!/usr/bin/env node\n';
+var BIN_HEADER = '#!/usr/bin/env';
 
 TypeChecker.compile = function compile(fileName, options) {
     var checker = new TypeChecker(fileName, options);
@@ -425,7 +425,8 @@ function getOrCreateMeta(fileName) {
 
     // Munge source text if it has unix executable header
     if (source.indexOf(BIN_HEADER) === 0) {
-        source = source.slice(BIN_HEADER.length);
+        var firstNewline = source.indexOf('\n');
+        source = source.slice(firstNewline);
     }
 
     var parserTuple = tryEsprimaParse(source);
