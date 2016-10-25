@@ -546,8 +546,11 @@ function verifyMemberExpression(node) {
         Should still be invalid because we are using bar without
         knowing what its type is.
     */
-    if (objType.name === '%Mixed%%UnknownRequire' &&
-        objType.builtin &&
+    if (objType.builtin &&
+        (
+            objType.name === '%Mixed%%UnknownRequire' ||
+            objType.name === '%Mixed%%UnknownExports'
+        ) &&
         node.object.type === 'CallExpression' &&
         node.object.callee.type === 'Identifier' &&
         node.object.callee.name === 'require'
