@@ -59,6 +59,7 @@ interface TypeChecker {
     getErrors() => Array<Error>,
     setErrors(Array<Error>) => void,
     prettyPrintAllErrors() => void,
+    prettyPrintErrorStatement(err: Error) => void,
     prettyPrintAllErrorsWithTrace() => void,
     prettyPrintTraces() => void,
     loadJavaScriptIntoIndexTable(indexTable: Object<String, JsigType>) => void,

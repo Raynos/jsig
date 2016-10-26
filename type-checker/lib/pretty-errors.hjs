@@ -3,5 +3,6 @@ import { TypeChecker } from "../index.hjs"
 export default {
     prettyPrintAllErrors: (checker: TypeChecker) => void,
     prettyPrintAllErrorsWithTrace : (checker: TypeChecker) => void,
-    prettyPrintTraces : (checker: TypeChecker) => void
+    prettyPrintTraces : (checker: TypeChecker) => void,
+    prettyPrintErrorStatement: (checker: TypeChecker, err: Error) => void
 }

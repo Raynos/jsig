@@ -102,6 +102,11 @@ function prettyPrintAllErrors() {
     return pretty.prettyPrintAllErrors(this);
 };
 
+TypeChecker.prototype.prettyPrintErrorStatement =
+function prettyPrintErrorStatement(error) {
+    return pretty.prettyPrintErrorStatement(this, error);
+};
+
 TypeChecker.prototype.prettyPrintAllErrorsWithTrace =
 function prettyPrintAllErrors() {
     return pretty.prettyPrintAllErrorsWithTrace(this);

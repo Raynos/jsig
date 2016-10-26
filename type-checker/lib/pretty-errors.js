@@ -16,7 +16,8 @@ var CWD = process ? process.cwd() : '/';
 module.exports = {
     prettyPrintAllErrors: prettyPrintAllErrors,
     prettyPrintAllErrorsWithTrace: prettyPrintAllErrorsWithTrace,
-    prettyPrintTraces: prettyPrintTraces
+    prettyPrintTraces: prettyPrintTraces,
+    prettyPrintErrorStatement: prettyPrintErrorStatement
 };
 
 function prettyPrintAllErrors(checker) {
