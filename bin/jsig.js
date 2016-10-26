@@ -291,15 +291,16 @@ function main(argv) {
         for (var i = 0; i < errors.length; i++) {
             console.log(TermColor.yellow('WARN:') + ' ' + errors[i]);
         }
-        return process.exit(1);
+        process.exit(1);
+        return;
     }
 
     var bin = new TypeCheckBinary(opts);
     if (bin.run()) {
         process.exit(0);
+    } else {
+        process.exit(1);
     }
-
-    process.exit(1);
 }
 
 if (require.main === module) {
