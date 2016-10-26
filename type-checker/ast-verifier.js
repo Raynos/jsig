@@ -1013,6 +1013,10 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         actualType = this.meta.verifyNode(argNode, wantedType);
     }
 
+    if (!actualType) {
+        return false;
+    }
+
     /*  If a literal string value is expected AND
         A literal string value is passed as an argument
         a.k.a not an alias or field.
@@ -1054,10 +1058,6 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         if (newType) {
             actualType = newType;
         }
-    }
-
-    if (!actualType) {
-        return false;
     }
 
     this.meta.checkSubType(argNode, wantedType, actualType);
