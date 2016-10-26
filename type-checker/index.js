@@ -119,7 +119,9 @@ function checkProgram() {
 
     var meta;
     for (var i = 0; i < this.entryFiles.length; i++) {
-        meta = this.getOrCreateMeta(this.entryFiles[i]);
+        meta = this.getOrCreateMeta(this.entryFiles[i], {
+            loose: true
+        });
     }
 
     if (this.entryFiles.length === 1 && meta) {
@@ -395,7 +397,7 @@ function tryEsprimaParse(source) {
 }
 
 TypeChecker.prototype.getOrCreateMeta =
-function getOrCreateMeta(fileName) {
+function getOrCreateMeta(fileName, opts) {
     if (!this.files[fileName]) {
         var tuple = tryResolveSync(fileName, this.basedir);
         if (tuple[0]) {
@@ -427,6 +429,14 @@ function getOrCreateMeta(fileName) {
     if (source.indexOf(BIN_HEADER) === 0) {
         var firstNewline = source.indexOf('\n');
         source = source.slice(firstNewline);
+    }
+
+    // In loose mode we do not care about meta.moduleExportsNode
+    if (opts.loose && this.optin) {
+        var jsigCommentIndex = source.indexOf('@jsig');
+        if (jsigCommentIndex === -1) {
+            return null;
+        }
     }
 
     var parserTuple = tryEsprimaParse(source);

@@ -2774,7 +2774,9 @@ function _getTypeFromRequire(node) {
     }
 
     // Handle local case
-    var otherMeta = this.checker.getOrCreateMeta(fileName);
+    var otherMeta = this.checker.getOrCreateMeta(fileName, {
+        loose: false
+    });
     if (!otherMeta) {
         return null;
     }

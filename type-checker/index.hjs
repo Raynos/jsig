@@ -35,7 +35,9 @@ interface TypeChecker {
     loadLanguageIdentifiers() => void,
     preloadDefinitions() => void,
     preloadGlobals() => void,
-    getOrCreateMeta(file: String) => ProgramMeta | null,
+    getOrCreateMeta(file: String, opts: {
+        loose: Boolean
+    }) => ProgramMeta | null,
     getOrCreateHeaderFile(
         file: String,
         node?: JSNode,
