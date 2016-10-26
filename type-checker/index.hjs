@@ -23,6 +23,7 @@ interface TypeChecker {
     definitionsFolder: String | null,
     globalsFile: String | null,
     optin: Boolean,
+    previousChecker: TypeChecker | null,
 
     errors: Array<Error>,
     traces: Array<TraceInfo>,
@@ -70,7 +71,8 @@ type TypeCheckerOpts : {
     files?: Object<String, String>,
     definitions?: String,
     globalsFile?: String,
-    optin?: Boolean
+    optin?: Boolean,
+    previousChecker?: TypeChecker
 }
 
 TypeChecker : {
