@@ -260,8 +260,7 @@ function restrictType(id, type) {
     };
 };
 
-function GlobalScope(checker) {
-    this.checker = checker;
+function GlobalScope() {
     this.parent = null;
     this.type = 'global';
 
