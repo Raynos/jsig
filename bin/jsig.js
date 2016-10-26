@@ -52,6 +52,7 @@ function TypeCheckBinary(args) {
     this.fileName = args._[0];
 
     this.args = args;
+    this.previousChecker = null;
 
     this.options = new TypeCheckOptions();
     // this.options.mergeWith(args);
@@ -160,7 +161,8 @@ TypeCheckBinary.prototype.check = function check() {
     var opts = {
         definitions: this.options.definitions || null,
         globalsFile: this.options.globalsFile || null,
-        optin: this.options.optin || false
+        optin: this.options.optin || false,
+        previousChecker: this.previousChecker
     };
     this.checker = new TypeChecker(this.entryFiles, opts);
 
