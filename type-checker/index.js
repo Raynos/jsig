@@ -59,6 +59,7 @@ function TypeChecker(entryFile, options) {
     this.definitionsFolder = options.definitions || null;
     this.globalsFile = options.globalsFile || null;
     this.optin = options.optin || false;
+    this.previousChecker = options.previousChecker || null;
 
     this.errors = [];
     this.traces = [];
@@ -131,6 +132,12 @@ function checkProgram() {
 
 TypeChecker.prototype.loadLanguageIdentifiers =
 function loadLanguageIdentifiers() {
+    if (this.previousChecker) {
+        this.errorType = this.previousChecker.errorType;
+        this.globalScope = this.previousChecker.globalScope;
+        return;
+    }
+
     var opHeaderFile = this.getOrCreateHeaderFile(operatorsFile);
     assert(this.errors.length === 0, 'must be no errors');
     assert(opHeaderFile, 'must be able to load operators');
@@ -494,12 +501,24 @@ function getDefinitionFilePath(packageName) {
 
 TypeChecker.prototype.preloadDefinitions =
 function preloadDefinitions() {
+    var i = 0;
+    if (this.previousChecker) {
+        var defns = this.previousChecker.definitions;
+        var keys = Object.keys(defns);
+
+        for (i = 0; i < keys.length; i++) {
+            this._addDefinition(keys[i], defns[keys[i]].defn);
+        }
+
+        return;
+    }
+
     if (!this.definitionsFolder) {
         return;
     }
 
     var files = fs.readdirSync(this.definitionsFolder);
-    for (var i = 0; i < files.length; i++) {
+    for (i = 0; i < files.length; i++) {
         var fileName = path.join(this.definitionsFolder, files[i]);
         if (!isHeaderR.test(fileName)) {
             continue;
@@ -520,6 +539,10 @@ function preloadDefinitions() {
 
 TypeChecker.prototype.preloadGlobals =
 function preloadGlobals() {
+    if (this.previousChecker) {
+        return;
+    }
+
     if (!this.globalsFile) {
         return;
     }
