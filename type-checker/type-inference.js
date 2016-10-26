@@ -225,10 +225,16 @@ function _inferArrayExpression(node) {
         }
 
         var newType = this.meta.verifyNode(elems[i], arrayType);
-        if (type) {
-            assert(isSameType(newType, type), 'arrays must be homogenous');
+
+        if (type && newType) {
+            if (!isSameType(newType, type)) {
+                assert(false, 'arrays must be homogenous');
+            }
         }
-        type = newType;
+
+        if (newType) {
+            type = newType;
+        }
     }
 
     if (!type) {
