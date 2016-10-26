@@ -123,13 +123,51 @@ TypeCheckBinary.prototype.run = function run() {
     return this.check();
 };
 
+TypeCheckBinary.prototype.findNearestConfig =
+function findNearestConfig() {
+    var foundFile = null;
+    var dirname = this.dirname;
+
+    while (foundFile === null && dirname !== '/') {
+        var configFile = path.resolve(dirname, 'jsigconfig.json');
+        if (fs.existsSync(configFile)) {
+            foundFile = configFile;
+        } else {
+            dirname = path.dirname(dirname);
+        }
+    }
+
+    return foundFile;
+};
+
 TypeCheckBinary.prototype.processOptions =
 function processOptions() {
-    var configFile = path.resolve(this.dirname, 'jsigconfig.json');
-    if (fs.existsSync(configFile)) {
+    var configFile = this.findNearestConfig();
+    if (configFile) {
         /*eslint-disable global-require*/
         var json = require(configFile);
         /*eslint-enable global-require*/
+
+        // Special handling
+        if (json.definitions &&
+            json.definitions[0] !== '/' &&
+            json.definitions[0] !== '.'
+        ) {
+            json.definitions = path.join(
+                path.dirname(configFile),
+                json.definitions
+            );
+        }
+        if (json.globalsFile &&
+            json.globalsFile[0] !== '/' &&
+            json.globalsFile[0] !== '.'
+        ) {
+            json.globalsFile = path.join(
+                path.dirname(configFile),
+                json.globalsFile
+            );
+        }
+
         this.options.mergeWith(json);
     }
 
