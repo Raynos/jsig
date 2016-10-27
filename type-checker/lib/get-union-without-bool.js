@@ -52,6 +52,9 @@ function isAlwaysFalsey(t) {
     return (t.type === 'valueLiteral' && t.name === 'undefined') ||
         (t.type === 'valueLiteral' && t.name === 'null') ||
         (t.type === 'typeLiteral' && t.builtin &&
+            t.name === 'Never'
+        ) ||
+        (t.type === 'typeLiteral' && t.builtin &&
             t.name === '%Void%%Uninitialized'
         );
 }
