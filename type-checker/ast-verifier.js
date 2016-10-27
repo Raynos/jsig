@@ -1144,12 +1144,9 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
 
     var minLength = Math.min(defn.args.length, node.arguments.length);
     for (i = 0; i < minLength; i++) {
-        var success = this._checkFunctionCallArgument(
+        this._checkFunctionCallArgument(
             node, defn, i, isOverload
         );
-        if (!success) {
-            return null;
-        }
     }
 
     // TODO: figure out thisType in call verification
