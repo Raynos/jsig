@@ -2329,6 +2329,11 @@ function _findPropertyInType(node, jsigType, propertyName) {
         return jsigType.thisArg.value;
     }
 
+    var isDictionaryType = jsigType.type === 'genericLiteral' &&
+        jsigType.value.type === 'typeLiteral' &&
+        jsigType.value.builtin &&
+        jsigType.value.name === 'Object';
+
     var possibleType = this._tryResolveVirtualType(jsigType);
     if (possibleType) {
         jsigType = possibleType;
@@ -2346,12 +2351,14 @@ function _findPropertyInType(node, jsigType, propertyName) {
     }
 
     return this._findPropertyInSet(
-        node, jsigType, propertyName, isExportsObject
+        node, jsigType, propertyName, isExportsObject, isDictionaryType
     );
 };
 
 ASTVerifier.prototype._findPropertyInSet =
-function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
+function _findPropertyInSet(
+    node, jsigType, propertyName, isExportsObject, isDictionaryType
+) {
     if (jsigType.type === 'unionType') {
         /*  Access the field on all types. Then build a union of
             them if the access succeeds.
@@ -2361,7 +2368,8 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
 
         for (var i = 0; i < jsigType.unions.length; i++) {
             var fieldType = this._findPropertyInType(
-                node, jsigType.unions[i], propertyName, isExportsObject
+                node, jsigType.unions[i], propertyName,
+                isExportsObject, isDictionaryType
             );
             if (!fieldType) {
                 return null;
@@ -2413,7 +2421,8 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
                 var pair = possibleType.keyValues[j];
                 if (pair.key === propertyName) {
                     return this._findPropertyInType(
-                        node, possibleType, propertyName, isExportsObject
+                        node, possibleType, propertyName,
+                        isExportsObject, isDictionaryType
                     );
                 }
             }
@@ -2421,7 +2430,7 @@ function _findPropertyInSet(node, jsigType, propertyName, isExportsObject) {
     }
 
     return this._findPropertyInObject(
-        node, jsigType, propertyName, isExportsObject
+        node, jsigType, propertyName, isExportsObject, isDictionaryType
     );
 };
 
@@ -2447,7 +2456,7 @@ function _isAssigningMethodOnExportsPrototype(node) {
 
 ASTVerifier.prototype._findPropertyInObject =
 function _findPropertyInObject(
-    node, jsigType, propertyName, isExportsObject
+    node, jsigType, propertyName, isExportsObject, isDictionaryType
 ) {
     if (jsigType.type !== 'object') {
         if (this.meta.checkerRules.partialExport &&
@@ -2515,6 +2524,13 @@ function _findPropertyInObject(
         this._isAssigningMethodOnExportsPrototype(node)
     ) {
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
+    }
+
+    // Fallback to property lookup...
+    if (isDictionaryType) {
+        var objType = this.meta.verifyNode(node.object, null);
+        var propType = JsigAST.literal('String', true);
+        return this._findTypeInContainer(node, objType, propType);
     }
 
     var err = this._createNonExistantFieldError(node, jsigType, propertyName);

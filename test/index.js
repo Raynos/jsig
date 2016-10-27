@@ -41,6 +41,7 @@ require('./unit/narrow-types.js');
 require('./unit/arrays.js');
 require('./unit/object-literals.js');
 require('./unit/boolean-logic.js');
+require('./unit/dictionaries.js');
 
 require('./batch-client-constructor.js');
 require('./batch-client-methods.js');
