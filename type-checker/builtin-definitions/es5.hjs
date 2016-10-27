@@ -109,6 +109,7 @@ parseInt : (String, Number) => Number
 
 Object : {
     create: %InternalFunction%%ObjectCreate,
+    freeze : <T>(T) => T,
     keys: <K, V>(Object<K, V>) => Array<String>
 }
 
