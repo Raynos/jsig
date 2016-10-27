@@ -291,6 +291,13 @@ function inferObjectExpression(node) {
     }
 
     var currentExpressionType = this.meta.currentExpressionType;
+    if (currentExpressionType &&
+        currentExpressionType.name === '%Export%%ModuleExports' &&
+        this.meta.hasExportDefined()
+    ) {
+        currentExpressionType = this.meta.getModuleExportsType();
+    }
+
     var index = null;
     if (currentExpressionType && currentExpressionType.type === 'object') {
         index = currentExpressionType.buildObjectIndex();
@@ -311,6 +318,17 @@ function inferObjectExpression(node) {
         var expectedType = null;
         if (keyName && index && index[keyName]) {
             expectedType = index[keyName];
+        }
+
+        // If this object literal is assigned to module.exports
+        // And we are in partial export mode and we do not know the
+        // type of the field, then skip this field on the export
+        if (this.meta.currentExpressionType &&
+            this.meta.currentExpressionType.name === '%Export%%ModuleExports' &&
+            this.meta.checkerRules.partialExport &&
+            !expectedType
+        ) {
+            continue;
         }
 
         if (prop.value.type === 'Identifier') {

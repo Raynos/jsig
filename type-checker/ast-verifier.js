@@ -341,7 +341,9 @@ function verifyAssignmentExpression(node) {
         }
         rightType = leftType;
     } else {
-        rightType = this.meta.verifyNode(node.right, leftType);
+        var exprType = leftType;
+
+        rightType = this.meta.verifyNode(node.right, exprType);
     }
     afterError = this.meta.countErrors();
 
