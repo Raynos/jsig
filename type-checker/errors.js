@@ -243,6 +243,15 @@ Errors.UnTypedFunctionFound = TypedError({
     line: null
 });
 
+Errors.UnTypedFunctionExpressionFound = TypedError({
+    type: 'jsig.verify.untyped-function-expr-found',
+    message: '@{line}: Expected the function expression {funcName} to have ' +
+        'type but could not find one.',
+    funcName: null,
+    loc: null,
+    line: null
+});
+
 Errors.UnTypedFunctionCall = TypedError({
     type: 'jsig.verify.untyped-function-call',
     message: '@{line}: Expected to know type of function: {funcName}. ' +

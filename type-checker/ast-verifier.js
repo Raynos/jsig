@@ -1857,7 +1857,7 @@ ASTVerifier.prototype.verifyFunctionExpression =
 function verifyFunctionExpression(node) {
     var potentialType = this.meta.currentExpressionType;
     if (!potentialType) {
-        var err = Errors.UnTypedFunctionFound({
+        var err = Errors.UnTypedFunctionExpressionFound({
             funcName: getFunctionName(node),
             loc: node.loc,
             line: node.loc.start.line
@@ -1876,7 +1876,7 @@ function verifyFunctionExpression(node) {
             potentialType.name === '%Export%%ModuleExports'
         )
     ) {
-        err = Errors.UnTypedFunctionFound({
+        err = Errors.UnTypedFunctionExpressionFound({
             funcName: getFunctionName(node),
             loc: node.loc,
             line: node.loc.start.line
