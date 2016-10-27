@@ -3,7 +3,11 @@
     "globals": {
         "global": true
     },
+    "plugins": [
+        "jsig"
+    ],
     "rules": {
+        "jsig/type-check": 2,
         "dot-notation": 0,
         "spaced-comment": 0,
         "no-console": 0,
