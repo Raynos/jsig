@@ -2,7 +2,7 @@
 
 var JSIGSnippet = require('../lib/jsig-snippet.js');
 
-JSIGSnippet.test('narrowing a type based on if check', {
+JSIGSnippet.test('boolean-logic: && + ||', {
     snippet: function m() {/*
 
         var o = {
