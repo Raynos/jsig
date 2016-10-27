@@ -182,3 +182,53 @@ JSIGSnippet.test('options or default pattern', {
 
     assert.end();
 });
+
+JSIGSnippet.test('cannot pass extra properties for empty object', {
+    snippet: function m() {/*
+        foo({
+            "foo": "bar"
+        });
+    */},
+    header: function h() {/*
+        foo : ({}) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.sub-type.unexpected-extra-field');
+    assert.equal(err.actual, '{ foo: String }');
+    assert.equal(err.expected, '{}');
+    assert.equal(err.fieldName, 'foo');
+
+    assert.end();
+});
+
+JSIGSnippet.test('cannot pass extra func properties for empty object', {
+    snippet: [
+        '/*',
+        '    @jsig',
+        '    allowUnusedFunction: true',
+        '*/',
+        '',
+        'foo({',
+        '    foo: function foo() {}',
+        '})'
+    ].join('\n'),
+    header: function h() {/*
+        foo : ({}) => void
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+
+    var err = meta.errors[0];
+    assert.equal(err.type, 'jsig.verify.untyped-function-expr-found');
+    assert.equal(err.funcName, 'foo');
+    assert.equal(err.line, 7);
+
+    assert.end();
+});
