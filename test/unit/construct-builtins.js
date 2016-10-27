@@ -45,3 +45,48 @@ JSIGSnippet.test('creating a new date instance', {
 
     assert.end();
 });
+
+JSIGSnippet.test('assigning string literal types', {
+    snippet: function m() {/*
+        t = 'foo';
+        t = 'bar';
+    */},
+    header: function h() {/*
+        t : "foo"
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    var error = meta.errors[0];
+
+    assert.equal(error.type, 'jsig.sub-type.type-class-mismatch');
+    assert.equal(error.expected, '"foo"');
+    assert.equal(error.actual, '"bar"');
+    assert.equal(error.line, 2);
+
+    assert.end();
+});
+
+JSIGSnippet.test('assigning string literal union types', {
+    snippet: function m() {/*
+        t = 'foo';
+        t = 'bar';
+        t = 'baz';
+    */},
+    header: function h() {/*
+        t : "foo" | "bar"
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    var error = meta.errors[0];
+
+    assert.equal(error.type, 'jsig.sub-type.union-type-class-mismatch');
+    assert.equal(error.expected, '"foo" | "bar"');
+    assert.equal(error.actual, 'String');
+    assert.equal(error.line, 3);
+
+    assert.end();
+});
