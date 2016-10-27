@@ -1866,6 +1866,16 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
+    // If we are assigning this function expression against
+    // and unknown exports field then skip checking
+    if (potentialType.type === 'typeLiteral' &&
+        potentialType.builtin &&
+        potentialType.name === '%Mixed%%UnknownExportsField' &&
+        this.meta.checkerRules.allowUnusedFunction
+    ) {
+        return null;
+    }
+
     // If we are assigning onto a Mixed%%OpenField then
     // skip checking this function expression
     if (potentialType.type === 'typeLiteral' &&
