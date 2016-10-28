@@ -854,7 +854,7 @@ function _resolveInternalObjectCreate(node, defn) {
     var currExprType = this.meta.currentExpressionType;
     if (isDictionary(currExprType)) {
         returnType = this.meta.currentExpressionType;
-    } else if (currExprType.type === 'unionType') {
+    } else if (currExprType && currExprType.type === 'unionType') {
         for (var i = 0; i < currExprType.unions.length; i++) {
             if (isDictionary(currExprType.unions[i])) {
                 returnType = currExprType.unions[i];
