@@ -289,6 +289,7 @@ function checkGenericLiteralSubType(node, parent, child) {
         return null;
     }
 
+    var err;
     if (parent.value.name === 'Object' &&
         parent.value.builtin &&
         child.type === 'object' &&
@@ -300,7 +301,7 @@ function checkGenericLiteralSubType(node, parent, child) {
         for (var i = 0; i < child.keyValues.length; i++) {
             var pair = child.keyValues[i];
 
-            var err = this.checkSubType(node, valueType, pair.value);
+            err = this.checkSubType(node, valueType, pair.value);
             if (err) {
                 return err;
             }
@@ -323,9 +324,19 @@ function checkGenericLiteralSubType(node, parent, child) {
     }
 
     for (i = 0; i < parent.generics.length; i++) {
-        isSame = isSameType(parent.generics[i], child.generics[i]);
+        var err1 = this.checkSubType(
+            node, parent.generics[i], child.generics[i]
+        );
 
-        if (!isSame) {
+        if (err1) {
+            return reportTypeMisMatch(node, parent, child);
+        }
+
+        var err2 = this.checkSubType(
+            node, child.generics[i], parent.generics[i]
+        );
+
+        if (err2) {
             return reportTypeMisMatch(node, parent, child);
         }
     }
