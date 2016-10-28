@@ -314,6 +314,7 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.unsetWritableTokenLookup();
     }
 
+    // Sanity check.
     if (!leftType) {
         if (afterError === beforeError) {
             assert(false, '!!! could not find leftType: ' +
@@ -324,6 +325,8 @@ function verifyAssignmentExpression(node) {
 
     var rightType;
     beforeError = this.meta.countErrors();
+
+    // When assigning an untyped function, try to update function
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
@@ -351,17 +354,18 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
+    // Update inferred status
     if (node.left.type === 'Identifier' && !rightType.inferred) {
         var token = this.meta.currentScope.getVar(node.left.name);
         token.inferred = false;
     }
 
+    // In assignment of a value with concreteValue,
+    // Must change the concreteValue
     if (node.left.type === 'Identifier' &&
         leftType.type === 'typeLiteral' &&
         leftType.concreteValue !== null
     ) {
-        // In assignment of a value with concreteValue,
-        // Must change the concreteValue
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
@@ -378,6 +382,12 @@ function verifyAssignmentExpression(node) {
         leftType.builtin && leftType.name === '%Mixed%%OpenField'
     );
 
+    // Must check that right type fits in left type unless left type
+    // can grow.
+    // If left type is Null%%Default or Void%%Unitialized
+    // then its uninitialized variable which can hold any type
+    // If left type is an open field then we are assigning to
+    // an untyped field an open object which can hold any type
     var canGrow = isNullDefault || isVoidUninitialized || isOpenField;
     var beforeAssignmentError = this.meta.countErrors();
     var afterAssignmentErrror = beforeAssignmentError;
@@ -386,6 +396,7 @@ function verifyAssignmentExpression(node) {
         afterAssignmentErrror = this.meta.countErrors();
     }
 
+    // If assignment succeeded then update the type of the variable
     if (afterError === beforeError &&
         afterAssignmentErrror === beforeAssignmentError &&
         node.left.type === 'Identifier'
@@ -396,21 +407,17 @@ function verifyAssignmentExpression(node) {
         }
     }
 
-    if (isNullDefault) {
+    // After assignment then unitialized variable now has concrete type
+    if (isNullDefault || isVoidUninitialized) {
         if (node.left.type === 'Identifier') {
             this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
         } else {
-            assert(false, 'Cannot forceUpdateVar() Null%%Default');
-        }
-    }
-    if (isVoidUninitialized) {
-        if (node.left.type === 'Identifier') {
-            this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
-        } else {
-            assert(false, 'Cannot forceUpdateVar() Void%%Uninitialized');
+            assert(false, 'Cannot forceUpdateVar() ' + leftType.name);
         }
     }
 
+    // If we assign to an open field we have to update the type
+    // of the open object to track the new grown type
     if (isOpenField) {
         if (node.left.type === 'MemberExpression' &&
             node.left.property.type === 'Identifier' &&
@@ -431,15 +438,19 @@ function verifyAssignmentExpression(node) {
             );
         } else {
             // TODO: anything to do here?
+            // assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
         }
     }
 
+    // When assigning to module.exports, find the known export
+    // type of the module and do another checkSubType()
     if (leftType.name === '%Export%%ModuleExports') {
         assert(rightType, 'must have an export type');
 
         if (this.meta.hasExportDefined()) {
             var expectedType = this.meta.getModuleExportsType();
 
+            // Do a potential conversion from Tuple -> Array
             if (expectedType.type === 'genericLiteral' &&
                 expectedType.value.name === 'Array' &&
                 expectedType.value.builtin &&
@@ -471,6 +482,8 @@ function verifyAssignmentExpression(node) {
         }
     }
 
+    // If we are assigning to exports.foo, we want to mark the field
+    // as having been succesfully exported
     if (leftType.name !== '%Mixed%%UnknownExportsField' &&
         node.left.type === 'MemberExpression' &&
         node.left.object.type === 'Identifier' &&
@@ -488,6 +501,9 @@ function verifyAssignmentExpression(node) {
         }
     }
 
+    // If we are currently inside a function scope which is
+    // a constructor function and this assignment is this field
+    // assignment then track it as a known field in the constructor.
     var funcScope = this.meta.currentScope.getFunctionScope();
     if (funcScope && funcScope.isConstructor &&
         node.left.type === 'MemberExpression' &&
@@ -496,6 +512,8 @@ function verifyAssignmentExpression(node) {
         funcScope.addKnownField(node.left.property.name);
     }
 
+    // If we are assigning a field to the prototype then track
+    // that this field has been set against a prototype.
     if (node.left.type === 'MemberExpression' &&
         node.left.object.type === 'MemberExpression' &&
         node.left.object.property.name === 'prototype'
@@ -513,6 +531,8 @@ function verifyAssignmentExpression(node) {
         );
     }
 
+    // If the right value of the assignment is an identifier then
+    // mark that identifier as having been aliased.
     if (node.right.type === 'Identifier') {
         this.meta.currentScope.markVarAsAlias(
             node.right.name, null
