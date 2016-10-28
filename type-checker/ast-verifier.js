@@ -369,6 +369,30 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
+    if (node.left.type === 'MemberExpression' &&
+        node.left.object.type === 'Identifier' &&
+        node.left.computed
+    ) {
+        var objType = this.meta.verifyNode(node.left.object, null);
+        if (objType.type === 'genericLiteral' &&
+            objType.generics[0] &&
+            objType.generics[0].type === 'freeLiteral' &&
+            objType.value.type === 'typeLiteral' &&
+            objType.value.builtin && objType.value.name === 'Array'
+        ) {
+            var newGenerics = [rightType];
+            assert(objType.generics.length === 1,
+                'Array only has one generic type');
+
+            var newType = JsigAST.generic(objType.value, newGenerics);
+            this.meta.currentScope.forceUpdateVar(
+                node.left.object.name, newType
+            );
+
+            leftType = rightType;
+        }
+    }
+
     var isNullDefault = (
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Null%%Default'
@@ -461,7 +485,7 @@ function verifyAssignmentExpression(node) {
                 token = this.meta.currentScope.getVar(node.right.name);
 
                 var self = this;
-                var newType = this._maybeConvertToArray(
+                var newArrayType = this._maybeConvertToArray(
                     token, node.right.name, rightType,
                     function verify(possibleArray) {
                         return self.meta.checkSubType(
@@ -470,8 +494,8 @@ function verifyAssignmentExpression(node) {
                     }
                 );
 
-                if (newType) {
-                    rightType = newType;
+                if (newArrayType) {
+                    rightType = newArrayType;
                 }
             }
 

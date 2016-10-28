@@ -79,7 +79,7 @@ JSIGSnippet.test('Array lazy-bound on return usage', {
     assert.end();
 });
 
-JSIGSnippet.test.skip('Array lazy-bound on assignment usage', {
+JSIGSnippet.test('Array lazy-bound on assignment usage', {
     snippet: function m() {/*
         function foo() {
             var arr = [];
