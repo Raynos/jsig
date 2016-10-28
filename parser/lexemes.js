@@ -2,7 +2,7 @@
 
 var Parsimmon = require('parsimmon');
 
-var RAW_TYPE_NAME = Parsimmon.regex(/[a-z%]+/i);
+var RAW_TYPE_NAME = Parsimmon.regex(/[a-z0-9%]+/i);
 
 var lexemes = {
     importWord: lexeme(Parsimmon.string('import')),
@@ -14,7 +14,7 @@ var lexemes = {
     exportWord: lexeme(Parsimmon.string('export')),
     defaultWord: lexeme(Parsimmon.string('default')),
     quote: lexeme(Parsimmon.regex(/['"]/)),
-    identifier: lexeme(Parsimmon.regex(/[a-z\-\/]+/i)),
+    identifier: lexeme(Parsimmon.regex(/[a-z0-9\-\/]+/i)),
     assignmentIdentifier: lexeme(
         Parsimmon.regex(/[a-z0-9+*/%<=>!\|\-\/\\\~\&\^]+/i)
     ),
