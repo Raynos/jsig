@@ -1369,13 +1369,7 @@ function verifyReturnStatement(node) {
     if (node.argument === null) {
         defn = JsigAST.literal('void');
     } else {
-        var exprType = null;
-        if (this.meta.currentScope.type === 'function' &&
-            this.meta.currentScope.returnValueType
-        ) {
-            exprType = this.meta.currentScope.returnValueType;
-        }
-
+        var exprType = this.meta.currentScope.getReturnValueType();
         defn = this.meta.verifyNode(node.argument, exprType);
 
         if (defn.type === 'genericLiteral' &&

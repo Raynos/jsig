@@ -494,6 +494,11 @@ function loadTypes(funcNode, typeDefn) {
     this.funcType = typeDefn;
 };
 
+FunctionScope.prototype.getReturnValueType =
+function getReturnValueType() {
+    return this.returnValueType;
+};
+
 FunctionScope.prototype.getThisType =
 function getThisType() {
     if (this.writableTokenLookup) {
@@ -655,6 +660,11 @@ function getThisType() {
 
     return this._restrictedThisValueType ||
         this._narrowedThisValueType || this.parent.getThisType();
+};
+
+BranchScope.prototype.getReturnValueType =
+function getReturnValueType() {
+    return this.parent.getReturnValueType();
 };
 
 BranchScope.prototype.getFunctionScope =
