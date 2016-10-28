@@ -46,3 +46,52 @@ JSIGSnippet.test('array methods have required arguments', function m() {/*
 
     assert.end();
 });
+
+JSIGSnippet.test('Array lazy-bound on method usage', {
+    snippet: function m() {/*
+        function foo() {
+            var arr = [];
+
+            arr.push({ foo: 'bar' });
+            return arr;
+        }
+    */},
+    header: function h() {/*
+        foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('Array lazy-bound on return usage', {
+    snippet: function m() {/*
+        function foo() {
+            var arr = [];
+            return arr;
+        }
+    */},
+    header: function h() {/*
+        foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test.skip('Array lazy-bound on assignment usage', {
+    snippet: function m() {/*
+        function foo() {
+            var arr = [];
+
+            arr[0] = { foo: 'bar' };
+            return arr;
+        }
+    */},
+    header: function h() {/*
+        foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});

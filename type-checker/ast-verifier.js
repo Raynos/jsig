@@ -1334,6 +1334,26 @@ function verifyReturnStatement(node) {
 
         defn = this.meta.verifyNode(node.argument, exprType);
 
+        if (defn.type === 'genericLiteral' &&
+            defn.generics[0] &&
+            defn.generics[0].type === 'freeLiteral' &&
+            node.argument.type === 'Identifier' &&
+            exprType && exprType.type === 'genericLiteral'
+        ) {
+            var newGenerics = [];
+            assert(exprType.generics.length === defn.generics.length,
+                'expected same number of generics');
+            for (var i = 0; i < exprType.generics.length; i++) {
+                newGenerics[i] = exprType.generics[i];
+            }
+
+            var newType = JsigAST.generic(defn.value, newGenerics);
+            this.meta.currentScope.forceUpdateVar(
+                node.argument.name, newType
+            );
+            defn = newType;
+        }
+
         // TODO: really really need to do better job checking returns
         if (exprType && defn) {
             this.meta.checkSubType(node.argument, exprType, defn);
