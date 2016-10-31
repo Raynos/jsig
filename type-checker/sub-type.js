@@ -25,6 +25,8 @@ function SubTypeChecker(meta, node) {
     this.meta = meta;
     this.node = node;
 
+    this.stack = [];
+
     this.leftSeen = [];
     this.rightSeen = [];
 }
@@ -56,11 +58,13 @@ function SubTypeChecker(meta, node) {
 // }
 
 SubTypeChecker.prototype.checkSubType =
-function checkSubType(parent, child) {
+function checkSubType(parent, child, labelName) {
     assert(parent && parent.type, 'parent must have a type');
     assert(child && child.type, 'child must have a type');
+    assert(labelName, 'labelName is mandatory');
 
     var result;
+    this.stack.push(labelName);
 
     if (parent.type === 'typeLiteral' && !parent.builtin &&
         !parent.isGeneric
@@ -80,6 +84,7 @@ function checkSubType(parent, child) {
     if (pIndex !== -1) {
         var cIndex = this.rightSeen.indexOf(child);
         if (pIndex === cIndex) {
+            this.stack.pop();
             return null;
         }
     }
@@ -93,6 +98,7 @@ function checkSubType(parent, child) {
 
     result = this._checkSubType(parent, child);
     assert(typeof result !== 'boolean', 'must return error or null');
+    this.stack.pop();
     return result;
 };
 
@@ -129,7 +135,7 @@ function _checkSubType(parent, child) {
     } else if (parent.type === 'unionType') {
         result = this.checkUnionSubType(parent, child);
     } else if (parent.type === 'freeLiteral') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     } else if (parent.type === 'intersectionType') {
         return this.checkIntersectionSubType(parent, child);
     } else if (parent.type === 'tuple') {
@@ -171,22 +177,22 @@ function _checkSpecialTypeLiteralSubType(parent, child) {
 SubTypeChecker.prototype.checkTypeLiteralSubType =
 function checkTypeLiteralSubType(parent, child) {
     if (!parent.builtin && !parent.isGeneric) {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     if (parent.isGeneric) {
         if (!child.isGeneric) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
 
         if (parent.name !== child.name) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
 
         if (parent.genericIdentifierUUID !==
             child.genericIdentifierUUID
         ) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
 
         return null;
@@ -197,17 +203,17 @@ function checkTypeLiteralSubType(parent, child) {
     }
 
     if (child.type !== 'typeLiteral') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     var name = parent.name;
     if (name === 'Object') {
         // TODO: model that Error inherits from Object
         if (child.name !== name && child.name !== 'Error') {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
     } else if (child.name !== name) {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     } else if (child.name === name) {
         return null;
     } else {
@@ -241,7 +247,7 @@ function checkValueLiteralSubType(parent, child) {
     }
 
     if (child.type !== 'valueLiteral') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     var name = parent.name;
@@ -262,7 +268,7 @@ function checkValueLiteralSubType(parent, child) {
         var parentValue = parent.value.replace(/\'/g, '"');
 
         if (childValue !== parentValue) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
     } else {
         // console.log('valueLiteral?', {
@@ -303,7 +309,9 @@ function checkGenericLiteralSubType(parent, child) {
         for (var i = 0; i < child.keyValues.length; i++) {
             var pair = child.keyValues[i];
 
-            err = this.checkSubType(valueType, pair.value);
+            err = this.checkSubType(
+                valueType, pair.value, 'keyValue.' + pair.key
+            );
             if (err) {
                 return err;
             }
@@ -313,12 +321,12 @@ function checkGenericLiteralSubType(parent, child) {
     }
 
     if (child.type !== 'genericLiteral') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     var isSame = isSameType(parent.value, child.value);
     if (!isSame) {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     if (parent.generics.length !== child.generics.length) {
@@ -327,19 +335,19 @@ function checkGenericLiteralSubType(parent, child) {
 
     for (i = 0; i < parent.generics.length; i++) {
         var err1 = this.checkSubType(
-            parent.generics[i], child.generics[i]
+            parent.generics[i], child.generics[i], 'generics.' + i
         );
 
         if (err1) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
 
         var err2 = this.checkSubType(
-            child.generics[i], parent.generics[i]
+            child.generics[i], parent.generics[i], 'generics.' + i
         );
 
         if (err2) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
     }
 
@@ -349,30 +357,34 @@ function checkGenericLiteralSubType(parent, child) {
 SubTypeChecker.prototype.checkFunctionSubType =
 function checkFunctionSubType(parent, child) {
     if (child.type !== 'function') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
-    var err = this.checkSubType(parent.result, child.result);
+    var err = this.checkSubType(
+        parent.result, child.result, 'function.result'
+    );
     if (err) {
         return err;
     }
 
     if (parent.thisArg) {
         if (!child.thisArg) {
-            return this._reportTypeMisMatch(parent, child);
+            return this._reportTypeMisMatch(parent, child, 'terminal');
         }
 
         assert(!parent.thisArg.optional, 'do not support optional thisArg');
         assert(!child.thisArg.optional, 'do not support optional thisArg');
 
-        err = this.checkSubType(parent.thisArg.value, child.thisArg.value);
+        err = this.checkSubType(
+            parent.thisArg.value, child.thisArg.value, 'function.thisArg'
+        );
         if (err) {
             return err;
         }
     }
 
     if (parent.args.length !== child.args.length) {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     for (var i = 0; i < parent.args.length; i++) {
@@ -381,7 +393,9 @@ function checkFunctionSubType(parent, child) {
             parent.args[i].optional === child.args[i].optional;
 
         if (!isSame) {
-            return this._reportTypeMisMatch(parent.args[i], child.args[i]);
+            return this._reportTypeMisMatch(
+                parent.args[i], child.args[i], 'function.args.' + i
+            );
         }
     }
 
@@ -391,18 +405,20 @@ function checkFunctionSubType(parent, child) {
 SubTypeChecker.prototype.checkTupleSubType =
 function checkTupleSubType(parent, child) {
     if (child.type !== 'tuple') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     if (parent.values.length !== child.values.length) {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     for (var i = 0; i < parent.values.length; i++) {
         var isSame = isSameType(parent.values[i], child.values[i]);
 
         if (!isSame) {
-            return this._reportTypeMisMatch(parent.values[i], child.values[i]);
+            return this._reportTypeMisMatch(
+                parent.values[i], child.values[i], 'tuple.values.' + i
+            );
         }
     }
 
@@ -412,7 +428,7 @@ function checkTupleSubType(parent, child) {
 SubTypeChecker.prototype.checkObjectSubType =
 function checkObjectSubType(parent, child) {
     if (child.type !== 'object' && child.type !== 'intersectionType') {
-        return this._reportTypeMisMatch(parent, child);
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     var minimumFields = 0;
@@ -470,7 +486,7 @@ function checkObjectSubType(parent, child) {
             });
         }
 
-        err = this.checkSubType(pair.value, childType);
+        err = this.checkSubType(pair.value, childType, 'keyValue.' + pair.key);
         if (err) {
             return err;
         }
@@ -512,7 +528,9 @@ function checkUnionSubType(parent, child) {
         var isBad = true;
 
         for (var i = 0; i < parent.unions.length; i++) {
-            err = this.checkSubType(parent.unions[i], childUnions[j]);
+            err = this.checkSubType(
+                parent.unions[i], childUnions[j], 'unionType.' + i
+            );
             if (!err) {
                 isBad = false;
             } else {
@@ -557,7 +575,9 @@ function checkIntersectionSubType(parent, child) {
         var isGood = false;
 
         for (var j = 0; j < childTypes.length; j++) {
-            var error = this.checkSubType(currType, childTypes[j]);
+            var error = this.checkSubType(
+                currType, childTypes[j], 'intersectionType.' + i
+            );
             if (!err) {
                 isGood = true;
             } else {
@@ -579,13 +599,29 @@ function checkIntersectionSubType(parent, child) {
 };
 
 SubTypeChecker.prototype._reportTypeMisMatch =
-function _reportTypeMisMatch(parent, child) {
-    return Errors.TypeClassMismatch({
-        expected: serialize(parent._raw || parent),
-        actual: serialize(child._raw || child),
+function _reportTypeMisMatch(parent, child, labelName) {
+    assert(labelName, 'labelName is mandatory');
+
+    this.stack.push(labelName);
+    var err = this._buildTypeClassError(parent, child);
+    this.stack.pop();
+
+    return err;
+};
+
+SubTypeChecker.prototype._buildTypeClassError =
+function _buildTypeClassError(parent, child) {
+    var expected = serialize(parent._raw || parent);
+    var actual = serialize(child._raw || child);
+
+    var err = Errors.TypeClassMismatch({
+        expected: expected,
+        actual: actual,
         _parent: parent,
         _child: child,
         loc: this.node.loc,
         line: this.node.loc.start.line
     });
+
+    return err;
 };

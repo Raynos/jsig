@@ -456,7 +456,7 @@ function checkSubTypeRaw(node, leftType, rightType) {
     ));
 
     var subType = new SubTypeChecker(this, node);
-    return subType.checkSubType(leftType, rightType);
+    return subType.checkSubType(leftType, rightType, 'root');
 };
 
 ProgramMeta.prototype.isSubType =
