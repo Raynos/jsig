@@ -333,9 +333,13 @@ function checkGenericLiteralSubType(parent, child) {
         throw new Error('generics mismatch');
     }
 
+    var parentName = parent.value.name;
+
     for (i = 0; i < parent.generics.length; i++) {
+        var len = parent.generics.length;
         var err1 = this.checkSubType(
-            parent.generics[i], child.generics[i], 'generics.' + i
+            parent.generics[i], child.generics[i],
+            'generics.' + parentName + '.' + i + ',' + len
         );
 
         if (err1) {
@@ -343,7 +347,8 @@ function checkGenericLiteralSubType(parent, child) {
         }
 
         var err2 = this.checkSubType(
-            child.generics[i], parent.generics[i], 'generics.' + i
+            child.generics[i], parent.generics[i],
+            'generics.' + parentName + '.' + i + ',' + len
         );
 
         if (err2) {
@@ -387,6 +392,7 @@ function checkFunctionSubType(parent, child) {
         return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
+    var len = parent.args.length;
     for (var i = 0; i < parent.args.length; i++) {
         /* function args must be the same type, aka invariant */
         var isSame = isSameType(parent.args[i].value, child.args[i].value) &&
@@ -394,7 +400,8 @@ function checkFunctionSubType(parent, child) {
 
         if (!isSame) {
             return this._reportTypeMisMatch(
-                parent.args[i], child.args[i], 'function.args.' + i
+                parent.args[i], child.args[i],
+                'function.args.' + i + ',' + len
             );
         }
     }
@@ -412,12 +419,14 @@ function checkTupleSubType(parent, child) {
         return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
+    var len = parent.values.length;
     for (var i = 0; i < parent.values.length; i++) {
         var isSame = isSameType(parent.values[i], child.values[i]);
 
         if (!isSame) {
             return this._reportTypeMisMatch(
-                parent.values[i], child.values[i], 'tuple.values.' + i
+                parent.values[i], child.values[i],
+                'tuple.values.' + i + ',' + len
             );
         }
     }
@@ -528,8 +537,10 @@ function checkUnionSubType(parent, child) {
         var isBad = true;
 
         for (var i = 0; i < parent.unions.length; i++) {
+            var len = parent.unions.length;
             err = this.checkSubType(
-                parent.unions[i], childUnions[j], 'unionType.' + i
+                parent.unions[i], childUnions[j],
+                'unionType.' + i + ',' + len
             );
             if (!err) {
                 isBad = false;
