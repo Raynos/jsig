@@ -25,8 +25,8 @@ JSIGSnippet.test('function invariant for optional params', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.expected, 'baz?: String');
-    assert.equal(err.actual, 'baz: String');
+    assert.equal(err.expected, '(baz?: String) => _');
+    assert.equal(err.actual, '(baz: String) => _');
     assert.equal(err.line, 3);
 
     assert.end();
@@ -55,8 +55,8 @@ JSIGSnippet.test('function invariant for union params', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.expected, 'baz: String | null');
-    assert.equal(err.actual, 'baz: String');
+    assert.equal(err.expected, '(baz: String | null) => _');
+    assert.equal(err.actual, '(baz: String) => _');
     assert.equal(err.line, 3);
 
     assert.end();
