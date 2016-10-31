@@ -565,18 +565,39 @@ SubTypeChecker.prototype.checkIntersectionSubType =
 function checkIntersectionSubType(parent, child) {
     /* TODO: pretty errors & branchType */
 
+    var isObject = true;
+    for (var i = 0; i < parent.intersections.length; i++) {
+        if (parent.intersections[i].type !== 'object') {
+            isObject = false;
+        }
+    }
+
+    // If all intersections are objects then treat as object.
+    if (isObject) {
+        var keyValues = [];
+        for (i = 0; i < parent.intersections.length; i++) {
+            var currObj = parent.intersections[i];
+            for (var j = 0; j < currObj.keyValues.length; j++) {
+                keyValues.push(currObj.keyValues[j]);
+            }
+        }
+
+        var parentObj = JsigAST.object(keyValues, null);
+        return this.checkSubType(parentObj, child, 'skip');
+    }
+
     // TODO: what if child is intersectionType
     var childTypes = child.type === 'intersectionType' ?
         child.intersections : [child];
 
     var allTypes = parent.intersections;
-    for (var i = 0; i < allTypes.length; i++) {
+    for (i = 0; i < allTypes.length; i++) {
         var currType = allTypes[i];
         var err = null;
         var isGood = false;
 
         var len = allTypes.length;
-        for (var j = 0; j < childTypes.length; j++) {
+        for (j = 0; j < childTypes.length; j++) {
             var error = this.checkSubType(
                 currType, childTypes[j],
                 'intersectionType.' + i + ',' + len
