@@ -14,7 +14,7 @@ interface JsigASTReplacer {
     neverRaw: Boolean,
 
     inlineReferences(
-        ast: JsigType, raw: JsigType, stack?: Array<String | Number>
+        ast: JsigType, raw: JsigType, stack: Array<String | Number>
     ) => JsigType
 }
 
