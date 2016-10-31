@@ -18,7 +18,7 @@ JSIGSnippet.test('allow empty object for optional fields', {
     assert.end();
 });
 
-JSIGSnippet.test.skip('allow object with undefined field for optional fields', {
+JSIGSnippet.test('allow object with undefined field for optional fields', {
     snippet: function m() {/*
         foo({
             bar: undefined
@@ -29,6 +29,26 @@ JSIGSnippet.test.skip('allow object with undefined field for optional fields', {
         }
     */},
     header: function h() {/*
+        foo : ({ bar?: String }) => String
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('allow object with union field for optional fields', {
+    snippet: function m() {/*
+        foo({
+            bar: baz && baz.foo
+        });
+
+        function foo(opts) {
+            return opts.bar || '';
+        }
+    */},
+    header: function h() {/*
+        baz : undefined | { foo: String }
+
         foo : ({ bar?: String }) => String
     */}
 }, function t(snippet, assert) {
