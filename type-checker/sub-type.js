@@ -6,6 +6,7 @@ var JsigAST = require('../ast/');
 var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
 var isSameType = require('./lib/is-same-type.js');
+var computeSmallestUnion = require('./lib/compute-smallest-union.js');
 
 module.exports = SubTypeChecker;
 
@@ -485,14 +486,15 @@ function checkObjectSubType(parent, child) {
             });
         }
 
+        var pValue = pair.value;
         // Allow undefined value for child if parent is optional field
-        if (pair.optional && childType.type === 'valueLiteral' &&
-            childType.value === 'undefined'
-        ) {
-            continue;
+        if (pair.optional) {
+            pValue = computeSmallestUnion(
+                this.node, JsigAST.value('undefined'), pValue
+            );
         }
 
-        err = this.checkSubType(pair.value, childType, 'keyValue.' + pair.key);
+        err = this.checkSubType(pValue, childType, 'keyValue.' + pair.key);
         if (err) {
             return err;
         }
