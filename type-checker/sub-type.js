@@ -7,16 +7,6 @@ var Errors = require('./errors.js');
 var serialize = require('../serialize.js');
 var isSameType = require('./lib/is-same-type.js');
 
-/* TODO:
-
-    Need to add more context for non trivial assignments
-
-    objA = objB
-
-    gives a Number != String type error without fieldname context
-
-*/
-
 module.exports = SubTypeChecker;
 
 function SubTypeChecker(meta, node) {
