@@ -575,9 +575,11 @@ function checkIntersectionSubType(parent, child) {
         var err = null;
         var isGood = false;
 
+        var len = allTypes.length;
         for (var j = 0; j < childTypes.length; j++) {
             var error = this.checkSubType(
-                currType, childTypes[j], 'intersectionType.' + i
+                currType, childTypes[j],
+                'intersectionType.' + i + ',' + len
             );
             if (!err) {
                 isGood = true;
@@ -620,13 +622,9 @@ function _buildKeyPathType(finalValue) {
         var range;
         var list;
 
-        // function.result
-        // function.thisArg
         // intersectionType
 
-        if (item === 'root') {
-            continue;
-        } else if (item === 'terminal') {
+        if (item === 'root' || item === 'terminal' || item === 'skip') {
             continue;
         } else if (item.indexOf('keyValue') === 0) {
             var keyName = item.slice(9);
@@ -639,6 +637,11 @@ function _buildKeyPathType(finalValue) {
             list = this._buildListFromRange(range, currentType);
 
             currentType = JsigAST.union(list);
+        } else if (item.indexOf('intersectionType') === 0) {
+            range = item.slice(17);
+            list = this._buildListFromRange(range, currentType);
+
+            currentType = JsigAST.intersection(list);
         } else if (item.indexOf('generics') === 0) {
             var segments = item.split('.');
             assert(segments.length === 3, 'expected three parts: ' + item);
@@ -662,6 +665,17 @@ function _buildKeyPathType(finalValue) {
             list = this._buildListFromRange(range, currentType);
 
             currentType = JsigAST.tuple(list);
+        } else if (item === 'function.result') {
+            currentType = JsigAST.functionType({
+                args: [JsigAST.literal('...', true)],
+                result: currentType
+            });
+        } else if (item === 'function.thisArg') {
+            currentType = JsigAST.functionType({
+                args: [JsigAST.literal('...', true)],
+                thisArg: JsigAST.keyValue('this', currentType),
+                result: JsigAST.literal('_', true)
+            });
         } else {
             assert(false, 'unexpected item in keyPath stack: ' + item);
         }
