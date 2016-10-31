@@ -84,4 +84,84 @@ JSIGSnippet.test('disallow writing supertypes into generics', function m() {/*
     assert.end();
 });
 
-// TODO: alias an empty array and mutate it twice...
+JSIGSnippet.test.skip('alias an empty array and mutate it twice', {
+    snippet: function m() {/*
+        var foo = [];
+        var bar = foo;
+
+        foo.push("");
+        bar.push(null);
+
+        foo[1].toString();
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 1, 'expected one error');
+
+    assert.end();
+});
+
+JSIGSnippet.test('identity generic function', {
+    snippet: function m() {/*
+        var s = id('s');
+        s + 'bar';
+
+        var o = id({ foo: 'bar' });
+        o.foo + 'bar';
+    */},
+    header: function h() {/*
+        id : <T>(T) => T
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 0, 'expected no errors');
+
+    assert.end();
+});
+
+JSIGSnippet.test('union generic function', {
+    snippet: function m() {/*
+        var s = union('s', 2);
+        typeof s;
+
+        var o = union({ foo: 'bar' }, { baz: 'wat' });
+        typeof o;
+    */},
+    header: function h() {/*
+        union : <S, T>(S, T) => S | T
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2, 'expected two errors');
+
+    assert.equal(meta.errors[0].valueType, 'String | Number');
+    assert.equal(meta.errors[1].valueType,
+        '{ foo: String } | { baz: String }');
+
+    assert.end();
+});
+
+JSIGSnippet.test('intersection generic function', {
+    snippet: function m() {/*
+        var o = intersect({ foo: 'bar' }, { baz: 'wat' });
+        typeof o;
+
+        o.foo + 'wat';
+        o.baz + 'wat';
+    */},
+    header: function h() {/*
+        intersect : <S, T>(S, T) => S & T
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1, 'expected two errors');
+
+    assert.equal(meta.errors[0].valueType,
+        '{ foo: String } & { baz: String }');
+
+    assert.end();
+});
