@@ -89,6 +89,15 @@ function checkSubType(node, parent, child) {
     // console.log('parent: ' + this.meta.serializeType(parent));
     // console.log('child: ' + this.meta.serializeType(child));
 
+    result = this._checkSubType(node, parent, child);
+    assert(typeof result !== 'boolean', 'must return error or null');
+    return result;
+};
+
+SubTypeChecker.prototype._checkSubType =
+function _checkSubType(node, parent, child) {
+    var result;
+
     if (parent.type !== 'unionType' && child.type === 'unionType') {
         /* handle assigning union into parent */
 
@@ -102,15 +111,6 @@ function checkSubType(node, parent, child) {
 
         return null;
     }
-
-    result = this._checkSubType(node, parent, child);
-    assert(typeof result !== 'boolean', 'must return error or null');
-    return result;
-};
-
-SubTypeChecker.prototype._checkSubType =
-function _checkSubType(node, parent, child) {
-    var result;
 
     if (parent === child) {
         result = null;
