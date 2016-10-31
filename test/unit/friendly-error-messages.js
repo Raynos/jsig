@@ -8,7 +8,7 @@ JSIGSnippet.test('error message for nested fields', {
             statusCode: 200,
             body: {
                 messageType: 'OK',
-                timestamp: undefined
+                timestamp: 'wat'
             }
         }
 
@@ -19,7 +19,7 @@ JSIGSnippet.test('error message for nested fields', {
             statusCode: Number,
             body: {
                 messageType: String,
-                timestamp?: Number
+                timestamp: Number
             }
         }) => void
     */}
@@ -31,7 +31,7 @@ JSIGSnippet.test('error message for nested fields', {
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.expected, '{ body: { timestamp: Number } }');
-    assert.equal(err.actual, '{ body: { timestamp: undefined } }');
+    assert.equal(err.actual, '{ body: { timestamp: String } }');
     assert.equal(err.line, 9);
 
     assert.end();
