@@ -6,7 +6,9 @@ var multiline = require('multiline');
 var console = require('console');
 var process = global.process;
 
-var compileJSIG = require('../../type-checker/').compile;
+var TypeChecker = require('../../type-checker/');
+
+var PREVIOUS_CHECKER = null;
 
 JSigSnippet.test = tapeCluster(tape, JSigSnippet);
 module.exports = JSigSnippet;
@@ -50,10 +52,17 @@ JSigSnippet.prototype.close = function close(cb) {
 };
 
 JSigSnippet.prototype.compile = function compile() {
-    this.programMeta = compileJSIG('snippet.js', {
+    this.programMeta = new TypeChecker('snippet.js', {
         files: this.files,
-        optin: this.optin
+        optin: this.optin,
+        previousChecker: PREVIOUS_CHECKER
     });
+
+    if (PREVIOUS_CHECKER === null) {
+        PREVIOUS_CHECKER = this.programMeta;
+    }
+
+    this.programMeta.checkProgram();
 
     return this.programMeta;
 };

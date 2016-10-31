@@ -5,8 +5,9 @@
 var test = require('tape');
 var path = require('path');
 
-var compile = require('../type-checker/').compile;
+var TypeChecker = require('../type-checker/');
 
+var PREVIOUS_CHECKER = null;
 var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-calls');
 
 test('working method calls within a closure', function t(assert) {
@@ -263,6 +264,18 @@ test('calling method that does not exist', function t(assert) {
 
     assert.end();
 });
+
+function compile(fileName) {
+    var checker = new TypeChecker(fileName, {
+        previousChecker: PREVIOUS_CHECKER
+    });
+    checker.checkProgram();
+
+    if (PREVIOUS_CHECKER === null) {
+        PREVIOUS_CHECKER = checker;
+    }
+    return checker;
+}
 
 function getFile(fileName) {
     return path.join(batchClientDir, fileName);
