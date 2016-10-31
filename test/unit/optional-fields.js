@@ -18,6 +18,43 @@ JSIGSnippet.test('allow empty object for optional fields', {
     assert.end();
 });
 
+JSIGSnippet.test.skip('allow object with undefined field for optional fields', {
+    snippet: function m() {/*
+        foo({
+            bar: undefined
+        });
+
+        function foo(opts) {
+            return opts.bar || '';
+        }
+    */},
+    header: function h() {/*
+        foo : ({ bar?: String }) => String
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('allow undefined for optional arg', {
+    snippet: function m() {/*
+        foo(undefined);
+        foo();
+        foo('');
+        foo('wat');
+
+        function foo(bar) {
+            return bar || '';
+        }
+    */},
+    header: function h() {/*
+        foo : (bar?: String) => String
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
 JSIGSnippet.test('cannot pass extra fields to object', {
     snippet: function m() {/*
         foo({ bar: '', baz: '' });
