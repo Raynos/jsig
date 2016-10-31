@@ -15,6 +15,7 @@ var isSameType = require('./lib/is-same-type.js');
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
 var updateObject = require('./lib/update-object.js');
 var cloneJSIG = require('./lib/clone-ast.js');
+var computeSmallestUnion = require('./lib/compute-smallest-union.js');
 
 var ARRAY_KEY_TYPE = JsigAST.literal('Number');
 
@@ -1673,7 +1674,7 @@ function verifyForStatement(node) {
         }
 
         if (forType.type === 'restriction') {
-            var union = this._computeSmallestUnion(
+            var union = computeSmallestUnion(
                 node, forType.defn, outerType.defn
             );
 
@@ -1757,7 +1758,7 @@ function verifyIfStatement(node) {
             ifType.type === 'restriction' &&
             elseType.type === 'restriction'
         ) {
-            var union = this._computeSmallestUnion(
+            var union = computeSmallestUnion(
                 node, ifType.defn, elseType.defn
             );
 
@@ -1903,7 +1904,7 @@ function verifyLogicalExpression(node) {
         assert(false, 'unimplemented operator');
     }
 
-    return this._computeSmallestUnion(node, t1, t2);
+    return computeSmallestUnion(node, t1, t2);
 };
 
 function getFunctionName(node) {
@@ -2032,7 +2033,7 @@ function verifyConditionalExpression(node) {
         return left;
     }
 
-    return this._computeSmallestUnion(
+    return computeSmallestUnion(
         node, left, right
     );
 };
@@ -2079,7 +2080,7 @@ function verifyTryStatement(node) {
         if (tryType.type === 'restriction' &&
             catchType.type === 'restriction'
         ) {
-            var union = this._computeSmallestUnion(
+            var union = computeSmallestUnion(
                 node, tryType.defn, catchType.defn
             );
             this.meta.currentScope.restrictType(name, union);
@@ -2435,7 +2436,7 @@ function _findPropertyInSet(
             fieldUnion.push(fieldType);
         }
 
-        var union = this._computeSmallestUnion(
+        var union = computeSmallestUnion(
             node, JsigAST.union(fieldUnion)
         );
 
@@ -2676,7 +2677,7 @@ function _findTypeInContainer(node, objType, propType) {
             unionTypes.push(valueType);
         }
 
-        var union = this._computeSmallestUnion(
+        var union = computeSmallestUnion(
             node, JsigAST.union(unionTypes)
         );
 
@@ -2883,87 +2884,6 @@ function resolvePath(node, possiblePath, dirname) {
         return null;
     }
 };
-
-ASTVerifier.prototype._computeSmallestUnion =
-function _computeSmallestUnion(node, t1, t2) {
-    var parts = [];
-    addPossibleType(parts, t1);
-    addPossibleType(parts, t2);
-
-    if (parts.length === 0) {
-        return null;
-    }
-
-    if (parts.length === 1) {
-        return parts[0];
-    }
-
-    var minimal = this._computeSmallestCommonTypes(node, parts);
-
-    // Again, find smallest common type in reverse ??
-    // var reverseMinimal = parts.slice();
-    // reverseMinimal.reverse();
-    // reverseMinimal = this._computeSmallestCommonTypes(node, reverseMinimal);
-
-    // // Only use reverse minimal if smaller.
-    // if (reverseMinimal.length < minimal.length) {
-    //     minimal = reverseMinimal;
-    // }
-
-    if (minimal.length === 1) {
-        return minimal[0];
-    }
-
-    return JsigAST.union(minimal);
-};
-
-ASTVerifier.prototype._computeSmallestCommonTypes =
-function _computeSmallestCommonTypes(node, list) {
-    var minimal = [];
-
-    for (var i = 0; i < list.length; i++) {
-        var sample = list[i];
-        var toAdd = sample;
-
-        for (var j = 0; j < minimal.length; j++) {
-            var possible = minimal[j];
-
-            if (isSameType(sample, possible)) {
-                toAdd = null;
-                break;
-            }
-
-            /* if a super type of the other then remove from union */
-            // TODO: this seems so naive...
-            // var isSuper = this.meta.isSubType(node, possible, sample);
-            // if (isSuper) {
-            //     toAdd = null;
-            //     break;
-            // }
-        }
-
-        if (toAdd) {
-            minimal.push(toAdd);
-        }
-    }
-
-    return minimal;
-};
-
-function addPossibleType(list, maybeType) {
-    if (!maybeType) {
-        return;
-    }
-
-    if (maybeType.type !== 'unionType') {
-        list.push(maybeType);
-        return;
-    }
-
-    for (var i = 0; i < maybeType.unions.length; i++) {
-        addPossibleType(list, maybeType.unions[i]);
-    }
-}
 
 // hoisting function declarations to the bottom makes the tree
 // order algorithm simpler
