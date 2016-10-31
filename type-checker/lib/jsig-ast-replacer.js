@@ -1,5 +1,7 @@
 'use strict';
 
+var assert = require('assert');
+
 module.exports = JsigASTReplacer;
 
 function JsigASTReplacer(replacer, neverRaw) {
@@ -10,8 +12,8 @@ function JsigASTReplacer(replacer, neverRaw) {
 /*eslint complexity: [2, 80], max-statements: [2, 120]*/
 JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
+    assert(Array.isArray(stack), 'must pass in a stack');
     var i;
-    stack = stack || [];
 
     if (ast.type === 'program') {
         var newStatements = [];
@@ -155,7 +157,7 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.unions.length; i++) {
             stack.push(i);
             ast.unions[i] = this.inlineReferences(
-                ast.unions[i], rawAst.unions[i]
+                ast.unions[i], rawAst.unions[i], stack
             );
             stack.pop();
         }
@@ -168,7 +170,7 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.intersections.length; i++) {
             stack.push(i);
             ast.intersections[i] = this.inlineReferences(
-                ast.intersections[i], rawAst.intersections[i]
+                ast.intersections[i], rawAst.intersections[i], stack
             );
             stack.pop();
         }

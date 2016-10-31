@@ -215,7 +215,7 @@ function resolveReferences() {
         }
     }
 
-    copyAst = this.astReplacer.inlineReferences(copyAst, ast);
+    copyAst = this.astReplacer.inlineReferences(copyAst, ast, []);
 
     // Hoist default export only after inlining it.
     for (i = 0; i < copyAst.statements.length; i++) {

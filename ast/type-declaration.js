@@ -30,7 +30,7 @@ function _markGenerics(generics) {
 
     var replacer = new GenericReplacer(this, genericNames);
     var astReplacer = new JsigASTReplacer(replacer, true);
-    astReplacer.inlineReferences(this, this);
+    astReplacer.inlineReferences(this, this, []);
 };
 
 function GenericReplacer(node, genericNames) {

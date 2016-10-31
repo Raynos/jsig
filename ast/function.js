@@ -39,7 +39,7 @@ FunctionNode.prototype._findGenerics =
 function _findGenerics(generics) {
     var replacer = new GenericReplacer(this, generics);
     var astReplacer = new JsigASTReplacer(replacer, true);
-    astReplacer.inlineReferences(this, this);
+    astReplacer.inlineReferences(this, this, []);
 
     return replacer.seenGenerics;
 };
