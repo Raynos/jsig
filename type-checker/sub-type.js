@@ -620,10 +620,97 @@ function _reportTypeMisMatch(parent, child, labelName) {
     return err;
 };
 
+SubTypeChecker.prototype._buildKeyPathType =
+function _buildKeyPathType(finalValue) {
+    var stack = this.stack;
+    var currentType = finalValue;
+
+    for (var i = stack.length - 1; i >= 0; i--) {
+        var item = stack[i];
+        var range;
+        var list;
+
+        // function.result
+        // function.thisArg
+        // intersectionType
+
+        if (item === 'root') {
+            continue;
+        } else if (item === 'terminal') {
+            continue;
+        } else if (item.indexOf('keyValue') === 0) {
+            var keyName = item.slice(9);
+
+            currentType = JsigAST.object([
+                JsigAST.keyValue(keyName, currentType)
+            ]);
+        } else if (item.indexOf('unionType') === 0) {
+            range = item.slice(10);
+            list = this._buildListFromRange(range, currentType);
+
+            currentType = JsigAST.union(list);
+        } else if (item.indexOf('generics') === 0) {
+            var segments = item.split('.');
+            assert(segments.length === 3, 'expected three parts: ' + item);
+            var parentName = segments[1];
+            range = segments[2];
+            list = this._buildListFromRange(range, currentType);
+
+            currentType = JsigAST.generic(
+                JsigAST.literal(parentName), list
+            );
+        } else if (item.indexOf('function.args') === 0) {
+            range = item.slice(14);
+            list = this._buildListFromRange(range, currentType);
+
+            currentType = JsigAST.functionType({
+                args: list,
+                result: JsigAST.literal('_', true)
+            });
+        } else if (item.indexOf('tuple.values') === 0) {
+            range = item.slice(13);
+            list = this._buildListFromRange(range, currentType);
+
+            currentType = JsigAST.tuple(list);
+        } else {
+            assert(false, 'unexpected item in keyPath stack: ' + item);
+        }
+    }
+
+    return currentType;
+};
+
+SubTypeChecker.prototype._buildListFromRange =
+function _buildListFromRange(range, valueType) {
+    var arr = [];
+
+    var parts = range.split(',');
+    assert(parts.length === 2, 'expected two parts for: ' + range);
+
+    var index = parseInt(parts[0], 10);
+    var length = parseInt(parts[1], 10);
+
+    for (var i = 0; i < length; i++) {
+        if (i === index) {
+            arr[i] = valueType;
+        } else {
+            arr[i] = JsigAST.literal('_', true);
+        }
+    }
+
+    return arr;
+};
+
 SubTypeChecker.prototype._buildTypeClassError =
 function _buildTypeClassError(parent, child) {
-    var expected = serialize(parent._raw || parent);
-    var actual = serialize(child._raw || child);
+    var expected = serialize(
+        this._buildKeyPathType(parent._raw || parent)
+    );
+    var actual = serialize(
+        this._buildKeyPathType(child._raw || child)
+    );
+
+    // console.log('stack', this.stack);
 
     var err = Errors.TypeClassMismatch({
         expected: expected,
