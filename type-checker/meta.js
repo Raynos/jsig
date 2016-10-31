@@ -66,7 +66,6 @@ function ProgramMeta(checker, ast, fileName, source) {
 
     this.headerFile = null;
     this.headerFileName = '';
-    // this.subType = new SubTypeChecker(this);
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
     this.narrow = new NarrowType(this);
@@ -456,8 +455,8 @@ function checkSubTypeRaw(node, leftType, rightType) {
         'meta.check-sub-type', node, leftType, rightType
     ));
 
-    var subType = new SubTypeChecker(this);
-    return subType.checkSubType(node, leftType, rightType);
+    var subType = new SubTypeChecker(this, node);
+    return subType.checkSubType(leftType, rightType);
 };
 
 ProgramMeta.prototype.isSubType =
