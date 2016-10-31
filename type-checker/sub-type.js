@@ -485,6 +485,13 @@ function checkObjectSubType(parent, child) {
             });
         }
 
+        // Allow undefined value for child if parent is optional field
+        if (pair.optional && childType.type === 'valueLiteral' &&
+            childType.value === 'undefined'
+        ) {
+            continue;
+        }
+
         err = this.checkSubType(pair.value, childType, 'keyValue.' + pair.key);
         if (err) {
             return err;
