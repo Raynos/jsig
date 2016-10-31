@@ -581,7 +581,7 @@ function checkIntersectionSubType(parent, child) {
                 currType, childTypes[j],
                 'intersectionType.' + i + ',' + len
             );
-            if (!err) {
+            if (!error) {
                 isGood = true;
             } else {
                 err = error;
