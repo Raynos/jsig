@@ -1966,7 +1966,8 @@ function verifyFunctionExpression(node) {
     }
 
     if (potentialType.type !== 'function' &&
-        potentialType.type !== 'unionType'
+        potentialType.type !== 'unionType' &&
+        potentialType.type !== 'intersectionType'
     ) {
         err = Errors.UnexpectedFunction({
             expected: this.meta.serializeType(potentialType),
