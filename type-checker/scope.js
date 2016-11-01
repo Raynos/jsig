@@ -213,10 +213,10 @@ function _addFunctionOverloadScope(funcScope) {
     for (var i = 0; i < currScope.funcScopes.length; i++) {
         var existingScope = currScope.funcScopes[i];
 
-        assert(!isSameType(existingScope.funcType, funcScope.funcType),
-            'cannot add same type twice in overload :' +
-            funcScope.funcName
-        );
+        // If the function scope already exists then bail.
+        if (isSameType(existingScope.funcType, funcScope.funcType)) {
+            return;
+        }
     }
 
     currScope.funcScopes.push(funcScope);
