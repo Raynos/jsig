@@ -1291,8 +1291,9 @@ function verifyBinaryExpression(node) {
         return null;
     }
 
-    var token = this.meta.getOperator(node.operator);
-    assert(token, 'do not support unknown operators: ' + node.operator);
+    var operator = node.operator;
+    var token = this.meta.getOperator(operator);
+    assert(token, 'do not support unknown operators: ' + operator);
 
     var intersections = token.defn.type === 'intersectionType' ?
         token.defn.intersections : [token.defn];
@@ -1347,8 +1348,19 @@ function verifyBinaryExpression(node) {
         this.meta.addError(finalErr);
     }
 
+    if ((operator === '===' || operator === '!==') &&
+        (isNeverLiteral(leftType) || isNeverLiteral(rightType))
+    ) {
+        return JsigAST.literal('Never', true);
+    }
+
     return correctDefn.result;
 };
+
+function isNeverLiteral(type) {
+    return type.type === 'typeLiteral' && type.builtin &&
+        type.name === 'Never';
+}
 
 ASTVerifier.prototype.verifyReturnStatement =
 function verifyReturnStatement(node) {
@@ -1855,6 +1867,16 @@ function verifyUnaryExpression(node) {
         return JsigAST.literal('Number', true, {
             concreteValue: -firstType.concreteValue
         });
+    }
+
+    // The typeof operator, when evaluated on Never should
+    // return Never instead of void. This allow the if condition
+    // statement to mark a branch as Never if the typeof is
+    // garantueed to fail.
+    if (operator === 'typeof' && firstType.type === 'typeLiteral' &&
+        firstType.name === 'Never' && firstType.builtin
+    ) {
+        return firstType;
     }
 
     return defn.result;
