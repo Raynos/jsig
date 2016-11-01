@@ -1041,7 +1041,7 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         var afterErrors = this.meta.countErrors();
         if (!actualType || (beforeErrors !== afterErrors)) {
             this.meta.currentScope.revertFunctionScope(
-                this.meta.getFunctionName(argNode)
+                this.meta.getFunctionName(argNode), wantedType
             );
             return false;
         }

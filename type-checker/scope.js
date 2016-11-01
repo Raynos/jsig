@@ -192,9 +192,12 @@ function _addFunctionScope(funcScope) {
 };
 
 BaseScope.prototype._revertFunctionScope =
-function _revertFunctionScope(name) {
+function _revertFunctionScope(name, funcType) {
     var info = this.functionScopes[name];
     assert(info, 'cannot revert what does not exist');
+
+    assert(funcType.type !== 'functionType' || info.funcScopes.length === 1,
+        'plain functions can only have one func type');
 
     delete this.functionScopes[name];
 };
@@ -419,8 +422,8 @@ function addFunctionScope(funcScope) {
 };
 
 FileScope.prototype.revertFunctionScope =
-function revertFunctionScope(name) {
-    this._revertFunctionScope(name);
+function revertFunctionScope(name, funcType) {
+    this._revertFunctionScope(name, funcType);
 };
 
 FileScope.prototype.addFunctionOverloadScope =
@@ -618,12 +621,12 @@ function addFunctionScope(funcScope) {
 };
 
 FunctionScope.prototype.revertFunctionScope =
-function revertFunctionScope(name) {
+function revertFunctionScope(name, funcType) {
     if (!this.functionScopes[name]) {
-        return this.parent.revertFunctionScope(name);
+        return this.parent.revertFunctionScope(name, funcType);
     }
 
-    this._revertFunctionScope(name);
+    this._revertFunctionScope(name, funcType);
 };
 
 FunctionScope.prototype.addFunctionOverloadScope =
