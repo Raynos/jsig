@@ -157,7 +157,7 @@ function verifyProgram(node) {
 
 ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
-    var funcName = node.id.name;
+    var funcName = getFunctionName(node);
 
     // console.log('verifyFunctionDeclaration', funcName);
 
@@ -199,40 +199,7 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
-    if (token.defn.type === 'function' ||
-        token.defn.type === 'unionType'
-    ) {
-        this._checkFunctionType(node, token.defn);
-        return token.defn;
-    }
-
-    var allTypes = token.defn.intersections;
-    var anyFunction = false;
-    for (var i = 0; i < allTypes.length; i++) {
-        var currType = allTypes[i];
-
-        isFunction = currType.type === 'function';
-        if (!isFunction) {
-            continue;
-        }
-
-        anyFunction = true;
-        this._checkFunctionOverloadType(node, currType);
-    }
-
-    if (!anyFunction) {
-        // TODO: actually show branches & originalErrors
-        err = Errors.UnexpectedFunction({
-            funcName: funcName,
-            expected: this.meta.serializeType(currType),
-            actual: this.meta.serializeType(JsigAST.literal('Function')),
-            loc: node.loc,
-            line: node.loc.start.line
-        });
-        this.meta.addError(err);
-        return null;
-    }
-
+    this._checkFunctionType(node, token.defn);
     return token.defn;
 };
 
@@ -2182,6 +2149,35 @@ function _checkFunctionType(node, defn) {
             this.meta.addError(err);
             return null;
         }
+    } else if (defn.type === 'intersectionType') {
+        var allTypes = defn.intersections;
+        var anyFunction = false;
+        for (i = 0; i < allTypes.length; i++) {
+            var currType = allTypes[i];
+
+            var isFunction = currType.type === 'function';
+            if (!isFunction) {
+                continue;
+            }
+
+            anyFunction = true;
+            this._checkFunctionOverloadType(node, currType);
+        }
+
+        if (!anyFunction) {
+            // TODO: actually show branches & originalErrors
+            err = Errors.UnexpectedFunction({
+                funcName: getFunctionName(node),
+                expected: this.meta.serializeType(currType),
+                actual: this.meta.serializeType(JsigAST.literal('Function')),
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
+
+        return defn;
     }
 
     this.meta.enterFunctionScope(node, defn);
