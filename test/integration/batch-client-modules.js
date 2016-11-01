@@ -3,10 +3,12 @@
 var test = require('tape');
 var path = require('path');
 
-var TypeChecker = require('../type-checker/');
+var TypeChecker = require('../../type-checker/');
 
 var PREVIOUS_CHECKER = null;
-var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-modules');
+var batchClientDir = path.join(
+    __dirname, '..', 'fixtures', 'batch-client-modules'
+);
 
 test('working require from another file', function t(assert) {
     var file = getFile('good-working-require1.js');

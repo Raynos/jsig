@@ -5,10 +5,12 @@
 var test = require('tape');
 var path = require('path');
 
-var TypeChecker = require('../type-checker/');
+var TypeChecker = require('../../type-checker/');
 
 var PREVIOUS_CHECKER = null;
-var batchClientDir = path.join(__dirname, 'fixtures', 'batch-client-new');
+var batchClientDir = path.join(
+    __dirname, '..', 'fixtures', 'batch-client-new'
+);
 
 test('working new call', function t(assert) {
     var file = getFile('good-working-new-call.js');

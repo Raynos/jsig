@@ -3,11 +3,11 @@
 var test = require('tape');
 var path = require('path');
 
-var compile = require('../type-checker/').compile;
+var compile = require('../../type-checker/').compile;
 
-var procWatcherDir = path.join(__dirname, 'fixtures', 'regression');
-var definitionsDir = path.join(__dirname, 'lib', 'definitions');
-var globalsFile = path.join(__dirname, 'lib', 'globals.hjs');
+var procWatcherDir = path.join(__dirname, '..', 'fixtures', 'regression');
+var definitionsDir = path.join(__dirname, '..', 'lib', 'definitions');
+var globalsFile = path.join(__dirname, '..', 'lib', 'globals.hjs');
 
 test('regression: ProcWatcher', function t(assert) {
     var file = getFile('good-proc-watcher.js');

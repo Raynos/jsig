@@ -5,13 +5,13 @@
 var test = require('tape');
 var path = require('path');
 
-var compile = require('../type-checker/').compile;
+var compile = require('../../type-checker/').compile;
 
 var cityControllerDir = path.join(
-    __dirname, 'fixtures', 'city-controller-macros'
+    __dirname, '..', 'fixtures', 'city-controller-macros'
 );
 var definitionsDir = path.join(
-    __dirname, 'fixtures', 'city-controller-macros', 'definitions'
+    __dirname, '..', 'fixtures', 'city-controller-macros', 'definitions'
 );
 
 test('working macro import', function t(assert) {
