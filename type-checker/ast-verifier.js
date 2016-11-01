@@ -253,7 +253,17 @@ function _verifyBlockStatement(statements) {
             this._handleTypeofExpression(statement);
         }
 
-        this.meta.verifyNode(statement, null);
+        var statementType = this.meta.verifyNode(statement, null);
+
+        // If we have an if statement with an early return
+        // And the non-existant else block is Never type then
+        // the if statement will always run and the rest
+        // of the block will never run because of the early return
+        if (statement.type === 'IfStatement' &&
+            isNeverLiteral(statementType)
+        ) {
+            break;
+        }
     }
 };
 
@@ -1743,8 +1753,18 @@ function verifyIfStatement(node) {
     // If the expr evaluated to Always then the else block is Never run
     if (node.alternate && !isElseNeverType) {
         this.meta.enterBranchScope(elseBranch);
-        this.meta.verifyNode(node.alternate, null);
+        var elseBlockType = this.meta.verifyNode(node.alternate, null);
         this.meta.exitBranchScope();
+
+        // If we have an if statement with an early return
+        // And the non-existant else block is Never type then
+        // the if statement will always run and the rest
+        // of the block will never run because of the early return
+        if (node.alternate.type === 'IfStatement' &&
+            isNeverLiteral(elseBlockType)
+        ) {
+            isElseNeverType = true;
+        }
     }
 
     var isRestricted = [];
