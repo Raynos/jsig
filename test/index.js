@@ -44,14 +44,14 @@ require('./unit/boolean-logic.js');
 require('./unit/dictionaries.js');
 require('./unit/friendly-error-messages.js');
 
-require('./integration/batch-client-constructor.js');
-require('./integration/batch-client-methods.js');
-require('./integration/batch-client-new.js');
-require('./integration/batch-client-calls.js');
-require('./integration/batch-client-modules.js');
-require('./integration/proc-watcher-node_modules.js');
+require('./scenario/batch-client-constructor.js');
+require('./scenario/batch-client-methods.js');
+require('./scenario/batch-client-new.js');
+require('./scenario/batch-client-calls.js');
+require('./scenario/batch-client-modules.js');
+require('./scenario/proc-watcher-node_modules.js');
 
-require('./integration/city-controller-macros.js');
+require('./scenario/city-controller-macros.js');
 
-require('./integration/regression.js');
+require('./scenario/regression.js');
 
