@@ -1780,11 +1780,12 @@ function verifyIfStatement(node) {
         }
     }
 
+    // TODO create unions based on typeRestrictions & mutations...
+
     // Support an early return if statement
     // If the `consequent` is a `ReturnStatement` then
     // copy over all type restrictions from the `elseBranch`
     // onto the current scope
-
     var lastStatement = null;
     if (node.consequent.type === 'BlockStatement') {
         var statements = node.consequent.body;
@@ -1812,9 +1813,15 @@ function verifyIfStatement(node) {
         if (restrictedThisType) {
             this.meta.currentScope.restrictType('this', restrictedThisType);
         }
+
+        if (isElseNeverType &&
+            lastStatement.type === 'ReturnStatement'
+        ) {
+            return JsigAST.literal('Never', true);
+        }
     }
 
-    // TODO create unions based on typeRestrictions & mutations...
+    return null;
 };
 
 ASTVerifier.prototype.verifyUnaryExpression =
