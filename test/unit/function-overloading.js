@@ -218,11 +218,39 @@ JSIGSnippet.test('overloading an event emitter object (sugar)', {
     assert.end();
 });
 
-JSIGSnippet.test('overloaded callbacks as func decl', {
+JSIGSnippet.test('overloaded callbacks as func decl 1', {
     snippet: function m() {/*
         db.load('key', onObj);
 
         function onObj(err, obj) {
+        }
+    */},
+    header: function h() {/*
+        interface Obj {
+            key: String,
+            value: String
+        }
+
+        db : {
+            load: (key: String, cb : (
+                ((err: Error, obj?: Obj) => void) &
+                ((err: null, obj: Obj) => void)
+            )) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('overloaded callbacks as func decl 2', {
+    snippet: function m() {/*
+        db.load('key', onObj);
+
+        function onObj(err, obj) {
+            if (err) {
+                err.message + 'foo';
+            }
         }
     */},
     header: function h() {/*
