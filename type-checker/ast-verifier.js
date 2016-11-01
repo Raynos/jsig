@@ -1709,15 +1709,24 @@ function verifyObjectExpression(node) {
 */
 ASTVerifier.prototype.verifyIfStatement =
 function verifyIfStatement(node) {
-    this.meta.verifyNode(node.test, null);
-
     var ifBranch = this.meta.allocateBranchScope();
     var elseBranch = this.meta.allocateBranchScope();
 
     // TODO: check things ?
     this.meta.narrowType(node.test, ifBranch, elseBranch);
+    this.meta.enterBranchScope(ifBranch);
+    var testType = this.meta.verifyNode(node.test, null);
+    this.meta.exitBranchScope();
 
-    if (node.consequent) {
+    // console.log('verifyIfStatement()', {
+    //     testType: this.meta.serializeType(testType)
+    // });
+
+    var isNeverType = testType.type === 'typeLiteral' &&
+        testType.name === 'Never' && testType.builtin;
+
+    // If the expr evaluated to Never then the block is Never run.
+    if (node.consequent && !isNeverType) {
         this.meta.enterBranchScope(ifBranch);
         this.meta.verifyNode(node.consequent, null);
         this.meta.exitBranchScope();
