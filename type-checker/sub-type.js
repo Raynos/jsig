@@ -193,6 +193,12 @@ function checkTypeLiteralSubType(parent, child) {
         return null;
     }
 
+    if (parent.name === 'String' && parent.builtin &&
+        child.type === 'valueLiteral' && child.name === 'string'
+    ) {
+        return null;
+    }
+
     if (child.type !== 'typeLiteral') {
         return this._reportTypeMisMatch(parent, child, 'terminal');
     }

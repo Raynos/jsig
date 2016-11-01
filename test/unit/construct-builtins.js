@@ -90,3 +90,18 @@ JSIGSnippet.test('assigning string literal union types', {
 
     assert.end();
 });
+
+JSIGSnippet.test('Assign string literal to string', {
+    snippet: function m() {/*
+        var s = '';
+        s = o.type;
+    */},
+    header: function h() {/*
+        o : { type: "foo" }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
