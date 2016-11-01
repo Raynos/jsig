@@ -270,3 +270,33 @@ JSIGSnippet.test('overloaded callbacks as func decl 2', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('overloaded callbacks as func decl 3', {
+    snippet: function m() {/*
+        db.load('key', onObj);
+
+        function onObj(err, obj) {
+            if (err) {
+                err.message + 'foo';
+            } else {
+                obj.key + 'wat';
+            }
+        }
+    */},
+    header: function h() {/*
+        interface Obj {
+            key: String,
+            value: String
+        }
+
+        db : {
+            load: (key: String, cb : (
+                ((err: Error, obj?: Obj) => void) &
+                ((err: null, obj: Obj) => void)
+            )) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
