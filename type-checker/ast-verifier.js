@@ -1352,7 +1352,7 @@ function verifyBinaryExpression(node) {
 };
 
 function isNeverLiteral(type) {
-    return type.type === 'typeLiteral' && type.builtin &&
+    return type && type.type === 'typeLiteral' && type.builtin &&
         type.name === 'Never';
 }
 
