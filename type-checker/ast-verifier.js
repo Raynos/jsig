@@ -1714,19 +1714,15 @@ function verifyIfStatement(node) {
 
     // TODO: check things ?
     this.meta.narrowType(node.test, ifBranch, elseBranch);
+
     this.meta.enterBranchScope(ifBranch);
-    var testType = this.meta.verifyNode(node.test, null);
+    var ifTestType = this.meta.verifyNode(node.test, null);
     this.meta.exitBranchScope();
-
-    // console.log('verifyIfStatement()', {
-    //     testType: this.meta.serializeType(testType)
-    // });
-
-    var isNeverType = testType.type === 'typeLiteral' &&
-        testType.name === 'Never' && testType.builtin;
+    var isIfNeverType = ifTestType.type === 'typeLiteral' &&
+        ifTestType.name === 'Never' && ifTestType.builtin;
 
     // If the expr evaluated to Never then the block is Never run.
-    if (node.consequent && !isNeverType) {
+    if (node.consequent && !isIfNeverType) {
         this.meta.enterBranchScope(ifBranch);
         this.meta.verifyNode(node.consequent, null);
         this.meta.exitBranchScope();
