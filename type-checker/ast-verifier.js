@@ -106,18 +106,7 @@ function verifyProgram(node) {
         }
     }
 
-    for (i = 0; i < parts.statements.length; i++) {
-        var statement = parts.statements[i];
-
-        if (statement.type === 'ExpressionStatement' &&
-            statement.expression.type === 'UnaryExpression' &&
-            statement.expression.operator === 'typeof'
-        ) {
-            this._handleTypeofExpression(statement);
-        }
-
-        this.meta.verifyNode(statement, null);
-    }
+    this._verifyBlockStatement(parts.statements);
 
     var functions = parts.functions;
     do {
@@ -249,8 +238,13 @@ function verifyFunctionDeclaration(node) {
 
 ASTVerifier.prototype.verifyBlockStatement =
 function verifyBlockStatement(node) {
-    for (var i = 0; i < node.body.length; i++) {
-        var statement = node.body[i];
+    this._verifyBlockStatement(node.body);
+};
+
+ASTVerifier.prototype._verifyBlockStatement =
+function _verifyBlockStatement(statements) {
+    for (var i = 0; i < statements.length; i++) {
+        var statement = statements[i];
 
         if (statement.type === 'ExpressionStatement' &&
             statement.expression.type === 'UnaryExpression' &&
