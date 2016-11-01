@@ -184,18 +184,7 @@ function verifyFunctionDeclaration(node) {
         return null;
     }
 
-    var token;
-    if (this.meta.currentScope.getKnownFunctionScope(funcName)) {
-        // console.log('found known function info', funcName);
-        // throw new Error('has getKnownFunctionScope');
-        token = this.meta.currentScope.getVar(funcName);
-        assert(token, 'must have var for function');
-        this._checkFunctionType(node, token.defn);
-
-        return token.defn;
-    }
-
-    token = this.meta.currentScope.getVar(funcName);
+    var token = this.meta.currentScope.getVar(funcName);
     if (!token) {
         err = Errors.UnTypedFunctionFound({
             funcName: funcName,
