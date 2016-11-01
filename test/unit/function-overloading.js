@@ -331,3 +331,65 @@ JSIGSnippet.test('overloaded callbacks as func decl 4', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('overloaded callbacks as func decl 5', {
+    snippet: function m() {/*
+        db.load('key', onObj);
+
+        function onObj(err, obj) {
+            if (err) {
+                var msg = (obj && obj.key) || 'foo';
+                err.message + msg;
+                return;
+            }
+
+            obj.key + 'wat';
+        }
+    */},
+    header: function h() {/*
+        interface Obj {
+            key: String,
+            value: String
+        }
+
+        db : {
+            load: (key: String, cb : (
+                ((err: Error, obj?: Obj) => void) &
+                ((err: null, obj: Obj) => void)
+            )) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('overloaded callbacks as func expr 1', {
+    snippet: function m() {/*
+        db.load('key', function onObj(err, obj) {
+            if (err) {
+                var msg = (obj && obj.key) || 'foo';
+                err.message + msg;
+                return;
+            }
+
+            obj.key + 'wat';
+        });
+    */},
+    header: function h() {/*
+        interface Obj {
+            key: String,
+            value: String
+        }
+
+        db : {
+            load: (key: String, cb : (
+                ((err: Error, obj?: Obj) => void) &
+                ((err: null, obj: Obj) => void)
+            )) => void
+        }
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
