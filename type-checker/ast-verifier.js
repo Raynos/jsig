@@ -2568,6 +2568,8 @@ function _findPropertyInObject(
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
             line: node.loc.start.line,
+            actual: serialize(jsigType),
+            expected: '{ ' + propertyName + ': T }',
             fieldName: propertyName,
             nonObjectType: serialize(jsigType)
         }));
