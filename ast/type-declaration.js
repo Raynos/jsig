@@ -3,7 +3,10 @@
 /* @jsig */
 
 var uuid = require('uuid');
+var assert = require('assert');
+
 var JsigASTReplacer = require('../type-checker/lib/jsig-ast-replacer.js');
+var LocationLiteralNode = require('./location-literal.js');
 
 module.exports = TypeDeclarationNode;
 
@@ -16,8 +19,11 @@ function TypeDeclarationNode(identifier, expr, generics) {
     this._raw = null;
 
     if (generics.length > 0) {
-        this._markGenerics(generics);
+        this.seenGenerics = this._markGenerics(generics);
+    } else {
+        this.seenGenerics = [];
     }
+
     this.generics = generics;
 }
 
@@ -28,9 +34,13 @@ function _markGenerics(generics) {
         genericNames.push(generics[i].name);
     }
 
+    // console.log('_markGenerics()', this.identifier);
+
     var replacer = new GenericReplacer(this, genericNames);
     var astReplacer = new JsigASTReplacer(replacer, true);
     astReplacer.inlineReferences(this, this, []);
+
+    return replacer.seenGenerics;
 };
 
 function GenericReplacer(node, genericNames) {
@@ -41,12 +51,24 @@ function GenericReplacer(node, genericNames) {
     for (var i = 0; i < this.knownGenerics.length; i++) {
         this.genericUUIDs[this.knownGenerics[i]] = uuid();
     }
+    this.seenGenerics = [];
 }
 
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
+    if (ast.type === 'typeLiteral') {
+        return this.replaceTypeLiteral(ast, raw, stack);
+    } else {
+        assert(false, 'unexpected other type: ' + ast.type);
+    }
+};
+
+GenericReplacer.prototype.replaceTypeLiteral =
+function replaceTypeLiteral(ast, raw, stack) {
     if (this.knownGenerics.indexOf(ast.name) === -1) {
         return ast;
     }
+
+    this.seenGenerics.push(new LocationLiteralNode(ast.name, stack.slice()));
 
     ast.isGeneric = true;
     ast.genericIdentifierUUID = this.genericUUIDs[ast.name];

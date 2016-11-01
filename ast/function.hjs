@@ -38,6 +38,11 @@ interface GenericReplacer {
         ast: JsigLiteralTypeNode,
         raw: JsigLiteralTypeNode,
         stack: Array<String | Number>
+    ) => JsigLiteralTypeNode,
+    replaceTypeLiteral(
+        ast: JsigLiteralTypeNode,
+        raw: JsigLiteralTypeNode,
+        stack: Array<String | Number>
     ) => JsigLiteralTypeNode
 }
 

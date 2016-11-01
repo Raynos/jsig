@@ -20,6 +20,7 @@ function HeaderFile(checker, jsigAst, fileName, source) {
     this.resolvedJsigAst = null;
 
     this.indexTable = Object.create(null);
+    this.genericIndexTable = Object.create(null);
     this.exportType = null;
     this.errors = [];
     this.dependentHeaders = Object.create(null);
@@ -70,7 +71,14 @@ HeaderFile.prototype.replaceGenericLiteral =
 function replaceGenericLiteral(ast, rawAst) {
     var name = ast.value.name;
 
-    var typeDefn = this.indexTable[name];
+    // var serialize = require('../serialize.js');
+
+    // console.log('replaceGenericLiteral(' + name + ')', {
+    //     ast: ast.generics.length,
+    //     rawValue: serialize(ast)
+    // });
+
+    var typeDefn = this.genericIndexTable[name];
     if (!typeDefn) {
         this.errors.push(Errors.UnknownLiteralError({
             literal: name
@@ -78,7 +86,43 @@ function replaceGenericLiteral(ast, rawAst) {
         return null;
     }
 
-    return typeDefn;
+    var args = ast.generics;
+    var expectedArgs = typeDefn.generics;
+
+    var idMapping = Object.create(null);
+    for (var i = 0; i < expectedArgs.length; i++) {
+        idMapping[expectedArgs[i].name] = args[i];
+    }
+
+    var copyType = deepCloneJSIG(typeDefn.typeExpression);
+    copyType._raw = null;
+
+    var locations = typeDefn.seenGenerics;
+    for (i = 0; i < locations.length; i++) {
+
+        var g = locations[i];
+        var newType = idMapping[g.name];
+        assert(newType, 'newType must exist');
+
+        var stack = g.location.slice(1);
+        // console.log('mutating?', stack);
+
+        var obj = copyType;
+        for (var j = 0; j < stack.length - 1; j++) {
+            obj = obj[stack[j]];
+            obj._raw = null;
+        }
+
+        var lastProp = stack[stack.length - 1];
+        obj[lastProp] = newType;
+    }
+
+    // console.log('typeDefn?', {
+    //     expr: serialize(typeDefn.typeExpression),
+    //     copyType: serialize(copyType)
+    // });
+
+    return copyType;
 };
 
 HeaderFile.prototype._getHeaderFile =
@@ -188,6 +232,13 @@ function addToken(token, defn) {
     this.indexTable[token] = defn;
 };
 
+HeaderFile.prototype.addGenericToken =
+function addGenericToken(token, expr) {
+    assert(!this.indexTable[token], 'cannout double add generic token');
+    assert(!this.genericIndexTable[token], 'cannot double add generic token');
+    this.genericIndexTable[token] = expr;
+};
+
 HeaderFile.prototype.addDefaultExport =
 function addDefaultExport(defn) {
     assert(this.exportType === null, 'cannot have double export');
@@ -211,7 +262,12 @@ function resolveReferences() {
                 assert(line.typeExpression.builtin,
                     'cannot alias non-builtin types...');
             }
-            this.addToken(line.identifier, line.typeExpression);
+
+            if (line.generics.length > 0) {
+                this.addGenericToken(line.identifier, line);
+            } else {
+                this.addToken(line.identifier, line.typeExpression);
+            }
         }
     }
 
