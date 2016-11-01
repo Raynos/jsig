@@ -1727,7 +1727,15 @@ function verifyIfStatement(node) {
         this.meta.verifyNode(node.consequent, null);
         this.meta.exitBranchScope();
     }
-    if (node.alternate) {
+
+    this.meta.enterBranchScope(elseBranch);
+    var elseTestType = this.meta.verifyNode(node.test, null);
+    this.meta.exitBranchScope();
+    var isElseNeverType = elseTestType.type === 'typeLiteral' &&
+        elseTestType.name === 'Never' && elseTestType.builtin;
+
+    // If the expr evaluated to Always then the else block is Never run
+    if (node.alternate && !isElseNeverType) {
         this.meta.enterBranchScope(elseBranch);
         this.meta.verifyNode(node.alternate, null);
         this.meta.exitBranchScope();
