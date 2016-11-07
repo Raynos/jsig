@@ -8,8 +8,8 @@ interface JsigTypeDeclarationNode {
     identifier: String,
     typeExpression: JsigType,
     _raw: JsigTypeDeclarationNode | null,
-    seenGenerics: Array<JsigLocationLiteralNode>,
     generics: Array<JsigLiteralTypeNode>,
+    seenGenerics: Array<JsigLocationLiteralNode>,
 
     _markGenerics(
         generics: Array<JsigLiteralTypeNode>

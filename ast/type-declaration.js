@@ -18,13 +18,13 @@ function TypeDeclarationNode(identifier, expr, generics) {
     this.typeExpression = expr;
     this._raw = null;
 
+    this.generics = generics;
+
     if (generics.length > 0) {
         this.seenGenerics = this._markGenerics(generics);
     } else {
         this.seenGenerics = [];
     }
-
-    this.generics = generics;
 }
 
 TypeDeclarationNode.prototype._markGenerics =
