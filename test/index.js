@@ -17,7 +17,7 @@ require('./parser/integration/min-document.js');
 require('./parser/integration/jsig.js');
 require('./parser/integration/frp-keyboard.js');
 require('./parser/integration/error.js');
-require('./parser/integration/continuable-mongo.js');
+//require('./parser/integration/continuable-mongo.js');
 require('./parser/integration/jsonml-stringify.js');
 
 require('./unit/generics.js');
