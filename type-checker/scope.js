@@ -709,6 +709,11 @@ function addFunctionScope(funcScope) {
     return this.parent.addFunctionScope(funcScope);
 };
 
+BranchScope.prototype.addFunctionOverloadScope =
+function addFunctionOverloadScope(funcScope) {
+    return this.parent.addFunctionOverloadScope(funcScope);
+};
+
 BranchScope.prototype.updateFunction =
 function updateFunction(id, defn) {
     return this.parent.updateFunction(id, defn);
