@@ -358,3 +358,67 @@ test('foo-baz/bar-boz : Number', function t(assert) {
 
     assert.end();
 });
+
+test('foo : false', function t(assert) {
+    var content = 'foo : false';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'valueLiteral',
+        name: 'false',
+        value: 'false',
+        _raw: null
+    });
+
+    assert.end();
+});
+
+test('foo : true', function t(assert) {
+    var content = 'foo : true';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'valueLiteral',
+        name: 'true',
+        value: 'true',
+        _raw: null
+    });
+
+    assert.end();
+});
+
+test('foo : "false"', function t(assert) {
+    var content = 'foo : "false"';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'valueLiteral',
+        name: 'string',
+        value: '"false"',
+        _raw: null
+    });
+
+    assert.end();
+});
+
+test('foo : 6', function t(assert) {
+    var content = 'foo : 6';
+    var result = parse(content).statements[0];
+
+    assert.equal(result.type, 'assignment');
+    assert.equal(result.identifier, 'foo');
+    assert.deepEqual(result.typeExpression, {
+        type: 'valueLiteral',
+        name: 'number',
+        value: '6',
+        _raw: null
+    });
+
+    assert.end();
+});
