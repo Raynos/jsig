@@ -91,8 +91,8 @@ test('type OptionError<T> : { option: T }', function t(assert) {
             }
         },
         concreteValue: null,
-        isGeneric: false,
-        genericIdentifierUUID: null,
+        isGeneric: true,
+        genericIdentifierUUID: TUUID,
         name: 'T',
         builtin: false,
         _raw: null
