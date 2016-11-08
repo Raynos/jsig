@@ -24,6 +24,10 @@ type TArray : {
 
     splice: <T>(
         this: Array<T>, start: Number, deleteCount: Number, item?: T
+    ) => Array<T>,
+
+    filter : <T>(
+        this: Array<T>, func: (T) => Boolean
     ) => Array<T>
 }
 
