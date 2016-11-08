@@ -87,15 +87,39 @@ function inferCallExpression(node) {
         var funcScope = funcScopes[0];
 
         if (funcScope.knownReturnTypes.length > 0) {
+            var uniqueKnownReturnTypes = getUniqueTypes(
+                funcScope.knownReturnTypes
+            );
+
             // TODO: grab the smallest union?
-            assert(funcScope.knownReturnTypes.length === 1,
+            assert(uniqueKnownReturnTypes.length === 1,
                 'only support trivial single return funcs');
-            funcType.result = funcScope.knownReturnTypes[0];
+            funcType.result = uniqueKnownReturnTypes[0];
         }
     }
 
     return funcType;
 };
+
+function getUniqueTypes(types) {
+    var newTypes = [];
+
+    for (var i = 0; i < types.length; i++) {
+        var found = false;
+        for (var j = 0; j < newTypes.length; j++) {
+            if (isSameType(newTypes[j], types[i])) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            newTypes.push(types[i]);
+        }
+    }
+
+    return newTypes;
+}
 
 TypeInference.prototype.inferLiteral =
 function inferLiteral(node) {
