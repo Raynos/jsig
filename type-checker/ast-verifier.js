@@ -981,6 +981,67 @@ function verifyCallExpression(node) {
     return result;
 };
 
+function typeHasFreeLiteral(typeExpr) {
+    var types = [];
+    if (typeExpr.type === 'genericLiteral') {
+        types.push(typeExpr);
+    }
+    if (typeExpr.type === 'unionType') {
+        for (var i = 0; i < typeExpr.unions.length; i++) {
+            var possibleType = typeExpr.unions[i];
+            if (possibleType.type === 'genericLiteral') {
+                types.push(possibleType);
+            }
+        }
+    }
+
+    for (i = 0; i < types.length; i++) {
+        var actualType = types[i];
+        if (actualType.type === 'genericLiteral' &&
+            actualType.generics[0] &&
+            actualType.generics[0].type === 'freeLiteral'
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+ASTVerifier.prototype._updateFreeLiteralType =
+function _updateFreeLiteralType(node, actualType, wantedType) {
+    if (actualType.type === 'genericLiteral' &&
+        actualType.generics[0] &&
+        actualType.generics[0].type === 'freeLiteral'
+    ) {
+        assert(actualType.generics.length === wantedType.generics.length,
+            'must have same number of generics');
+        return JsigAST.generic(
+            actualType.value, wantedType.generics.slice()
+        );
+    }
+
+    // console.log('?', actualType);
+    assert(actualType.type === 'unionType', 'must be a union');
+
+    var newUnions = [];
+    for (var i = 0; i < actualType.unions.length; i++) {
+        var possibleType = actualType.unions[i];
+        if (possibleType.type === 'genericLiteral' &&
+            possibleType.generics[0] &&
+            possibleType.generics[0].type === 'freeLiteral'
+        ) {
+            newUnions.push(
+                this._updateFreeLiteralType(node, possibleType, wantedType)
+            );
+        } else {
+            newUnions.push(possibleType);
+        }
+    }
+
+    return computeSmallestUnion(node, JsigAST.union(newUnions));
+};
+
 ASTVerifier.prototype._checkFunctionCallArgument =
 function _checkFunctionCallArgument(node, defn, index, isOverload) {
     var argNode = node.arguments[index];
@@ -1028,16 +1089,12 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
     // If an `Array<T>` is passed to a function and that function
     // expects Array<String> then convert it to Array<String>
     if (argNode.type === 'Identifier' &&
-        actualType.type === 'genericLiteral' &&
-        actualType.generics[0] &&
-        actualType.generics[0].type === 'freeLiteral' &&
+        typeHasFreeLiteral(actualType) &&
         wantedType && wantedType.type === 'genericLiteral'
     ) {
-        assert(wantedType.generics.length === actualType.generics.length,
-            'expected same number of generics');
-        var newGenerics = wantedType.generics.slice();
-
-        var newType = JsigAST.generic(actualType.value, newGenerics);
+        var newType = this._updateFreeLiteralType(
+            node, actualType, wantedType
+        );
         this.meta.currentScope.forceUpdateVar(argNode.name, newType);
         actualType = newType;
     }
@@ -1071,7 +1128,7 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         var token = this.meta.currentScope.getVar(argNode.name);
 
         var self = this;
-        var newType = this._maybeConvertToArray(
+        newType = this._maybeConvertToArray(
             token, argNode.name, actualType,
             function verify(possibleArray) {
                 return self.meta.checkSubType(

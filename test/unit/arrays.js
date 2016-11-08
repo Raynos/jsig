@@ -114,3 +114,24 @@ JSIGSnippet.test('Array lazy-bound on call usage', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('Array lazy-bound on call usage from union', {
+    snippet: function m() {/*
+        function foo() {
+            var arr = bar || [];
+
+            filterFoo(arr);
+            return arr;
+        }
+    */},
+    header: function h() {/*
+        bar : Array<{ foo: String }> | null
+
+        filterFoo : (Array<{ foo: String }>) => void
+
+        foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
