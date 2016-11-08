@@ -33,6 +33,18 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeDeclaration') {
+        var newGenerics = [];
+        stack.push('generics');
+        for (i = 0; i < ast.generics.length; i++) {
+            stack.push(i);
+            newGenerics[i] = this.inlineReferences(
+                ast.generics[i], rawAst.generics[i], stack
+            );
+            stack.pop();
+        }
+        stack.pop();
+        ast.generics = newGenerics;
+
         stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
             ast.typeExpression, rawAst.typeExpression, stack
@@ -93,10 +105,6 @@ function inlineReferences(ast, rawAst, stack) {
         return this.replacer.replace(ast, rawAst, stack);
     } else if (ast.type === 'genericLiteral') {
         if (ast.value.builtin) {
-            stack.push('value');
-            ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
-            stack.pop();
-
             stack.push('generics');
             for (i = 0; i < ast.generics.length; i++) {
                 stack.push(i);
@@ -107,9 +115,24 @@ function inlineReferences(ast, rawAst, stack) {
             }
             stack.pop();
 
+            stack.push('value');
+            ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+            stack.pop();
+
             ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
+
+        // Inline the arguments to the generics before calling replacer.
+        stack.push('generics');
+        for (i = 0; i < ast.generics.length; i++) {
+            stack.push(i);
+            ast.generics[i] = this.inlineReferences(
+                ast.generics[i], rawAst.generics[i], stack
+            );
+            stack.pop();
+        }
+        stack.pop();
 
         return this.replacer.replace(ast, rawAst, stack);
         // console.log('ast.value', ast.value);

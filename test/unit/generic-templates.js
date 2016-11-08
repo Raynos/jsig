@@ -61,6 +61,28 @@ JSIGSnippet.test('Dictionary generic alias', {
     assert.end();
 });
 
+JSIGSnippet.test('Dictionary generic alias with interface', {
+    snippet: function m() {/*
+        typeof a;
+    */},
+    header: function h() {/*
+        type Dictonary<T> : Object<String, T>
+
+        interface Foo {
+            uuid: String
+        }
+
+        a : Dictonary<Foo>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.errors[0].valueType, 'Object<String, { uuid: String }>');
+
+    assert.end();
+});
+
 JSIGSnippet.test.skip('AsyncResultObjectCallback generic alias', {
     snippet: function m() {/*
         typeof a;

@@ -175,7 +175,11 @@ function replaceImport(ast, rawAst) {
         var t = ast.types[i];
         assert(t.type === 'typeLiteral', 'expected typeLiteral');
 
-        if (!otherHeader.indexTable[t.name]) {
+        if (otherHeader.indexTable[t.name]) {
+            this.addToken(t.name, otherHeader.indexTable[t.name]);
+        } else if (otherHeader.genericIndexTable[t.name]) {
+            this.addGenericToken(t.name, otherHeader.genericIndexTable[t.name]);
+        } else {
             this.errors.push(Errors.CannotImportToken({
                 identifier: t.name,
                 otherFile: otherHeader.fileName,
@@ -183,10 +187,7 @@ function replaceImport(ast, rawAst) {
                 line: t.line,
                 source: this.source
             }));
-            continue;
         }
-
-        this.addToken(t.name, otherHeader.indexTable[t.name]);
     }
 
     return ast;
