@@ -1420,7 +1420,7 @@ function verifyReturnStatement(node) {
         var exprType = this.meta.currentScope.getReturnValueType();
         defn = this.meta.verifyNode(node.argument, exprType);
 
-        if (defn.type === 'genericLiteral' &&
+        if (defn && defn.type === 'genericLiteral' &&
             defn.generics[0] &&
             defn.generics[0].type === 'freeLiteral' &&
             node.argument.type === 'Identifier' &&
@@ -1776,7 +1776,7 @@ function verifyIfStatement(node) {
     this.meta.enterBranchScope(ifBranch);
     var ifTestType = this.meta.verifyNode(node.test, null);
     this.meta.exitBranchScope();
-    var isIfNeverType = ifTestType.type === 'typeLiteral' &&
+    var isIfNeverType = ifTestType && ifTestType.type === 'typeLiteral' &&
         ifTestType.name === 'Never' && ifTestType.builtin;
 
     // If the expr evaluated to Never then the block is Never run.
@@ -1789,7 +1789,7 @@ function verifyIfStatement(node) {
     this.meta.enterBranchScope(elseBranch);
     var elseTestType = this.meta.verifyNode(node.test, null);
     this.meta.exitBranchScope();
-    var isElseNeverType = elseTestType.type === 'typeLiteral' &&
+    var isElseNeverType = elseTestType && elseTestType.type === 'typeLiteral' &&
         elseTestType.name === 'Never' && elseTestType.builtin;
 
     // If the expr evaluated to Always then the else block is Never run
