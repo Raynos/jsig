@@ -95,3 +95,22 @@ JSIGSnippet.test('Array lazy-bound on assignment usage', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('Array lazy-bound on call usage', {
+    snippet: function m() {/*
+        function foo() {
+            var arr = [];
+
+            filterFoo(arr);
+            return arr;
+        }
+    */},
+    header: function h() {/*
+        filterFoo : (Array<{ foo: String }>) => void
+
+        foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});

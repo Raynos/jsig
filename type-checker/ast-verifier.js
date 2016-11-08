@@ -1024,6 +1024,24 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         return false;
     }
 
+    // late bind a freeLiteral generic based on function calls
+    // If an `Array<T>` is passed to a function and that function
+    // expects Array<String> then convert it to Array<String>
+    if (argNode.type === 'Identifier' &&
+        actualType.type === 'genericLiteral' &&
+        actualType.generics[0] &&
+        actualType.generics[0].type === 'freeLiteral' &&
+        wantedType && wantedType.type === 'genericLiteral'
+    ) {
+        assert(wantedType.generics.length === actualType.generics.length,
+            'expected same number of generics');
+        var newGenerics = wantedType.generics.slice();
+
+        var newType = JsigAST.generic(actualType.value, newGenerics);
+        this.meta.currentScope.forceUpdateVar(argNode.name, newType);
+        actualType = newType;
+    }
+
     /*  If a literal string value is expected AND
         A literal string value is passed as an argument
         a.k.a not an alias or field.
