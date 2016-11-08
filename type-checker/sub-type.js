@@ -568,6 +568,8 @@ function checkUnionSubType(parent, child) {
     var finalErr = Errors.UnionTypeClassMismatch({
         expected: serialize(parent._raw || parent),
         actual: serialize(child._raw || child),
+        _parent: parent,
+        _child: child,
         loc: this.node.loc,
         line: this.node.loc.start.line
     });
