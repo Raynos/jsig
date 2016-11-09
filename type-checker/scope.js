@@ -505,8 +505,8 @@ function getReturnValueType() {
 };
 
 FunctionScope.prototype.getThisType =
-function getThisType() {
-    if (this.writableTokenLookup) {
+function getThisType(isWritable) {
+    if (isWritable || this.writableTokenLookup) {
         return this._thisValueType;
     }
 
@@ -658,9 +658,9 @@ function BranchScope(parent) {
 util.inherits(BranchScope, BaseScope);
 
 BranchScope.prototype.getThisType =
-function getThisType() {
-    if (this.writableTokenLookup) {
-        return this.parent.getThisType();
+function getThisType(isWritable) {
+    if (isWritable || this.writableTokenLookup) {
+        return this.parent.getThisType(true);
     }
 
     return this._restrictedThisValueType ||
