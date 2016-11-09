@@ -48,11 +48,11 @@ JSIGSnippet.test('creating a new date instance', {
 
 JSIGSnippet.test('assigning string literal types', {
     snippet: function m() {/*
-        t = 'foo';
-        t = 'bar';
+        t.t = 'foo';
+        t.t = 'bar';
     */},
     header: function h() {/*
-        t : "foo"
+        t : { t: "foo" }
     */}
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
