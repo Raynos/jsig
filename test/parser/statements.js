@@ -367,7 +367,7 @@ test('foo : false', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'valueLiteral',
-        name: 'false',
+        name: 'boolean',
         value: 'false',
         _raw: null
     });
@@ -383,7 +383,7 @@ test('foo : true', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'valueLiteral',
-        name: 'true',
+        name: 'boolean',
         value: 'true',
         _raw: null
     });

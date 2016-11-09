@@ -17,8 +17,8 @@ var valueLiterals = Parsimmon.alt(
     valueLiteral('number', lexemes.number),
     valueLiteral('null', lexemes.nullWord),
     valueLiteral('undefined', lexemes.undefinedWord),
-    valueLiteral('true', lexemes.trueWord),
-    valueLiteral('false', lexemes.falseWord)
+    valueLiteral('boolean', lexemes.trueWord),
+    valueLiteral('boolean', lexemes.falseWord)
 );
 
 module.exports = valueLiterals;
