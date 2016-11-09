@@ -330,6 +330,7 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
     }
 
+    // Handle free literal
     if (node.left.type === 'MemberExpression' &&
         node.left.object.type === 'Identifier' &&
         node.left.computed
