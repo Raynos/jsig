@@ -105,3 +105,48 @@ JSIGSnippet.test('Assign string literal to string', {
 
     assert.end();
 });
+
+JSIGSnippet.test('Assign string to literal string', {
+    snippet: function m() {/*
+        var s = o.type;
+        s = 'bar';
+    */},
+    header: function h() {/*
+        o : { type: "foo" }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
+
+JSIGSnippet.test('Assign boolean literal to boolean', {
+    snippet: function m() {/*
+        var s = false;
+        s = o.hasIt;
+    */},
+    header: function h() {/*
+        o : { hasIt: true }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
+
+JSIGSnippet.test('Assign boolean  to boolean literal', {
+    snippet: function m() {/*
+        var s = o.hasIt;
+        s = false;
+    */},
+    header: function h() {/*
+        o : { hasIt: true }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.errors.length, 0);
+
+    assert.end();
+});
