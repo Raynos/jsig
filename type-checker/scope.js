@@ -257,10 +257,12 @@ function _restrictType(id, type) {
         return null;
     }
 
-    this.typeRestrictions[id] = {
+    var token = {
         type: 'restriction',
         defn: type
     };
+    this.typeRestrictions[id] = token;
+    return token;
 };
 
 function GlobalScope() {
@@ -763,21 +765,7 @@ BranchScope.prototype.narrowType = function narrowType(id, type) {
 };
 
 BranchScope.prototype.restrictType = function restrictType(id, type) {
-    // TODO: gaurd against weird restrictions? ...
-    // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
-
-    assert(type, 'cannot restrict to null');
-    if (id === 'this') {
-        this._restrictedThisValueType = type;
-        return null;
-    }
-
-    var token = {
-        type: 'restriction',
-        defn: type
-    };
-    this.typeRestrictions[id] = token;
-    return token;
+    return this._restrictType(id, type);
 };
 
 BranchScope.prototype.enterReturnStatement =
