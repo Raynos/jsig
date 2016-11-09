@@ -247,7 +247,7 @@ function _addFunctionOverloadScope(funcScope) {
     the type of the expression.
 */
 BaseScope.prototype._restrictType =
-function restrictType(id, type) {
+function _restrictType(id, type) {
     // TODO: gaurd against weird restrictions? ...
     // assert(!this.typeRestrictions[id], 'cannot double restrict type: ' + id);
     assert(type, 'cannot restrictType to null');
