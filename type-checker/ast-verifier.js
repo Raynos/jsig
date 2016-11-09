@@ -355,6 +355,22 @@ function verifyAssignmentExpression(node) {
         }
     }
 
+    // If the left side is an identifier, whos type is a value literal
+    if (
+        node.left.type === 'Identifier' &&
+        leftType.type === 'valueLiteral' &&
+        (leftType.name === 'boolean' || leftType.name === 'string') &&
+        this.meta.isSubType(node, rightType, leftType)
+    ) {
+        // If we are assinging a String into a "foo" slot
+        // or assigning a Boolean into a `true` slot.
+        // Then just change the identifier slot to be the more
+        // general type.
+
+        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+        leftType = rightType;
+    }
+
     var isNullDefault = (
         leftType.type === 'typeLiteral' &&
         leftType.builtin && leftType.name === '%Null%%Default'
