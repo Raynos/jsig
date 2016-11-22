@@ -45,6 +45,11 @@ test.skip('regression: HttpHash', function t(assert) {
         definitions: definitionsDir,
         globalsFile: globalsFile
     });
+
+    if (meta.errors.length > 0) {
+        // require('console').log(meta.prettyPrintAllErrors());
+    }
+
     assert.ok(meta, 'expected meta to exist');
     assert.equal(meta.errors.length, 0, 'expected one error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
@@ -76,6 +81,10 @@ test('regression: HttpHashServer', function t(assert) {
     assert.ok(meta, 'expected meta to exist');
     assert.equal(meta.errors.length, 0, 'expected one error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
+
+    if (meta.errors.length > 0) {
+        // require('console').log(meta.prettyPrintAllErrors());
+    }
 
     assert.end();
 });

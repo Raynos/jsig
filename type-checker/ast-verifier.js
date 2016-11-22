@@ -336,9 +336,7 @@ function verifyAssignmentExpression(node) {
         node.left.computed
     ) {
         var objType = this.meta.verifyNode(node.left.object, null);
-        if (objType.type === 'genericLiteral' &&
-            objType.generics[0] &&
-            objType.generics[0].type === 'freeLiteral' &&
+        if (typeHasFreeLiteral(objType) &&
             objType.value.type === 'typeLiteral' &&
             objType.value.builtin && objType.value.name === 'Array'
         ) {
@@ -841,17 +839,24 @@ function _resolveInternalObjectCreate(node, defn) {
         }
 
         if (!returnType) {
-            returnType = JsigAST.literal('%Object%%Empty', true);
+            returnType = JsigAST.generic(
+                JsigAST.literal('Object'),
+                [
+                    JsigAST.literal('String'),
+                    JsigAST.freeLiteral('T')
+                ]
+            );
+            // returnType = JsigAST.literal('%Object%%Empty', true);
         }
     } else {
-        // returnType = JsigAST.generic(
-        //     JsigAST.literal('Object'),
-        //     [
-        //         JsigAST.literal('String'),
-        //         JsigAST.freeLiteral('T')
-        //     ]
-        // );
-        returnType = JsigAST.literal('%Object%%Empty', true);
+        returnType = JsigAST.generic(
+            JsigAST.literal('Object'),
+            [
+                JsigAST.literal('String'),
+                JsigAST.freeLiteral('T')
+            ]
+        );
+        // returnType = JsigAST.literal('%Object%%Empty', true);
     }
 
     var callFuncType = JsigAST.functionType({
@@ -999,6 +1004,10 @@ function verifyCallExpression(node) {
 };
 
 function typeHasFreeLiteral(typeExpr) {
+    if (!typeExpr) {
+        return false;
+    }
+
     var types = [];
     if (typeExpr.type === 'genericLiteral') {
         types.push(typeExpr);
@@ -1437,20 +1446,11 @@ function verifyReturnStatement(node) {
         var exprType = this.meta.currentScope.getReturnValueType();
         defn = this.meta.verifyNode(node.argument, exprType);
 
-        if (defn && defn.type === 'genericLiteral' &&
-            defn.generics[0] &&
-            defn.generics[0].type === 'freeLiteral' &&
+        if (typeHasFreeLiteral(defn) &&
             node.argument.type === 'Identifier' &&
             exprType && exprType.type === 'genericLiteral'
         ) {
-            var newGenerics = [];
-            assert(exprType.generics.length === defn.generics.length,
-                'expected same number of generics');
-            for (var i = 0; i < exprType.generics.length; i++) {
-                newGenerics[i] = exprType.generics[i];
-            }
-
-            var newType = JsigAST.generic(defn.value, newGenerics);
+            var newType = this._updateFreeLiteralType(node, defn, exprType);
             this.meta.currentScope.forceUpdateVar(
                 node.argument.name, newType
             );

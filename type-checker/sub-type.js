@@ -292,13 +292,13 @@ function checkGenericLiteralSubType(parent, child) {
         return null;
     }
 
-    if (parent.value.name === 'Object' &&
-        parent.value.builtin &&
-        child.type === 'typeLiteral' &&
-        child.name === '%Object%%Empty'
-    ) {
-        return null;
-    }
+    // if (parent.value.name === 'Object' &&
+    //     parent.value.builtin &&
+    //     child.type === 'typeLiteral' &&
+    //     child.name === '%Object%%Empty'
+    // ) {
+    //     return null;
+    // }
 
     var err;
     if (parent.value.name === 'Object' &&

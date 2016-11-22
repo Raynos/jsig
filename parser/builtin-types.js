@@ -14,7 +14,7 @@ var builtinTypes = [
     'Date',
     'Symbol',
     '%Boolean%%Mixed',
-    '%Object%%Empty',
+    // '%Object%%Empty',
     '%InternalFunction%%FnCall',
     '%InternalFunction%%FnApply',
     '%InternalFunction%%FnBind',
