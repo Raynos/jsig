@@ -13,8 +13,9 @@ function get(pathname) {
     var pathSegments = pathname.split('/');
 
     var hash = this._hash;
+    var foundHash = true;
     var splat = null;
-    var params = {};
+    var params/*:Object<String,String>*/ = Object.create(null);
     var variablePaths;
 
     for (var i = 0; i < pathSegments.length; i++) {
@@ -24,34 +25,42 @@ function get(pathname) {
             continue;
         } else if (
             segment === '__proto__' &&
-            hash.hasOwnProperty('proto')
+            hash.proto
         ) {
             hash = hash.proto;
         } else if (hash.staticPaths.hasOwnProperty(segment)) {
             hash = hash.staticPaths[segment];
-        } else if ((variablePaths = hash.variablePaths)) {
+        } else if (hash.variablePaths) {
+            variablePaths = hash.variablePaths;
             if (variablePaths.isSplat) {
                 splat = pathSegments.slice(i).join('/');
                 hash = variablePaths;
                 break;
             } else {
+                // typeof segment;
+                // typeof variablePaths.segment;
+
                 params[variablePaths.segment] = segment;
                 hash = variablePaths;
             }
         } else {
-            hash = null;
+            foundHash = false;
             break;
         }
     }
 
     // Match the empty splat
-    if (hash &&
+    if (foundHash && hash &&
         hash.handler === null &&
         hash.variablePaths &&
         hash.variablePaths.isSplat
     ) {
         splat = '';
         hash = hash.variablePaths;
+    }
+
+    if (!foundHash) {
+        return new RouteResult(null, params, splat);
     }
 
     return new RouteResult(hash, params, splat);
@@ -98,12 +107,16 @@ function set(pathname, handler) {
         } else if (segment === '__proto__') {
             hash = (
                 (
-                    hash.hasOwnProperty('proto') &&
                     hash.proto
                 ) ||
                 (hash.proto = new RouteNode(hash, segment))
             );
         } else {
+            // typeof (
+            //     hash.staticPaths.hasOwnProperty(segment) &&
+            //     hash.staticPaths[segment]
+            // );
+
             hash = (
                 (
                     hash.staticPaths.hasOwnProperty(segment) &&
@@ -130,6 +143,7 @@ function RouteNode(parent, segment, isSplat) {
     this.variablePaths = null;
     this.isSplat = Boolean(isSplat);
     this.src = null;
+    this.proto = null;
 }
 
 function RouteResult(node, params, splat) {

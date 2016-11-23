@@ -6,42 +6,47 @@
 block comment here
 yes it is */
 
-type TRouteResult : {
-    handler: null,
+type Handler : String
+
+interface RouteResult {
+    handler: Handler | null,
     splat: null | String,
-    params: Object,
+    params: Object<String, String>,
     src: String | null
 }
 
-type TRouteNode : {
-    parent: TRouteNode | null,
+interface RouteNode {
+    parent: RouteNode | null,
     segment: String,
-    handler: null,
-    staticPaths: Object,
-    variablePaths: TRouteNode | null,
+    handler: Handler | null,
+    staticPaths: Object<String, RouteNode>,
+    variablePaths: RouteNode | null,
     isSplat: Boolean,
-    src: String | null
+    src: String | null,
+    proto: RouteNode | null
 }
 
-type THttpHash : {
-    _hash: TRouteNode,
+interface HttpHash {
+    _hash: RouteNode,
 
-    get : (this: THttpHash, pathname: String) => TRouteResult,
-    set : (this: THttpHash, pathname: String, handler: null) => void
+    get(pathname: String) => RouteResult,
+    set(pathname: String, handler: Handler) => void
 }
 
-HttpHash : (this: THttpHash) => void
+HttpHash : (this: HttpHash) => void
 
 RouteNode : (
-    this: TRouteNode,
-    parent: TRouteNode | null,
+    this: RouteNode,
+    parent: RouteNode | null,
     segment: String,
     isSplat?: Boolean
 ) => void
 
 RouteResult : (
-    this: TRouteResult,
-    node: TRouteNode,
-    params: Object,
+    this: RouteResult,
+    node: RouteNode | null,
+    params: Object<String, String>,
     splat: null | String
 ) => void
+
+throwRouteConflictError : (String, RouteNode) => void
