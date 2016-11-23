@@ -286,6 +286,13 @@ function resolveReferences() {
     this.resolvedJsigAst = copyAst;
 };
 
+HeaderFile.prototype.inlineReferences =
+function inlineReferences(ast) {
+    var copyAst = deepCloneJSIG(ast);
+
+    return this.astReplacer.inlineReferences(copyAst, ast, []);
+};
+
 HeaderFile.prototype.getResolvedAssignments =
 function getResolvedAssignments() {
     this.resolveReferences();

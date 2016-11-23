@@ -14,6 +14,7 @@ var FunctionScope = require('./scope.js').FunctionScope;
 var BranchScope = require('./scope.js').BranchScope;
 var Errors = require('./errors.js');
 var JsigAST = require('../ast/');
+var parseJSigType = require('./lib/parse-jsig-type.js');
 
 module.exports = ProgramMeta;
 
@@ -502,6 +503,27 @@ function loadHeaderFile(required) {
     }
 
     return true;
+};
+
+ProgramMeta.prototype.parseTypeString =
+function parseTypeString(node, source) {
+    var res = parseJSigType(source);
+    if (res.error) {
+        res.error.loc = node.loc;
+        res.error.fileName = this.fileName;
+        this.addError(res.error);
+        return null;
+    }
+
+    if (!res.value) {
+        return null;
+    }
+
+    if (this.headerFile === null) {
+        return res.value;
+    }
+
+    return this.headerFile.inlineReferences(res.value);
 };
 
 ProgramMeta.prototype.allocateBranchScope =

@@ -38,6 +38,9 @@ var x = [1]; // Array<Number>
 // For dictionaries we need the types of both keys and values.
 var x = { 'Content-Length': '10' } // x : Object<String, String>
 
+// dictionaries can also be empty
+var x = Object.create(null); // x : Object<String, String>
+
 // For tuples we specialy the types of each element
 var x = [3, 'yes', 7]; // x : [Number, String, Number]
 
@@ -84,10 +87,15 @@ var x = f;
 
 ```js
 // To find out what type jsig infers for an expression anywhere in
-// your program, just write a typeof expression. jsig will
-// print an error message with the type. Remove it again before running the code
+// your program, just write a typeof expression. 
+// jsig will print an error message with the type. 
+// Remove it again before running the code.
 
 typeof 1; // typeof `1` is: Number
+
+// If the inference logic is confused then use typed variables
+// A typed variable is `var {{name}}/*:{{type}} = {{value}}`.
+var x/*:Object<String, String>*/ = Object.create(null);
 
 // Use unions when something could be one of a few types
 var x = [3, 5, 'test', 'fun']; // x : Array<String | Number>

@@ -1664,9 +1664,23 @@ function verifyVariableDeclaration(node) {
         assert(token.preloaded, 'cannot declare variable twice');
     }
 
+    var leftType = token ? token.defn : null;
+
+    if (decl.id.trailingComments &&
+        decl.id.trailingComments.length > 0
+    ) {
+        var firstComment = decl.id.trailingComments[0];
+        if (firstComment.value[0] === ':') {
+            var expr = firstComment.value.slice(1);
+            var declaredType = this.meta.parseTypeString(node, expr);
+            if (declaredType && !leftType) {
+                leftType = declaredType;
+            }
+        }
+    }
+
     var type;
     if (decl.init) {
-        var leftType = token ? token.defn : null;
 
         var beforeErrors = this.meta.countErrors();
         type = this.meta.verifyNode(decl.init, leftType);

@@ -1,0 +1,15 @@
+import { JsigProgram } from "../ast/index.hjs"
+
+type Result : {
+    status: Boolean,
+    value?: JsigProgram,
+    index?: {
+        line: Number
+    }
+}
+
+type Parser : {
+    parse: (input: String) => Result
+}
+
+export default Parser
