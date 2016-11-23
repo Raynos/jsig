@@ -121,8 +121,8 @@ JSigEditor.prototype.runTypeChecker = function runTypeChecker() {
     var files = Object.create(null);
     var codeInfo = this.getInfo();
 
-    files['snippet.js'] = codeInfo.code;
-    files['snippet.hjs'] = codeInfo.header;
+    files['/snippet.js'] = codeInfo.code;
+    files['/snippet.hjs'] = codeInfo.header;
     files[OPERATORS_PATH] = operatorText;
     files[ES5_PATH] = es5Text;
 
