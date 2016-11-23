@@ -1703,12 +1703,12 @@ function verifyVariableDeclaration(node) {
             );
         }
 
-        if (token) {
-            this.meta.checkSubType(node, token.defn, type);
-            type = token.defn;
+        if (leftType) {
+            this.meta.checkSubType(node, leftType, type);
+            type = leftType;
         }
     } else {
-        type = token ? token.defn :
+        type = leftType ? leftType :
             JsigAST.literal('%Void%%Uninitialized', true);
     }
 
