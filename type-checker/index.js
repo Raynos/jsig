@@ -252,7 +252,8 @@ function tryReadHeaderFile(primaryFileName) {
     }
 
     var source = this.files[primaryFileName];
-    if (typeof source === 'string') {
+    // TODO: type checker does not complain about dead code.
+    if (source || source === '') {
         return true;
     }
 
