@@ -126,7 +126,7 @@ JSigEditor.prototype.runTypeChecker = function runTypeChecker() {
     files[OPERATORS_PATH] = operatorText;
     files[ES5_PATH] = es5Text;
 
-    var meta = compileJSIG('snippet.js', {
+    var meta = compileJSIG('/snippet.js', {
         files: files,
         optin: false
     });

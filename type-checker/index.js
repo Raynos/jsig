@@ -252,7 +252,7 @@ function tryReadHeaderFile(primaryFileName) {
     }
 
     var source = this.files[primaryFileName];
-    if (source) {
+    if (typeof source === 'string') {
         return true;
     }
 
@@ -326,7 +326,7 @@ function getOrCreateHeaderFile(
     }
 
     var source = this.files[primaryFileName];
-    if (!source) {
+    if (typeof source !== 'string') {
         if (!fs.existsSync(primaryFileName)) {
             var secondaryFileName = getSecondaryFileName(primaryFileName);
 
@@ -428,7 +428,7 @@ function getOrCreateMeta(fileName, opts) {
     }
 
     var source = this.files[fileName];
-    if (!source) {
+    if (typeof source !== 'string') {
         source = fs.readFileSync(fileName, 'utf8');
     }
 
