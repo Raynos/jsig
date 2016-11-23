@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var ASTConfig = require('./_ast-config.js');
 var ProgramNode = require('./program.js');
 var TypeDeclarationNode = require('./type-declaration.js');

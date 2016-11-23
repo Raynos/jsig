@@ -1,11 +1,11 @@
-import { JsigType, JsigProgram, JsigAssignment } from "../ast/index.hjs"
+import { JsigType, JsigProgramNode, JsigAssignmentNode } from "../ast/index.hjs"
 import { TypeChecker } from "./index.hjs"
 
 interface HeaderFile {
     errors: Array<Error>,
     indexTable: Object<String, JsigType>,
 
-    getResolvedAssignments() => Array<JsigAssignment>,
+    getResolvedAssignments() => Array<JsigAssignmentNode>,
     getToken(name: String) => JsigType,
     hasErrors() => Boolean,
     resolveReferences() => void
@@ -14,7 +14,7 @@ interface HeaderFile {
 HeaderFile : (
     this: HeaderFile,
     checker: TypeChecker,
-    ast: JsigProgram,
+    ast: JsigProgramNode,
     fileName: String,
     source: String
 ) => void

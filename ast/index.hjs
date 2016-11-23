@@ -1,14 +1,25 @@
-
-type JsigProgram : {
-    type: "program"
-}
+import { JsigProgramNode } from "./program.hjs"
+import { JsigAssignmentNode } from "./assignment.hjs"
+import { JsigTypeDeclarationNode } from "./type-declaration.hjs"
+import { JsigLiteralTypeNode } from "./literal.hjs"
+import { JsigImportStatementNode } from "./import-statement.hjs"
+import { JsigObjectNode } from "./object.hjs"
+import { JsigUnionTypeNode } from "./union.hjs"
+import { JsigKeyValueNode } from "./key-value.hjs"
+import { JsigIntersectionTypeNode } from "./intersection.hjs"
+import { JsigLocationLiteralNode } from "./location-literal.hjs"
+import { JsigFreeLiteralNode } from "./free-literal.hjs"
+import { JsigValueLiteralNode } from "./value.hjs"
+import { JsigFunctionNode } from "./function.hjs"
+import { JsigFunctionParameterNode } from "./function-parameter.hjs"
+import { JsigGenericLiteralNode } from "./generic.hjs"
+import { JsigTupleNode } from "./tuple.hjs"
+import { JsigRenamedLiteralNode } from "./renamed-literal.hjs"
+import { JsigCommentNode } from "./comment.hjs"
+import { JsigDefaultExportNode } from "./default-export.hjs"
+import { JsigMacroLiteralNode } from "./macro-literal.hjs"
 
 type JsigType : {}
-
-type JsigAssignment : {
-    identifier: String,
-    typeExpression: JsigType
-}
 
 type LineLocation : {
     start: {
@@ -19,4 +30,77 @@ type LineLocation : {
         line: Number,
         column: Number
     }
+}
+
+export default {
+    CONFIG: {
+        loc: Boolean
+    },
+    program: (Array<JsigType>) => JsigProgramNode,
+    typeDeclaration: (
+        String, JsigType, Array<JsigLiteralTypeNode>
+    ) => JsigTypeDeclarationNode,
+    assignment: (String, JsigType) => JsigAssignmentNode,
+    importStatement: (String, Array<JsigLiteralTypeNode>, {
+        line?: Number,
+        loc?: LineLocation,
+        isMacro?: Boolean
+    }) => JsigImportStatementNode,
+    object: (
+        keyValues: Array<JsigKeyValueNode> | Object<String, JsigType>,
+        label: String,
+        opts?: {
+            open?: Boolean,
+            brand?: String,
+            inferred?: Boolean,
+            optional?: Boolean
+        }
+    ) => JsigObjectNode,
+    union: (Array<JsigType>, label?: String, opts?: {
+        optional?: Boolean
+    }) => JsigUnionTypeNode,
+    intersection: (Array<JsigType>, String, opts?: {
+        optional?: Boolean
+    }) => JsigIntersectionTypeNode,
+    literal: (String, builtin?: Boolean, opts?: {
+        label?: String,
+        optional?: Boolean,
+        concreteValue?: String,
+        line?: Number,
+        loc?: LineLocation
+    }) => JsigLiteralTypeNode,
+    locationLiteral: (String, Array<String | Number>) => JsigLocationLiteralNode,
+    freeLiteral: (String) => JsigFreeLiteralNode,
+    keyValue: (String, JsigType, opts?: {
+        optional?: Boolean
+    }) => JsigKeyValueNode,
+    value: (String, name?: String, label?: String) => JsigValueLiteralNode,
+    functionType: (opts: {
+        label?: String,
+        optional?: Boolean,
+        result: JsigType,
+        args?: Array<JsigType>,
+        thisArg?: JsigType,
+        brand?: String,
+        specialKind?: String,
+        generics?: Array<String>
+    }) => JsigFunctionNode,
+    param: (String, JsigType, opts?: {
+        optional?: Boolean
+    }) => JsigFunctionParameterNode,
+    generic: (
+        JsigLiteralTypeNode, Array<JsigLiteralTypeNode>, String
+    ) => JsigGenericLiteralNode,
+    tuple: (Array<JsigType>, label?: String, opts?: {
+        optional?: Boolean,
+        inferred?: Boolean
+    }) => JsigTupleNode,
+    renamedLiteral: (
+        String | JsigLiteralTypeNode,
+        String | JsigLiteralTypeNode,
+        opts: {}
+    ) => JsigRenamedLiteralNode,
+    comment: (String) => JsigCommentNode,
+    defaultExport: (JsigType) => JsigDefaultExportNode,
+    macroLiteral: (String, String) => JsigMacroLiteralNode
 }

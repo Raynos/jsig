@@ -1,4 +1,4 @@
-import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { JsigType } from "../ast/index.hjs"
 
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,

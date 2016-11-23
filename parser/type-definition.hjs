@@ -1,8 +1,8 @@
-import { JsigProgram } from "../ast/index.hjs"
+import { JsigType } from "../ast/index.hjs"
 
 type Result : {
     status: Boolean,
-    value?: JsigProgram,
+    value?: JsigType,
     index?: {
         line: Number
     }

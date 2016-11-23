@@ -1,4 +1,4 @@
-import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { JsigType, JsigProgramNode } from "../ast/index.hjs"
 import { HeaderFile } from "./header-file.hjs"
 import { JSNode } from "../_types/definitions/esprima.hjs"
 import { ProgramMeta, TraceInfo } from "./meta.hjs"
@@ -51,7 +51,7 @@ interface TypeChecker {
     ) => HeaderFile | null,
     _readAndParseHeaderFile(
         source: String, fileName: String
-    ) => JsigProgram | null,
+    ) => JsigProgramNode | null,
     _addDefinition(id: String, typeDefn: JsigType) => DefinitionToken,
     serializeType(type: JsigType, opts: Object) => void,
     addTrace(trace: TraceInfo) => void,

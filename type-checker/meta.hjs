@@ -1,4 +1,4 @@
-import { JsigType, JsigProgram } from "../ast/index.hjs"
+import { JsigType } from "../ast/index.hjs"
 import { TypeChecker } from "./index.hjs"
 import { JSNode } from "../_types/definitions/esprima.hjs"
 
