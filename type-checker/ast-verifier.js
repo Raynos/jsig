@@ -321,15 +321,6 @@ function verifyAssignmentExpression(node) {
         token.inferred = false;
     }
 
-    // In assignment of a value with concreteValue,
-    // Must change the concreteValue
-    if (node.left.type === 'Identifier' &&
-        leftType.type === 'typeLiteral' &&
-        leftType.concreteValue !== null
-    ) {
-        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
-    }
-
     // Handle free literal
     if (node.left.type === 'MemberExpression' &&
         node.left.object.type === 'Identifier' &&
@@ -356,9 +347,8 @@ function verifyAssignmentExpression(node) {
     }
 
     // If the left side is an identifier, whos type is a value literal
-    if (
-        node.left.type === 'Identifier' &&
-        leftType.type === 'valueLiteral' &&
+    if (node.left.type === 'Identifier' &&
+        leftType && leftType.type === 'valueLiteral' &&
         (leftType.name === 'boolean' || leftType.name === 'string') &&
         this.meta.isSubType(node, rightType, leftType)
     ) {
@@ -398,9 +388,21 @@ function verifyAssignmentExpression(node) {
         afterAssignmentErrror = this.meta.countErrors();
     }
 
+    var hasKnownLeftType = afterError === beforeError;
+    var assignmentSucceeded = afterAssignmentErrror === beforeAssignmentError;
+
+    // In assignment of a value with concreteValue,
+    // Must change the concreteValue
+    if (assignmentSucceeded && hasKnownLeftType &&
+        node.left.type === 'Identifier' &&
+        leftType.type === 'typeLiteral' &&
+        leftType.concreteValue !== null
+    ) {
+        this.meta.currentScope.forceUpdateVar(node.left.name, rightType);
+    }
+
     // If assignment succeeded then update the type of the variable
-    if (afterError === beforeError &&
-        afterAssignmentErrror === beforeAssignmentError &&
+    if (assignmentSucceeded && hasKnownLeftType &&
         node.left.type === 'Identifier'
     ) {
         var readLeftType = this.meta.verifyNode(node.left, null);
