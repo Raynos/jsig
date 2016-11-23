@@ -37,7 +37,6 @@ test('regression: (interface) ProcWatcher', function t(assert) {
     assert.end();
 });
 
-// TODO: unbreak test suite...
 test('regression: HttpHash', function t(assert) {
     var file = getFile('good-http-hash.js');
 
