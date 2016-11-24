@@ -69,9 +69,12 @@ function replaceTypeLiteral(ast, raw, stack) {
         return ast;
     }
 
-    this.seenGenerics.push(new LocationLiteralNode(ast.name, stack.slice()));
+    var identifierUUID = this.genericUUIDs[ast.name];
+    this.seenGenerics.push(
+        new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
+    );
 
     ast.isGeneric = true;
-    ast.genericIdentifierUUID = this.genericUUIDs[ast.name];
+    ast.genericIdentifierUUID = identifierUUID;
     return ast;
 };

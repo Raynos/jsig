@@ -83,7 +83,7 @@ JSIGSnippet.test('Dictionary generic alias with interface', {
     assert.end();
 });
 
-JSIGSnippet.test.skip('AsyncResultObjectCallback generic alias', {
+JSIGSnippet.test('AsyncResultObjectCallback generic alias', {
     snippet: function m() {/*
         typeof a;
     */},
@@ -98,7 +98,8 @@ JSIGSnippet.test.skip('AsyncResultObjectCallback generic alias', {
     var meta = snippet.compile(assert);
 
     assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType, 'Object<String, String>');
+    assert.equal(meta.errors[0].valueType,
+        '(err: Error, results: Object<String, String>) => void');
 
     assert.end();
 });

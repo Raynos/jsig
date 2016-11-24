@@ -50,8 +50,8 @@ module.exports = {
     literal: function literal(name, builtin, opts) {
         return new LiteralTypeNode(name, builtin, opts);
     },
-    locationLiteral: function locationLiteral(name, loc) {
-        return new LocationLiteralNode(name, loc);
+    locationLiteral: function locationLiteral(name, loc, uuid) {
+        return new LocationLiteralNode(name, loc, uuid);
     },
     freeLiteral: function freeLiteral(name) {
         return new FreeLiteralNode(name);

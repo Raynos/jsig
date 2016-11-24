@@ -69,7 +69,7 @@ export default {
         line?: Number,
         loc?: LineLocation
     }) => JsigLiteralTypeNode,
-    locationLiteral: (String, Array<String | Number>) => JsigLocationLiteralNode,
+    locationLiteral: (String, Array<String | Number>, String) => JsigLocationLiteralNode,
     freeLiteral: (String) => JsigFreeLiteralNode,
     keyValue: (String, JsigType, opts?: {
         optional?: Boolean

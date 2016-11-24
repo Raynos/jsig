@@ -7,6 +7,8 @@ module.exports = JsigASTReplacer;
 function JsigASTReplacer(replacer, neverRaw) {
     this.replacer = replacer;
     this.neverRaw = Boolean(neverRaw);
+
+    this.currentTypeDeclaration = null;
 }
 
 /*eslint complexity: [2, 80], max-statements: [2, 150]*/
@@ -14,6 +16,8 @@ JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     assert(Array.isArray(stack), 'must pass in a stack');
     var i;
+
+    // console.log('inlineReferences()', ast.type);
 
     if (ast.type === 'program') {
         var newStatements = [];
@@ -33,6 +37,8 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeDeclaration') {
+        this.currentTypeDeclaration = ast;
+
         var newGenerics = [];
         stack.push('generics');
         for (i = 0; i < ast.generics.length; i++) {
@@ -51,6 +57,9 @@ function inlineReferences(ast, rawAst, stack) {
         );
         stack.pop();
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+
+        this.currentTypeDeclaration = null;
+
         return null;
     } else if (ast.type === 'assignment') {
         stack.push('typeExpression');

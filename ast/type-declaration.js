@@ -57,6 +57,8 @@ function GenericReplacer(node, genericNames) {
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
     if (ast.type === 'typeLiteral') {
         return this.replaceTypeLiteral(ast, raw, stack);
+    } else if (ast.type === 'genericLiteral') {
+        return ast;
     } else {
         assert(false, 'unexpected other type: ' + ast.type);
     }
@@ -68,9 +70,14 @@ function replaceTypeLiteral(ast, raw, stack) {
         return ast;
     }
 
-    this.seenGenerics.push(new LocationLiteralNode(ast.name, stack.slice()));
+    // console.log('markLiteral(' + stack + ')', ast.name);
+
+    var identifierUUID = this.genericUUIDs[ast.name];
+    this.seenGenerics.push(
+        new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
+    );
 
     ast.isGeneric = true;
-    ast.genericIdentifierUUID = this.genericUUIDs[ast.name];
+    ast.genericIdentifierUUID = identifierUUID;
     return ast;
 };
