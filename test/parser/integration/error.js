@@ -91,19 +91,27 @@ test('the error type definition', function t(assert) {
         .value.unions[0].genericIdentifierUUID = null;
     ASTFixture.statements[0].generics[0]
         .genericIdentifierUUID = null;
+    ASTFixture.statements[0].seenGenerics[0].uuid = null;
+    ASTFixture.statements[0].seenGenerics[1].uuid = null;
     result.statements[0].typeExpression.keyValues[0]
         .value.unions[0].genericIdentifierUUID = null;
     result.statements[0].generics[0]
         .genericIdentifierUUID = null;
+    result.statements[0].seenGenerics[0].uuid = null;
+    result.statements[0].seenGenerics[1].uuid = null;
 
-    result.statements[1].typeExpression.keyValues[1]
-        .value.genericIdentifierUUID = null;
-    result.statements[1].generics[0]
-        .genericIdentifierUUID = null;
     ASTFixture.statements[1].typeExpression.keyValues[1]
         .value.genericIdentifierUUID = null;
     ASTFixture.statements[1].generics[0]
         .genericIdentifierUUID = null;
+    ASTFixture.statements[1].seenGenerics[0].uuid = null;
+    ASTFixture.statements[1].seenGenerics[1].uuid = null;
+    result.statements[1].typeExpression.keyValues[1]
+        .value.genericIdentifierUUID = null;
+    result.statements[1].generics[0]
+        .genericIdentifierUUID = null;
+    result.statements[1].seenGenerics[0].uuid = null;
+    result.statements[1].seenGenerics[1].uuid = null;
 
     // showDiff(result, ASTFixture);
     assert.deepEqual(result, ASTFixture);

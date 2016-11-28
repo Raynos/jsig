@@ -475,16 +475,19 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
                 type: 'locationLiteral',
                 name: 'T',
                 location: ['args', 0, 'value'],
+                uuid: TUUID,
                 _raw: null
             }, {
                 type: 'locationLiteral',
                 name: 'T',
                 location: ['args', 1, 'value'],
+                uuid: TUUID,
                 _raw: null
             }, {
                 type: 'locationLiteral',
                 name: 'T',
                 location: ['result'],
+                uuid: TUUID,
                 _raw: null
             }],
             _raw: null
