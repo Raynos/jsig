@@ -103,3 +103,76 @@ JSIGSnippet.test('AsyncResultObjectCallback generic alias', {
 
     assert.end();
 });
+
+JSIGSnippet.test('Twin generic alias', {
+    snippet: function m() {/*
+        typeof a;
+    */},
+    header: function h() {/*
+        type Dictionary<T> : Object<String, T>
+        type Twin<T> : [Dictionary<T>, Dictionary<T>]
+
+        a : Twin<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.errors[0].valueType,
+        '[Object<String, String>, Object<String, String>]');
+
+    assert.end();
+});
+
+JSIGSnippet.test('Double generic alias', {
+    snippet: function m() {/*
+        typeof a;
+    */},
+    header: function h() {/*
+        type Dictionary<T> : Object<String, T>
+        type Double<T, S> : [Dictionary<T>, Dictionary<S>]
+
+        a : Double<String, Number>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.errors[0].valueType,
+        '[Object<String, String>, Object<String, Number>]');
+
+    assert.end();
+});
+
+JSIGSnippet.test('AsyncResultIterator generic alias', {
+    snippet: function m() {/*
+        typeof a;
+    */},
+    header: function h() {/*
+        type AsyncResultCallback<T, E> : (err: E, item: T) => void
+        type AsyncResultIterator<T, R, E> :
+            (item: T, callback: AsyncResultCallback<R, E>) => void
+
+        type Foo : {
+            a: String,
+            b: Number
+        }
+
+        a : AsyncResultIterator<String, Foo, Error>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.errors[0].valueType,
+        '(item: String, callback: (err: {\n' +
+        '    message: String,\n' +
+        '    stack: String,\n' +
+        '    name: String\n' +
+        '}, item: {\n' +
+        '    a: String,\n' +
+        '    b: Number\n' +
+        '}) => void) => void');
+
+    assert.end();
+});
