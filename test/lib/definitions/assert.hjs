@@ -1,2 +1,2 @@
 -- vim: set ft=Haskell:
-assert : (%Boolean%%Mixed, String) => void
+assert : (Mixed, String) => void

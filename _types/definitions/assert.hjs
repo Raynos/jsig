@@ -1,2 +1,2 @@
 
-assert : (cond: %Boolean%%Mixed, msg: String) => void
+assert : (cond: Mixed, msg: String) => void

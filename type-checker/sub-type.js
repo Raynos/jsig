@@ -142,7 +142,7 @@ SubTypeChecker.prototype._checkSpecialTypeLiteralSubType =
 function _checkSpecialTypeLiteralSubType(parent, child) {
     if (parent.name === '%Export%%ModuleExports') {
         return null;
-    } else if (parent.name === '%Boolean%%Mixed') {
+    } else if (parent.name === 'Mixed') {
         return null;
     } else if (parent.name === '%Mixed%%UnknownExportsField') {
         return null;

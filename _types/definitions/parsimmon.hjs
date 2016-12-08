@@ -3,7 +3,7 @@ interface Parser {
     skip(other: Parser) => Parser,
     many() => Parser,
     map(
-        fn: (%Boolean%%Mixed) => %Boolean%%Mixed
+        fn: (Mixed) => Mixed
     ) => Parser
 }
 

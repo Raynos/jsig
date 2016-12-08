@@ -13,7 +13,7 @@ var builtinTypes = [
     'RegExp',
     'Date',
     'Symbol',
-    '%Boolean%%Mixed',
+    'Mixed',
     '%Object%%Empty',
     '%InternalFunction%%FnCall',
     '%InternalFunction%%FnApply',

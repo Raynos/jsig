@@ -28,7 +28,7 @@
 
 >= : (Number, Number) => Boolean
 
-! : (%Boolean%%Mixed) => Boolean
+! : (Mixed) => Boolean
 
 -- Bit operators
 
@@ -48,24 +48,23 @@
 
 -- Equality operators
 
-=== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+=== : (Mixed, Mixed) => Boolean
 
-!== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+!== : (Mixed, Mixed) => Boolean
 
-!= : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+!= : (Mixed, Mixed) => Boolean
 
-== : (%Boolean%%Mixed, %Boolean%%Mixed) => Boolean
+== : (Mixed, Mixed) => Boolean
 
 -- Operator keywords
 
--- Do not use %Boolean%%Mixed here...
-typeof : (%Boolean%%Mixed) => String
+typeof : (Mixed) => String
 
 in : (String, Object) => Boolean
 
 instanceof : (Object, Function) => Boolean
 
-void : (%Boolean%%Mixed) => void
+void : (Mixed) => void
 
 %Unary%%Minus : (Number) => Number
 %Unary%%Plus : (Number) => Number

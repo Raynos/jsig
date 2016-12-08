@@ -415,7 +415,7 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
 
 function getUnionWithValue(type, value) {
     if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
+        type.name === 'Mixed'
     ) {
         return value;
     }
@@ -449,7 +449,7 @@ function getUnionWithValue(type, value) {
 
 function getUnionWithLiteral(type, literalName) {
     if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
+        type.name === 'Mixed'
     ) {
         return JsigAST.literal(literalName, true);
     }
@@ -539,7 +539,7 @@ function getUnionWithoutLiteral(type, literalName) {
 
 function containsValue(type, value) {
     if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
+        type.name === 'Mixed'
     ) {
         return true;
     }
@@ -563,7 +563,7 @@ function containsValue(type, value) {
 
 function containsLiteral(type, literalName) {
     if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === '%Boolean%%Mixed'
+        type.name === 'Mixed'
     ) {
         return true;
     }

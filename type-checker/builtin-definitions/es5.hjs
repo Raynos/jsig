@@ -88,7 +88,7 @@ Boolean : (Boolean | undefined) => Boolean
 Error : (this: Error, String) => void
 
 Array : {
-    isArray: (%Boolean%%Mixed) => Boolean
+    isArray: (Mixed) => Boolean
 } & <T>(this: Array<T>, size: Number) => void
 
 Date : {
@@ -118,6 +118,6 @@ Object : {
 }
 
 JSON : {
-    stringify: (%Boolean%%Mixed) => String,
-    parse: (String) => %Boolean%%Mixed
+    stringify: (Mixed) => String,
+    parse: (String) => Mixed
 }
