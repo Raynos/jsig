@@ -100,14 +100,27 @@ var x/*:Object<String, String>*/ = Object.create(null);
 // Use unions when something could be one of a few types
 var x = [3, 5, 'test', 'fun']; // x : Array<String | Number>
 
-// TODO: document Mixed type.
-
 // Use jsig ignore next to supress type-checking on a given line, when your
 // code confuses jsig or runs into an outright bug in jsig.
 // Good practice is to comment every ignore with a bug link
 // (in jsig or your own code) or an explanation of the issue
 /* jsig ignore next: https://github.com/Raynos/jsig/issues/12 */
 var x = confusingCode();
+
+// When you have non-trivial functions that operate on different
+// data types, you can claim to take a `Mixed` data type.
+// A `Mixed` data type is anything
+var stringify = function () { ... } // x : (Mixed) => String
+var text = parse(anything);
+
+// A `Mixed` data type is type safe as it cannot be used
+var y; // y: Mixed
+y.foo; // type error
+// To effectively use a `Mixed` data type, you have to use
+// runtime type narrowing to be certain of it's type.
+if (typeof y === 'string') {
+    var x = y; // x : String
+}
 ```
 
 ## Constructor functions
