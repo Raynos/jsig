@@ -383,12 +383,18 @@ function checkFunctionSubType(parent, child) {
         assert(!parent.thisArg.optional, 'do not support optional thisArg');
         assert(!child.thisArg.optional, 'do not support optional thisArg');
 
+        // TODO: this needs to be isSameType()
+        // TODO: `thisType` of a function is based on usage, not defn.
         err = this.checkSubType(
             parent.thisArg.value, child.thisArg.value, 'function.thisArg'
         );
         if (err) {
             return err;
         }
+    } else if (child.thisArg) {
+        // Cannot assign a function that takes `thisArg` to a function
+        // that does not have thisArg.
+        return this._reportTypeMisMatch(parent, child, 'terminal');
     }
 
     if (parent.args.length !== child.args.length) {
