@@ -15,8 +15,8 @@ type THandlerOpts : {
     requestContext: THttpRequestContext
 }
 
-type THandler : {
-    handleRequest: (
+interface THandler {
+    handleRequest(
         req: THttpReq,
         res: THttpRes,
         opts: THandlerOpts

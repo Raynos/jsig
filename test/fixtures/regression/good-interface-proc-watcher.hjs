@@ -37,8 +37,8 @@ interface TProcWatcher {
     destroyed: Boolean,
     paused: Boolean,
 
-    boundOnProbe() => void,
-    boundOnFile(err: Error | null, text: String) => void,
+    boundOnProbe: () => void,
+    boundOnFile: (err: Error | null, text: String) => void,
 
     scheduleNextProbe() => void,
     watch() => void,

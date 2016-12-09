@@ -36,8 +36,8 @@ type TProcWatcher : {
     destroyed: Boolean,
     paused: Boolean,
 
-    boundOnProbe: (this: TProcWatcher) => void,
-    boundOnFile: (this: TProcWatcher, err: Error | null, text: String) => void,
+    boundOnProbe: () => void,
+    boundOnFile: (err: Error | null, text: String) => void,
 
     scheduleNextProbe: (this: TProcWatcher) => void,
     watch: (this: TProcWatcher) => void,
