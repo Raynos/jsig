@@ -149,7 +149,7 @@ JSIGSnippet.test('filtering an array', {
     assert.end();
 });
 
-JSIGSnippet.test.skip('filtering an array badly', {
+JSIGSnippet.test('filtering an array badly', {
     snippet: function m() {/*
         var arr = ['foo', 'bar'];
 
@@ -158,6 +158,38 @@ JSIGSnippet.test.skip('filtering an array badly', {
         });
     */}
 }, function t(snippet, assert) {
-    snippet.compileAndCheck(assert);
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 4);
+
+    assert.equal(meta.errors[0].type, 'jsig.verify.non-existant-field');
+    assert.equal(meta.errors[0].fieldName, 'foo');
+    assert.equal(meta.errors[0].objName, 'a');
+    assert.equal(meta.errors[0].line, 4);
+    assert.equal(meta.errors[0].expected, '{ foo: T }');
+
+    assert.equal(meta.errors[1].type, 'jsig.verify.missing-return-statement');
+    assert.equal(meta.errors[1].expected, 'Boolean');
+    assert.equal(meta.errors[1].actual, 'void');
+    assert.equal(meta.errors[1].funcName, '(expression @ 3 : 27) alwaysTrue');
+    assert.equal(meta.errors[1].line, 3);
+
+    assert.equal(meta.errors[2].type,
+        'jsig.verify.untyped-function-expr-found');
+    assert.equal(meta.errors[2].funcName, 'alwaysTrue');
+    assert.equal(meta.errors[2].line, 3);
+
+    assert.equal(meta.errors[3].type,
+        'jsig.verify.cannot-call-generic-function');
+    assert.equal(meta.errors[3].funcName, 'arr.filter');
+    assert.equal(meta.errors[3].expected,
+        '<T>(this: Array<T>, func: (T) => Boolean) => Array<T>');
+    assert.equal(meta.errors[3].actual,
+        '[this: Array<String>, <TypeError for js expr ' +
+            '`function alwaysTrue(a) {\n' +
+            '            a.foo;\n' +
+            '        }`>]');
+    assert.equal(meta.errors[3].line, 3);
+
     assert.end();
 });
