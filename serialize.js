@@ -295,7 +295,7 @@ function serializeFunctionType(node, opts) {
     }
 
     var argStrs = [];
-    for (var i = 0; i < argNodes.length; i++) {
+    for (i = 0; i < argNodes.length; i++) {
         argStrs.push(serialize(argNodes[i], opts));
     }
     var argStr = argStrs.join(', ');
