@@ -310,6 +310,14 @@ function resolveGeneric(funcType, node, currentExpressionType) {
     );
 };
 
+ProgramMeta.prototype.tryResolveType =
+function tryResolveType(node, exprType) {
+    var prevErrors = this.getErrors();
+    var maybeType = this.verifyNode(node, exprType);
+    this.setErrors(prevErrors);
+    return maybeType;
+};
+
 ProgramMeta.prototype.setModuleExportsNode =
 function setModuleExportsNode(astNode) {
     var moduleExports = null;

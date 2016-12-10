@@ -1183,7 +1183,9 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         if (!defn) {
             var args = [];
             if (oldDefn.thisArg) {
-                var objType = this.meta.verifyNode(node.callee.object, null);
+                var objType = this.meta.tryResolveType(
+                    node.callee.object, null
+                );
                 if (objType) {
                     args.push('this: ' + this.meta.serializeType(objType));
                 } else {
@@ -1193,7 +1195,9 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
                 }
             }
             for (var i = 0; i < node.arguments.length; i++) {
-                var argType = this.meta.verifyNode(node.arguments[i], null);
+                var argType = this.meta.tryResolveType(
+                    node.arguments[i], null
+                );
                 if (argType) {
                     args.push(this.meta.serializeType(argType));
                 } else {

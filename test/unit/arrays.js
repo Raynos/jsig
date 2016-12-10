@@ -153,7 +153,7 @@ JSIGSnippet.test('filtering an array badly', {
     snippet: function m() {/*
         var arr = ['foo', 'bar'];
 
-        var z = arr.filter(function alwaysTrue(a) {
+        var z = arr.filter(function doStuff(a) {
             a.foo;
         });
     */}
@@ -171,12 +171,12 @@ JSIGSnippet.test('filtering an array badly', {
     assert.equal(meta.errors[1].type, 'jsig.verify.missing-return-statement');
     assert.equal(meta.errors[1].expected, 'Boolean');
     assert.equal(meta.errors[1].actual, 'void');
-    assert.equal(meta.errors[1].funcName, '(expression @ 3 : 27) alwaysTrue');
+    assert.equal(meta.errors[1].funcName, '(expression @ 3 : 27) doStuff');
     assert.equal(meta.errors[1].line, 3);
 
     assert.equal(meta.errors[2].type,
         'jsig.verify.untyped-function-expr-found');
-    assert.equal(meta.errors[2].funcName, 'alwaysTrue');
+    assert.equal(meta.errors[2].funcName, 'doStuff');
     assert.equal(meta.errors[2].line, 3);
 
     assert.equal(meta.errors[3].type,
@@ -186,10 +186,70 @@ JSIGSnippet.test('filtering an array badly', {
         '<T>(this: Array<T>, func: (T) => Boolean) => Array<T>');
     assert.equal(meta.errors[3].actual,
         '[this: Array<String>, <TypeError for js expr ' +
-            '`function alwaysTrue(a) {\n' +
+            '`function doStuff(a) {\n' +
             '            a.foo;\n' +
             '        }`>]');
     assert.equal(meta.errors[3].line, 3);
 
+    assert.end();
+});
+
+JSIGSnippet.test('checking an array', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var z = arr.every(function alwaysTrue(a) {
+            return true;
+        });
+
+        z = false;
+        z = true;
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('use array.some()', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var z = arr.some(function alwaysTrue(a) {
+            return true;
+        });
+
+        z = false;
+        z = true;
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('use array.forEach()', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        arr.forEach(function doStuff(a) {
+            a + '';
+        });
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test.only('use array.map()', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var other = arr.map(function returnNum(a) {
+            return 4;
+        });
+
+        other[0] + 6;
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
     assert.end();
 });

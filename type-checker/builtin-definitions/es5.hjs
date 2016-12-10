@@ -6,10 +6,6 @@ type Error : {
     ..R
 }
 
-    -- every
-    -- some
-    -- forEach
-    -- map
     -- filter : <T>(
     --      this: Array<T>, func: (T) => Boolean
     -- ) => Array<T>,
@@ -34,6 +30,18 @@ type TArray : {
     indexOf: <T>(this: Array<T>, item: T) => Number,
     lastIndexOf: <T>(this: Array<T>, item: T) => Number,
 
+    every : <T>(
+        this: Array<T>, predicate: (T) => Boolean
+    ) => Boolean,
+    some : <T>(
+        this: Array<T>, predicate: (T) => Boolean
+    ) => Boolean,
+    forEach: <T>(
+        this: Array<T>, iter: (T) => void
+    ) => void,
+    map: <T, S>(
+        this: Array<T>, mapper: (T) => S
+    ) => Array<S>,
     filter : <T>(
         this: Array<T>, func: (T) => Boolean
     ) => Array<T>,
