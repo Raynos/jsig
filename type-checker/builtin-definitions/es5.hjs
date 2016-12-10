@@ -6,29 +6,39 @@ type Error : {
     ..R
 }
 
+    -- every
+    -- some
+    -- forEach
+    -- map
+    -- filter : <T>(
+    --      this: Array<T>, func: (T) => Boolean
+    -- ) => Array<T>,
+    -- reduce
+    -- reduceRight
+
 type TArray : {
-    length: Number,
-    indexOf: <T>(this: Array<T>, item: T) => Number,
-    lastIndexOf: <T>(this: Array<T>, item: T) => Number,
-    push: <T>(this: Array<T>, value: T) => Number,
-    pop: <T>(this: Array<T>) => T,
-    shift: <T>(this: Array<T>) => T,
-    unshift: <T>(this: Array<T>, value: T) => Number,
-    join: <T>(this: Array<T>, sep: String) => String,
-    slice: <T>(this: Array<T>, start?: Number, end?: Number) => Array<T>,
     toString: <T>(this: Array<T>) => String,
+    toLocaleString: <T>(this: Array<T>) => String,
     concat: <T>(this: Array<T>, other: Array<T>) => Array<T>,
+    join: <T>(this: Array<T>, sep: String) => String,
+    pop: <T>(this: Array<T>) => T,
+    push: <T>(this: Array<T>, value: T) => Number,
     reverse: <T>(this: Array<T>) => Array<T>,
-
+    shift: <T>(this: Array<T>) => T,
+    slice: <T>(this: Array<T>, start?: Number, end?: Number) => Array<T>,
     sort: <T>(this: Array<T>, sortFn?: (T, T) => Number) => void,
-
     splice: <T>(
         this: Array<T>, start: Number, deleteCount: Number, item?: T
     ) => Array<T>,
+    unshift: <T>(this: Array<T>, value: T) => Number,
+    indexOf: <T>(this: Array<T>, item: T) => Number,
+    lastIndexOf: <T>(this: Array<T>, item: T) => Number,
 
     filter : <T>(
         this: Array<T>, func: (T) => Boolean
-    ) => Array<T>
+    ) => Array<T>,
+
+    length: Number
 }
 
 type TString : {

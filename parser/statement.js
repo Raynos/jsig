@@ -3,6 +3,7 @@
 var Parsimmon = require('parsimmon');
 
 var lexemes = require('./lexemes.js');
+var comments = require('./comments.js');
 var AST = require('../ast/');
 var typeDefinition = require('./type-definition.js');
 var typeLiteral = require('./type-literal.js');
@@ -84,29 +85,10 @@ var exportStatement = lexemes.exportWord
         return AST.defaultExport(type);
     });
 
-var commentStatement = lexemes.commentStart
-    .then(lexemes.nonNewLine.many())
-    .map(function comment(text) {
-        return AST.comment('--' + text.join(''));
-    });
-
-var altCommentStatement = lexemes.altCommentStart
-    .then(lexemes.nonNewLine.many())
-    .map(function comment(text) {
-        return AST.comment('//' + text.join(''));
-    });
-
-var blockCommentStatement = lexemes.blockCommentStart
-    .then(lexemes.nonBlockCommentEnd.many())
-    .skip(lexemes.blockCommentEnd)
-    .map(function comment(text) {
-        return AST.comment('/*' + text.join('') + '*/');
-    });
-
 var statement = Parsimmon.alt(
-    commentStatement,
-    altCommentStatement,
-    blockCommentStatement,
+    comments.commentStatement,
+    comments.altCommentStatement,
+    comments.blockCommentStatement,
     importStatement,
     assignment,
     typeDeclaration,

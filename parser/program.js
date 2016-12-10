@@ -1,13 +1,12 @@
 'use strict';
 
-var Parsimmon = require('parsimmon');
-
 var AST = require('../ast/');
+var lexemes = require('./lexemes.js');
 var statement = require('./statement.js');
 
-var line = Parsimmon.optWhitespace
+var line = lexemes.optWhitespace
     .then(statement)
-    .skip(Parsimmon.optWhitespace);
+    .skip(lexemes.optWhitespace);
 
 var program = line.many().map(function toProgram(statements) {
     return AST.program(statements);

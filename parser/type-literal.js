@@ -11,7 +11,7 @@ var typeLiteral = Parsimmon.seqMap(
     lexemes.rawTypeName,
 
     Parsimmon.index
-        .skip(Parsimmon.optWhitespace),
+        .skip(lexemes.optWhitespace),
 
     function toLiteral(startIndex, type, endIndex) {
         var loc = {

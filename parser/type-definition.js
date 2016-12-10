@@ -54,7 +54,7 @@ function lazyAlt() {
         typeFunction,
         typeObject,
         typeTuple
-    ).skip(Parsimmon.optWhitespace);
+    ).skip(lexemes.optWhitespace);
 
     return Parsimmon.alt(
         baseExpression,

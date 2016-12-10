@@ -3,6 +3,7 @@
 var Parsimmon = require('parsimmon');
 
 var RAW_TYPE_NAME = Parsimmon.regex(/[a-z0-9%]+/i);
+var OPT_WHITESPACE = Parsimmon.optWhitespace;
 
 var lexemes = {
     importWord: lexeme(Parsimmon.string('import')),
@@ -44,16 +45,12 @@ var lexemes = {
     asWord: lexeme(Parsimmon.string('as')),
     openBrace: lexeme(Parsimmon.string('(')),
     closeBrace: lexeme(Parsimmon.string(')')),
-    commentStart: Parsimmon.string('--'),
-    altCommentStart: Parsimmon.string('//'),
-    nonNewLine: Parsimmon.regex(/[^\n]/),
-    blockCommentStart: Parsimmon.string('/*'),
-    nonBlockCommentEnd: Parsimmon.regex(/(\*(?!\/)|[^*])/),
-    blockCommentEnd: Parsimmon.string('*/')
+
+    optWhitespace: OPT_WHITESPACE
 };
 
 module.exports = lexemes;
 
 function lexeme(p) {
-    return p.skip(Parsimmon.optWhitespace);
+    return p.skip(OPT_WHITESPACE);
 }
