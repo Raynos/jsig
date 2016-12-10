@@ -278,6 +278,18 @@ function serializeFunctionType(node, opts) {
     var str = '(';
     var argNodes = node.args.slice();
 
+    if (node.generics.length > 0) {
+        var uniqueGenerics = [];
+        for (var i = 0; i < node.generics.length; i++) {
+            if (uniqueGenerics.indexOf(node.generics[i].name) === -1) {
+                uniqueGenerics.push(node.generics[i].name);
+            }
+        }
+
+        var genericExpr = '<' + uniqueGenerics.join(', ') + '>';
+        str = genericExpr + str;
+    }
+
     if (node.thisArg) {
         argNodes.unshift(node.thisArg);
     }

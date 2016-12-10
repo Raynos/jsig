@@ -22,7 +22,7 @@ JSIGSnippet.test('arrays can only push same type', function m() {/*
     assert.equal(err2.type, 'jsig.verify.cannot-call-generic-function');
     assert.equal(err2.funcName, 'foo.push');
     assert.equal(err2.actual, '[this: Array<String>, Number]');
-    assert.equal(err2.expected, '(this: Array<T>, value: T) => Number');
+    assert.equal(err2.expected, '<T>(this: Array<T>, value: T) => Number');
     assert.equal(err2.line, 4);
 
     assert.end();
@@ -41,7 +41,7 @@ JSIGSnippet.test('array methods have required arguments', function m() {/*
     assert.equal(err.type, 'jsig.verify.cannot-call-generic-function');
     assert.equal(err.funcName, 'foo.push');
     assert.equal(err.actual, '[this: Array<String>]');
-    assert.equal(err.expected, '(this: Array<T>, value: T) => Number');
+    assert.equal(err.expected, '<T>(this: Array<T>, value: T) => Number');
     assert.equal(err.line, 3);
 
     assert.end();

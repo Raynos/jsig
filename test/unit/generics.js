@@ -32,7 +32,7 @@ JSIGSnippet.test('generics disallow multiple types', function m() {/*
     assert.equal(err2.type, 'jsig.verify.cannot-call-generic-function');
     assert.equal(err2.funcName, 'foo.push');
     assert.equal(err2.actual, '[this: Array<String>, Number]');
-    assert.equal(err2.expected, '(this: Array<T>, value: T) => Number');
+    assert.equal(err2.expected, '<T>(this: Array<T>, value: T) => Number');
     assert.equal(err2.line, 4);
 
     assert.end();
