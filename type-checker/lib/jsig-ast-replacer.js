@@ -4,9 +4,10 @@ var assert = require('assert');
 
 module.exports = JsigASTReplacer;
 
-function JsigASTReplacer(replacer, neverRaw) {
+function JsigASTReplacer(replacer, neverRaw, replaceGeneric) {
     this.replacer = replacer;
     this.neverRaw = Boolean(neverRaw);
+    this.replaceGeneric = Boolean(replaceGeneric);
 
     this.currentTypeDeclaration = null;
 }
@@ -78,6 +79,14 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'function') {
+        if (ast.thisArg) {
+            stack.push('thisArg');
+            ast.thisArg = this.inlineReferences(
+                ast.thisArg, rawAst.thisArg, stack
+            );
+            stack.pop();
+        }
+
         stack.push('args');
         for (i = 0; i < ast.args.length; i++) {
             stack.push(i);
@@ -88,13 +97,6 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
 
-        if (ast.thisArg) {
-            stack.push('thisArg');
-            ast.thisArg = this.inlineReferences(
-                ast.thisArg, rawAst.thisArg, stack
-            );
-            stack.pop();
-        }
         if (ast.result) {
             stack.push('result');
             ast.result = this.inlineReferences(
@@ -106,7 +108,12 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeLiteral') {
-        if (ast.builtin || ast.isGeneric) {
+        if (ast.builtin) {
+            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+            return ast;
+        }
+
+        if (ast.isGeneric && !this.replaceGeneric) {
             ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }

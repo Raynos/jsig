@@ -5,6 +5,7 @@ var assert = require('assert');
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
 var deepCloneJSIG = require('./lib/deep-clone-ast.js');
+var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 
 module.exports = TypeInference;
 
@@ -423,6 +424,26 @@ function resolveGeneric(funcType, node, currentExpressionType) {
     return copyFunc;
 };
 
+function GenericInliner(knownGenericTypes) {
+    this.knownGenericTypes = knownGenericTypes;
+    this.failed = false;
+}
+
+GenericInliner.prototype.replace = function replace(ast, raw, stack) {
+    var name = ast.name;
+
+    // TODO: cross reference the uuid instead of the name
+    // var uuid = ast.genericIdentifierUUID;
+
+    var knownType = this.knownGenericTypes[name];
+    if (!knownType) {
+        this.failed = true;
+        return null;
+    }
+
+    return knownType;
+};
+
 /*eslint complexity: [2, 25], max-statements: [2, 60] */
 TypeInference.prototype._findGenericTypes =
 function _findGenericTypes(copyFunc, node, currentExpressionType) {
@@ -442,7 +463,24 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
                 return null;
             }
 
-            newType = this.meta.verifyNode(referenceNode, null);
+            // Do maybe function inference
+
+            var expectedValue = copyFunc.args[stack[1]].value;
+            var knownExpressionType = null;
+            if (referenceNode.type === 'FunctionExpression' &&
+                expectedValue.type === 'function'
+            ) {
+                var copyExpected = deepCloneJSIG(expectedValue);
+                var replacer = new GenericInliner(knownGenericTypes);
+                var astReplacer = new JsigASTReplacer(replacer, true, true);
+                astReplacer.inlineReferences(copyExpected, copyExpected, []);
+
+                if (!replacer.failed) {
+                    knownExpressionType = copyExpected;
+                }
+            }
+
+            newType = this.meta.verifyNode(referenceNode, knownExpressionType);
             if (!newType) {
                 return null;
             }

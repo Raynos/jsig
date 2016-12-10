@@ -14,8 +14,8 @@ JSIGSnippet.test('arrays can only push same type', function m() {/*
     var err = meta.errors[0];
 
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
-    assert.equal(err.expected, 'Number');
-    assert.equal(err.actual, 'String');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'Number');
     assert.equal(err.line, 4);
 
     var err2 = meta.errors[1];
@@ -130,6 +130,32 @@ JSIGSnippet.test('Array lazy-bound on call usage from union', {
         filterFoo : (Array<{ foo: String }>) => void
 
         foo : () => Array<{ foo: String }>
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('filtering an array', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var z = arr.filter(function alwaysTrue(a) {
+            return true;
+        });
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test.skip('filtering an array badly', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var z = arr.filter(function alwaysTrue(a) {
+            a.foo;
+        });
     */}
 }, function t(snippet, assert) {
     snippet.compileAndCheck(assert);

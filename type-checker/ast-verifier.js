@@ -2088,8 +2088,7 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
-    this._checkFunctionType(node, potentialType);
-    return potentialType;
+    return this._checkFunctionType(node, potentialType);
 };
 
 ASTVerifier.prototype.verifyContinueStatement =
@@ -2291,13 +2290,17 @@ function _checkFunctionType(node, defn) {
 
     this.meta.enterFunctionScope(node, defn);
 
-    this._verifyFunctionType(node, defn);
+    var actualType = this._verifyFunctionType(node, defn);
 
     this.meta.exitFunctionScope();
+
+    return actualType;
 };
 
 ASTVerifier.prototype._verifyFunctionType =
 function _verifyFunctionType(node, defn) {
+    var beforeErrors = this.meta.countErrors();
+
     var err;
     if (node.params.length > defn.args.length) {
         err = Errors.TooManyArgsInFunc({
@@ -2308,7 +2311,7 @@ function _verifyFunctionType(node, defn) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-        return;
+        return null;
     } else if (node.params.length < defn.args.length) {
         err = Errors.TooFewArgsInFunc({
             funcName: getFunctionName(node),
@@ -2318,7 +2321,7 @@ function _verifyFunctionType(node, defn) {
             line: node.loc.start.line
         });
         this.meta.addError(err);
-        return;
+        return null;
     }
 
     var statements = node.body.body;
@@ -2362,6 +2365,13 @@ function _verifyFunctionType(node, defn) {
             this._checkReturnType(node, null, null);
         }
     }
+
+    var afterErrors = this.meta.countErrors();
+    if (beforeErrors !== afterErrors) {
+        return null;
+    }
+
+    return defn;
 };
 
 ASTVerifier.prototype._checkHiddenClass =

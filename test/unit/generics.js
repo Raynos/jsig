@@ -25,8 +25,8 @@ JSIGSnippet.test('generics disallow multiple types', function m() {/*
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.sub-type.type-class-mismatch');
     assert.equal(err.line, 4);
-    assert.equal(err.expected, 'Number');
-    assert.equal(err.actual, 'String');
+    assert.equal(err.expected, 'String');
+    assert.equal(err.actual, 'Number');
 
     var err2 = meta.errors[1];
     assert.equal(err2.type, 'jsig.verify.cannot-call-generic-function');
