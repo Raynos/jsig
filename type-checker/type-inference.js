@@ -560,65 +560,126 @@ function resolveThisArg(stack) {
     return newType;
 };
 
-GenericCallResolver.prototype.resolve = function resolve() {
-    for (var i = 0; i < this.copyFunc.generics.length; i++) {
-        var g = this.copyFunc.generics[i];
+GenericCallResolver.prototype.updateKnownGeneric =
+function updateKnownGeneric(ast, newType, referenceNode) {
+    if (this.knownGenericTypes[ast.name]) {
+        var oldType = this.knownGenericTypes[ast.name];
 
-        var newType;
-        var referenceNode;
-        var stack = g.location;
-        var ast = walkProps(this.copyFunc, stack, 0);
-
-        if (stack[0] === 'args') {
-            referenceNode = this.node.arguments[stack[1]];
-            newType = this.resolveArg(stack);
-        } else if (stack[0] === 'thisArg') {
-            referenceNode = this.node.callee.object;
-            newType = this.resolveThisArg(stack);
+        var subTypeError;
+        if (newType.type === 'freeLiteral') {
+            subTypeError = null;
         } else {
-            referenceNode = this.node;
-            newType = this.knownGenericTypes[ast.name];
-            assert(newType, 'newType must exist in fallback');
+            subTypeError = this.meta.checkSubTypeRaw(
+                referenceNode, oldType, newType
+            );
         }
 
-        if (!newType) {
-            return null;
-        }
-
-        if (this.knownGenericTypes[ast.name]) {
-            var oldType = this.knownGenericTypes[ast.name];
-
-            var subTypeError;
-            if (newType.type === 'freeLiteral') {
-                subTypeError = null;
-            } else {
-                subTypeError = this.meta.checkSubTypeRaw(
-                    referenceNode, oldType, newType
+        if (subTypeError) {
+            // A free variable fits in any type.
+            var isSub = oldType.type === 'freeLiteral';
+            if (!isSub) {
+                isSub = this.meta.isSubType(
+                    referenceNode, newType, oldType
                 );
             }
-
-            if (subTypeError) {
-                // A free variable fits in any type.
-                var isSub = oldType.type === 'freeLiteral';
-                if (!isSub) {
-                    isSub = this.meta.isSubType(
-                        referenceNode, newType, oldType
-                    );
-                }
-                if (isSub) {
-                    this.knownGenericTypes[ast.name] = newType;
-                    subTypeError = null;
-                }
+            if (isSub) {
+                this.knownGenericTypes[ast.name] = newType;
+                subTypeError = null;
             }
+        }
 
-            if (subTypeError) {
-                this.meta.addError(subTypeError);
-                return null;
-                // TODO: bug and shit
-                // assert(false, 'could not resolve generics');
-            }
+        if (subTypeError) {
+            this.meta.addError(subTypeError);
+            return false;
+            // TODO: bug and shit
+            // assert(false, 'could not resolve generics');
+        }
+    } else {
+        this.knownGenericTypes[ast.name] = newType;
+    }
+
+    return true;
+};
+
+GenericCallResolver.prototype.resolveLocationNode =
+function resolveLocationNode(locationNode) {
+    var newType;
+    var referenceNode;
+    var stack = locationNode.location;
+    var ast = walkProps(this.copyFunc, stack, 0);
+
+    if (stack[0] === 'args') {
+        referenceNode = this.node.arguments[stack[1]];
+
+        newType = this.resolveArg(stack);
+    } else if (stack[0] === 'thisArg') {
+        referenceNode = this.node.callee.object;
+        newType = this.resolveThisArg(stack);
+    } else {
+        referenceNode = this.node;
+        newType = this.knownGenericTypes[ast.name];
+        assert(newType, 'newType must exist in fallback');
+    }
+
+    if (!newType) {
+        return false;
+    }
+
+    return this.updateKnownGeneric(
+        ast, newType, referenceNode
+    );
+};
+
+GenericCallResolver.prototype.resolve = function resolve() {
+    var locationNodes = this.copyFunc.generics.slice();
+
+    var argList = [];
+    var otherList = [];
+
+    for (var i = 0; i < locationNodes.length; i++) {
+        var stack = locationNodes[i].location;
+
+        if (stack[0] === 'thisArg') {
+            argList.unshift(locationNodes[i]);
+        } else if (stack[0] === 'args') {
+            argList.push(locationNodes[i]);
         } else {
-            this.knownGenericTypes[ast.name] = newType;
+            otherList.push(locationNodes[i]);
+        }
+    }
+
+    var originalLength = argList.length;
+    for (i = 0; i < argList.length; i++) {
+        var locationNode = argList[i];
+
+        // If we want to resolve an argument that is an untyped
+        // function expression, then we should move this location
+        // node to the end of the list and resolve the other
+        // information first.
+        if (i < originalLength && locationNode.location[0] === 'args') {
+            var referenceNode = this.node.arguments[
+                locationNode.location[1]
+            ];
+
+            if (referenceNode &&
+                referenceNode.type === 'FunctionExpression'
+            ) {
+                argList.push(locationNode);
+                continue;
+            }
+        }
+
+        var success = this.resolveLocationNode(locationNode);
+        if (!success) {
+            return null;
+        }
+    }
+    for (i = 0; i < otherList.length; i++) {
+        locationNode = otherList[i];
+
+        success = this.resolveLocationNode(locationNode);
+        if (!success) {
+            return null;
         }
     }
 

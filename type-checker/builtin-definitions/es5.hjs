@@ -6,12 +6,6 @@ type Error : {
     ..R
 }
 
-    -- filter : <T>(
-    --      this: Array<T>, func: (T) => Boolean
-    -- ) => Array<T>,
-    -- reduce
-    -- reduceRight
-
 type TArray : {
     toString: <T>(this: Array<T>) => String,
     toLocaleString: <T>(this: Array<T>) => String,
@@ -45,6 +39,12 @@ type TArray : {
     filter : <T>(
         this: Array<T>, func: (T) => Boolean
     ) => Array<T>,
+    reduce: <T, S>(
+        this: Array<T>, func: (S, T) => S, initial: S
+    ) => S,
+    reduceRight: <T, S>(
+        this: Array<T>, func: (S, T) => S, initial: S
+    ) => S,
 
     length: Number
 }

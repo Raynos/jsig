@@ -248,3 +248,33 @@ JSIGSnippet.test('use array.map()', {
     snippet.compileAndCheck(assert);
     assert.end();
 });
+
+JSIGSnippet.test('use array.reduce()', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var other = arr.reduce(function add(a, b) {
+            return a + b;
+        }, '');
+
+        other + '';
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
+
+JSIGSnippet.test('use array.reduceRight()', {
+    snippet: function m() {/*
+        var arr = ['foo', 'bar'];
+
+        var other = arr.reduceRight(function add(a, b) {
+            return a + b;
+        }, '');
+
+        other + '';
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+    assert.end();
+});
