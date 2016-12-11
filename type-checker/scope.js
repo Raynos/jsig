@@ -38,6 +38,8 @@ module.exports = {
 
 */
 function BaseScope(parent) {
+    assert(parent, 'parent required');
+    assert(parent.checker, 'checker required');
     this.parent = parent;
     this.checker = parent.checker;
     this.type = 'base';
@@ -265,8 +267,9 @@ function _restrictType(id, type) {
     return token;
 };
 
-function GlobalScope() {
+function GlobalScope(checker) {
     this.parent = null;
+    this.checker = checker;
     this.type = 'global';
 
     this.identifiers = Object.create(null);

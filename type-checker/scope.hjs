@@ -1,4 +1,5 @@
 import { JsigType } from "../ast/index.hjs"
+import { TypeChecker } from "./index.hjs"
 
 interface GlobalScope {
     _addOperator(id: String, typeDefn: JsigType) => void,
@@ -7,5 +8,5 @@ interface GlobalScope {
 }
 
 export default {
-    GlobalScope: (this: GlobalScope) => void
+    GlobalScope: (this: GlobalScope, TypeChecker) => void
 }
