@@ -158,6 +158,7 @@ function isTypeArray(jsigType) {
         jsigType.value.builtin;
 }
 
+/*eslint complexity: [2,20] */
 TypeInference.prototype.inferArrayExpression =
 function inferArrayExpression(node) {
     var elems = node.elements;
@@ -397,9 +398,10 @@ function resolveGeneric(funcType, node, currentExpressionType) {
     var copyFunc = deepCloneJSIG(funcType);
     copyFunc._raw = null;
 
-    var knownGenericTypes = this._findGenericTypes(
-        copyFunc, node, currentExpressionType
+    var resolver = new GenericCallResolver(
+        this.meta, copyFunc, node, currentExpressionType
     );
+    var knownGenericTypes = resolver.resolve();
     if (!knownGenericTypes) {
         return null;
     }
@@ -427,6 +429,7 @@ function resolveGeneric(funcType, node, currentExpressionType) {
 function GenericInliner(knownGenericTypes) {
     this.knownGenericTypes = knownGenericTypes;
     this.failed = false;
+    this.unknownReturn = false;
 }
 
 GenericInliner.prototype.replace = function replace(ast, raw, stack) {
@@ -437,6 +440,11 @@ GenericInliner.prototype.replace = function replace(ast, raw, stack) {
 
     var knownType = this.knownGenericTypes[name];
     if (!knownType) {
+        if (stack[stack.length - 1] === 'result') {
+            this.unknownReturn = true;
+            return JsigAST.literal('%Void%%UnknownReturn', true);
+        }
+
         this.failed = true;
         return null;
     }
@@ -444,75 +452,132 @@ GenericInliner.prototype.replace = function replace(ast, raw, stack) {
     return knownType;
 };
 
-/*eslint complexity: [2, 25], max-statements: [2, 60] */
-TypeInference.prototype._findGenericTypes =
-function _findGenericTypes(copyFunc, node, currentExpressionType) {
-    var knownGenericTypes = Object.create(null);
+function GenericCallResolver(meta, copyFunc, node, currentExpressionType) {
+    this.knownGenericTypes = Object.create(null);
+    this.meta = meta;
+    this.copyFunc = copyFunc;
+    this.node = node;
+    this.currentExpressionType = currentExpressionType;
 
-    for (var i = 0; i < copyFunc.generics.length; i++) {
-        var g = copyFunc.generics[i];
+    this._cachedInferredFunctionArgs = [];
+}
+
+GenericCallResolver.prototype.resolveArg =
+function resolveArg(stack) {
+    var referenceNode = this.node.arguments[stack[1]];
+    if (!referenceNode) {
+        return null;
+    }
+
+    // Do maybe function inference
+
+    var expectedValue = this.copyFunc.args[stack[1]].value;
+    var knownExpressionType = null;
+    var hasUnknownReturn = false;
+    if (referenceNode.type === 'FunctionExpression' &&
+        expectedValue.type === 'function'
+    ) {
+        if (this._cachedInferredFunctionArgs[stack[1]]) {
+            knownExpressionType = this._cachedInferredFunctionArgs[stack[1]];
+        } else {
+            var copyExpected = deepCloneJSIG(expectedValue);
+            var replacer = new GenericInliner(this.knownGenericTypes);
+            var astReplacer = new JsigASTReplacer(replacer, true, true);
+            astReplacer.inlineReferences(copyExpected, copyExpected, []);
+
+            if (!replacer.failed) {
+                knownExpressionType = copyExpected;
+            }
+            if (!replacer.failed && replacer.unknownReturn) {
+                hasUnknownReturn = true;
+            }
+        }
+    }
+
+    var newType = this.meta.verifyNode(referenceNode, knownExpressionType);
+    if (!newType) {
+        return null;
+    }
+
+    if (hasUnknownReturn) {
+        // Grab the scope for the known function
+        var funcScopes = this.meta.currentScope.getKnownFunctionScope(
+            this.meta.getFunctionName(referenceNode)
+        ).funcScopes;
+        assert(funcScopes.length === 1,
+            'cannot infer call return for overloaded function'
+        );
+        assert(newType.type === 'function', 'must have a newType function');
+        var funcScope = funcScopes[0];
+
+        if (funcScope.knownReturnTypes.length > 0) {
+            var uniqueKnownReturnTypes = getUniqueTypes(
+                funcScope.knownReturnTypes
+            );
+
+            // TODO: grab the smallest union?
+            assert(uniqueKnownReturnTypes.length === 1,
+                'only support trivial single return funcs');
+            newType.result = uniqueKnownReturnTypes[0];
+        }
+    }
+
+    if (knownExpressionType) {
+        this._cachedInferredFunctionArgs[stack[1]] = knownExpressionType;
+    }
+
+    newType = walkProps(newType, stack, 3);
+    return newType;
+};
+
+GenericCallResolver.prototype.resolveThisArg =
+function resolveThisArg(stack) {
+    var newType;
+
+    // Method call()
+    if (this.node.callee.type === 'MemberExpression') {
+        var referenceNode = this.node.callee.object;
+        // TODO: this might be wrong
+        newType = this.meta.verifyNode(referenceNode, null);
+        if (!newType) {
+            return null;
+        }
+
+        newType = walkProps(newType, stack, 2);
+    // new expression
+    } else if (this.node.callee.type === 'Identifier') {
+        if (this.currentExpressionType) {
+            newType = this.currentExpressionType;
+            newType = walkProps(newType, stack, 2);
+        } else {
+            // If we have no ctx as for type then free literal
+            newType = JsigAST.freeLiteral('T');
+        }
+    } else {
+        assert(false, 'unknown caller type: ' + this.node.callee.type);
+    }
+
+    return newType;
+};
+
+GenericCallResolver.prototype.resolve = function resolve() {
+    for (var i = 0; i < this.copyFunc.generics.length; i++) {
+        var g = this.copyFunc.generics[i];
 
         var newType;
         var referenceNode;
         var stack = g.location;
-        var ast = walkProps(copyFunc, stack, 0);
+        var ast = walkProps(this.copyFunc, stack, 0);
 
         if (stack[0] === 'args') {
-            referenceNode = node.arguments[stack[1]];
-            if (!referenceNode) {
-                return null;
-            }
-
-            // Do maybe function inference
-
-            var expectedValue = copyFunc.args[stack[1]].value;
-            var knownExpressionType = null;
-            if (referenceNode.type === 'FunctionExpression' &&
-                expectedValue.type === 'function'
-            ) {
-                var copyExpected = deepCloneJSIG(expectedValue);
-                var replacer = new GenericInliner(knownGenericTypes);
-                var astReplacer = new JsigASTReplacer(replacer, true, true);
-                astReplacer.inlineReferences(copyExpected, copyExpected, []);
-
-                if (!replacer.failed) {
-                    knownExpressionType = copyExpected;
-                }
-            }
-
-            newType = this.meta.verifyNode(referenceNode, knownExpressionType);
-            if (!newType) {
-                return null;
-            }
-
-            newType = walkProps(newType, stack, 3);
+            referenceNode = this.node.arguments[stack[1]];
+            newType = this.resolveArg(stack);
         } else if (stack[0] === 'thisArg') {
-
-            // Method call()
-            if (node.callee.type === 'MemberExpression') {
-                referenceNode = node.callee.object;
-                // TODO: this might be wrong
-                newType = this.meta.verifyNode(referenceNode, null);
-                if (!newType) {
-                    return null;
-                }
-
-                newType = walkProps(newType, stack, 2);
-            // new expression
-            } else if (node.callee.type === 'Identifier') {
-                if (currentExpressionType) {
-                    newType = currentExpressionType;
-                    newType = walkProps(newType, stack, 2);
-                } else {
-                    // If we have no ctx as for type then free literal
-                    newType = JsigAST.freeLiteral('T');
-                }
-            } else {
-                assert(false, 'unknown caller type: ' + node.callee.type);
-            }
+            referenceNode = this.node.callee.object;
+            newType = this.resolveThisArg(stack);
         } else {
-            referenceNode = node;
-            newType = knownGenericTypes[ast.name];
+            referenceNode = this.node;
+            newType = this.knownGenericTypes[ast.name];
             assert(newType, 'newType must exist in fallback');
         }
 
@@ -520,8 +585,8 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
             return null;
         }
 
-        if (knownGenericTypes[ast.name]) {
-            var oldType = knownGenericTypes[ast.name];
+        if (this.knownGenericTypes[ast.name]) {
+            var oldType = this.knownGenericTypes[ast.name];
 
             var subTypeError;
             if (newType.type === 'freeLiteral') {
@@ -541,7 +606,7 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
                     );
                 }
                 if (isSub) {
-                    knownGenericTypes[ast.name] = newType;
+                    this.knownGenericTypes[ast.name] = newType;
                     subTypeError = null;
                 }
             }
@@ -553,11 +618,11 @@ function _findGenericTypes(copyFunc, node, currentExpressionType) {
                 // assert(false, 'could not resolve generics');
             }
         } else {
-            knownGenericTypes[ast.name] = newType;
+            this.knownGenericTypes[ast.name] = newType;
         }
     }
 
-    return knownGenericTypes;
+    return this.knownGenericTypes;
 };
 
 function walkProps(object, stack, start) {
