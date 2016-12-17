@@ -1,5 +1,7 @@
 'use strict';
 
+/* @jsig */
+
 var Parsimmon = require('parsimmon');
 
 var RAW_TYPE_NAME = Parsimmon.regex(/[a-z0-9%]+/i);
