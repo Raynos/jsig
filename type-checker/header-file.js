@@ -8,6 +8,7 @@ var Errors = require('./errors.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
 var JsigAST = require('../ast/');
 var deepCloneJSIG = require('./lib/deep-clone-ast.js');
+var isSameType = require('./lib/is-same-type.js');
 
 module.exports = HeaderFile;
 
@@ -25,6 +26,8 @@ function HeaderFile(checker, jsigAst, fileName, source) {
     this.errors = [];
     this.dependentHeaders = Object.create(null);
     this.astReplacer = new JsigASTReplacer(this);
+
+    this.genericResolutionCache = Object.create(null);
 }
 
 HeaderFile.prototype.replace = function replace(ast, rawAst, stack) {
@@ -67,12 +70,117 @@ function replaceTypeLiteral(ast, rawAst, stack) {
     return typeDefn;
 };
 
-/*eslint max-statements: [2, 90], complexity: [2, 30]*/
+function GenericReplacer(headerFile, actualArgs, expectedArgs) {
+    this.headerFile = headerFile;
+    this.checker = headerFile.checker;
+    this.actualArgs = actualArgs;
+    this.expectedArgs = expectedArgs;
+}
+
+GenericReplacer.prototype.replace =
+function replace(ast, rawAst, stack) {
+    if (ast.type === 'typeLiteral') {
+        return this.replaceTypeLiteral(ast, rawAst, stack);
+    } else if (ast.type === 'genericLiteral') {
+        return this.replaceGenericLiteral(ast, rawAst, stack);
+    } else {
+        assert(false, 'unexpected ast.type: ' + ast.type);
+    }
+};
+
+GenericReplacer.prototype.replaceTypeLiteral =
+function replaceTypeLiteral(ast, rawAst, stack) {
+    assert(ast.isGeneric, 'must be generic to replace');
+
+    var foundIndex = -1;
+    for (var i = 0; i < this.expectedArgs.length; i++) {
+        var arg = this.expectedArgs[i];
+        if (arg.name === ast.name &&
+            arg.genericIdentifierUUID === ast.genericIdentifierUUID
+        ) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    assert(foundIndex !== -1, 'must have found this generic');
+    return this.actualArgs[foundIndex];
+};
+
+GenericReplacer.prototype.replaceGenericLiteral =
+function replaceGenericLiteral(ast, rawAst, stack) {
+    return this.headerFile.replaceGenericLiteral(
+        ast, rawAst, stack
+    );
+};
+
+HeaderFile.prototype.resolveGenericLiteral =
+function resolveGenericLiteral(ast, typeDefn, copyType) {
+    var args = ast.generics;
+    var expectedArgs = typeDefn.generics;
+
+    copyType._raw = null;
+
+    var replacer = new JsigASTReplacer(
+        new GenericReplacer(this, args, expectedArgs), false, true
+    );
+    var rawAst = ast;
+    // If any argument is generic then do not make it the "raw ast"
+    // for (var i = 0; i < ast.generics.length; i++) {
+    //     if (ast.generics[i].isGeneric) {
+    //         rawAst = null;
+    //         break;
+    //     }
+    // }
+
+    copyType = replacer.inlineReferences(copyType, rawAst, []);
+};
+
+function CacheEntry(typeDefn) {
+    this.typeDefn = typeDefn;
+
+    this.solutions = [];
+}
+
+CacheEntry.prototype.addSolution =
+function addSolution(args, resolvedType) {
+    this.solutions.push(new CacheEntrySolution(args, resolvedType));
+};
+
+CacheEntry.prototype.findSolution =
+function findSolution(args) {
+    var solution = null;
+    for (var i = 0; i < this.solutions.length; i++) {
+        var maybeSolution = this.solutions[i];
+        if (maybeSolution.args.length !== args.length) {
+            continue;
+        }
+
+        var skip = false;
+        for (var j = 0; j < maybeSolution.args.length; j++) {
+            if (!isSameType(maybeSolution.args[j], args[j])) {
+                skip = true;
+                break;
+            }
+        }
+
+        if (!skip) {
+            solution = maybeSolution.resolvedType;
+            break;
+        }
+    }
+
+    return solution;
+};
+
+function CacheEntrySolution(args, resolvedType) {
+    this.args = args;
+    this.resolvedType = resolvedType;
+}
+
 HeaderFile.prototype.replaceGenericLiteral =
 function replaceGenericLiteral(ast, rawAst, topStack) {
     var name = ast.value.name;
-
-    // var serialize = require('../serialize.js');
 
     var typeDefn = this.genericIndexTable[name];
     if (!typeDefn) {
@@ -85,156 +193,27 @@ function replaceGenericLiteral(ast, rawAst, topStack) {
     assert(typeDefn.type === 'typeDeclaration',
         'A non builtin generic must come from type declaration');
 
-    // console.log('replaceGenericLiteral(' + name + ')', {
-    //     ast: ast.generics.length,
-    //     rawValue: serialize(ast),
-    //     args: ast.generics.map(serialize)
-    // });
-
-    var args = ast.generics;
-    var expectedArgs = typeDefn.generics;
-    // console.log('expectedArgs?', typeDefn);
-
-    var idMapping = Object.create(null);
-    for (var i = 0; i < expectedArgs.length; i++) {
-        idMapping[expectedArgs[i].name] = args[i];
+    var cacheEntry = this.genericResolutionCache[name];
+    var copyType;
+    if (!cacheEntry) {
+        cacheEntry = this.genericResolutionCache[name] = new CacheEntry();
+        copyType = deepCloneJSIG(typeDefn.typeExpression);
+        cacheEntry.addSolution(ast.generics, copyType);
+        this.resolveGenericLiteral(ast, typeDefn, copyType);
+    } else {
+        copyType = cacheEntry.findSolution(ast.generics);
+        if (!copyType) {
+            copyType = deepCloneJSIG(typeDefn.typeExpression);
+            cacheEntry.addSolution(ast.generics, copyType);
+            this.resolveGenericLiteral(ast, typeDefn, copyType);
+        }
     }
 
-    var copyType = deepCloneJSIG(typeDefn.typeExpression);
-    copyType._raw = null;
-
-    // console.log('found typeExpression', {
-    //     copyType: serialize(copyType),
-    //     newType: serialize(idMapping['T'])
-    // });
-
-    var locations = typeDefn.seenGenerics;
-    for (i = 0; i < locations.length; i++) {
-
-        var g = locations[i];
-        var newType = idMapping[g.name];
-        assert(newType, 'newType must exist');
-
-        // Only replace locations into the typeExpression
-        // of the type declaration
-        if (g.location[0] !== 'typeExpression') {
-            continue;
-        }
-
-        var stack = g.location.slice(1);
-
-        // console.log('inlining location', {
-        //     newType: serialize(newType),
-        //     stack: stack
-        // });
-
-        var obj = copyType;
-        for (var j = 0; j < stack.length - 1; j++) {
-            obj = obj[stack[j]];
-            obj._raw = null;
-        }
-
-        var lastProp = stack[stack.length - 1];
-        // console.log('setting', {
-        //     obj: obj,
-        //     lastProp: lastProp,
-        //     newType: serialize(newType),
-        //     g: g
-        // });
-
-        var currentGenericLiteral = obj[lastProp];
-        assert(g.uuid === currentGenericLiteral.genericIdentifierUUID,
-            'uuid must match before we insert the concrete type');
-
-        obj[lastProp] = newType;
-    }
-
-    if (this.astReplacer.currentTypeDeclaration) {
-        var typeDecl = this.astReplacer.currentTypeDeclaration;
-
-        var exprIndex = topStack.lastIndexOf('typeExpression');
-        var outerStack = topStack.slice(exprIndex);
-
-        // seenGenerics are the locations where T exist
-        // in the outer type declaration
-
-        // typeDefn.seenGenerics is the location T exists
-        // in the inner inlined generic type template
-
-        // topStack is the current location inside the
-        // outer typeDeclaration that we are in.
-
-        var newSeenGenerics = [];
-
-        for (i = 0; i < typeDecl.seenGenerics.length; i++) {
-            var outerLoc = typeDecl.seenGenerics[i];
-            if (outerLoc.location[0] !== 'typeExpression') {
-                newSeenGenerics.push(outerLoc);
-                continue;
-            }
-
-            if (!arrayStartsWith(outerLoc.location, outerStack)) {
-                newSeenGenerics.push(outerLoc);
-                continue;
-            }
-
-            // var locInto = outerLoc.location.slice(outerStack.length);
-            // console.log('varName', outerLoc.name);
-            // console.log('varUUID', outerLoc.uuid);
-
-            var argIndex = -1;
-            for (j = 0; j < ast.generics.length; j++) {
-                if (ast.generics[j].genericIdentifierUUID === outerLoc.uuid) {
-                    argIndex = j;
-                    break;
-                }
-            }
-
-            assert(argIndex !== -1, 'could not find index of seenGeneric');
-
-            var addedLocations = false;
-            var innerUUID = typeDefn.generics[argIndex].genericIdentifierUUID;
-            for (j = 0; j < typeDefn.seenGenerics.length; j++) {
-                var innerLoc = typeDefn.seenGenerics[j];
-                if (innerLoc.location[0] !== 'typeExpression') {
-                    continue;
-                }
-
-                if (innerLoc.uuid !== innerUUID) {
-                    continue;
-                }
-
-                var innerStack = innerLoc.location.slice(1);
-                var newStack = outerStack.slice();
-                for (var k = 0; k < innerStack.length; k++) {
-                    newStack.push(innerStack[k]);
-                }
-
-                var newLoc = JsigAST.locationLiteral(
-                    outerLoc.name, newStack, outerLoc.uuid
-                );
-                newSeenGenerics.push(newLoc);
-                addedLocations = true;
-            }
-
-            assert(addedLocations, 'could not find new seenGeneric');
-        }
-
-        assert(newSeenGenerics.length >= typeDecl.seenGenerics.length,
-            'when replacing seenGenerics must be at least as many');
-        typeDecl.seenGenerics = newSeenGenerics;
-
-        // console.log('inside a typeDeclaration', {
-        //     typeDecl: serialize(typeDecl),
-        //     args: ast.generics,
-        //     outerStack: outerStack,
-        //     typeDefn: typeDefn.generics
-        // });
-    }
-
-    // console.log('typeDefn?', {
-    //     expr: serialize(typeDefn.typeExpression),
-    //     copyType: serialize(copyType)
+    // console.log('pre replaceGenericLiteral()');
+    // console.log('replaceGenericLiteral()', {
+    //     rawAST: this.checker.serializeType(ast),
+    //     typeDefn: this.checker.serializeType(typeDefn.typeExpression),
+    //     copyType: this.checker.serializeType(copyType)
     // });
 
     return copyType;
