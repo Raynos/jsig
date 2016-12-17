@@ -18,7 +18,9 @@ function inlineReferences(ast, rawAst, stack) {
     assert(Array.isArray(stack), 'must pass in a stack');
     var i;
 
-    // console.log('inlineReferences()', ast.type);
+    // console.log('inlineReferences()', ast && ast.type, stack);
+
+    var neverRaw = this.neverRaw;
 
     if (ast.type === 'program') {
         var newStatements = [];
@@ -26,7 +28,10 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.statements.length; i++) {
             stack.push(i);
             var t = this.inlineReferences(
-                ast.statements[i], rawAst.statements[i], stack
+                ast.statements[i],
+                (rawAst && rawAst.statements) ?
+                    rawAst.statements[i] : null,
+                stack
             );
             stack.pop();
             if (t) {
@@ -35,7 +40,7 @@ function inlineReferences(ast, rawAst, stack) {
         }
         stack.pop();
         ast.statements = newStatements;
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeDeclaration') {
         this.currentTypeDeclaration = ast;
@@ -45,7 +50,10 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.generics.length; i++) {
             stack.push(i);
             newGenerics[i] = this.inlineReferences(
-                ast.generics[i], rawAst.generics[i], stack
+                ast.generics[i],
+                (rawAst && rawAst.generics) ?
+                    rawAst.generics[i] : null,
+                stack
             );
             stack.pop();
         }
@@ -54,10 +62,13 @@ function inlineReferences(ast, rawAst, stack) {
 
         stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
-            ast.typeExpression, rawAst.typeExpression, stack
+            ast.typeExpression,
+            (rawAst && rawAst.typeExpression) ?
+                rawAst.typeExpression : null,
+            stack
         );
         stack.pop();
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
 
         this.currentTypeDeclaration = null;
 
@@ -65,24 +76,32 @@ function inlineReferences(ast, rawAst, stack) {
     } else if (ast.type === 'assignment') {
         stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
-            ast.typeExpression, rawAst.typeExpression, stack
+            ast.typeExpression,
+            (rawAst && rawAst.typeExpression) ?
+                rawAst.typeExpression : null,
+            stack
         );
         stack.pop();
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'defaultExport') {
         stack.push('typeExpression');
         ast.typeExpression = this.inlineReferences(
-            ast.typeExpression, rawAst.typeExpression, stack
+            ast.typeExpression,
+            (rawAst && rawAst.typeExpression) ?
+                rawAst.typeExpression : null,
+            stack
         );
         stack.pop();
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'function') {
         if (ast.thisArg) {
             stack.push('thisArg');
             ast.thisArg = this.inlineReferences(
-                ast.thisArg, rawAst.thisArg, stack
+                ast.thisArg,
+                (rawAst && rawAst.thisArg) ? rawAst.thisArg : null,
+                stack
             );
             stack.pop();
         }
@@ -91,7 +110,9 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.args.length; i++) {
             stack.push(i);
             ast.args[i] = this.inlineReferences(
-                ast.args[i], rawAst.args[i], stack
+                ast.args[i],
+                (rawAst && rawAst.args) ? rawAst.args[i] : null,
+                stack
             );
             stack.pop();
         }
@@ -100,21 +121,23 @@ function inlineReferences(ast, rawAst, stack) {
         if (ast.result) {
             stack.push('result');
             ast.result = this.inlineReferences(
-                ast.result, rawAst.result, stack
+                ast.result,
+                (rawAst && rawAst.result) ? rawAst.result : null,
+                stack
             );
             stack.pop();
         }
 
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'typeLiteral') {
         if (ast.builtin) {
-            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+            ast._raw = neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
 
         if (ast.isGeneric && !this.replaceGeneric) {
-            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+            ast._raw = neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
 
@@ -125,17 +148,24 @@ function inlineReferences(ast, rawAst, stack) {
             for (i = 0; i < ast.generics.length; i++) {
                 stack.push(i);
                 ast.generics[i] = this.inlineReferences(
-                    ast.generics[i], rawAst.generics[i], stack
+                    ast.generics[i],
+                    (rawAst && rawAst.generics) ?
+                        rawAst.generics[i] : null,
+                    stack
                 );
                 stack.pop();
             }
             stack.pop();
 
             stack.push('value');
-            ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+            ast.value = this.inlineReferences(
+                ast.value,
+                (rawAst && rawAst.value) ? rawAst.value : null,
+                stack
+            );
             stack.pop();
 
-            ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+            ast._raw = neverRaw ? null : (ast._raw || rawAst);
             return ast;
         }
 
@@ -143,8 +173,12 @@ function inlineReferences(ast, rawAst, stack) {
         stack.push('generics');
         for (i = 0; i < ast.generics.length; i++) {
             stack.push(i);
+
             ast.generics[i] = this.inlineReferences(
-                ast.generics[i], rawAst.generics[i], stack
+                ast.generics[i],
+                (rawAst && rawAst.generics) ?
+                    rawAst.generics[i] : null,
+                stack
             );
             stack.pop();
         }
@@ -158,70 +192,90 @@ function inlineReferences(ast, rawAst, stack) {
         for (i = 0; i < ast.keyValues.length; i++) {
             stack.push(i);
             ast.keyValues[i] = this.inlineReferences(
-                ast.keyValues[i], rawAst.keyValues[i], stack
+                ast.keyValues[i],
+                (rawAst && rawAst.keyValues) ?
+                    rawAst.keyValues[i] : null,
+                stack
             );
             stack.pop();
         }
         stack.pop();
 
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'tuple') {
         stack.push('values');
         for (i = 0; i < ast.values.length; i++) {
             stack.push(i);
             ast.values[i] = this.inlineReferences(
-                ast.values[i], rawAst.values[i], stack
+                ast.values[i],
+                (rawAst && rawAst.values) ?
+                    rawAst.values[i] : null,
+                stack
             );
             stack.pop();
         }
         stack.pop();
 
-        ast._raw = this.neverRaw ? null : (ast._raw | rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'keyValue') {
         stack.push('value');
-        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+        ast.value = this.inlineReferences(
+            ast.value,
+            (rawAst && rawAst.value) ? rawAst.value : null,
+            stack
+        );
         stack.pop();
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'param') {
         stack.push('value');
-        ast.value = this.inlineReferences(ast.value, rawAst.value, stack);
+        ast.value = this.inlineReferences(
+            ast.value,
+            (rawAst && rawAst.value) ? rawAst.value : null,
+            stack
+        );
         stack.pop();
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'unionType') {
         stack.push('unions');
         for (i = 0; i < ast.unions.length; i++) {
             stack.push(i);
             ast.unions[i] = this.inlineReferences(
-                ast.unions[i], rawAst.unions[i], stack
+                ast.unions[i],
+                (rawAst && rawAst.unions) ?
+                    rawAst.unions[i] : null,
+                stack
             );
             stack.pop();
         }
         stack.pop();
 
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'intersectionType') {
         stack.push('intersections');
         for (i = 0; i < ast.intersections.length; i++) {
             stack.push(i);
             ast.intersections[i] = this.inlineReferences(
-                ast.intersections[i], rawAst.intersections[i], stack
+                ast.intersections[i],
+                (rawAst && rawAst.intersections) ?
+                    rawAst.intersections[i] : null,
+                stack
             );
             stack.pop();
         }
         stack.pop();
 
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'valueLiteral') {
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'comment') {
-        ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
+        ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'import') {
         return this.replacer.replace(ast, rawAst, stack);
