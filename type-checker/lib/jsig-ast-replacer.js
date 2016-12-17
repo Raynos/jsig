@@ -10,6 +10,8 @@ function JsigASTReplacer(replacer, neverRaw, replaceGeneric) {
     this.replaceGeneric = Boolean(replaceGeneric);
 
     this.currentTypeDeclaration = null;
+
+    this.seen = [];
 }
 
 /*eslint complexity: [2, 80], max-statements: [2, 150]*/
@@ -17,6 +19,11 @@ JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     assert(Array.isArray(stack), 'must pass in a stack');
     var i;
+
+    if (this.seen.indexOf(ast) > -1) {
+        return ast;
+    }
+    this.seen.push(ast);
 
     // console.log('inlineReferences()', ast && ast.type, stack);
 
