@@ -234,3 +234,29 @@ JSIGSnippet.test('LinkedList<T> generic alias', {
 
     assert.end();
 });
+
+JSIGSnippet.test.only('Box<T> type with methods', {
+    snippet: function m() {/*
+        typeof a._value;
+
+        a.set('foo');
+        a.set(a.get())
+    */},
+    header: function h() {/*
+        type Box<T> : {
+            _value: T,
+
+            get: <T>(this: Box<T>) => T,
+            set: <T>(this: Box<T>, T) => void
+        }
+
+        a : Box<String>
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+
+    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.errors[0].valueType, 'String');
+
+    assert.end();
+});

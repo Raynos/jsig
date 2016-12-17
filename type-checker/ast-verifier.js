@@ -1180,6 +1180,7 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         // TODO: resolve generics
         var oldDefn = defn;
         defn = this.meta.resolveGeneric(defn, node);
+        console.log('did I resolve the generic or not??', !!defn);
         if (!defn) {
             var args = [];
             if (oldDefn.thisArg) {

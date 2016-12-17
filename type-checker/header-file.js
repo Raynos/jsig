@@ -103,7 +103,7 @@ function replaceTypeLiteral(ast, rawAst, stack) {
         }
     }
 
-    assert(foundIndex !== -1, 'must have found this generic');
+    assert(foundIndex !== -1, 'must have found this generic: ' + ast.name);
     return this.actualArgs[foundIndex];
 };
 
@@ -122,7 +122,7 @@ function resolveGenericLiteral(ast, typeDefn, copyType) {
     copyType._raw = null;
 
     var replacer = new JsigASTReplacer(
-        new GenericReplacer(this, args, expectedArgs), false, true
+        new GenericReplacer(this, args, expectedArgs), false, true, true
     );
     var rawAst = ast;
     // If any argument is generic then do not make it the "raw ast"

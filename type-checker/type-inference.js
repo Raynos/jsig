@@ -402,6 +402,7 @@ function resolveGeneric(funcType, node, currentExpressionType) {
         this.meta, copyFunc, node, currentExpressionType
     );
     var knownGenericTypes = resolver.resolve();
+    console.log('resolved the resolver?', !!knownGenericTypes);
     if (!knownGenericTypes) {
         return null;
     }
@@ -534,6 +535,8 @@ GenericCallResolver.prototype.resolveThisArg =
 function resolveThisArg(stack) {
     var newType;
 
+    console.log('resolveThisArg()');
+
     // Method call()
     if (this.node.callee.type === 'MemberExpression') {
         var referenceNode = this.node.callee.object;
@@ -543,7 +546,12 @@ function resolveThisArg(stack) {
             return null;
         }
 
+        console.log('resolved it', {
+            type: this.meta.serializeType(newType),
+            stack: stack
+        });
         newType = walkProps(newType, stack, 2);
+        console.log('found prop', newType);
     // new expression
     } else if (this.node.callee.type === 'Identifier') {
         if (this.currentExpressionType) {
@@ -607,6 +615,8 @@ function resolveLocationNode(locationNode) {
     var referenceNode;
     var stack = locationNode.location;
     var ast = walkProps(this.copyFunc, stack, 0);
+
+    console.log('resolveLocationNode()', stack);
 
     if (stack[0] === 'args') {
         referenceNode = this.node.arguments[stack[1]];

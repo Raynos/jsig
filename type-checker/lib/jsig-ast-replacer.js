@@ -4,17 +4,20 @@ var assert = require('assert');
 
 module.exports = JsigASTReplacer;
 
-function JsigASTReplacer(replacer, neverRaw, replaceGeneric) {
+function JsigASTReplacer(
+    replacer, neverRaw, replaceGeneric, haltOnGenericFuncs
+) {
     this.replacer = replacer;
     this.neverRaw = Boolean(neverRaw);
     this.replaceGeneric = Boolean(replaceGeneric);
+    this.haltOnGenericFuncs = Boolean(haltOnGenericFuncs);
 
     this.currentTypeDeclaration = null;
 
     this.seen = [];
 }
 
-/*eslint complexity: [2, 80], max-statements: [2, 150]*/
+/*eslint complexity: [2, 120], max-statements: [2, 150]*/
 JsigASTReplacer.prototype.inlineReferences =
 function inlineReferences(ast, rawAst, stack) {
     assert(Array.isArray(stack), 'must pass in a stack');
@@ -103,6 +106,13 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'function') {
+        if (this.haltOnGenericFuncs &&
+            ast.generics.length > 0
+        ) {
+            ast._raw = neverRaw ? null : (ast._raw || rawAst);
+            return ast;
+        }
+
         if (ast.thisArg) {
             stack.push('thisArg');
             ast.thisArg = this.inlineReferences(
