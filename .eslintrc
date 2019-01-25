@@ -4,7 +4,7 @@
         "global": true
     },
     "rules": {
-    	"linebreak-style": 0,
+        "linebreak-style": 0,
         "dot-notation": 0,
         "spaced-comment": 0,
         "no-console": 0,

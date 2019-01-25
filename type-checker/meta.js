@@ -16,6 +16,8 @@ var Errors = require('./errors.js');
 var JsigAST = require('../ast/');
 var parseJSigType = require('./lib/parse-jsig-type.js');
 
+var NEWLINE_WINDOWS_REGEX = new RegExp('\\r\\n', 'g');
+
 module.exports = ProgramMeta;
 
 function CheckerRules() {
@@ -107,7 +109,7 @@ function serializeAST(ast) {
         this.sourceLines[endLine - 1].slice(0, ast.loc.end.column)
     );
 
-    return segments.join('\n');
+    return segments.join('\n').replace(NEWLINE_WINDOWS_REGEX, '\n');
 };
 
 ProgramMeta.prototype.getOperator = function getOperator(id) {

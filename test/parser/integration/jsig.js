@@ -354,7 +354,7 @@ test('serialize jsig is idempotent', function t(assert) {
     var tree = parse(content);
     var text = serialize(tree);
 
-    var rawLines = content.split('\n');
+    var rawLines = content.replace(/\r\n/g, '\n').split('\n');
     var newLines = text.split('\n');
 
     assert.deepEqual(rawLines, newLines);
