@@ -3,15 +3,13 @@
     "globals": {
         "global": true
     },
-    "plugins": [
-        "jsig"
-    ],
     "rules": {
-        "jsig/type-check": 2,
+    	"linebreak-style": 0,
         "dot-notation": 0,
         "spaced-comment": 0,
         "no-console": 0,
         "max-statements": [2, 40],
+        "block-spacing": 0,
         "indent": [2, 4, {
             "SwitchCase": 1
         }],
