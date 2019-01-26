@@ -518,6 +518,21 @@ function checkObjectSubType(parent, child) {
         }
     }
 
+    /*  If the child is an object literal and we have inferred it's type
+        from the object literal syntax then we check to see if it has extra
+        keys that we do not want to deal with right now.
+
+        For example `foo({ a, b })` where `foo : ({ a }) => void`;
+        here we can give a type error that you've passed too many
+        options fields into the `foo` function because the function
+        does not want field `b`.
+
+        However if the child is a concrete object type that's not inferred;
+        aka a typed variable or an instance of a class, we allow extra
+        fields which means you can pass in a class instance that implements
+        a few methods that the `foo` function would need but then has
+        extra methods which is allowed in the sub type comparison.
+    */
     if (child.inferred) {
         var parentIndex = parent.buildObjectIndex();
         for (i = 0; i < child.keyValues.length; i++) {
