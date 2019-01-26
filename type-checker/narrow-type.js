@@ -113,6 +113,7 @@ function _narrowByValue(node, type, ifBranch, elseBranch) {
 
     // console.log('id', identifier, rightValue);
 
+    // narrow by foo === null
     if (rightValue.type === 'valueLiteral' &&
         (rightValue.value === 'null' || rightValue.value === 'undefined')
     ) {
@@ -413,25 +414,29 @@ function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
     }
 };
 
-function getUnionWithValue(type, value) {
-    if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === 'Mixed'
+function filterUnionForType(
+    maybeUnion, scanType, shouldKeep, defaultValue, containsPredicate
+) {
+    if (shouldKeep && maybeUnion.type === 'typeLiteral' &&
+        maybeUnion.builtin && maybeUnion.name === 'Mixed'
     ) {
-        return value;
+        return defaultValue;
     }
 
-    if (type.type !== 'unionType') {
-        if (containsValue(type, value)) {
-            return type;
+    if (maybeUnion.type !== 'unionType') {
+        if (containsPredicate(maybeUnion, scanType)) {
+            return shouldKeep ? maybeUnion : JsigAST.literal('Never', true);
         } else {
-            return JsigAST.literal('Never', true);
+            return shouldKeep ? JsigAST.literal('Never', true) : maybeUnion;
         }
     }
 
     var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (containsValue(t, value)) {
+    for (var i = 0; i < maybeUnion.unions.length; i++) {
+        var t = maybeUnion.unions[i];
+        if (shouldKeep && containsPredicate(t, scanType)) {
+            unions.push(t);
+        } else if (!shouldKeep && !containsPredicate(t, scanType)) {
             unions.push(t);
         }
     }
@@ -445,96 +450,26 @@ function getUnionWithValue(type, value) {
     }
 
     return JsigAST.union(unions);
+}
+
+function getUnionWithValue(type, value) {
+    return filterUnionForType(type, value, true, value, containsValue);
 }
 
 function getUnionWithLiteral(type, literalName) {
-    if (type.type === 'typeLiteral' && type.builtin &&
-        type.name === 'Mixed'
-    ) {
-        return JsigAST.literal(literalName, true);
-    }
-
-    if (type.type !== 'unionType') {
-        if (containsLiteral(type, literalName)) {
-            return type;
-        } else {
-            return JsigAST.literal('Never', true);
-        }
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (containsLiteral(t, literalName)) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 0) {
-        return JsigAST.literal('Never', true);
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions);
+    return filterUnionForType(type, literalName, true,
+        JsigAST.literal(literalName, true), containsLiteral
+    );
 }
 
 function getUnionWithoutValue(type, value) {
-    if (type.type !== 'unionType') {
-        if (containsValue(type, value)) {
-            return JsigAST.literal('Never', true);
-        } else {
-            return type;
-        }
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (!containsValue(t, value)) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 0) {
-        return JsigAST.literal('Never', true);
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions);
+    return filterUnionForType(type, value, false, value, containsValue);
 }
 
 function getUnionWithoutLiteral(type, literalName) {
-    if (type.type !== 'unionType') {
-        if (containsLiteral(type, literalName)) {
-            return JsigAST.literal('Never', true);
-        } else {
-            return type;
-        }
-    }
-
-    var unions = [];
-    for (var i = 0; i < type.unions.length; i++) {
-        var t = type.unions[i];
-        if (!containsLiteral(t, literalName)) {
-            unions.push(t);
-        }
-    }
-
-    if (unions.length === 0) {
-        return JsigAST.literal('Never', true);
-    }
-
-    if (unions.length === 1) {
-        return unions[0];
-    }
-
-    return JsigAST.union(unions);
+    return filterUnionForType(type, literalName, false,
+        JsigAST.literal(literalName, true), containsLiteral
+    );
 }
 
 function containsValue(type, value) {
