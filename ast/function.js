@@ -56,8 +56,12 @@ function GenericReplacer(node, generics) {
 }
 
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
+    // console.log('GenericReplacer.replace()', ast);
     if (ast.type === 'typeLiteral') {
         return this.replaceTypeLiteral(ast, raw, stack);
+    } else if (ast.type === 'genericLiteral') {
+        // TODO: mark the generics in the genericLiteral itself ?
+        return ast;
     } else {
         assert(false, 'unexpected other type: ' + ast.type);
     }
