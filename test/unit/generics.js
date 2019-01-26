@@ -192,3 +192,33 @@ JSIGSnippet.test('generic constructors', {
 
     assert.end();
 });
+
+JSIGSnippet.test('generic constructors with a string', {
+    snippet: function m() {/*
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+
+            this.value = String(10);
+        }
+
+        var b = new BatchClient("foo", 42);
+        b.channel + "x";
+        b.hosts + 50;
+    */},
+    header: function h() {/*
+        type IBatchClient<T1, S1> : {
+            channel: T1,
+            hosts: S1,
+            value: String
+        }
+
+        BatchClient : <T2, S2>(
+            this: IBatchClient<T2, S2>, T2, S2
+        ) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});
