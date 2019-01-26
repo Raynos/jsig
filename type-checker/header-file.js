@@ -67,7 +67,141 @@ function replaceTypeLiteral(ast, rawAst, stack) {
     return typeDefn;
 };
 
-/*eslint max-statements: [2, 90], complexity: [2, 30]*/
+HeaderFile.prototype.replaceGenericLiteralInOuterFunction =
+function replaceGenericLiteralInOuterFunction(ast, typeDefn, topStack) {
+    /*  If we are inside a function type declaration
+        then we might have inlined a generic and would have
+        to update the outer `seenGenerics` field of the
+        function declaration to match the new inner locations
+    */
+
+    var funcType = this.astReplacer.currentFunction;
+    var exprIndex = topStack.lastIndexOf('typeExpression');
+    var outerStack = topStack.slice(exprIndex + 1);
+
+    var newGenerics = [];
+
+    /*
+        Find all the outer generics for the function type
+        then find any that are in the generic literal that we
+        just inlined.
+
+        for each one of those find the appropiate inner
+        generic literal that matches in the generic literal
+        and update the outer location to point directly to
+        the nested inner location
+
+        So if we have a function `<T>(Foo<T>, T) => void`
+        and we inlined it to `<T>({ a: T }, T) => void`
+        then we are updating the outer generic location of
+        `[args, 0, generics, 0]` to `[args, 0, keyValues, 0, value]`
+        instead.
+    */
+
+    for (var i = 0; i < funcType.generics.length; i++) {
+        var outerLoc = funcType.generics[i];
+        this.resolveNestedGenericLocation(
+            ast, typeDefn, outerLoc, outerStack, newGenerics
+        );
+    }
+
+    assert(newGenerics.length >= funcType.generics.length,
+        'when replacing seenGenerics must be at least as many');
+    funcType.generics = newGenerics;
+};
+
+HeaderFile.prototype.replaceGenericLiteralInOuterTypeDeclaration =
+function replaceGenericLiteralInOuterTypeDeclaration(ast, typeDefn, topStack) {
+    var typeDecl = this.astReplacer.currentTypeDeclaration;
+
+    var exprIndex = topStack.lastIndexOf('typeExpression');
+    var outerStack = topStack.slice(exprIndex);
+
+    // seenGenerics are the locations where T exist
+    // in the outer type declaration
+
+    // typeDefn.seenGenerics is the location T exists
+    // in the inner inlined generic type template
+
+    // topStack is the current location inside the
+    // outer typeDeclaration that we are in.
+
+    var newSeenGenerics = [];
+
+    for (var i = 0; i < typeDecl.seenGenerics.length; i++) {
+        var outerLoc = typeDecl.seenGenerics[i];
+        if (outerLoc.location[0] !== 'typeExpression') {
+            newSeenGenerics.push(outerLoc);
+            continue;
+        }
+
+        this.resolveNestedGenericLocation(
+            ast, typeDefn, outerLoc, outerStack, newSeenGenerics
+        );
+    }
+
+    assert(newSeenGenerics.length >= typeDecl.seenGenerics.length,
+        'when replacing seenGenerics must be at least as many');
+    typeDecl.seenGenerics = newSeenGenerics;
+
+    // console.log('inside a typeDeclaration', {
+    //     typeDecl: serialize(typeDecl),
+    //     args: ast.generics,
+    //     outerStack: outerStack,
+    //     typeDefn: typeDefn.generics
+    // });
+};
+
+HeaderFile.prototype.resolveNestedGenericLocation =
+function resolveNestedGenericLocation(
+    ast,
+    typeDefn,
+    outerLoc,
+    outerStack,
+    newGenerics
+) {
+    if (!arrayStartsWith(outerLoc.location, outerStack)) {
+        newGenerics.push(outerLoc);
+        return;
+    }
+
+    var argIndex = -1;
+    for (var j = 0; j < ast.generics.length; j++) {
+        if (ast.generics[j].genericIdentifierUUID === outerLoc.uuid) {
+            argIndex = j;
+            break;
+        }
+    }
+
+    assert(argIndex !== -1, 'could not find index of seenGeneric');
+
+    var addedLocations = false;
+    var innerUUID = typeDefn.generics[argIndex].genericIdentifierUUID;
+
+    for (j = 0; j < typeDefn.seenGenerics.length; j++) {
+        var innerLoc = typeDefn.seenGenerics[j];
+        if (innerLoc.location[0] !== 'typeExpression') {
+            continue;
+        }
+
+        if (innerLoc.uuid !== innerUUID) {
+            continue;
+        }
+
+        var innerStack = innerLoc.location.slice(1);
+        var newStack = outerStack.slice().concat(innerStack);
+
+        var newLoc = JsigAST.locationLiteral(
+            outerLoc.name, newStack, outerLoc.uuid
+        );
+        newGenerics.push(newLoc);
+        addedLocations = true;
+    }
+
+    assert(addedLocations, 'could not find new seenGeneric');
+};
+
+/*eslint max-statements: [2, 120], complexity: [2, 30]*/
 HeaderFile.prototype.replaceGenericLiteral =
 function replaceGenericLiteral(ast, rawAst, topStack) {
     var name = ast.value.name;
@@ -93,7 +227,8 @@ function replaceGenericLiteral(ast, rawAst, topStack) {
 
     var args = ast.generics;
     var expectedArgs = typeDefn.generics;
-    // console.log('expectedArgs?', typeDefn);
+    // console.log('expectedArgs?', typeDefn.generics);
+    // console.log('actualArgs', ast.generics);
 
     var idMapping = Object.create(null);
     for (var i = 0; i < expectedArgs.length; i++) {
@@ -104,8 +239,8 @@ function replaceGenericLiteral(ast, rawAst, topStack) {
     copyType._raw = null;
 
     // console.log('found typeExpression', {
-    //     copyType: serialize(copyType),
-    //     newType: serialize(idMapping['T'])
+    //     copyType: this.checker.serializeType(copyType),
+    //     newType: idMapping['T1']
     // });
 
     var locations = typeDefn.seenGenerics;
@@ -149,87 +284,14 @@ function replaceGenericLiteral(ast, rawAst, topStack) {
         obj[lastProp] = newType;
     }
 
+    if (this.astReplacer.currentFunction) {
+        this.replaceGenericLiteralInOuterFunction(ast, typeDefn, topStack);
+    }
+
     if (this.astReplacer.currentTypeDeclaration) {
-        var typeDecl = this.astReplacer.currentTypeDeclaration;
-
-        var exprIndex = topStack.lastIndexOf('typeExpression');
-        var outerStack = topStack.slice(exprIndex);
-
-        // seenGenerics are the locations where T exist
-        // in the outer type declaration
-
-        // typeDefn.seenGenerics is the location T exists
-        // in the inner inlined generic type template
-
-        // topStack is the current location inside the
-        // outer typeDeclaration that we are in.
-
-        var newSeenGenerics = [];
-
-        for (i = 0; i < typeDecl.seenGenerics.length; i++) {
-            var outerLoc = typeDecl.seenGenerics[i];
-            if (outerLoc.location[0] !== 'typeExpression') {
-                newSeenGenerics.push(outerLoc);
-                continue;
-            }
-
-            if (!arrayStartsWith(outerLoc.location, outerStack)) {
-                newSeenGenerics.push(outerLoc);
-                continue;
-            }
-
-            // var locInto = outerLoc.location.slice(outerStack.length);
-            // console.log('varName', outerLoc.name);
-            // console.log('varUUID', outerLoc.uuid);
-
-            var argIndex = -1;
-            for (j = 0; j < ast.generics.length; j++) {
-                if (ast.generics[j].genericIdentifierUUID === outerLoc.uuid) {
-                    argIndex = j;
-                    break;
-                }
-            }
-
-            assert(argIndex !== -1, 'could not find index of seenGeneric');
-
-            var addedLocations = false;
-            var innerUUID = typeDefn.generics[argIndex].genericIdentifierUUID;
-            for (j = 0; j < typeDefn.seenGenerics.length; j++) {
-                var innerLoc = typeDefn.seenGenerics[j];
-                if (innerLoc.location[0] !== 'typeExpression') {
-                    continue;
-                }
-
-                if (innerLoc.uuid !== innerUUID) {
-                    continue;
-                }
-
-                var innerStack = innerLoc.location.slice(1);
-                var newStack = outerStack.slice();
-                for (var k = 0; k < innerStack.length; k++) {
-                    newStack.push(innerStack[k]);
-                }
-
-                var newLoc = JsigAST.locationLiteral(
-                    outerLoc.name, newStack, outerLoc.uuid
-                );
-                newSeenGenerics.push(newLoc);
-                addedLocations = true;
-            }
-
-            assert(addedLocations, 'could not find new seenGeneric');
-        }
-
-        assert(newSeenGenerics.length >= typeDecl.seenGenerics.length,
-            'when replacing seenGenerics must be at least as many');
-        typeDecl.seenGenerics = newSeenGenerics;
-
-        // console.log('inside a typeDeclaration', {
-        //     typeDecl: serialize(typeDecl),
-        //     args: ast.generics,
-        //     outerStack: outerStack,
-        //     typeDefn: typeDefn.generics
-        // });
+        this.replaceGenericLiteralInOuterTypeDeclaration(
+            ast, typeDefn, topStack
+        );
     }
 
     // console.log('typeDefn?', {

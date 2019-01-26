@@ -165,3 +165,30 @@ JSIGSnippet.test('intersection generic function', {
 
     assert.end();
 });
+
+JSIGSnippet.test('generic constructors', {
+    snippet: function m() {/*
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+        }
+
+        var b = new BatchClient("foo", 42);
+        b.channel + "x";
+        b.hosts + 50;
+    */},
+    header: function h() {/*
+        type IBatchClient<T1, S1> : {
+            channel: T1,
+            hosts: S1
+        }
+
+        BatchClient : <T2, S2>(
+            this: IBatchClient<T2, S2>, T2, S2
+        ) => void
+    */}
+}, function t(snippet, assert) {
+    snippet.compileAndCheck(assert);
+
+    assert.end();
+});

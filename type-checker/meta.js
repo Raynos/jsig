@@ -7,6 +7,7 @@ var isModuleExports = require('./lib/is-module-exports.js');
 var serialize = require('../serialize.js');
 var ASTVerifier = require('./ast-verifier.js');
 var TypeInference = require('./type-inference.js');
+var GenericResolver = require('./generic-resolver.js');
 var SubTypeChecker = require('./sub-type.js');
 var NarrowType = require('./narrow-type.js');
 var FileScope = require('./scope.js').FileScope;
@@ -71,6 +72,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.headerFileName = '';
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
+    this.genericResolver = new GenericResolver(this);
     this.narrow = new NarrowType(this);
 
     this.currentNode = null;
@@ -307,7 +309,7 @@ function resolveGeneric(funcType, node, currentExpressionType) {
         return null;
     }
 
-    return this.inference.resolveGeneric(
+    return this.genericResolver.resolveGeneric(
         funcType, node, currentExpressionType
     );
 };
@@ -479,7 +481,6 @@ function isSubType(node, leftType, rightType) {
 /*
 Each program has a mandatory header file. This contains
 type definitions for a subset of the program.
-
 */
 ProgramMeta.prototype.loadHeaderFile =
 function loadHeaderFile(required) {
@@ -602,7 +603,6 @@ function exitFunctionScope() {
 
 /* As part of inference we believe that the function named
     "name" which is untyped has a type of `newType`.
-
 */
 ProgramMeta.prototype.tryUpdateFunction =
 function tryUpdateFunction(name, newType) {

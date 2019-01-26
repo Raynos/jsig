@@ -10,6 +10,7 @@ function JsigASTReplacer(replacer, neverRaw, replaceGeneric) {
     this.replaceGeneric = Boolean(replaceGeneric);
 
     this.currentTypeDeclaration = null;
+    this.currentFunction = null;
 }
 
 /*eslint complexity: [2, 80], max-statements: [2, 150]*/
@@ -79,6 +80,8 @@ function inlineReferences(ast, rawAst, stack) {
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
     } else if (ast.type === 'function') {
+        this.currentFunction = ast;
+
         if (ast.thisArg) {
             stack.push('thisArg');
             ast.thisArg = this.inlineReferences(
@@ -104,6 +107,8 @@ function inlineReferences(ast, rawAst, stack) {
             );
             stack.pop();
         }
+
+        this.currentFunction = null;
 
         ast._raw = this.neverRaw ? null : (ast._raw || rawAst);
         return ast;
