@@ -19,6 +19,7 @@ function TypeCheckOptions() {
     this.globalsFile = null;
     this.ignore = [];
     this.optin = false;
+    this.fullInference = false;
     this.trace = false;
     this.fullTrace = false;
 }
@@ -200,6 +201,7 @@ TypeCheckBinary.prototype.check = function check() {
         definitions: this.options.definitions || null,
         globalsFile: this.options.globalsFile || null,
         optin: this.options.optin || false,
+        fullInference: this.options.fullInference,
         previousChecker: this.previousChecker
     };
     this.checker = new TypeChecker(this.entryFiles, opts);

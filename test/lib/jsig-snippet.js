@@ -32,6 +32,7 @@ function JSigSnippet(opts) {
     this.text = getText(this.snippet);
     this.header = opts.header ? getText(opts.header) : null;
     this.optin = opts.optin || false;
+    this.fullInference = opts.fullInference || false;
 
     this.files = {};
 
@@ -55,6 +56,7 @@ JSigSnippet.prototype.compile = function compile() {
     this.programMeta = new TypeChecker('snippet.js', {
         files: this.files,
         optin: this.optin,
+        fullInference: this.fullInference,
         previousChecker: PREVIOUS_CHECKER
     });
 

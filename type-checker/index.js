@@ -59,6 +59,7 @@ function TypeChecker(entryFile, options) {
     this.definitionsFolder = options.definitions || null;
     this.globalsFile = options.globalsFile || null;
     this.optin = options.optin || false;
+    this.fullInference = options.fullInference || false;
     this.previousChecker = options.previousChecker || null;
 
     this.errors = [];
