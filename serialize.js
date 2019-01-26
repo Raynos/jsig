@@ -21,7 +21,8 @@ var serializers = {
     param: serializeParam,
     macroLiteral: serializeMacroLiteral,
     comment: serializeComment,
-    defaultExport: serializeDefaultExport
+    defaultExport: serializeDefaultExport,
+    inferredLiteral: serializeInferredLiteral
 };
 
 module.exports = serialize;
@@ -246,6 +247,10 @@ function serializeIntersection(node, opts) {
 
 function serializeFreeLiteral(node, opts) {
     return node.name;
+}
+
+function serializeInferredLiteral(node, opts) {
+    return '%Inferred<' + node.name + '>';
 }
 
 function serializeMacroLiteral(node, opts) {
