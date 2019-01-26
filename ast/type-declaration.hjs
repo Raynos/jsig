@@ -1,5 +1,6 @@
 import { JsigType } from "./index.hjs"
 import { JsigLiteralTypeNode } from "./literal.hjs"
+import { JsigGenericLiteralNode } from "./generic.hjs"
 import { JsigLocationLiteralNode } from "./location-literal.hjs"
 
 
@@ -30,10 +31,10 @@ interface GenericReplacer {
     seenGenerics: Array<JsigLocationLiteralNode>,
 
     replace(
-        ast: JsigLiteralTypeNode,
-        raw: JsigLiteralTypeNode,
+        ast: JsigLiteralTypeNode | JsigGenericLiteralNode,
+        raw: JsigLiteralTypeNode | JsigGenericLiteralNode,
         stack: Array<String | Number>
-    ) => JsigLiteralTypeNode,
+    ) => JsigLiteralTypeNode | JsigGenericLiteralNode,
     replaceTypeLiteral(
         ast: JsigLiteralTypeNode,
         raw: JsigLiteralTypeNode,

@@ -1,6 +1,6 @@
 'use strict';
 
-/* @jsig */
+/* !@jsig */
 
 var uuid = require('uuid');
 var assert = require('assert');

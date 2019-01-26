@@ -1,12 +1,13 @@
 import { JsigLiteralTypeNode } from "../../ast/literal.hjs"
+import { JsigGenericLiteralNode } from "../../ast/generic.hjs"
 import { JsigType } from "../../ast/index.hjs"
 
 interface Replacer {
     replace(
-        ast: JsigLiteralTypeNode,
-        raw: JsigLiteralTypeNode,
+        ast: JsigLiteralTypeNode | JsigGenericLiteralNode,
+        raw: JsigLiteralTypeNode | JsigGenericLiteralNode,
         stack: Array<String | Number>
-    ) => JsigLiteralTypeNode
+    ) => JsigLiteralTypeNode | JsigGenericLiteralNode
 }
 
 interface JsigASTReplacer {
