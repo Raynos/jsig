@@ -425,17 +425,22 @@ JSIGSnippet.test('exporting an untyped function is error', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
     assert.equal(meta.moduleExportsType, null);
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.errors.length, 3);
 
     var err1 = meta.errors[0];
-    assert.equal(err1.type, 'jsig.verify.unknown-module-exports');
+    assert.equal(err1.type, 'jsig.verify.untyped-function-found');
     assert.equal(err1.funcName, 'FooBar');
-    assert.equal(err1.line, 5);
+    assert.equal(err1.line, 1);
 
     var err2 = meta.errors[1];
-    assert.equal(err2.type, 'jsig.verify.untyped-function-found');
-    assert.equal(err2.funcName, 'FooBar');
-    assert.equal(err2.line, 1);
+    assert.equal(err2.type, 'jsig.verify.unknown-identifier');
+    assert.equal(err2.tokenName, 'FooBar');
+    assert.equal(err2.line, 5);
+
+    var err3 = meta.errors[2];
+    assert.equal(err3.type, 'jsig.verify.unknown-module-exports');
+    assert.equal(err3.funcName, 'FooBar');
+    assert.equal(err3.line, 5);
 
     assert.end();
 });

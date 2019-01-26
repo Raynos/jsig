@@ -7,6 +7,7 @@ var isModuleExports = require('./lib/is-module-exports.js');
 var serialize = require('../serialize.js');
 var ASTVerifier = require('./ast-verifier.js');
 var TypeInference = require('./type-inference.js');
+var StaticTypeInference = require('./static-type-inference.js');
 var GenericResolver = require('./generic-resolver.js');
 var SubTypeChecker = require('./sub-type.js');
 var NarrowType = require('./narrow-type.js');
@@ -72,6 +73,7 @@ function ProgramMeta(checker, ast, fileName, source) {
     this.headerFileName = '';
     this.verifier = new ASTVerifier(this, this.checker, this.fileName);
     this.inference = new TypeInference(this);
+    this.staticInference = new StaticTypeInference(this);
     this.genericResolver = new GenericResolver(this);
     this.narrow = new NarrowType(this);
 
@@ -288,6 +290,28 @@ ProgramMeta.prototype.inferType = function inferType(node) {
         'meta.infer-type',
         node,
         JsigAST.literal('<InferredType>'),
+        inferred || JsigAST.literal('<InferenceError>')
+    ));
+
+    return inferred;
+};
+
+ProgramMeta.prototype.inferFunctionType = function inferFunctionType(node) {
+    if (this.fatalError) {
+        return null;
+    }
+
+    // Only run the new static inference code if opted into it.
+    if (!this.checker.fullInference) {
+        return null;
+    }
+
+    var inferred = this.staticInference.inferFunctionType(node);
+
+    this.addTrace(new TraceInfo(
+        'meta.infer-function-type',
+        node,
+        JsigAST.literal('<InferredFunctionType>'),
         inferred || JsigAST.literal('<InferenceError>')
     ));
 
@@ -636,20 +660,26 @@ function tryUpdateFunction(name, newType) {
 
     var afterErrors = this.countErrors();
     if (beforeErrors !== afterErrors) {
-        var info = this.currentScope.getKnownFunctionScope(name);
-
-        // assert(!info || info.funcScopes.length === 1,
-        //     'expected only one function info obj');
-
-        // verifyNode() failed
-        if (info) {
-            t.currentScope.revertFunctionScope(name, newType);
-        }
-        this.currentScope.revertFunction(name, t);
+        this.tryRevertFunction(name, newType, t);
         return false;
     }
 
     return true;
+};
+
+ProgramMeta.prototype.tryRevertFunction =
+function tryRevertFunction(name, newFunctionType, untypedFunction) {
+    var info = this.currentScope.getKnownFunctionScope(name);
+
+    // assert(!info || info.funcScopes.length === 1,
+    //     'expected only one function info obj');
+
+    // verifyNode() failed
+    if (info) {
+        untypedFunction.currentScope
+            .revertFunctionScope(name, newFunctionType);
+    }
+    this.currentScope.revertFunction(name, untypedFunction);
 };
 
 ProgramMeta.prototype._allocateMacro =

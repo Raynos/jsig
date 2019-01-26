@@ -153,24 +153,61 @@ function verifyProgram(node) {
             actual: this.meta.serializeType(actualType)
         }));
     }
+
+    if (this.meta.moduleExportsNode &&
+        this.meta.moduleExportsNode.type === 'Identifier'
+    ) {
+        var exportsNode = this.meta.moduleExportsNode;
+        // if we are assigning an untyped function to module.exports
+        var exportsType = this.meta.getModuleExportsType();
+        if (!exportsType) {
+            var finalExportType = this.meta.verifyNode(exportsNode, null);
+            if (finalExportType) {
+                this.meta.setModuleExportsType(
+                    finalExportType, exportsNode
+                );
+                exportsType = finalExportType;
+            }
+        }
+
+        if (exportsType === null) {
+            this.meta.addError(Errors.UnknownModuleExports({
+                funcName: exportsNode.name,
+                loc: exportsNode.loc,
+                line: exportsNode.loc.start.line
+            }));
+        }
+    }
 };
 
 ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
     var funcName = getFunctionName(node);
 
-    // console.log('verifyFunctionDeclaration', funcName);
-
     var err;
     if (this.meta.currentScope.getUntypedFunction(funcName)) {
-        // console.log('found untyped');
-        err = Errors.UnTypedFunctionFound({
-            funcName: funcName,
-            loc: node.loc,
-            line: node.loc.start.line
-        });
-        this.meta.addError(err);
-        return null;
+        var funcType = this.meta.inferFunctionType(node);
+        if (!funcType) {
+            err = Errors.UnTypedFunctionFound({
+                funcName: funcName,
+                loc: node.loc,
+                line: node.loc.start.line
+            });
+            this.meta.addError(err);
+            return null;
+        }
+
+        var newType = this._checkFunctionType(node, funcType);
+        // If the function checks out and does not blow up.
+        if (newType) {
+            var success = this.meta.tryUpdateFunction(funcName, newType);
+            if (!success) {
+                // TODO: should we log an error ?
+                assert(false, 'failed to update inferred function');
+            }
+        }
+
+        return newType;
     }
 
     var token = this.meta.currentScope.getVar(funcName);
@@ -254,9 +291,11 @@ function verifyExpressionStatement(node) {
     return this.meta.verifyNode(node.expression, null);
 };
 
-/*eslint max-statements: [2, 100]*/
+/*eslint max-statements: [2, 130]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
+    // console.log("verifyAssignmentExpression()",
+    //    this.meta.serializeAST(node));
     if (
         node.left.type === 'Identifier' ||
         (node.left.type === 'MemberExpression' &&
@@ -292,11 +331,6 @@ function verifyAssignmentExpression(node) {
         this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
         if (leftType.name === '%Export%%ModuleExports') {
-            this.meta.addError(Errors.UnknownModuleExports({
-                funcName: node.right.name,
-                loc: node.loc,
-                line: node.loc.start.line
-            }));
             return null;
         }
 
@@ -426,7 +460,10 @@ function verifyAssignmentExpression(node) {
         if (node.left.type === 'MemberExpression' &&
             node.left.property.type === 'Identifier' &&
             // Cannot track new type for nested objected assignment
-            node.left.object.type === 'Identifier'
+            (
+                node.left.object.type === 'Identifier' ||
+                node.left.object.type === 'ThisExpression'
+            )
         ) {
             var propertyName = node.left.property.name;
             var targetType = this.meta.verifyNode(node.left.object, null);
@@ -437,9 +474,14 @@ function verifyAssignmentExpression(node) {
             newObjType.open = targetType.open;
             newObjType.brand = targetType.brand;
 
-            this.meta.currentScope.forceUpdateVar(
-                node.left.object.name, newObjType
-            );
+            var varName = null;
+            if (node.left.object.type === 'Identifier') {
+                varName = node.left.object.name;
+            } else if (node.left.object.type === 'ThisExpression') {
+                varName = 'this';
+            }
+
+            this.meta.currentScope.forceUpdateVar(varName, newObjType);
         } else {
             // TODO: anything to do here?
             // assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
@@ -1137,6 +1179,7 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
         );
     }
 
+    // Handle tuple -> array mis-inference
     if (wantedType.type === 'genericLiteral' &&
         wantedType.value.name === 'Array' &&
         wantedType.value.builtin &&
@@ -1548,7 +1591,9 @@ function verifyNewExpression(node) {
                     funcName: node.callee.name,
                     thisType: serialize(thisArgType),
                     loc: node.loc,
-                    line: node.loc.start.line
+                    line: node.loc.start.line,
+                    expected: '<ThisType>',
+                    actual: possibleThisArg
                 });
                 this.meta.addError(err);
                 return null;
@@ -2402,6 +2447,8 @@ function _checkHiddenClass(node) {
         err = Errors.ConstructorThisTypeMustBeObject({
             funcName: this.meta.currentScope.funcName,
             thisType: thisType ? serialize(thisType) : 'void',
+            expected: '<ThisType>',
+            actual: 'void',
             loc: node.loc,
             line: node.loc.start.line
         });

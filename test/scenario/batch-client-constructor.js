@@ -40,18 +40,23 @@ test('Missing header file', function t(assert) {
     var meta = compile(file);
     assert.ok(meta, 'expected meta to exist');
     var errors = meta.errors;
-    assert.equal(errors.length, 2, 'expected two errors');
+    assert.equal(errors.length, 3, 'expected two errors');
 
     var error1 = errors[0];
-    assert.equal(error1.type, 'jsig.verify.unknown-module-exports',
-        'should have an unknown export error');
+    assert.equal(error1.type, 'jsig.verify.untyped-function-found');
     assert.equal(error1.funcName, 'BatchClient');
-    assert.equal(error1.line, 3);
+    assert.equal(error1.line, 5);
 
     var error2 = errors[1];
-    assert.equal(error2.type, 'jsig.verify.untyped-function-found');
-    assert.equal(error2.funcName, 'BatchClient');
-    assert.equal(error2.line, 5);
+    assert.equal(error2.type, 'jsig.verify.unknown-identifier');
+    assert.equal(error2.tokenName, 'BatchClient');
+    assert.equal(error2.line, 3);
+
+    var error3 = errors[2];
+    assert.equal(error3.type, 'jsig.verify.unknown-module-exports',
+        'should have an unknown export error');
+    assert.equal(error3.funcName, 'BatchClient');
+    assert.equal(error3.line, 3);
 
     assert.end();
 });

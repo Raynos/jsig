@@ -230,6 +230,8 @@ function inlineReferences(ast, rawAst, stack) {
         return ast;
     } else if (ast.type === 'import') {
         return this.replacer.replace(ast, rawAst, stack);
+    } else if (ast.type === 'inferredLiteral') {
+        return this.replacer.replace(ast, rawAst, stack);
     } else {
         throw new Error('unknown ast type: ' + ast.type);
     }

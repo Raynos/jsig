@@ -309,6 +309,8 @@ Errors.ConstructorThisTypeMustBeObject = TypedError({
         'Cannot have non-object or empty object this ({thisType}).',
     funcName: null,
     thisType: null,
+    expected: null,
+    actual: null,
     loc: null,
     line: null
 });

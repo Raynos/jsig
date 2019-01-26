@@ -154,6 +154,14 @@ function getUnknownVar(id) {
 */
 BaseScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
+    if (id === 'this') {
+        assert(this._thisValueType, 'thisValueType must already exist');
+        assert(typeDefn, 'cannot force update to null');
+
+        this._thisValueType = typeDefn;
+        return new IdentifierToken(typeDefn, false);
+    }
+
     if (!this.identifiers[id] && this.parent) {
         return this.parent.forceUpdateVar(id, typeDefn);
     }
@@ -283,6 +291,10 @@ GlobalScope.prototype.getVar = function getVar(id) {
 
 GlobalScope.prototype.getOperator = function getOperator(id) {
     return this.operators[id];
+};
+
+GlobalScope.prototype.forceUpdateVar = function forceUpdateVar(id) {
+    assert(false, 'cannot forceUpdateVar(' + id + ') in global scope ');
 };
 
 GlobalScope.prototype.getVirtualType = function getVirtualType(id) {
