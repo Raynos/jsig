@@ -418,3 +418,70 @@ JSIGSnippet.test('narrowing with === undefined cases 2', {
 
     assert.end();
 });
+
+JSIGSnippet.test('narrowing based on string literals', {
+    snippet: function m() {/*
+        if (foo === "foo") {
+            typeof foo;
+        } else {
+            typeof foo;
+        }
+    */},
+    header: function h() {/*
+        foo : "foo" | "bar"
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2);
+
+    assert.equal(meta.errors[0].valueType, '"foo"');
+    assert.equal(meta.errors[1].valueType, '"bar"');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing based on string literals fields', {
+    snippet: function m() {/*
+        if (obj.foo === "foo") {
+            typeof obj;
+        } else {
+            typeof obj;
+        }
+    */},
+    header: function h() {/*
+        obj : { foo: "foo" } | { foo: "bar" }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2);
+
+    assert.equal(meta.errors[0].valueType, '{ foo: "foo" }');
+    assert.equal(meta.errors[1].valueType, '{ foo: "bar" }');
+
+    assert.end();
+});
+
+
+JSIGSnippet.test('narrowing based on nested string literals fields', {
+    snippet: function m() {/*
+        if (obj.obj.foo === "foo") {
+            typeof obj;
+        } else {
+            typeof obj;
+        }
+    */},
+    header: function h() {/*
+        obj : { obj: { foo: "foo" } } | { obj: { foo: "bar" } }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.errors.length, 2);
+
+    assert.equal(meta.errors[0].valueType, '{ obj: { foo: "foo" } }');
+    assert.equal(meta.errors[1].valueType, '{ obj: { foo: "bar" } }');
+
+    assert.end();
+});

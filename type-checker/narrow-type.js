@@ -66,6 +66,29 @@ function narrowIdentifier(node, ifBranch, elseBranch) {
     }
 };
 
+function buildKeyPathParentIndex(memberExpr) {
+    assert(memberExpr.property.type === 'Identifier', 'property must be field');
+    var keyPath = [memberExpr.property.name];
+
+    var parent = memberExpr.object;
+    while (parent.type === 'MemberExpression') {
+        assert(parent.property.type === 'Identifier',
+            'property must be field');
+        keyPath.unshift(parent.property.name);
+
+        parent = parent.object;
+    }
+    if (parent.type === 'Identifier') {
+        keyPath.unshift(parent.name);
+    } else if (parent.type === 'ThisExpression') {
+        keyPath.unshift('this');
+    } else {
+        assert(false, 'object must be ref');
+    }
+
+    return { keyPath: keyPath, parent: parent };
+}
+
 NarrowType.prototype.narrowBinaryExpression =
 function narrowBinaryExpression(node, ifBranch, elseBranch) {
     if (node.left.type === 'UnaryExpression' &&
@@ -75,8 +98,9 @@ function narrowBinaryExpression(node, ifBranch, elseBranch) {
     }
 
     var identifier = node.left;
-    if (identifier.type !== 'Identifier') {
-        // TODO: support non trivial expressions
+    if (identifier.type !== 'Identifier' &&
+        identifier.type !== 'MemberExpression'
+    ) {
         return null;
     }
 
@@ -96,35 +120,74 @@ function narrowBinaryExpression(node, ifBranch, elseBranch) {
         return null;
     }
 
+    var index = null;
+    if (identifier.type === 'MemberExpression') {
+        index = buildKeyPathParentIndex(identifier);
+    }
+
     if (node.right.type !== 'Literal' &&
         node.right.type !== 'Identifier'
     ) {
-        // Right hand side must be null
+        // Right hand side must be null or string literal
         return null;
     }
 
-    return this._narrowByValue(node, type, ifBranch, elseBranch);
+    return this._narrowByValue(node, type, index, ifBranch, elseBranch);
+};
+
+NarrowType.prototype._narrowByIdentifierOrMember =
+function _narrowByIdentifierOrMember(branch, identifier, index, newType) {
+    if (identifier.type === 'Identifier') {
+        branch.narrowType(identifier.name, newType);
+    } else {
+        var objectType = this.meta.verifyNode(index.parent, null);
+        newType = updateObject(objectType, index.keyPath.slice(1), newType);
+
+        if (!isSameType(newType, objectType)) {
+            branch.narrowType(index.keyPath[0], newType);
+        }
+    }
 };
 
 NarrowType.prototype._narrowByValue =
-function _narrowByValue(node, type, ifBranch, elseBranch) {
+function _narrowByValue(node, type, index, ifBranch, elseBranch) {
     var identifier = node.left;
     var rightValue = this.meta.verifyNode(node.right, null);
 
-    // console.log('id', identifier, rightValue);
+    var concreteType = null;
 
     // narrow by foo === null
     if (rightValue.type === 'valueLiteral' &&
         (rightValue.value === 'null' || rightValue.value === 'undefined')
     ) {
-        if (ifBranch) {
-            var ifType = getUnionWithValue(type, rightValue);
-            ifBranch.narrowType(identifier.name, ifType);
-        }
-        if (elseBranch) {
-            var elseType = getUnionWithoutValue(type, rightValue);
-            elseBranch.narrowType(identifier.name, elseType);
-        }
+        concreteType = rightValue;
+    }
+
+    // narrow by `foo === "bar"`
+    if (rightValue.type === 'typeLiteral' &&
+        rightValue.name === 'String' &&
+        typeof rightValue.concreteValue === 'string'
+    ) {
+        concreteType = JsigAST.value(
+            '"' + rightValue.concreteValue + '"', 'string'
+        );
+    }
+
+    if (concreteType === null) {
+        return;
+    }
+
+    if (ifBranch) {
+        var ifType = getUnionWithValue(type, concreteType);
+        this._narrowByIdentifierOrMember(
+            ifBranch, identifier, index, ifType
+        );
+    }
+    if (elseBranch) {
+        var elseType = getUnionWithoutValue(type, concreteType);
+        this._narrowByIdentifierOrMember(
+            elseBranch, identifier, index, elseType
+        );
     }
 };
 
@@ -340,35 +403,19 @@ function narrowMemberExpression(node, ifBranch, elseBranch) {
     var ifType = getUnionWithoutBool(fieldType, true);
     var elseType = getUnionWithoutBool(fieldType, false);
 
-    assert(node.property.type === 'Identifier', 'property must be field');
-    var keyPath = [node.property.name];
-
-    var parent = node.object;
-    while (parent.type === 'MemberExpression') {
-        assert(parent.property.type === 'Identifier', 'property must be field');
-        keyPath.unshift(parent.property.name);
-
-        parent = parent.object;
-    }
-    if (parent.type === 'Identifier') {
-        keyPath.unshift(parent.name);
-    } else if (parent.type === 'ThisExpression') {
-        keyPath.unshift('this');
-    } else {
-        assert(false, 'object must be ref');
-    }
+    var index = buildKeyPathParentIndex(node);
 
     // targetType that needs mutation
-    var targetType = this.meta.verifyNode(parent, null);
+    var targetType = this.meta.verifyNode(index.parent, null);
 
     if (ifBranch && ifType) {
         this._updateObjectAndRestrict(
-            ifBranch, targetType, keyPath, ifType
+            ifBranch, targetType, index.keyPath, ifType
         );
     }
     if (elseBranch && elseType) {
         this._updateObjectAndRestrict(
-            elseBranch, targetType, keyPath, elseType
+            elseBranch, targetType, index.keyPath, elseType
         );
     }
     // TODO: support nullable field check
@@ -479,7 +526,7 @@ function containsValue(type, value) {
         return true;
     }
 
-    if (type.type === 'valueLiteral' && type.name === value.name) {
+    if (isSameType(type, value)) {
         return true;
     }
 
