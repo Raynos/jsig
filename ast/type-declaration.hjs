@@ -37,7 +37,6 @@ interface GenericReplacer {
     ) => JsigLiteralTypeNode | JsigGenericLiteralNode,
     replaceTypeLiteral(
         ast: JsigLiteralTypeNode,
-        raw: JsigLiteralTypeNode,
         stack: Array<String | Number>
     ) => JsigLiteralTypeNode
 }

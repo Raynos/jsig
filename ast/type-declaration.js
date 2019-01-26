@@ -1,6 +1,6 @@
 'use strict';
 
-/* !@jsig */
+/* @jsig */
 
 var uuid = require('uuid');
 var assert = require('assert');
@@ -56,7 +56,7 @@ function GenericReplacer(node, genericNames) {
 
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
     if (ast.type === 'typeLiteral') {
-        return this.replaceTypeLiteral(ast, raw, stack);
+        return this.replaceTypeLiteral(ast, stack);
     } else if (ast.type === 'genericLiteral') {
         // TODO: mark the generics in the genericLiteral itself ?
         return ast;
@@ -66,7 +66,7 @@ GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
 };
 
 GenericReplacer.prototype.replaceTypeLiteral =
-function replaceTypeLiteral(ast, raw, stack) {
+function replaceTypeLiteral(ast, stack) {
     if (this.knownGenerics.indexOf(ast.name) === -1) {
         return ast;
     }

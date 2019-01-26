@@ -463,7 +463,6 @@ JSIGSnippet.test('narrowing based on string literals fields', {
     assert.end();
 });
 
-
 JSIGSnippet.test('narrowing based on nested string literals fields', {
     snippet: function m() {/*
         if (obj.obj.foo === "foo") {
