@@ -23,6 +23,7 @@ var CommentNode = require('./comment.js');
 var DefaultExportNode = require('./default-export.js');
 var FunctionParameterNode = require('./function-parameter.js');
 var MacroLiteralNode = require('./macro-literal.js');
+var InferredLiteral = require('./inferred-literal.js');
 
 module.exports = {
     CONFIG: ASTConfig,
@@ -85,5 +86,8 @@ module.exports = {
     },
     macroLiteral: function macroLiteral(macroName, macroFile) {
         return new MacroLiteralNode(macroName, macroFile);
+    },
+    inferredLiteral: function inferredLiteral(name) {
+        return new InferredLiteral(name);
     }
 };

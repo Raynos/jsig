@@ -1,13 +1,14 @@
 import { JsigLiteralTypeNode } from "./literal.hjs"
 import { JsigGenericLiteralNode } from "./generic.hjs"
 import { JsigLocationLiteralNode } from "./location-literal.hjs"
+import { JsigFunctionParameterNode } from "./function-parameter.hjs"
 import { JsigType } from "./index.hjs"
 
 interface JsigFunctionNode {
     type: "function',
-    args: Array<JsigType>,
+    args: Array<JsigFunctionParameterNode>,
     result: JsigType,
-    thisArg: JsigType | null,
+    thisArg: JsigFunctionParameterNode | null,
     brand: String,
     specialKind: String | null,
     _raw: JsigFunctionNode | null,
@@ -22,8 +23,8 @@ FunctionNode : (this: JsigFunctionNode, opts: {
     label?: String,
     optional?: Boolean,
     result: JsigType,
-    args?: Array<JsigType>,
-    thisArg?: JsigType,
+    args?: Array<JsigFunctionParameterNode>,
+    thisArg?: JsigFunctionParameterNode,
     brand?: String,
     specialKind?: String,
     generics?: Array<String>

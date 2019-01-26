@@ -18,6 +18,7 @@ import { JsigRenamedLiteralNode } from "./renamed-literal.hjs"
 import { JsigCommentNode } from "./comment.hjs"
 import { JsigDefaultExportNode } from "./default-export.hjs"
 import { JsigMacroLiteralNode } from "./macro-literal.hjs"
+import { JsigInferredLiteral } from "./inferred-literal.hjs"
 
 type JsigType : {}
 
@@ -79,8 +80,8 @@ export default {
         label?: String,
         optional?: Boolean,
         result: JsigType,
-        args?: Array<JsigType>,
-        thisArg?: JsigType,
+        args?: Array<JsigFunctionParameterNode>,
+        thisArg?: JsigFunctionParameterNode,
         brand?: String,
         specialKind?: String,
         generics?: Array<String>
@@ -102,5 +103,6 @@ export default {
     ) => JsigRenamedLiteralNode,
     comment: (String) => JsigCommentNode,
     defaultExport: (JsigType) => JsigDefaultExportNode,
-    macroLiteral: (String, String) => JsigMacroLiteralNode
+    macroLiteral: (String, String) => JsigMacroLiteralNode,
+    inferredLiteral: (String) => JsigInferredLiteral
 }
