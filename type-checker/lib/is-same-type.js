@@ -99,7 +99,7 @@ function isSameType(left, right) {
 
         return true;
     } else if (left.type === 'valueLiteral') {
-        if (left.name !== right.name) {
+        if (left.value !== right.value) {
             // console.log('VALUE WEIRD');
             return false;
         }
