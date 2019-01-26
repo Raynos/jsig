@@ -219,7 +219,7 @@ TypeCheckBinary.prototype.check = function check() {
     }
 
     /* eslint-disable no-process-env */
-    if (process.env.TRACE) {
+    if (process.env.TRACE || this.options.trace) {
         this.log(this.checker.prettyPrintAllErrorsWithTrace());
     } else {
         this.log(this.checker.prettyPrintAllErrors());
