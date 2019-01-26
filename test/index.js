@@ -44,6 +44,7 @@ require('./unit/boolean-logic.js');
 require('./unit/dictionaries.js');
 require('./unit/friendly-error-messages.js');
 require('./unit/generic-templates.js');
+require('./unit/scenario.batch-client.js');
 
 require('./scenario/batch-client-constructor.js');
 require('./scenario/batch-client-methods.js');
