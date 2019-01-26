@@ -223,6 +223,12 @@ function loadLanguageIdentifiers() {
     );
 };
 
+/*
+    Error is a global type, it must be preloaded into every
+    other type table for resolution to work. Currently it's the
+    only global type as the virtual types are never referenced but
+    are instead builtins that are not resolved to anything else.
+*/
 TypeChecker.prototype.loadJavaScriptIntoIndexTable =
 function loadJavaScriptIntoIndexTable(indexTable) {
     var before = this.errors.length;
@@ -505,6 +511,11 @@ function getDefinitionFilePath(packageName) {
     );
 };
 
+/*
+    definitions folder is preloaded and it contains the types for any
+    require calls that you might invoke. This allows you to define the
+    type of third party dependencies.
+*/
 TypeChecker.prototype.preloadDefinitions =
 function preloadDefinitions() {
     var i = 0;
@@ -543,6 +554,12 @@ function preloadDefinitions() {
     }
 };
 
+/*
+    The globals file allows you to define any global variables that
+    exist in your environment outside of ES5.
+
+    For example `process` in nodejs.
+*/
 TypeChecker.prototype.preloadGlobals =
 function preloadGlobals() {
     if (this.previousChecker) {

@@ -331,6 +331,11 @@ function setModuleExportsNode(astNode) {
         }
     }
 
+    /*
+    If `module.exports = someFunction` then grab the function identifier
+    try to resolve the type of `someFunction`; aka is it defined in the header
+    file, if so then that is the type of module.exports.
+    */
     if (moduleExports) {
         this.moduleExportsNode = moduleExports.expression.right;
         if (this.moduleExportsNode.type === 'Identifier') {
@@ -375,6 +380,13 @@ function setHasModuleExports(bool) {
     this.hasModuleExports = bool;
 };
 
+/*
+    Check to see if this module has exported everything its supposed to.
+
+    In case the module.exports type is an object and the source code uses
+    the `exports.foo = bar;` pattern of multiple exports instead of the singular
+    `module.exports = { ... }` pattern.
+*/
 ProgramMeta.prototype.hasFullyExportedType =
 function hasFullyExportedType() {
     if (this.hasModuleExports) {
