@@ -2076,16 +2076,14 @@ function verifyLogicalExpression(node) {
     return computeSmallestUnion(node, t1, t2);
 };
 
-function getFunctionName(node) {
-    return node.id ? node.id.name : '(anonymous)';
-}
-
 ASTVerifier.prototype.verifyFunctionExpression =
 function verifyFunctionExpression(node) {
+    var funcName = this.meta.getFunctionName(node);
+
     var potentialType = this.meta.currentExpressionType;
     if (!potentialType) {
         var err = Errors.UnTypedFunctionExpressionFound({
-            funcName: getFunctionName(node),
+            funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -2114,7 +2112,7 @@ function verifyFunctionExpression(node) {
         )
     ) {
         err = Errors.UnTypedFunctionExpressionFound({
-            funcName: getFunctionName(node),
+            funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -2129,7 +2127,7 @@ function verifyFunctionExpression(node) {
         err = Errors.UnexpectedFunction({
             expected: this.meta.serializeType(potentialType),
             actual: 'Function',
-            funcName: getFunctionName(node),
+            funcName: funcName,
             loc: node.loc,
             line: node.loc.start.line
         });
@@ -2299,7 +2297,7 @@ function _checkFunctionType(node, defn) {
             var err = Errors.UnexpectedFunction({
                 expected: this.meta.serializeType(defn),
                 actual: 'Function',
-                funcName: getFunctionName(node),
+                funcName: this.meta.getFunctionName(node),
                 loc: node.loc,
                 line: node.loc.start.line
             });
@@ -2324,7 +2322,7 @@ function _checkFunctionType(node, defn) {
         if (!anyFunction) {
             // TODO: actually show branches & originalErrors
             err = Errors.UnexpectedFunction({
-                funcName: getFunctionName(node),
+                funcName: this.meta.getFunctionName(node),
                 expected: this.meta.serializeType(currType),
                 actual: this.meta.serializeType(JsigAST.literal('Function')),
                 loc: node.loc,
@@ -2353,7 +2351,7 @@ function _verifyFunctionType(node, defn) {
     var err;
     if (node.params.length > defn.args.length) {
         err = Errors.TooManyArgsInFunc({
-            funcName: getFunctionName(node),
+            funcName: this.meta.getFunctionName(node),
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
             loc: node.loc,
@@ -2363,7 +2361,7 @@ function _verifyFunctionType(node, defn) {
         return null;
     } else if (node.params.length < defn.args.length) {
         err = Errors.TooFewArgsInFunc({
-            funcName: getFunctionName(node),
+            funcName: this.meta.getFunctionName(node),
             actualArgs: node.params.length,
             expectedArgs: defn.args.length,
             loc: node.loc,
