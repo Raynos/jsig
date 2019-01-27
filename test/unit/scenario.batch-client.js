@@ -80,3 +80,34 @@ JSIGSnippet.test('good working new call', {
 
     assert.end();
 });
+
+JSIGSnippet.test.skip('good assign method as func expression', {
+    fullInference: true,
+    snippet: function m() {/*
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+
+            this.value = '';
+        }
+
+        BatchClient.prototype._sendRequest =
+        function _sendRequest(foo) {
+            this.value = foo;
+        };
+
+        module.exports = BatchClient;
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    channel: T0,\n' +
+        '    hosts: T1,\n' +
+        '    value: String\n' +
+        '}, channel: T0, hosts: T1) => void'
+    );
+
+    assert.end();
+});

@@ -230,15 +230,7 @@ function verifyFunctionDeclaration(node) {
     }
 
     var token = this.meta.currentScope.getVar(funcName);
-    if (!token) {
-        err = Errors.UnTypedFunctionFound({
-            funcName: funcName,
-            loc: node.loc,
-            line: node.loc.start.line
-        });
-        this.meta.addError(err);
-        return null;
-    }
+    assert(token, 'expected funcName(' + funcName + ') to exist');
 
     var isFunction = token.defn.type === 'function';
     if (!isFunction && token.defn.type !== 'intersectionType' &&

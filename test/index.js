@@ -45,6 +45,8 @@ require('./unit/dictionaries.js');
 require('./unit/friendly-error-messages.js');
 require('./unit/generic-templates.js');
 require('./unit/scenario.batch-client.js');
+require('./unit/try-catch.js');
+require('./unit/function.js');
 
 require('./scenario/batch-client-constructor.js');
 require('./scenario/batch-client-methods.js');
