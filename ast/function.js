@@ -5,6 +5,7 @@
 var assert = require('assert');
 var uuid = require('uuid');
 
+var LiteralTypeNode = require('./literal.js');
 var LocationLiteralNode = require('./location-literal.js');
 var JsigASTReplacer = require('../type-checker/lib/jsig-ast-replacer.js');
 
@@ -37,10 +38,12 @@ function FunctionNode(opts) {
 
 FunctionNode.prototype._findGenerics =
 function _findGenerics(generics) {
+    // console.log('_findGenerics', generics);
     var replacer = new GenericReplacer(this, generics);
     var astReplacer = new JsigASTReplacer(replacer, true);
     astReplacer.inlineReferences(this, this, []);
 
+    // console.log('seenGenerics?', replacer.seenGenerics);
     return replacer.seenGenerics;
 };
 
@@ -56,7 +59,6 @@ function GenericReplacer(node, generics) {
 }
 
 GenericReplacer.prototype.replace = function replace(ast, raw, stack) {
-    // console.log('GenericReplacer.replace()', ast);
     if (ast.type === 'typeLiteral') {
         return this.replaceTypeLiteral(ast, stack);
     } else if (ast.type === 'genericLiteral') {
@@ -78,7 +80,13 @@ function replaceTypeLiteral(ast, stack) {
         new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
     );
 
-    ast.isGeneric = true;
-    ast.genericIdentifierUUID = identifierUUID;
-    return ast;
+    var copyAst = new LiteralTypeNode(ast.name, ast.builtin, {
+        line: ast.line,
+        loc: ast.loc,
+        concreteValue: ast.concreteValue
+    });
+
+    copyAst.isGeneric = true;
+    copyAst.genericIdentifierUUID = identifierUUID;
+    return copyAst;
 };
