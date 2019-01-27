@@ -20,8 +20,8 @@ LiteralTypeNode : (
     opts?: {
         label?: String,
         optional?: Boolean,
-        concreteValue?: String,
-        line?: Number,
-        loc?: LineLocation
+        concreteValue?: String | null,
+        line?: Number | null,
+        loc?: LineLocation | null
     }
 ) => void
