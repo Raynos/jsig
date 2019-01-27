@@ -2140,7 +2140,7 @@ function verifyFunctionExpression(node) {
         potentialType.name === '%Mixed%%UnknownExportsField' &&
         this.meta.checkerRules.allowUnusedFunction
     ) {
-        return null;
+        return JsigAST.literal('%Mixed%%AllowedUnusedfunction', true);
     }
 
     // If we are assigning onto a Mixed%%OpenField then
