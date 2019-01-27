@@ -26,6 +26,8 @@ function ASTVerifier(meta, checker, fileName) {
     this.checker = checker;
     this.fileName = fileName;
     this.folderName = path.dirname(fileName);
+
+    this._cachedFunctionExpressionTypes = Object.create(null);
 }
 
 /*eslint complexity: [2, 50] */
@@ -2135,7 +2137,15 @@ function verifyFunctionExpression(node) {
         return null;
     }
 
-    return this._checkFunctionType(node, potentialType);
+    var wantedTypeText = this.meta.serializeType(potentialType);
+    var cacheKey = funcName + '~type:~' + wantedTypeText;
+    if (cacheKey in this._cachedFunctionExpressionTypes) {
+        return this._cachedFunctionExpressionTypes[cacheKey];
+    }
+
+    var funcType = this._checkFunctionType(node, potentialType);
+    this._cachedFunctionExpressionTypes[cacheKey] = funcType;
+    return funcType;
 };
 
 ASTVerifier.prototype.verifyContinueStatement =
