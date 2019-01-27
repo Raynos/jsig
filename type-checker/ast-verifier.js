@@ -1245,6 +1245,50 @@ function _checkFunctionCallArgument(node, defn, index, isOverload) {
     return true;
 };
 
+ASTVerifier.prototype._buildCannotCallGenericError =
+function _buildCannotCallGenericError(oldDefn, node) {
+    var args = [];
+    if (oldDefn.thisArg) {
+        var objType = null;
+        if (node.type === 'NewExpression') {
+            objType = oldDefn.thisArg;
+        } else if (node.type === 'CallExpression') {
+            objType = this.meta.tryResolveType(
+                node.callee.object, null
+            );
+        }
+        if (objType) {
+            args.push('this: ' + this.meta.serializeType(objType));
+        } else {
+            args.push('<TypeError for js expr `' +
+                this.meta.serializeAST(node.callee.object) + '`>'
+            );
+        }
+    }
+    for (var i = 0; i < node.arguments.length; i++) {
+        var argType = this.meta.tryResolveType(
+            node.arguments[i], null
+        );
+        if (argType) {
+            args.push(this.meta.serializeType(argType));
+        } else {
+            args.push('<TypeError for js expr `' +
+                this.meta.serializeAST(node.arguments[i]) + '`>'
+            );
+        }
+    }
+
+    var actualStr = '[' + args.join(', ') + ']';
+
+    this.meta.addError(Errors.CannotCallGenericFunction({
+        funcName: this.meta.serializeAST(node.callee),
+        expected: this.meta.serializeType(oldDefn),
+        actual: actualStr,
+        loc: node.loc,
+        line: node.loc.start.line
+    }));
+};
+
 ASTVerifier.prototype._checkFunctionCallExpr =
 function _checkFunctionCallExpr(node, defn, isOverload) {
     var err;
@@ -1254,47 +1298,13 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
         var oldDefn = defn;
         defn = this.meta.resolveGeneric(defn, node);
         if (!defn) {
-            var args = [];
-            if (oldDefn.thisArg) {
-                var objType = this.meta.tryResolveType(
-                    node.callee.object, null
-                );
-                if (objType) {
-                    args.push('this: ' + this.meta.serializeType(objType));
-                } else {
-                    args.push('<TypeError for js expr `' +
-                        this.meta.serializeAST(node.callee.object) + '`>'
-                    );
-                }
-            }
-            for (var i = 0; i < node.arguments.length; i++) {
-                var argType = this.meta.tryResolveType(
-                    node.arguments[i], null
-                );
-                if (argType) {
-                    args.push(this.meta.serializeType(argType));
-                } else {
-                    args.push('<TypeError for js expr `' +
-                        this.meta.serializeAST(node.arguments[i]) + '`>'
-                    );
-                }
-            }
-
-            var actualStr = '[' + args.join(', ') + ']';
-
-            this.meta.addError(Errors.CannotCallGenericFunction({
-                funcName: this.meta.serializeAST(node.callee),
-                expected: this.meta.serializeType(oldDefn),
-                actual: actualStr,
-                loc: node.loc,
-                line: node.loc.start.line
-            }));
+            this._buildCannotCallGenericError(oldDefn, node);
             return null;
         }
     }
 
     var minArgs = defn.args.length;
-    for (i = 0; i < defn.args.length; i++) {
+    for (var i = 0; i < defn.args.length; i++) {
         if (defn.args[i].optional) {
             minArgs--;
         }
@@ -1658,10 +1668,12 @@ function verifyNewExpression(node) {
 
     // Handle generic constructors
     if (fnType.generics.length > 0) {
+        var oldDefn = fnType;
         fnType = this.meta.resolveGeneric(
             fnType, node, this.meta.currentExpressionType
         );
         if (!fnType) {
+            this._buildCannotCallGenericError(oldDefn, node);
             return null;
         }
 
