@@ -313,6 +313,7 @@ function verifyExpressionStatement(node) {
 /*eslint max-statements: [2, 130]*/
 ASTVerifier.prototype.verifyAssignmentExpression =
 function verifyAssignmentExpression(node) {
+    var errCount = this.meta.countErrors();
     // console.log("verifyAssignmentExpression()",
     //    this.meta.serializeAST(node));
     if (
@@ -365,6 +366,7 @@ function verifyAssignmentExpression(node) {
     afterError = this.meta.countErrors();
 
     if (!rightType) {
+        this.meta.sanityCheckErrorsState(errCount);
         return null;
     }
 
