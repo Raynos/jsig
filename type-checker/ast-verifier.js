@@ -182,34 +182,51 @@ function verifyProgram(node) {
     }
 };
 
+ASTVerifier.prototype.tryInferFunctionType =
+function tryInferFunctionType(untypedFunc) {
+    if (untypedFunc.attemptedStaticInference) {
+        // TODO: if we hav succeeded here then it should already
+        // be in the type or scope table or whatever.
+        // we just do this check to avoid "double failing" the
+        // inference and reporting the same error twice.
+        return null;
+    }
+
+    var node = untypedFunc.node;
+    var funcType = this.meta.inferFunctionType(node);
+    untypedFunc.attemptedStaticInference = true;
+
+    if (!funcType) {
+        var err = Errors.UnTypedFunctionFound({
+            funcName: untypedFunc.name,
+            loc: node.loc,
+            line: node.loc.start.line
+        });
+        this.meta.addError(err);
+        return null;
+    }
+
+    var newType = this._checkFunctionType(node, funcType);
+    // If the function checks out and does not blow up.
+    if (newType) {
+        var success = this.meta.tryUpdateFunction(untypedFunc.name, newType);
+        if (!success) {
+            // TODO: should we log an error ?
+            assert(false, 'failed to update inferred function');
+        }
+    }
+
+    return newType;
+};
+
 ASTVerifier.prototype.verifyFunctionDeclaration =
 function verifyFunctionDeclaration(node) {
-    var funcName = getFunctionName(node);
+    var funcName = this.meta.getFunctionName(node);
 
     var err;
-    if (this.meta.currentScope.getUntypedFunction(funcName)) {
-        var funcType = this.meta.inferFunctionType(node);
-        if (!funcType) {
-            err = Errors.UnTypedFunctionFound({
-                funcName: funcName,
-                loc: node.loc,
-                line: node.loc.start.line
-            });
-            this.meta.addError(err);
-            return null;
-        }
-
-        var newType = this._checkFunctionType(node, funcType);
-        // If the function checks out and does not blow up.
-        if (newType) {
-            var success = this.meta.tryUpdateFunction(funcName, newType);
-            if (!success) {
-                // TODO: should we log an error ?
-                assert(false, 'failed to update inferred function');
-            }
-        }
-
-        return newType;
+    var untypedFunc = this.meta.currentScope.getUntypedFunction(funcName);
+    if (untypedFunc) {
+        return this.tryInferFunctionType(untypedFunc);
     }
 
     var token = this.meta.currentScope.getVar(funcName);
@@ -694,6 +711,15 @@ function verifyIdentifier(node) {
         var bool = this.meta.tryUpdateFunction(node.name, exprType);
         if (bool) {
             return exprType;
+        }
+    }
+
+    // if this identifier is a currently unknown function
+    var unTypedFunc = this.meta.currentScope.getUntypedFunction(node.name);
+    if (unTypedFunc) {
+        var identifierType = this.tryInferFunctionType(unTypedFunc);
+        if (identifierType) {
+            return identifierType;
         }
     }
 
