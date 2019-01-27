@@ -28,6 +28,10 @@ var serializers = {
 module.exports = serialize;
 
 function serialize(ast, opts) {
+    if (!ast) {
+        return '';
+    }
+
     opts = opts || { indent: 0, lineStart: 0 };
 
     if (ast._raw) {
