@@ -50,3 +50,33 @@ JSIGSnippet.test('good calling string x in constructor', {
 
     assert.end();
 });
+
+JSIGSnippet.test('good working new call', {
+    fullInference: true,
+    snippet: function m() {/*
+        module.exports = BatchClient;
+
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+
+            this.key = new Buffer('KEY_VALUE');
+        }
+
+        function Buffer(str) {
+            this.str = str;
+        }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    channel: T0,\n' +
+        '    hosts: T1,\n' +
+        '    key: { str: String }\n' +
+        '}, channel: T0, hosts: T1) => void'
+    );
+
+    assert.end();
+});

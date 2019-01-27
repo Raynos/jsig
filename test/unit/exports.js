@@ -458,7 +458,7 @@ JSIGSnippet.test('exporting a function expr is error', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.untyped-function-expr-found');
-    assert.equal(err.funcName, 'FooBar');
+    assert.equal(err.funcName, '(expression @ 1 : 25) FooBar');
     assert.equal(err.line, 1);
 
     assert.end();

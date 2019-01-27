@@ -284,7 +284,7 @@ JSIGSnippet.test('cannot pass extra func properties for empty object', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.untyped-function-expr-found');
-    assert.equal(err.funcName, 'foo');
+    assert.equal(err.funcName, '(expression @ 7 : 9) foo');
     assert.equal(err.line, 7);
 
     assert.end();

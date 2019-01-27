@@ -49,7 +49,7 @@ JSIGSnippet.test('unused function expr are invalid', {
 
     var err = meta.errors[0];
     assert.equal(err.type, 'jsig.verify.untyped-function-expr-found');
-    assert.equal(err.funcName, 'b');
+    assert.equal(err.funcName, '(expression @ 3 : 12) b');
     assert.equal(err.line, 3);
 
     assert.end();
