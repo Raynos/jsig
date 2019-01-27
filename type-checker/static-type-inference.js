@@ -41,6 +41,7 @@ function inferFunctionType(node) {
 
 StaticTypeInference.prototype.inferConstructorType =
 function inferConstructorType(node) {
+    var errorCount = this.meta.countErrors();
     var args = [];
     for (var i = 0; i < node.params.length; i++) {
         args.push(JsigAST.param(
@@ -74,11 +75,9 @@ function inferConstructorType(node) {
         if (!success) {
             // Inference failed !!
             // TODO: complain about inference failing with an error?
-            assert(true, 'inference failed');
+            this.meta.sanityCheckErrorsState(errorCount);
+            return null;
         }
-
-        // var funcType = this.meta.currentScope.getVar(funcName);
-        // console.log('inferred type', this.meta.serializeType(funcType.defn));
 
         var funcScopes = this.meta.currentScope.getKnownFunctionScope(
             funcName
@@ -133,6 +132,11 @@ function inferConstructorType(node) {
             thisArg: newFuncType.thisArg,
             generics: replacer.generics
         });
+
+        // console.log('static type inference', {
+        //     generics: finalFuncType.generics,
+        //     funcType: this.meta.serializeType(finalFuncType)
+        // });
 
         return finalFuncType;
     }

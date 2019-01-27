@@ -483,9 +483,16 @@ ProgramMeta.prototype.getErrors =
 function getErrors() {
     return this.checker.getErrors();
 };
+
 ProgramMeta.prototype.setErrors =
 function setErrors(list) {
     this.checker.setErrors(list);
+};
+
+ProgramMeta.prototype.sanityCheckErrorsState =
+function sanityCheckErrorsState(count) {
+    var newCount = this.countErrors();
+    assert(newCount > count, 'expected errors to be reported');
 };
 
 ProgramMeta.prototype.checkSubType =

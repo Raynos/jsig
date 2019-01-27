@@ -393,8 +393,10 @@ function addFunction(id, node) {
 
     this.untypedFunctions[id] = {
         type: 'untyped-function',
+        name: id,
         node: node,
-        currentScope: this
+        currentScope: this,
+        attemptedStaticInference: false
     };
 };
 
@@ -557,8 +559,10 @@ FunctionScope.prototype.addFunction = function addFunction(id, node) {
 
     this.untypedFunctions[id] = {
         type: 'untyped-function',
+        name: id,
         node: node,
-        currentScope: this
+        currentScope: this,
+        attemptedStaticInference: false
     };
 };
 

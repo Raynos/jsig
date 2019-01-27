@@ -37,6 +37,7 @@ function resolveGeneric(funcType, node, currentExpressionType) {
         this.meta, copyFunc, node, currentExpressionType
     );
     var knownGenericTypes = resolver.resolve();
+    // console.log('what have we found', knownGenericTypes);
     if (!knownGenericTypes) {
         return null;
     }
@@ -107,6 +108,7 @@ function GenericCallResolver(meta, copyFunc, node, currentExpressionType) {
 
 GenericCallResolver.prototype.resolveArg =
 function resolveArg(stack) {
+    // console.log('resolveArg()', stack);
     var referenceNode = this.node.arguments[stack[1]];
     if (!referenceNode) {
         return null;
@@ -266,8 +268,9 @@ function resolveLocationNode(locationNode) {
         assert(newType, 'newType must exist in fallback');
     }
 
+    // do not bail if we cannot resolve a generic location.
     if (!newType) {
-        return false;
+        return true;
     }
 
     // If we are resolving the location of a generic inside
@@ -324,6 +327,7 @@ GenericCallResolver.prototype.resolve = function resolve() {
     var originalLength = argList.length;
     for (i = 0; i < argList.length; i++) {
         var locationNode = argList[i];
+        // console.log('attempt resolve', argList[i]);
 
         // If we want to resolve an argument that is an untyped
         // function expression, then we should move this location
