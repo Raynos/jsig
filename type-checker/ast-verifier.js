@@ -315,9 +315,11 @@ function verifyAssignmentExpression(node) {
     ) {
         this.meta.currentScope.setWritableTokenLookup();
     }
+
     var beforeError = this.meta.countErrors();
     var leftType = this.meta.verifyNode(node.left, null);
     var afterError = this.meta.countErrors();
+
     if (
         node.left.type === 'Identifier' ||
         (node.left.type === 'MemberExpression' &&
@@ -337,6 +339,13 @@ function verifyAssignmentExpression(node) {
 
     var rightType;
     beforeError = this.meta.countErrors();
+
+    if (leftType.type === 'typeLiteral' && leftType.builtin &&
+        leftType.name === '%Mixed%%MethodInferrenceField'
+    ) {
+        // Here we want to do method inference on the function expression
+        console.log('infer function expression');
+    }
 
     // When assigning an untyped function, try to update function
     if (node.right.type === 'Identifier' &&
@@ -497,7 +506,7 @@ function verifyAssignmentExpression(node) {
             this.meta.currentScope.forceUpdateVar(varName, newObjType);
         } else {
             // TODO: anything to do here?
-            // assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
+            assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
         }
     }
 
@@ -2751,7 +2760,6 @@ function _isAssigningMethodOnExportsPrototype(node) {
         node.object.property.name === 'prototype' &&
         node.object.object.type === 'Identifier'
     ) {
-
         var expected = this.meta.currentScope.getExportedIdentifier();
         var actual = node.object.object.name;
 
@@ -2824,6 +2832,7 @@ function _findPropertyInObject(
         // If open and accessing outside of assignment
         // Then accessing any unknown field returns undefined
 
+        // TODO: do we want arbitrary field access for open objects ?
         return JsigAST.value('undefined');
     }
 
@@ -2838,6 +2847,23 @@ function _findPropertyInObject(
         return this._findTypeInContainer(node, objType, propType);
     }
 
+    if (this.meta.currentScope.type === 'file' &&
+        node.object.type === 'MemberExpression' &&
+        node.object.property.name === 'prototype' &&
+        node.object.object.type === 'Identifier'
+    ) {
+        var constructorIdentifier = node.object.object.name;
+        var constructorVar = this.meta.currentScope
+            .getVar(constructorIdentifier);
+
+        // this prototype assignment has a well-typed constructor and
+        // it's type has been inferred then we can infer methods as well.
+        if (constructorVar && constructorVar.defn.type === 'function' &&
+            constructorVar.defn.inferred
+        ) {
+            return JsigAST.literal('%Mixed%%MethodInferrenceField', true);
+        }
+    }
     var err = this._createNonExistantFieldError(node, jsigType, propertyName);
     this.meta.addError(err);
     return null;
