@@ -90,7 +90,7 @@ function replaceTypeLiteral(ast, stack) {
 
     // if this has already been marked as generic
     var identifierUUID;
-    if (ast.isGeneric) {
+    if (ast.isGeneric && ast.genericIdentifierUUID !== null) {
         identifierUUID = ast.genericIdentifierUUID;
         this.seenGenerics.push(
             new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
