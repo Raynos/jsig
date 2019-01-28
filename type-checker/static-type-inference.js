@@ -141,7 +141,8 @@ function inferConstructorType(node) {
             result: newFuncType.result,
             args: newFuncType.args,
             thisArg: closedThisArg,
-            generics: replacer.generics
+            generics: replacer.generics,
+            inferred: true
         });
 
         // console.log('static type inference', {
