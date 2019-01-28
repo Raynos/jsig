@@ -173,7 +173,8 @@ function prettyPrintError(checker, error, opts) {
         }
 
         var failingLines = getFailingLines(sourceLines, error.loc, {
-            prefix: opts.prefix
+            prefix: opts.prefix,
+            errorLineContext: checker.errorLineContext
         });
 
         parts.push(failingLines);
@@ -198,7 +199,8 @@ function prettyPrintError(checker, error, opts) {
         };
 
         failingLines = getFailingLines(sourceLines, loc, {
-            prefix: opts.prefix
+            prefix: opts.prefix,
+            errorLineContext: checker.errorLineContext
         });
 
         parts.push(failingLines);
@@ -243,7 +245,8 @@ function prettyPrintTrace(checker, trace, opts) {
     if (trace.node.loc) {
         var meta = checker.getOrCreateMeta(trace.fileName);
         var failingLines = getFailingLines(meta.sourceLines, trace.node.loc, {
-            prefix: opts.prefix
+            prefix: opts.prefix,
+            errorLineContext: checker.errorLineContext
         });
 
         parts.push(failingLines);
@@ -272,13 +275,19 @@ function prettyPrintTrace(checker, trace, opts) {
 function getFailingLines(sourceLines, loc, opts) {
     var startLine = loc.start.line - 1;
     var endLine = loc.end.line - 1;
+    var errorLineContext = opts.errorLineContext;
 
-    var prevLine = sourceLines[startLine - 1] || '';
-    var nextLine = sourceLines[endLine + 1] || '';
+    var segments = [];
 
-    var segments = [
-        opts.prefix + String(startLine) + '. ' + TermColor.gray(prevLine)
-    ];
+    for (var i = 0; i < errorLineContext; i++) {
+        var offset = errorLineContext - i;
+
+        var prevLine = sourceLines[startLine - offset] || '';
+        segments.push(
+            opts.prefix + String(startLine - offset + 1) +
+            '. ' + TermColor.gray(prevLine)
+        );
+    }
 
     var failLine;
     var startColumn;
@@ -307,7 +316,7 @@ function getFailingLines(sourceLines, loc, opts) {
             TermColor.red(failLine.slice(startColumn, failLine.length))
         );
 
-        for (var i = startLine + 1; i < endLine; i++) {
+        for (i = startLine + 1; i < endLine; i++) {
             segments.push(
                 opts.prefix +
                 String(i + 1) + '. ' + TermColor.red(sourceLines[i])
@@ -324,10 +333,15 @@ function getFailingLines(sourceLines, loc, opts) {
         );
     }
 
-    segments.push(
-        opts.prefix +
-        String(endLine + 2) + '. ' + TermColor.gray(nextLine)
-    );
+    for (i = 0; i < errorLineContext; i++) {
+        offset = i;
+
+        var nextLine = sourceLines[endLine + 1 + i] || '';
+        segments.push(
+            opts.prefix +
+            String(endLine + 2 + i) + '. ' + TermColor.gray(nextLine)
+        );
+    }
 
     return segments.join('\n');
 }

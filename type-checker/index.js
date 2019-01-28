@@ -34,6 +34,7 @@ TypeChecker.compile = function compile(fileName, options) {
 
 module.exports = TypeChecker;
 
+/*eslint complexity: [2, 15]*/
 function TypeChecker(entryFile, options) {
     options = options || {};
 
@@ -61,6 +62,7 @@ function TypeChecker(entryFile, options) {
     this.optin = options.optin || false;
     this.fullInference = options.fullInference || false;
     this.previousChecker = options.previousChecker || null;
+    this.errorLineContext = options.context || 1;
 
     this.errors = [];
     this.traces = [];

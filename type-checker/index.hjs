@@ -25,6 +25,7 @@ interface TypeChecker {
     optin: Boolean,
     fullInference: Boolean,
     previousChecker: TypeChecker | null,
+    errorLineContext: Number,
 
     errors: Array<Error>,
     traces: Array<TraceInfo>,
@@ -75,6 +76,7 @@ type TypeCheckerOpts : {
     globalsFile?: String,
     optin?: Boolean,
     fullInference?: Boolean,
+    context?: Number,
     previousChecker?: TypeChecker
 }
 

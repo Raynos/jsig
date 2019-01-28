@@ -22,6 +22,7 @@ function TypeCheckOptions() {
     this.fullInference = false;
     this.trace = false;
     this.fullTrace = false;
+    this.context = 1;
 }
 
 TypeCheckOptions.prototype.mergeWith =
@@ -46,6 +47,9 @@ function mergeWith(args) {
     }
     if ('fullTrace' in args) {
         this.fullTrace = args.fullTrace;
+    }
+    if ('context' in args) {
+        this.context = args.context;
     }
 };
 
@@ -80,6 +84,10 @@ TypeCheckBinary.args.add('definitions', {
 TypeCheckBinary.args.add('globalsFile', {
     help: 'path to file defining global types',
     type: 'filePath'
+});
+TypeCheckBinary.args.add('context', {
+    help: 'lines of source code to print around errors',
+    type: 'number'
 });
 TypeCheckBinary.args.add('ignore', {
     help: 'directory to ignore',
@@ -202,7 +210,8 @@ TypeCheckBinary.prototype.check = function check() {
         globalsFile: this.options.globalsFile || null,
         optin: this.options.optin || false,
         fullInference: this.options.fullInference,
-        previousChecker: this.previousChecker
+        previousChecker: this.previousChecker,
+        context: this.options.context
     };
     this.checker = new TypeChecker(this.entryFiles, opts);
 
