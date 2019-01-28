@@ -2767,37 +2767,37 @@ ASTVerifier.prototype._findPropertyInObject =
 function _findPropertyInObject(
     node, jsigType, propertyName, isExportsObject, isDictionaryType
 ) {
-    if (jsigType.type !== 'object') {
-        if (this.meta.checkerRules.partialExport &&
-            this._isAssigningMethodOnExportsPrototype(node)
-        ) {
-            return JsigAST.literal('%Mixed%%UnknownExportsField', true);
-        }
+    // Handle tuple -> array mis-inference
+    if (jsigType.type === 'tuple' && jsigType.inferred &&
+        node.object.type === 'Identifier'
+    ) {
+        var identifierName = node.object.name;
+        var token = this.meta.currentScope.getVar(identifierName);
 
-        // Handle tuple -> array mis-inference
-        if (jsigType.type === 'tuple' && jsigType.inferred &&
-            node.object.type === 'Identifier'
-        ) {
-            var identifierName = node.object.name;
-            var token = this.meta.currentScope.getVar(identifierName);
-
-            var self = this;
-            var newType = this._maybeConvertToArray(
-                token, identifierName, jsigType,
-                function verify(possibleArray) {
-                    return self._findPropertyInType(
-                        node, possibleArray, propertyName
-                    );
-                }
-            );
-
-            if (newType) {
-                return this._findPropertyInType(
-                    node, newType, propertyName
+        var self = this;
+        var newType = this._maybeConvertToArray(
+            token, identifierName, jsigType,
+            function verify(possibleArray) {
+                return self._findPropertyInType(
+                    node, possibleArray, propertyName
                 );
             }
-        }
+        );
 
+        if (newType) {
+            return this._findPropertyInType(
+                node, newType, propertyName
+            );
+        }
+    }
+
+    if (this.meta.checkerRules.partialExport &&
+        this._isAssigningMethodOnExportsPrototype(node)
+    ) {
+        return JsigAST.literal('%Mixed%%UnknownExportsField', true);
+    }
+
+    if (jsigType.type !== 'object') {
         this.meta.addError(Errors.NonObjectFieldAccess({
             loc: node.loc,
             line: node.loc.start.line,
@@ -2828,12 +2828,6 @@ function _findPropertyInObject(
     }
 
     if (isExportsObject && this.meta.checkerRules.partialExport) {
-        return JsigAST.literal('%Mixed%%UnknownExportsField', true);
-    }
-
-    if (this.meta.checkerRules.partialExport &&
-        this._isAssigningMethodOnExportsPrototype(node)
-    ) {
         return JsigAST.literal('%Mixed%%UnknownExportsField', true);
     }
 
