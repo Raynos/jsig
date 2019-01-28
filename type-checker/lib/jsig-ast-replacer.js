@@ -19,8 +19,6 @@ function inlineReferences(ast, rawAst, stack) {
     assert(Array.isArray(stack), 'must pass in a stack');
     var i;
 
-    // console.log('inlineReferences()', ast.type);
-
     if (ast.type === 'program') {
         var newStatements = [];
         stack.push('statements');

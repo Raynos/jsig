@@ -25,5 +25,11 @@ module.exports = InferredLiteral;
 function InferredLiteral(name) {
     this.type = 'inferredLiteral';
     this.name = name;
+    this.supertypes = [];
     this._raw = null;
 }
+
+InferredLiteral.prototype.markSubTypeConstraint =
+function markSubTypeConstraint(parent) {
+    this.supertypes.push(parent);
+};

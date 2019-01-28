@@ -38,11 +38,22 @@ function FunctionNode(opts) {
     }
 }
 
+FunctionNode.prototype.computeUniqueGenericNames =
+function computeUniqueGenericNames() {
+    var uniqueGenerics = [];
+    for (var i = 0; i < this.generics.length; i++) {
+        if (uniqueGenerics.indexOf(this.generics[i].name) === -1) {
+            uniqueGenerics.push(this.generics[i].name);
+        }
+    }
+
+    return uniqueGenerics;
+};
+
 FunctionNode.prototype._findGenerics =
 function _findGenerics(generics) {
-    // console.log('_findGenerics', generics);
     var replacer = new GenericReplacer(this, generics);
-    var astReplacer = new JsigASTReplacer(replacer, true);
+    var astReplacer = new JsigASTReplacer(replacer, true, true);
     astReplacer.inlineReferences(this, this, []);
 
     // console.log('seenGenerics?', replacer.seenGenerics);
@@ -77,7 +88,17 @@ function replaceTypeLiteral(ast, stack) {
         return ast;
     }
 
-    var identifierUUID = this.genericUUIDs[ast.name];
+    // if this has already been marked as generic
+    var identifierUUID;
+    if (ast.isGeneric) {
+        identifierUUID = ast.genericIdentifierUUID;
+        this.seenGenerics.push(
+            new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
+        );
+        return ast;
+    }
+
+    identifierUUID = this.genericUUIDs[ast.name];
     this.seenGenerics.push(
         new LocationLiteralNode(ast.name, stack.slice(), identifierUUID)
     );

@@ -340,13 +340,6 @@ function verifyAssignmentExpression(node) {
     var rightType;
     beforeError = this.meta.countErrors();
 
-    if (leftType.type === 'typeLiteral' && leftType.builtin &&
-        leftType.name === '%Mixed%%MethodInferrenceField'
-    ) {
-        // Here we want to do method inference on the function expression
-        console.log('infer function expression');
-    }
-
     // When assigning an untyped function, try to update function
     if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(node.right.name)
@@ -359,6 +352,14 @@ function verifyAssignmentExpression(node) {
             return null;
         }
         rightType = leftType;
+    } else if (leftType.type === 'typeLiteral' && leftType.builtin &&
+        leftType.name === '%Mixed%%MethodInferrenceField' &&
+        node.right.type === 'FunctionExpression'
+    ) {
+        // Here we want to do method inference on the function expression
+        // Attempt to infer the function type of node.right
+        var funcType = this.meta.inferFunctionType(node.right);
+        rightType = this.meta.verifyNode(node.right, funcType);
     } else {
         var exprType = leftType;
 
@@ -476,6 +477,28 @@ function verifyAssignmentExpression(node) {
         }
     }
 
+    // After assignment to prototype method with inferrence we must
+    // go and update the prototype `thisType` to contain the new method
+    if (assignmentSucceeded && leftType.type === 'typeLiteral' &&
+        leftType.builtin &&
+        leftType.name === '%Mixed%%MethodInferrenceField' &&
+        this.meta.currentScope.type === 'file' &&
+        node.left.type === 'MemberExpression' &&
+        node.left.object.type === 'MemberExpression' &&
+        node.left.object.property.name === 'prototype' &&
+        node.left.object.object.type === 'Identifier'
+    ) {
+        var constructorIdentifier = node.left.object.object.name;
+        var constructorVar = this.meta.currentScope
+            .getVar(constructorIdentifier);
+        var constructorThisArg = constructorVar.defn.thisArg.value;
+
+        var methodName = node.left.property.name;
+        constructorThisArg.keyValues.push(
+            JsigAST.keyValue(methodName, rightType)
+        );
+    }
+
     // If we assign to an open field we have to update the type
     // of the open object to track the new grown type
     if (isOpenField) {
@@ -505,8 +528,12 @@ function verifyAssignmentExpression(node) {
 
             this.meta.currentScope.forceUpdateVar(varName, newObjType);
         } else {
+            // This case might be hit when we do like `errors[i].foo = bar`
+            // because err is an open object and we cannot currently
+            // forceUpdate nested open objects ( like in an array).
+
             // TODO: anything to do here?
-            assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
+            // assert(false, 'Cannot forceUpdateVar() %Mixed%%OpenField');
         }
     }
 

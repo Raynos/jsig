@@ -148,7 +148,8 @@ JSIGSnippet.test('good assign method as func expression', {
     assert.equal(exported, '<T0, T1>(this: {\n' +
         '    channel: T0,\n' +
         '    hosts: T1,\n' +
-        '    value: String\n' +
+        '    value: String,\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
         '}, channel: T0, hosts: T1) => void'
     );
 

@@ -33,6 +33,9 @@ function serialize(ast, opts) {
     }
 
     opts = opts || { indent: 0, lineStart: 0 };
+    if (!opts.seen) {
+        opts.seen = [];
+    }
 
     if (ast._raw) {
         return serialize(ast._raw, opts);
@@ -44,7 +47,13 @@ function serialize(ast, opts) {
         throw new Error('unknown ast type: ' + ast.type);
     }
 
-    return fn(ast, opts);
+    if (opts.seen.indexOf(ast) !== -1) {
+        return '[Cyclic]';
+    }
+    opts.seen.push(ast);
+    var str = fn(ast, opts);
+    opts.seen.pop();
+    return str;
 }
 
 function serializeProgram(node, opts) {

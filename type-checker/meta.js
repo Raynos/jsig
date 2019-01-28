@@ -674,6 +674,19 @@ function tryUpdateFunction(name, newType) {
     return true;
 };
 
+ProgramMeta.prototype.tryRevertFunctionExpression =
+function tryRevertFunctionExpression(name, newFunctionType) {
+    var info = this.currentScope.getKnownFunctionScope(name);
+
+    // assert(!info || info.funcScopes.length === 1,
+    //     'expected only one function info obj');
+
+    // verifyNode() failed
+    if (info) {
+        this.currentScope.revertFunctionScope(name, newFunctionType);
+    }
+};
+
 ProgramMeta.prototype.tryRevertFunction =
 function tryRevertFunction(name, newFunctionType, untypedFunction) {
     var info = this.currentScope.getKnownFunctionScope(name);

@@ -22,5 +22,6 @@ interface JsigASTReplacer {
 JsigASTReplacer : (
     this: JsigASTReplacer,
     replacer: Replacer,
-    neverRaw?: Boolean
+    neverRaw?: Boolean,
+    replaceGeneric?: Boolean
 ) => void

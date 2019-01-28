@@ -1,8 +1,12 @@
+import { JsigType } from "./index.hjs"
 
 interface JsigInferredLiteral {
     type: "inferredLiteral",
     name: String,
-    _raw: JsigInferredLiteral | null
+    supertypes: Array<JsigType>,
+    _raw: JsigInferredLiteral | null,
+
+    markSubTypeConstraint(JsigType) => void
 }
 
 InferredLiteral : (

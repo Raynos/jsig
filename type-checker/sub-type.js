@@ -48,6 +48,14 @@ function SubTypeChecker(meta, node) {
 //     return newType;
 // }
 
+/*  checkSubType() answers the question of is the `child` a
+    subtype of the `parent`
+
+    This also means can we assign `left = right` in an assignment
+    statement. In this case `left` has type `parent` and `right`
+    has type `child`
+
+*/
 SubTypeChecker.prototype.checkSubType =
 function checkSubType(parent, child, labelName) {
     assert(parent && parent.type, 'parent must have a type');
@@ -96,6 +104,13 @@ function checkSubType(parent, child, labelName) {
 SubTypeChecker.prototype._checkSubType =
 function _checkSubType(parent, child) {
     var result;
+
+    // If we are verifying
+    if (child.type === 'inferredLiteral') {
+        child.markSubTypeConstraint(parent);
+
+        return null;
+    }
 
     if (parent.type !== 'unionType' && child.type === 'unionType') {
         /* handle assigning union into parent */
@@ -151,6 +166,10 @@ function _checkSpecialTypeLiteralSubType(parent, child) {
     } else if (parent.name === 'Function' && child.type === 'function') {
         return null;
     } else if (parent.name === 'Object' && child.type === 'object') {
+        return null;
+    } else if (parent.name === '%Mixed%%MethodInferrenceField' &&
+        child.type === 'function' && child.inferred
+    ) {
         return null;
     }
 

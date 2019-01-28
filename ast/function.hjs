@@ -10,14 +10,15 @@ interface JsigFunctionNode {
     result: JsigType,
     thisArg: JsigFunctionParameterNode | null,
     brand: String,
-    inferred: Boolean,
     specialKind: String | null,
+    inferred: Boolean,
     _raw: JsigFunctionNode | null,
     generics: Array<JsigLocationLiteralNode>,
 
     _findGenerics(
         generics: Array<String>
-    ) => Array<JsigLocationLiteralNode>
+    ) => Array<JsigLocationLiteralNode>,
+    computeUniqueGenericNames() => Array<String>
 }
 
 FunctionNode : (this: JsigFunctionNode, opts: {

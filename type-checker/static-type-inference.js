@@ -4,9 +4,8 @@ var assert = require('assert');
 
 var getUniqueTypes = require('./lib/get-unique-types.js');
 var JsigASTReplacer = require('./lib/jsig-ast-replacer.js');
+var deepCloneAST = require('./lib/deep-clone-ast.js');
 var JsigAST = require('../ast/');
-
-var THIS_ASSIGNMENT_REGEX = /this\.[a-zA-Z]+\s\=/;
 
 module.exports = StaticTypeInference;
 
@@ -33,10 +32,77 @@ function StaticTypeInference(meta) {
 
 StaticTypeInference.prototype.inferFunctionType =
 function inferFunctionType(node) {
-    var functionText = this.meta.serializeAST(node);
-    if (THIS_ASSIGNMENT_REGEX.test(functionText)) {
+    var funcName = this.meta.getFunctionName(node);
+    var isConstructor = /[A-Z]/.test(funcName[0]);
+
+    if (isConstructor) {
         return this.inferConstructorType(node);
     }
+
+    var currentNode = this.meta.currentNode;
+    if (node.type === 'FunctionExpression' &&
+        currentNode.type === 'AssignmentExpression'
+    ) {
+        // in an assignment expression; see if the left type is
+        // a possible method inferrence variable and if the
+        // assignment expression looks like prototype method assignment
+        var leftType = this.meta.verifyNode(currentNode.left, null);
+        if (leftType && leftType.type === 'typeLiteral' &&
+            leftType.builtin &&
+            leftType.name === '%Mixed%%MethodInferrenceField' &&
+            this.meta.currentScope.type === 'file' &&
+            currentNode.left.type === 'MemberExpression' &&
+            currentNode.left.object.type === 'MemberExpression' &&
+            currentNode.left.object.property.name === 'prototype' &&
+            currentNode.left.object.object.type === 'Identifier'
+        ) {
+            var constructorIdentifier = currentNode.left.object.object.name;
+            var constructorVar = this.meta.currentScope
+                .getVar(constructorIdentifier);
+
+            // this prototype assignment has a well-typed constructor and
+            // it's type has been inferred then we can infer methods as well.
+            if (constructorVar && constructorVar.defn.type === 'function' &&
+                constructorVar.defn.inferred
+            ) {
+                return this.inferPrototypeMethodType(
+                    node,
+                    constructorVar.defn.thisArg.value,
+                    constructorVar.defn
+                );
+            }
+        }
+    }
+};
+
+StaticTypeInference.prototype._getFunctionScope =
+function _getFunctionScope(funcName) {
+    var funcScopes = this.meta.currentScope.getKnownFunctionScope(
+        funcName
+    ).funcScopes;
+    assert(funcScopes.length === 1,
+        'cannot infer function declaration for overloaded function'
+    );
+
+    var funcScope = funcScopes[0];
+    return funcScope;
+};
+
+StaticTypeInference.prototype._findFunctionReturnType =
+function _findFunctionReturnType(funcScope) {
+    var foundReturnType = null;
+    if (funcScope.knownReturnTypes.length > 0) {
+        var uniqueKnownReturnTypes = getUniqueTypes(
+            funcScope.knownReturnTypes
+        );
+
+        // TODO: grab the smallest union?
+        assert(uniqueKnownReturnTypes.length === 1,
+            'only support trivial single return funcs');
+        foundReturnType = uniqueKnownReturnTypes[0];
+    }
+
+    return foundReturnType;
 };
 
 StaticTypeInference.prototype.inferConstructorType =
@@ -69,8 +135,10 @@ function inferConstructorType(node) {
 
     var funcName = null;
     if (node.type === 'FunctionDeclaration') {
-        funcName = node.id.name;
+        funcName = this.meta.getFunctionName(node);
         var untypedFunc = this.meta.currentScope.getUntypedFunction(funcName);
+
+        // Evaluate the function implementation based on inferred type.
         var success = this.meta.tryUpdateFunction(funcName, inferredFuncType);
         if (!success) {
             // Inference failed !!
@@ -79,39 +147,18 @@ function inferConstructorType(node) {
             return null;
         }
 
-        var funcScopes = this.meta.currentScope.getKnownFunctionScope(
-            funcName
-        ).funcScopes;
-        assert(funcScopes.length === 1,
-            'cannot infer function declaration for overloaded function'
-        );
-
-        var funcScope = funcScopes[0];
-
+        var funcScope = this._getFunctionScope(funcName);
         // console.log('info', funcScope);
         // console.log('latest thisType', funcScope.getThisType());
 
-        var foundReturnType = null;
-        if (funcScope.knownReturnTypes.length > 0) {
-            var uniqueKnownReturnTypes = getUniqueTypes(
-                funcScope.knownReturnTypes
-            );
+        var foundReturnType = this._findFunctionReturnType(funcScope);
 
-            // TODO: grab the smallest union?
-            assert(uniqueKnownReturnTypes.length === 1,
-                'only support trivial single return funcs');
-            foundReturnType = uniqueKnownReturnTypes[0];
-        }
-
+        // We must revert the function as we only allocated the
+        // function scope because we attempted to run the verification
+        // and type inference logic.
         this.meta.tryRevertFunction(
-            funcName, this.inferFunctionType, untypedFunc
+            funcName, inferredFuncType, untypedFunc
         );
-
-        // TODO: update func type with the new thisType information
-        // TODO: walk the function type and replace the inferred literals
-        //      with actual generic literals
-        // TODO: rebuild the function type object with generic literals and
-        //      its location index tracking.
 
         // This is the function type that we inferred from trying to force
         // update the function.
@@ -154,6 +201,84 @@ function inferConstructorType(node) {
     }
 };
 
+StaticTypeInference.prototype.inferPrototypeMethodType =
+function inferPrototypeMethodType(
+    node, inferredThisType, constructorType
+) {
+    var errorCount = this.meta.countErrors();
+    var inferredThisCopy = deepCloneAST(inferredThisType);
+    var args = [];
+    for (var i = 0; i < node.params.length; i++) {
+        args.push(JsigAST.param(
+            node.params[i].name,
+            JsigAST.inferredLiteral(
+                'T' + this.counter++ + ':args[' + i + ']'
+            )
+        ));
+    }
+
+    // TODO: inferredThisType contains generics which are referenced
+    // in the constructorGenerics array.
+
+    var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
+    var inferredFuncType = JsigAST.functionType({
+        result: returnType,
+        args: args,
+        thisArg: JsigAST.param('this', inferredThisCopy)
+        // TODO: should we mark generics here or handle that later????
+    });
+
+    var funcName = this.meta.getFunctionName(node);
+    var funcType = this.meta.verifyNode(node, inferredFuncType);
+    if (!funcType) {
+        this.meta.tryRevertFunctionExpression(
+            funcName, inferredFuncType
+        );
+
+        // Inference failed !!
+        // TODO: complain about inference failing with an error?
+        this.meta.sanityCheckErrorsState(errorCount);
+        return null;
+    }
+
+    var funcScope = this._getFunctionScope(funcName);
+    var foundReturnType = this._findFunctionReturnType(funcScope);
+
+    this.meta.tryRevertFunctionExpression(
+        funcName, inferredFuncType
+    );
+
+    var newFuncType = JsigAST.functionType({
+        result: foundReturnType === null ?
+            JsigAST.literal('void') : foundReturnType,
+        args: inferredFuncType.args,
+        thisArg: JsigAST.param('this', inferredThisCopy)
+    });
+
+    var replacer = new InferredLiteralReplacer();
+    var astReplacer = new JsigASTReplacer(replacer, true);
+    astReplacer.inlineReferences(newFuncType, newFuncType, []);
+
+    var foundGenerics = replacer.generics
+        .concat(constructorType.computeUniqueGenericNames());
+
+    var finalFuncType = JsigAST.functionType({
+        result: newFuncType.result,
+        args: newFuncType.args,
+        // we must use the original inferredThisType, not the copy here.
+        thisArg: JsigAST.param('this', inferredThisType),
+        generics: foundGenerics,
+        inferred: true
+    });
+
+    // console.log('static type inference', {
+    //     generics: finalFuncType.generics,
+    //     funcType: this.meta.serializeType(finalFuncType)
+    // });
+
+    return finalFuncType;
+};
+
 function InferredLiteralReplacer() {
     this.genericLiteralsTable = Object.create(null);
     this.generics = [];
@@ -170,6 +295,12 @@ InferredLiteralReplacer.prototype.replaceInferredLiteral =
 function replaceInferredLiteral(ast, stack) {
     if (this.genericLiteralsTable[ast.name]) {
         return this.genericLiteralsTable[ast.name];
+    }
+
+    // if this inferred literal has a supertype then we infer
+    // it must be exactly that supertype
+    if (ast.supertypes.length === 1) {
+        return ast.supertypes[0];
     }
 
     var literal = JsigAST.literal('T' + this.counter++, false);
