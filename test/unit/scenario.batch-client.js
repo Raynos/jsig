@@ -155,3 +155,70 @@ JSIGSnippet.test('good assign method as func expression', {
 
     assert.end();
 });
+
+JSIGSnippet.test('good declare export after assignment to prototype', {
+    fullInference: true,
+    snippet: function m() {/*
+        'use strict';
+
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+
+            this.value = '';
+        }
+
+        BatchClient.prototype._sendRequest = _sendRequest;
+        function _sendRequest(foo) {
+            this.value = foo;
+        }
+
+        module.exports = BatchClient;
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    channel: T0,\n' +
+        '    hosts: T1,\n' +
+        '    value: String,\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
+        '}, channel: T0, hosts: T1) => void'
+    );
+
+    assert.end();
+});
+
+JSIGSnippet.test('good working prototype method definition', {
+    fullInference: true,
+    snippet: function m() {/*
+        BatchClient.prototype._sendRequest = _sendRequest;
+
+        module.exports = BatchClient;
+
+        function _sendRequest(foo) {
+            this.value = foo;
+        }
+
+        function BatchClient(channel, hosts) {
+            this.channel = channel;
+            this.hosts = hosts;
+
+            this.value = '';
+        }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    var exported = meta.serializeType(meta.moduleExportsType);
+
+    assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    channel: T0,\n' +
+        '    hosts: T1,\n' +
+        '    value: String,\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
+        '}, channel: T0, hosts: T1) => void'
+    );
+
+    assert.end();
+});

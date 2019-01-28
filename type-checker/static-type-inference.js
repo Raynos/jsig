@@ -40,9 +40,7 @@ function inferFunctionType(node) {
     }
 
     var currentNode = this.meta.currentNode;
-    if (node.type === 'FunctionExpression' &&
-        currentNode.type === 'AssignmentExpression'
-    ) {
+    if (currentNode.type === 'AssignmentExpression') {
         // in an assignment expression; see if the left type is
         // a possible method inferrence variable and if the
         // assignment expression looks like prototype method assignment
@@ -59,6 +57,13 @@ function inferFunctionType(node) {
             var constructorIdentifier = currentNode.left.object.object.name;
             var constructorVar = this.meta.currentScope
                 .getVar(constructorIdentifier);
+
+            // dereference identifiers to their FunctionDeclarations
+            if (node.type === 'Identifier') {
+                var untyped = this.meta.currentScope
+                    .getUntypedFunction(node.name);
+                node = untyped.node;
+            }
 
             // this prototype assignment has a well-typed constructor and
             // it's type has been inferred then we can infer methods as well.
@@ -133,14 +138,12 @@ function inferConstructorType(node) {
     // console.log('inferredFuncType',
     //     this.meta.serializeType(inferredFuncType));
 
-    var funcName = null;
     if (node.type === 'FunctionDeclaration') {
-        funcName = this.meta.getFunctionName(node);
-        var untypedFunc = this.meta.currentScope.getUntypedFunction(funcName);
+        var funcName = this.meta.getFunctionName(node);
 
         // Evaluate the function implementation based on inferred type.
-        var success = this.meta.tryUpdateFunction(funcName, inferredFuncType);
-        if (!success) {
+        var maybeRevert = this._verifyFunction(node, inferredFuncType);
+        if (!maybeRevert) {
             // Inference failed !!
             // TODO: complain about inference failing with an error?
             this.meta.sanityCheckErrorsState(errorCount);
@@ -156,9 +159,7 @@ function inferConstructorType(node) {
         // We must revert the function as we only allocated the
         // function scope because we attempted to run the verification
         // and type inference logic.
-        this.meta.tryRevertFunction(
-            funcName, inferredFuncType, untypedFunc
-        );
+        maybeRevert();
 
         // This is the function type that we inferred from trying to force
         // update the function.
@@ -201,6 +202,53 @@ function inferConstructorType(node) {
     }
 };
 
+StaticTypeInference.prototype._verifyFunction =
+function _verifyFunction(node, inferredFunctionType) {
+    var self = this;
+    var funcName = this.meta.getFunctionName(node);
+    if (node.type === 'FunctionExpression') {
+        var funcType = this.meta.verifyNode(node, inferredFunctionType);
+        if (!funcType) {
+            this.meta.tryRevertFunctionExpression(
+                funcName, inferredFunctionType
+            );
+            return null;
+        }
+
+        return revertFunction;
+    } else if (
+        node.type === 'Identifier' ||
+        node.type === 'FunctionDeclaration'
+    ) {
+        var untypedFunc = this.meta.currentScope.getUntypedFunction(funcName);
+        var success = this.meta.tryUpdateFunction(
+            funcName, inferredFunctionType
+        );
+        if (!success) {
+            return null;
+        }
+
+        return revertFunction;
+    } else {
+        assert(false, 'cannot _verifyFunction() on ' + node.type);
+    }
+
+    function revertFunction() {
+        if (node.type === 'FunctionExpression') {
+            self.meta.tryRevertFunctionExpression(
+                funcName, inferredFunctionType
+            );
+        } else if (
+            node.type === 'Identifier' ||
+            node.type === 'FunctionDeclaration'
+        ) {
+            self.meta.tryRevertFunction(
+                funcName, inferredFunctionType, untypedFunc
+            );
+        }
+    }
+};
+
 StaticTypeInference.prototype.inferPrototypeMethodType =
 function inferPrototypeMethodType(
     node, inferredThisType, constructorType
@@ -229,12 +277,8 @@ function inferPrototypeMethodType(
     });
 
     var funcName = this.meta.getFunctionName(node);
-    var funcType = this.meta.verifyNode(node, inferredFuncType);
-    if (!funcType) {
-        this.meta.tryRevertFunctionExpression(
-            funcName, inferredFuncType
-        );
-
+    var maybeRevert = this._verifyFunction(node, inferredFuncType);
+    if (!maybeRevert) {
         // Inference failed !!
         // TODO: complain about inference failing with an error?
         this.meta.sanityCheckErrorsState(errorCount);
@@ -244,9 +288,7 @@ function inferPrototypeMethodType(
     var funcScope = this._getFunctionScope(funcName);
     var foundReturnType = this._findFunctionReturnType(funcScope);
 
-    this.meta.tryRevertFunctionExpression(
-        funcName, inferredFuncType
-    );
+    maybeRevert();
 
     var newFuncType = JsigAST.functionType({
         result: foundReturnType === null ?

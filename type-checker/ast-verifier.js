@@ -341,7 +341,18 @@ function verifyAssignmentExpression(node) {
     beforeError = this.meta.countErrors();
 
     // When assigning an untyped function, try to update function
-    if (node.right.type === 'Identifier' &&
+    if (leftType.type === 'typeLiteral' && leftType.builtin &&
+        leftType.name === '%Mixed%%MethodInferrenceField' &&
+        (
+            node.right.type === 'FunctionExpression' ||
+            node.right.type === 'Identifier'
+        )
+    ) {
+        // Here we want to do method inference on the function
+        // Attempt to infer the function type of node.right
+        var funcType = this.meta.inferFunctionType(node.right);
+        rightType = this.meta.verifyNode(node.right, funcType);
+    } else if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
         if (leftType.name === '%Export%%ModuleExports') {
@@ -352,15 +363,7 @@ function verifyAssignmentExpression(node) {
             return null;
         }
         rightType = leftType;
-    } else if (leftType.type === 'typeLiteral' && leftType.builtin &&
-        leftType.name === '%Mixed%%MethodInferrenceField' &&
-        node.right.type === 'FunctionExpression'
-    ) {
-        // Here we want to do method inference on the function expression
-        // Attempt to infer the function type of node.right
-        var funcType = this.meta.inferFunctionType(node.right);
-        rightType = this.meta.verifyNode(node.right, funcType);
-    } else {
+    } else  {
         var exprType = leftType;
 
         rightType = this.meta.verifyNode(node.right, exprType);
