@@ -126,10 +126,21 @@ function inferConstructorType(node) {
         var astReplacer = new JsigASTReplacer(replacer, true);
         astReplacer.inlineReferences(newFuncType, newFuncType, []);
 
+        var openThisArg = newFuncType.thisArg.value;
+        var closedThisArg = JsigAST.param('this', JsigAST.object(
+            openThisArg.keyValues,
+            null,
+            {
+                open: false,
+                brand: openThisArg.brand,
+                inferred: openThisArg.inferred
+            }
+        ));
+
         var finalFuncType = JsigAST.functionType({
             result: newFuncType.result,
             args: newFuncType.args,
-            thisArg: newFuncType.thisArg,
+            thisArg: closedThisArg,
             generics: replacer.generics
         });
 
