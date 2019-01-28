@@ -137,6 +137,7 @@ test('type Foo : (arg: Number | String) => void', function t(assert) {
     assert.equal(result.identifier, 'Foo');
     assert.deepEqual(result.typeExpression, {
         type: 'function',
+        inferred: false,
         args: [{
             type: 'param',
             name: 'arg',

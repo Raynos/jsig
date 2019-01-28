@@ -26,6 +26,8 @@ function FunctionNode(opts) {
     // For example the assert function has special type narrow
     // semantics so its FunctionNode is the "assert" specialKind
     this.specialKind = opts.specialKind || null;
+    this.inferred = (opts && 'inferred' in opts) ?
+        opts.inferred : false;
     this._raw = null;
 
     if (opts.generics && typeof opts.generics[0] === 'string') {

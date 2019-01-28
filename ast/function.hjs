@@ -10,6 +10,7 @@ interface JsigFunctionNode {
     result: JsigType,
     thisArg: JsigFunctionParameterNode | null,
     brand: String,
+    inferred: Boolean,
     specialKind: String | null,
     _raw: JsigFunctionNode | null,
     generics: Array<JsigLocationLiteralNode>,
@@ -26,6 +27,7 @@ FunctionNode : (this: JsigFunctionNode, opts: {
     args?: Array<JsigFunctionParameterNode>,
     thisArg?: JsigFunctionParameterNode,
     brand?: String,
+    inferred?: Boolean,
     specialKind?: String,
     generics?: Array<String>
 }) => void

@@ -12,6 +12,7 @@ test('foo : (String, Number) => Object', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'function',
+        inferred: false,
         thisArg: null,
         args: [{
             type: 'param',
@@ -102,6 +103,7 @@ test('foo : () => CustomType', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             args: [],
             thisArg: null,
             result: {
@@ -144,6 +146,7 @@ test('foo : (tagName: String) => void', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             args: [{
                 type: 'param',
                 name: 'tagName',
@@ -211,6 +214,7 @@ test('foo : (this: DOMText, index: Number) => void', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             args: [{
                 type: 'param',
                 name: 'index',
@@ -303,6 +307,7 @@ test('foo : (id: String, parent?: Bar) => Baz', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             args: [{
                 type: 'param',
                 name: 'id',
@@ -397,6 +402,7 @@ test('foo : <T>(a: T, b: T) => T', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             args: [{
                 type: 'param',
                 name: 'a',

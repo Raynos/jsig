@@ -224,6 +224,7 @@ test('foo : () => Number', function t(assert) {
     assert.equal(result.identifier, 'foo');
     assert.deepEqual(result.typeExpression, {
         type: 'function',
+        inferred: false,
         args: [],
         generics: [],
         thisArg: null,
@@ -268,6 +269,7 @@ test('two statements', function t(assert) {
         identifier: 'foo',
         typeExpression: {
             type: 'function',
+            inferred: false,
             thisArg: null,
             args: [],
             generics: [],
