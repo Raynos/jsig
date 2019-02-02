@@ -65,6 +65,7 @@ function TypeChecker(entryFile, options) {
     this.errorLineContext = options.context || 1;
 
     this.errors = [];
+    this.typeofErrors = [];
     this.traces = [];
     this.moduleExportsType = null;
     this.currentMeta = null;
@@ -82,6 +83,15 @@ TypeChecker.prototype.addError = function addError(err) {
     this.errors.push(err);
 };
 
+TypeChecker.prototype.addTypeofError = function addTypeofError(err) {
+    // console.trace('addError(' + err.type + ')');
+    this.typeofErrors.push(err);
+};
+
+TypeChecker.prototype.countTypeofErrors = function countTypeofErrors() {
+    return this.typeofErrors.length;
+};
+
 TypeChecker.prototype.addTrace = function addTrace(trace) {
     this.traces.push(trace);
 };
@@ -90,9 +100,12 @@ TypeChecker.prototype.countErrors = function countErrors() {
     return this.errors.length;
 };
 
-TypeChecker.prototype.getErrors =
-function getErrors() {
+TypeChecker.prototype.getErrors = function getErrors() {
     return this.errors.slice();
+};
+
+TypeChecker.prototype.getTypeofErrors = function getTypeofErrors() {
+    return this.typeofErrors.slice();
 };
 
 TypeChecker.prototype.setErrors =

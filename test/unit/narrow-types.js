@@ -215,10 +215,10 @@ JSIGSnippet.test('narrowing with isArray() cases 1', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, 'Number');
-    assert.equal(meta.errors[1].valueType, 'Array<String>');
+    assert.equal(meta.typeofErrors[0].valueType, 'Number');
+    assert.equal(meta.typeofErrors[1].valueType, 'Array<String>');
 
     assert.end();
 });
@@ -239,10 +239,10 @@ JSIGSnippet.test('narrowing with isArray() cases 2', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, 'Array<String>');
-    assert.equal(meta.errors[1].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'Array<String>');
+    assert.equal(meta.typeofErrors[1].valueType, 'Number');
 
     assert.end();
 });
@@ -261,10 +261,10 @@ JSIGSnippet.test('narrowing with isArray() cases 3', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, 'Array<String>');
-    assert.equal(meta.errors[1].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'Array<String>');
+    assert.equal(meta.typeofErrors[1].valueType, 'Number');
 
     assert.end();
 });
@@ -283,10 +283,10 @@ JSIGSnippet.test('narrowing with isArray() cases 4', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, 'Number');
-    assert.equal(meta.errors[1].valueType, 'Array<String>');
+    assert.equal(meta.typeofErrors[0].valueType, 'Number');
+    assert.equal(meta.typeofErrors[1].valueType, 'Array<String>');
 
     assert.end();
 });
@@ -313,12 +313,12 @@ JSIGSnippet.test('narrowing with === null cases 1', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 4);
+    assert.equal(meta.typeofErrors.length, 4);
 
-    assert.equal(meta.errors[0].valueType, 'null');
-    assert.equal(meta.errors[1].valueType, 'Number');
-    assert.equal(meta.errors[2].valueType, 'Number');
-    assert.equal(meta.errors[3].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'null');
+    assert.equal(meta.typeofErrors[1].valueType, 'Number');
+    assert.equal(meta.typeofErrors[2].valueType, 'Number');
+    assert.equal(meta.typeofErrors[3].valueType, 'Number');
 
     assert.end();
 });
@@ -345,12 +345,12 @@ JSIGSnippet.test('narrowing with === null cases 2', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 4);
+    assert.equal(meta.typeofErrors.length, 4);
 
-    assert.equal(meta.errors[0].valueType, 'Number');
-    assert.equal(meta.errors[1].valueType, 'null');
-    assert.equal(meta.errors[2].valueType, 'Number');
-    assert.equal(meta.errors[3].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'Number');
+    assert.equal(meta.typeofErrors[1].valueType, 'null');
+    assert.equal(meta.typeofErrors[2].valueType, 'Number');
+    assert.equal(meta.typeofErrors[3].valueType, 'Number');
 
     assert.end();
 });
@@ -377,12 +377,12 @@ JSIGSnippet.test('narrowing with === undefined cases 1', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 4);
+    assert.equal(meta.typeofErrors.length, 4);
 
-    assert.equal(meta.errors[0].valueType, 'undefined');
-    assert.equal(meta.errors[1].valueType, 'Number');
-    assert.equal(meta.errors[2].valueType, 'Number');
-    assert.equal(meta.errors[3].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'undefined');
+    assert.equal(meta.typeofErrors[1].valueType, 'Number');
+    assert.equal(meta.typeofErrors[2].valueType, 'Number');
+    assert.equal(meta.typeofErrors[3].valueType, 'Number');
 
     assert.end();
 });
@@ -409,12 +409,12 @@ JSIGSnippet.test('narrowing with === undefined cases 2', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 4);
+    assert.equal(meta.typeofErrors.length, 4);
 
-    assert.equal(meta.errors[0].valueType, 'Number');
-    assert.equal(meta.errors[1].valueType, 'undefined');
-    assert.equal(meta.errors[2].valueType, 'Number');
-    assert.equal(meta.errors[3].valueType, 'Number');
+    assert.equal(meta.typeofErrors[0].valueType, 'Number');
+    assert.equal(meta.typeofErrors[1].valueType, 'undefined');
+    assert.equal(meta.typeofErrors[2].valueType, 'Number');
+    assert.equal(meta.typeofErrors[3].valueType, 'Number');
 
     assert.end();
 });
@@ -433,10 +433,10 @@ JSIGSnippet.test('narrowing based on string literals', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, '"foo"');
-    assert.equal(meta.errors[1].valueType, '"bar"');
+    assert.equal(meta.typeofErrors[0].valueType, '"foo"');
+    assert.equal(meta.typeofErrors[1].valueType, '"bar"');
 
     assert.end();
 });
@@ -455,10 +455,10 @@ JSIGSnippet.test('narrowing based on string literals fields', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, '{ foo: "foo" }');
-    assert.equal(meta.errors[1].valueType, '{ foo: "bar" }');
+    assert.equal(meta.typeofErrors[0].valueType, '{ foo: "foo" }');
+    assert.equal(meta.typeofErrors[1].valueType, '{ foo: "bar" }');
 
     assert.end();
 });
@@ -477,10 +477,10 @@ JSIGSnippet.test('narrowing based on nested string literals fields', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2);
+    assert.equal(meta.typeofErrors.length, 2);
 
-    assert.equal(meta.errors[0].valueType, '{ obj: { foo: "foo" } }');
-    assert.equal(meta.errors[1].valueType, '{ obj: { foo: "bar" } }');
+    assert.equal(meta.typeofErrors[0].valueType, '{ obj: { foo: "foo" } }');
+    assert.equal(meta.typeofErrors[1].valueType, '{ obj: { foo: "bar" } }');
 
     assert.end();
 });

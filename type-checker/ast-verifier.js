@@ -27,6 +27,7 @@ function ASTVerifier(meta, checker, fileName) {
     this.fileName = fileName;
     this.folderName = path.dirname(fileName);
 
+    this._seenTypeofExpressions = [];
     this._cachedFunctionExpressionTypes = Object.create(null);
 }
 
@@ -226,6 +227,9 @@ function verifyFunctionDeclaration(node) {
     var err;
     var untypedFunc = this.meta.currentScope.getUntypedFunction(funcName);
     if (untypedFunc) {
+        // TODO: This code path leads to verifying the same function
+        // many times over, which would lead to the same type error
+        // in the function body being printed more then once.
         return this.tryInferFunctionType(untypedFunc);
     }
 
@@ -284,10 +288,26 @@ function _verifyBlockStatement(statements) {
 
 ASTVerifier.prototype._handleTypeofExpression =
 function _handleTypeofExpression(statement) {
+    /*  To reduce confusion we only evaluate typeof expressions
+        once.
+
+        With the introduction of static inference we actually
+        verify the type of a function twice, once for the
+        inference path and once for the type checking path.
+
+        This means a `typeof` expression gets evaluated twice
+        in a function if it's being inferred, we only want
+        to determine the typeof the expression the first time.
+    */
+
     var exprNode = statement.expression.argument;
+    if (this._seenTypeofExpressions.indexOf(exprNode) !== -1) {
+        return;
+    }
+
     var valueType = this.meta.verifyNode(exprNode, null);
 
-    this.meta.addError(Errors.TypeofExpression({
+    this.meta.addTypeofError(Errors.TypeofExpression({
         valueType: valueType ?
             this.meta.serializeType(valueType) :
             '<TypeError>',
@@ -295,6 +315,7 @@ function _handleTypeofExpression(statement) {
         loc: exprNode.loc,
         line: exprNode.loc.start.line
     }));
+    this._seenTypeofExpressions.push(exprNode);
 };
 
 ASTVerifier.prototype.verifyExpressionStatement =
@@ -337,7 +358,7 @@ function verifyAssignmentExpression(node) {
         return null;
     }
 
-    var rightType;
+    var rightType = null;
     beforeError = this.meta.countErrors();
 
     // When assigning an untyped function, try to update function
@@ -351,7 +372,9 @@ function verifyAssignmentExpression(node) {
         // Here we want to do method inference on the function
         // Attempt to infer the function type of node.right
         var funcType = this.meta.inferFunctionType(node.right);
-        rightType = this.meta.verifyNode(node.right, funcType);
+        if (funcType) {
+            rightType = this.meta.verifyNode(node.right, funcType);
+        }
     } else if (node.right.type === 'Identifier' &&
         this.meta.currentScope.getUntypedFunction(node.right.name)
     ) {
@@ -363,11 +386,14 @@ function verifyAssignmentExpression(node) {
             return null;
         }
         rightType = leftType;
-    } else  {
+    }
+
+    if (rightType === null) {
         var exprType = leftType;
 
         rightType = this.meta.verifyNode(node.right, exprType);
     }
+
     afterError = this.meta.countErrors();
 
     if (!rightType) {
@@ -1320,6 +1346,59 @@ function _buildCannotCallGenericError(oldDefn, node) {
     }));
 };
 
+function buildKeyPathParentIndex(memberExpr) {
+    assert(memberExpr.property.type === 'Identifier', 'property must be field');
+    var keyPath = [memberExpr.property.name];
+
+    var parent = memberExpr.object;
+    while (parent.type === 'MemberExpression') {
+        assert(parent.property.type === 'Identifier',
+            'property must be field');
+        keyPath.unshift(parent.property.name);
+
+        parent = parent.object;
+    }
+    if (parent.type === 'Identifier') {
+        keyPath.unshift(parent.name);
+    } else if (parent.type === 'ThisExpression') {
+        keyPath.unshift('this');
+    } else {
+        assert(false, 'object must be ref');
+    }
+
+    return { keyPath: keyPath, parent: parent };
+}
+
+ASTVerifier.prototype._forceUpdateReference =
+function _forceUpdateReference(node, newType) {
+    var scope = this.meta.currentScope;
+    if (node.type === 'Identifier') {
+        scope.forceUpdateVar(node.name, newType);
+        return newType;
+    // TODO: support nested objects
+    } else if (node.type === 'MemberExpression') {
+        var index = buildKeyPathParentIndex(node);
+        var variableName = index.keyPath[0];
+
+        var tempType = variableName === 'this' ?
+            scope.getThisType() :
+            scope.getVar(variableName).defn;
+
+        // TODO: do I need to mutate in place or copy ?
+        var newObjType = updateObject(
+            tempType, index.keyPath.slice(1), newType
+        );
+
+        this.meta.currentScope.forceUpdateVar(
+            variableName, newObjType
+        );
+        return newObjType;
+    } else {
+        assert(false, 'unsupported forceUpdateReference for : ' +
+            node.type);
+    }
+};
+
 ASTVerifier.prototype._checkFunctionCallExpr =
 function _checkFunctionCallExpr(node, defn, isOverload) {
     var err;
@@ -1402,12 +1481,7 @@ function _checkFunctionCallExpr(node, defn, isOverload) {
                 var newType = JsigAST.generic(
                     obj.value, newGenerics
                 );
-                assert(node.callee.object.type === 'Identifier',
-                    'object must be variable reference');
-
-                this.meta.currentScope.forceUpdateVar(
-                    node.callee.object.name, newType
-                );
+                this._forceUpdateReference(node.callee.object, newType);
                 obj = newType;
             }
         }

@@ -20,17 +20,22 @@ module.exports = {
     prettyPrintErrorStatement: prettyPrintErrorStatement
 };
 
+function getErrors(checker) {
+    return checker.getErrors().concat(checker.getTypeofErrors());
+}
+
 function prettyPrintAllErrors(checker) {
     var parts = [];
     parts.push('');
 
-    for (var i = 0; i < checker.errors.length; i++) {
-        var error = checker.errors[i];
+    var errors = getErrors(checker);
+    for (var i = 0; i < errors.length; i++) {
+        var error = errors[i];
         parts.push(prettyPrintErrorStatement(checker, error));
     }
 
-    var word = checker.errors.length === 1 ? 'error' : 'errors';
-    parts.push(TermColor.red('Found (' + checker.errors.length + ') ' + word));
+    var word = errors.length === 1 ? 'error' : 'errors';
+    parts.push(TermColor.red('Found (' + errors.length + ') ' + word));
     parts.push('');
 
     return parts.join('\n');
@@ -40,8 +45,9 @@ function prettyPrintAllErrorsWithTrace(checker) {
     var parts = [];
     parts.push('');
 
-    for (var i = 0; i < checker.errors.length; i++) {
-        var error = checker.errors[i];
+    var errors = getErrors(checker);
+    for (var i = 0; i < errors.length; i++) {
+        var error = errors[i];
 
         parts.push(prettyPrintErrorStatement(checker, error));
 
@@ -60,8 +66,8 @@ function prettyPrintAllErrorsWithTrace(checker) {
         }
     }
 
-    var word = checker.errors.length === 1 ? 'error' : 'errors';
-    parts.push(TermColor.red('Found (' + checker.errors.length + ') ' + word));
+    var word = errors.length === 1 ? 'error' : 'errors';
+    parts.push(TermColor.red('Found (' + errors.length + ') ' + word));
     parts.push('');
 
     return parts.join('\n');

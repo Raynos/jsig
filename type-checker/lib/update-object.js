@@ -173,5 +173,9 @@ function _updateObject(targetType, keyPath, newValue) {
         pairs.push(JsigAST.keyValue(keyPath[0], newValue));
     }
 
-    return JsigAST.object(pairs);
+    return JsigAST.object(pairs, null, {
+        inferred: targetType.inferred,
+        brand: targetType.brand,
+        open: targetType.open
+    });
 }

@@ -27,10 +27,10 @@ JSIGSnippet.test('typed dictionary variable', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.typeofErrors.length, 1);
 
-    assert.equal(meta.errors[0].expr, 'dict["foo"]');
-    assert.equal(meta.errors[0].valueType, 'String');
+    assert.equal(meta.typeofErrors[0].expr, 'dict["foo"]');
+    assert.equal(meta.typeofErrors[0].valueType, 'String');
 
     assert.end();
 });
@@ -52,10 +52,10 @@ JSIGSnippet.test('typed dictionary variable with aliases', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
+    assert.equal(meta.typeofErrors.length, 1);
 
-    assert.equal(meta.errors[0].expr, 'dict["foo"]');
-    assert.equal(meta.errors[0].valueType, '{ a: String }');
+    assert.equal(meta.typeofErrors[0].expr, 'dict["foo"]');
+    assert.equal(meta.typeofErrors[0].valueType, '{ a: String }');
 
     assert.end();
 });

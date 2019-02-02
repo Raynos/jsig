@@ -475,6 +475,11 @@ ProgramMeta.prototype.addError = function addError(error) {
     this.checker.addError(error);
 };
 
+ProgramMeta.prototype.addTypeofError = function addTypeofError(error) {
+    error.fileName = this.fileName;
+    this.checker.addTypeofError(error);
+};
+
 ProgramMeta.prototype.countErrors = function countErrors() {
     return this.checker.countErrors();
 };

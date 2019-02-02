@@ -30,6 +30,16 @@ function StaticTypeInference(meta) {
     this.counter = 0;
 }
 
+function isPrototypeAssignment(currentNode, leftType) {
+    return leftType && leftType.type === 'typeLiteral' &&
+        leftType.builtin &&
+        leftType.name === '%Mixed%%MethodInferrenceField' &&
+        currentNode.left.type === 'MemberExpression' &&
+        currentNode.left.object.type === 'MemberExpression' &&
+        currentNode.left.object.property.name === 'prototype' &&
+        currentNode.left.object.object.type === 'Identifier';
+}
+
 StaticTypeInference.prototype.inferFunctionType =
 function inferFunctionType(node) {
     var funcName = this.meta.getFunctionName(node);
@@ -37,6 +47,22 @@ function inferFunctionType(node) {
 
     if (isConstructor) {
         return this.inferConstructorType(node);
+        // TODO: scan for all prototype assignment expressions
+        // and infer them so that we can finalize the methods on
+        // the `thisType`
+        // otherwise when `inferFunctionType` is called from a
+        // new expression statement; the callsite will have the
+        // class instance but will know nothing about the methods
+        // as we have not yet verified the method assignment
+        // statements.
+
+        // TODO: the this arg will probably contain generic fields
+        // and so will the constructor
+        // We need to infer the type of all the methods to see
+        // if there are further type restrictions on the generic
+        // fields in the methods.
+        // Once we've inferred the type of all the methods we can
+        // go back and finalize the `thisArg` type on the constructor
     }
 
     var currentNode = this.meta.currentNode;
@@ -45,14 +71,9 @@ function inferFunctionType(node) {
         // a possible method inferrence variable and if the
         // assignment expression looks like prototype method assignment
         var leftType = this.meta.verifyNode(currentNode.left, null);
-        if (leftType && leftType.type === 'typeLiteral' &&
-            leftType.builtin &&
-            leftType.name === '%Mixed%%MethodInferrenceField' &&
-            this.meta.currentScope.type === 'file' &&
-            currentNode.left.type === 'MemberExpression' &&
-            currentNode.left.object.type === 'MemberExpression' &&
-            currentNode.left.object.property.name === 'prototype' &&
-            currentNode.left.object.object.type === 'Identifier'
+
+        if (this.meta.currentScope.type === 'file' &&
+            isPrototypeAssignment(currentNode, leftType)
         ) {
             var constructorIdentifier = currentNode.left.object.object.name;
             var constructorVar = this.meta.currentScope

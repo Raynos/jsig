@@ -14,8 +14,8 @@ JSIGSnippet.test('NestedArray generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType, 'Array<Array<String>>');
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType, 'Array<Array<String>>');
 
     assert.end();
 });
@@ -34,8 +34,8 @@ JSIGSnippet.test('Callback generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
         '(err: Error, value?: String) => void &\n' +
         '    (err: null, value: String) => void'
     );
@@ -55,8 +55,8 @@ JSIGSnippet.test('Dictionary generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType, 'Object<String, String>');
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType, 'Object<String, String>');
 
     assert.end();
 });
@@ -77,8 +77,9 @@ JSIGSnippet.test('Dictionary generic alias with interface', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType, 'Object<String, { uuid: String }>');
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
+        'Object<String, { uuid: String }>');
 
     assert.end();
 });
@@ -97,8 +98,8 @@ JSIGSnippet.test('AsyncResultObjectCallback generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
         '(err: Error, results: Object<String, String>) => void');
 
     assert.end();
@@ -117,8 +118,8 @@ JSIGSnippet.test('Twin generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
         '[Object<String, String>, Object<String, String>]');
 
     assert.end();
@@ -137,8 +138,8 @@ JSIGSnippet.test('Double generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
         '[Object<String, String>, Object<String, Number>]');
 
     assert.end();
@@ -163,8 +164,8 @@ JSIGSnippet.test('AsyncResultIterator generic alias', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1);
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors.length, 1);
+    assert.equal(meta.typeofErrors[0].valueType,
         '(item: String, callback: (err: {\n' +
         '    message: String,\n' +
         '    stack: String,\n' +

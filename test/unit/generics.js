@@ -135,10 +135,10 @@ JSIGSnippet.test('union generic function', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 2, 'expected two errors');
+    assert.equal(meta.typeofErrors.length, 2, 'expected two errors');
 
-    assert.equal(meta.errors[0].valueType, 'String | Number');
-    assert.equal(meta.errors[1].valueType,
+    assert.equal(meta.typeofErrors[0].valueType, 'String | Number');
+    assert.equal(meta.typeofErrors[1].valueType,
         '{ foo: String } | { baz: String }');
 
     assert.end();
@@ -158,9 +158,9 @@ JSIGSnippet.test('intersection generic function', {
 }, function t(snippet, assert) {
     var meta = snippet.compile(assert);
 
-    assert.equal(meta.errors.length, 1, 'expected two errors');
+    assert.equal(meta.typeofErrors.length, 1, 'expected two errors');
 
-    assert.equal(meta.errors[0].valueType,
+    assert.equal(meta.typeofErrors[0].valueType,
         '{ foo: String } & { baz: String }');
 
     assert.end();
