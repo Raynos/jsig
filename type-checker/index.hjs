@@ -28,6 +28,7 @@ interface TypeChecker {
     errorLineContext: Number,
 
     errors: Array<Error>,
+    typeofErrors: Array<Error>,
     traces: Array<TraceInfo>,
     moduleExportsType: JsigType | null,
     currentMeta: ProgramMeta | null,
@@ -48,6 +49,7 @@ interface TypeChecker {
         importFileName?: String
     ) => HeaderFile | null,
     addError(err: Error) => void,
+    addTypeofError(err: Error) => void,
     _createHeaderFile(
         source: String, fileName: String
     ) => HeaderFile | null,
@@ -58,7 +60,9 @@ interface TypeChecker {
     serializeType(type: JsigType, opts: Object) => void,
     addTrace(trace: TraceInfo) => void,
     countErrors() => Number,
+    countTypeofErrors() => Number,
     getErrors() => Array<Error>,
+    getTypeofErrors() => Array<Error>,
     setErrors(Array<Error>) => void,
     prettyPrintAllErrors() => void,
     prettyPrintErrorStatement(err: Error) => void,
