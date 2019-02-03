@@ -521,4 +521,13 @@ Errors.TypeofExpression = TypedError({
     line: null
 });
 
+Errors.DeleteOnNonObject = TypedError({
+    type: 'jsig.verify.delete-on-non-object',
+    message: '@{line}: unexpected `delete` on non-generic object',
+    expected: null,
+    actual: null,
+    loc: null,
+    line: null
+});
+
 module.exports = Errors;

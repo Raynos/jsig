@@ -2151,12 +2151,19 @@ function verifyUnaryExpression(node) {
         this.meta.verifyNode(node.argument, null);
         var objectType = this.meta.verifyNode(node.argument.object, null);
 
-        assert(objectType.type === 'genericLiteral',
-            'delete must operate on generic objects');
-        assert(objectType.value.type === 'typeLiteral' &&
-            objectType.value.name === 'Object',
-            'delete must operate on objects');
+        if (objectType.type === 'genericLiteral' &&
+            objectType.value.type === 'typeLiteral' &&
+            objectType.value.name === 'Object'
+        ) {
+            return null;
+        }
 
+        this.meta.addError(Errors.DeleteOnNonObject({
+            expected: 'Object<Key, Value>',
+            actual: this.meta.serializeType(objectType),
+            loc: node.loc,
+            line: node.loc.start.line
+        }));
         return null;
     }
 
