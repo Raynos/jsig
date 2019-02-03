@@ -5,7 +5,7 @@
 var assert = require('assert');
 
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
-var updateObject = require('./lib/update-object.js');
+var TypeUpdater = require('./lib/update-object.js');
 var isSameType = require('./lib/is-same-type.js');
 var JsigAST = require('../ast/');
 
@@ -13,6 +13,7 @@ module.exports = NarrowType;
 
 function NarrowType(meta) {
     this.meta = meta;
+    this.typeUpdater = new TypeUpdater(meta, 'narrowType');
 }
 
 NarrowType.prototype.narrowType =
@@ -141,7 +142,9 @@ function _narrowByIdentifierOrMember(branch, identifier, index, newType) {
         branch.narrowType(identifier.name, newType);
     } else {
         var objectType = this.meta.verifyNode(index.parent, null);
-        newType = updateObject(objectType, index.keyPath.slice(1), newType);
+        newType = this.typeUpdater.updateObject(
+            objectType, index.keyPath.slice(1), newType
+        );
 
         if (!isSameType(newType, objectType)) {
             branch.narrowType(index.keyPath[0], newType);
@@ -452,7 +455,7 @@ function _narrowTupleMemberExpression(
 
 NarrowType.prototype._updateObjectAndRestrict =
 function updateObjectAndRestrict(branch, objType, keyPath, valueType) {
-    var newType = updateObject(
+    var newType = this.typeUpdater.updateObject(
         objType, keyPath.slice(1), valueType
     );
 

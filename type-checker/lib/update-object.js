@@ -5,12 +5,25 @@ var assert = require('assert');
 var JsigAST = require('../../ast/');
 var cloneJSIG = require('./clone-ast.js');
 var isSameType = require('./is-same-type.js');
+var computeSmallestUnion = require('./compute-smallest-union.js');
 
-module.exports = updateObject;
+var VALID_MODES = ['narrowType', 'overwriteType'];
 
+module.exports = TypeUpdater;
+
+function TypeUpdater(meta, mode) {
+    if (VALID_MODES.indexOf(mode) === -1) {
+        assert(false, 'invalid mode: ' + mode);
+    }
+
+    this.meta = meta;
+    this.mode = mode;
+}
+
+TypeUpdater.prototype.updateObject =
 function updateObject(targetType, keyPath, newValue) {
     if (targetType.type === 'object') {
-        return _updateObject(targetType, keyPath, newValue);
+        return this._updateObject(targetType, keyPath, newValue);
     }
 
     // Handle Array<X>
@@ -24,38 +37,96 @@ function updateObject(targetType, keyPath, newValue) {
     }
 
     if (targetType.type === 'tuple') {
-        return _updateTuple(targetType, keyPath, newValue);
+        return this._updateTuple(targetType, keyPath, newValue);
     }
 
     if (targetType.type === 'intersectionType') {
-        return _updateIntersection(targetType, keyPath, newValue);
+        return this._updateIntersection(targetType, keyPath, newValue);
     }
 
     if (targetType.type === 'unionType') {
-        return _updateUnion(targetType, keyPath, newValue);
+        return this._updateUnion(targetType, keyPath, newValue);
     }
 
     assert(false, 'unsupported type for updateObject(): ' + targetType.type);
+};
+
+function containsType(type, needleType) {
+    if (isSameType(type, needleType)) {
+        return true;
+    }
+
+    if (type.type === 'unionType') {
+        for (var i = 0; i < type.unions.length; i++) {
+            var p = type.unions[i];
+            if (containsType(p, needleType)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
+TypeUpdater.prototype._updateUnion =
 function _updateUnion(targetType, keyPath, newValue) {
-    var clone = cloneJSIG(targetType);
-    var oldUnions = clone.unions;
-    var unions = clone.unions = [];
+    var oldUnions = targetType.unions;
+    var unions = [];
 
     for (var i = 0; i < oldUnions.length; i++) {
         var possibleType = oldUnions[i];
 
-        var currentValue = findObject(possibleType, keyPath);
-        if (isSameType(currentValue, newValue)) {
+        // scan each value in the union
+        // and only keep it if the keypath contains the newValue
+        // aka if we update({ foo: String } | { foo: null }, ['foo'], null)
+        // then we want to keep { foo: null }
+
+        var currentValue = this._findObject(possibleType, keyPath);
+        if (!currentValue) {
+            continue;
+        }
+
+        // When we narrow a type then we must filter down a union
+        // to only the unions where typeof x[keyPath] === newValue.
+        if (this.mode === 'narrowType' && isSameType(currentValue, newValue)) {
             unions.push(possibleType);
+        } else if (this.mode === 'narrowType' &&
+            containsType(currentValue, newValue)
+        ) {
+            // overwrite what's effectively a union at keyPath to
+            // just the concrete value.
+            var newObj = this.updateObject(possibleType, keyPath, newValue);
+            unions.push(newObj);
+        }
+
+        // When we overwrite a type then we mutate all of the permutations
+        // of the union overwrite them to contain a new field x[keyPath]
+        // whos type is newValue.
+        // This is only valid for values in the union which have the field
+        // in the first place, aka the field is only capable of being
+        // overwriten if it exists
+        if (this.mode === 'overwriteType') {
+            newObj = this.updateObject(possibleType, keyPath, newValue);
+            unions.push(newObj);
         }
     }
 
-    return clone;
-}
+    // It's possible that updating a union based on narrowing
+    // type information that we filter down to zero cases
+    // which means we will return the type Never.
+    if (this.mode === 'narrowType' && unions.length === 0) {
+        return JsigAST.literal('Never', true);
+    }
 
-function findObject(targetType, keyPath) {
+    if (unions.length === 1) {
+        return unions[0];
+    }
+    // TODO: passing `node` into this is weird.
+    return computeSmallestUnion(null, JsigAST.union(unions));
+};
+
+TypeUpdater.prototype._findObject =
+function _findObject(targetType, keyPath) {
     if (targetType.type === 'object') {
         for (var i = 0; i < targetType.keyValues.length; i++) {
             var pair = targetType.keyValues[i];
@@ -69,7 +140,7 @@ function findObject(targetType, keyPath) {
             if (keyPath.length === 1) {
                 fieldValue = pair.value;
             } else {
-                fieldValue = findObject(pair.value, keyPath.slice(1));
+                fieldValue = this._findObject(pair.value, keyPath.slice(1));
             }
 
             return fieldValue;
@@ -89,8 +160,9 @@ function findObject(targetType, keyPath) {
         assert(false, 'unsupported type for findObject(): ' +
             targetType.type);
     }
-}
+};
 
+TypeUpdater.prototype._updateIntersection =
 function _updateIntersection(targetType, keyPath, newValue) {
     var clone = cloneJSIG(targetType);
     clone.intersections = clone.intersections.slice();
@@ -117,12 +189,15 @@ function _updateIntersection(targetType, keyPath, newValue) {
 
     assert(foundIndex !== -1, 'cannot updateObject() weird intersection');
 
-    var obj = updateObject(intersections[foundIndex], keyPath, newValue);
+    var obj = this.updateObject(
+        intersections[foundIndex], keyPath, newValue
+    );
     intersections[foundIndex] = obj;
 
     return clone;
-}
+};
 
+TypeUpdater.prototype._updateTuple =
 function _updateTuple(targetType, keyPath, newValue) {
     assert(targetType.type === 'tuple', 'targetType must be tuple');
     assert(newValue, 'newValue cannot be null');
@@ -140,8 +215,9 @@ function _updateTuple(targetType, keyPath, newValue) {
     return JsigAST.tuple(newValues, null, {
         inferred: targetType.inferred
     });
-}
+};
 
+TypeUpdater.prototype._updateObject =
 function _updateObject(targetType, keyPath, newValue) {
     assert(targetType.type === 'object', 'targetType must be object');
     assert(newValue, 'newValue cannot be null');
@@ -161,7 +237,9 @@ function _updateObject(targetType, keyPath, newValue) {
         if (keyPath.length === 1) {
             fieldValue = newValue;
         } else {
-            fieldValue = updateObject(pair.value, keyPath.slice(1), newValue);
+            fieldValue = this.updateObject(
+                pair.value, keyPath.slice(1), newValue
+            );
         }
 
         addedField = true;
@@ -173,9 +251,20 @@ function _updateObject(targetType, keyPath, newValue) {
         pairs.push(JsigAST.keyValue(keyPath[0], newValue));
     }
 
+    // Sanity check for duplicate keys; should not happen.
+    var seenKeys = [];
+    for (i = 0; i < pairs.length; i++) {
+        var keypair = pairs[i];
+        if (seenKeys.indexOf(keypair.key) > -1) {
+            assert(false, 'found duplicate key: ' + keypair.key +
+                ' in updateObject()');
+        }
+        seenKeys.push(keypair.key);
+    }
+
     return JsigAST.object(pairs, null, {
         inferred: targetType.inferred,
         brand: targetType.brand,
         open: targetType.open
     });
-}
+};

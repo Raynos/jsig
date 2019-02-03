@@ -13,7 +13,7 @@ var serialize = require('../serialize.js');
 var Errors = require('./errors.js');
 var isSameType = require('./lib/is-same-type.js');
 var getUnionWithoutBool = require('./lib/get-union-without-bool.js');
-var updateObject = require('./lib/update-object.js');
+var TypeUpdater = require('./lib/update-object.js');
 var cloneJSIG = require('./lib/clone-ast.js');
 var computeSmallestUnion = require('./lib/compute-smallest-union.js');
 
@@ -572,7 +572,8 @@ function verifyAssignmentExpression(node) {
             var propertyName = node.left.property.name;
             var targetType = this.meta.verifyNode(node.left.object, null);
 
-            var newObjType = updateObject(
+            var updater = new TypeUpdater(this.meta, 'overwriteType');
+            var newObjType = updater.updateObject(
                 targetType, [propertyName], rightType
             );
             newObjType.open = targetType.open;
@@ -1415,7 +1416,8 @@ function _forceUpdateReference(node, newType) {
             scope.getVar(variableName).defn;
 
         // TODO: do I need to mutate in place or copy ?
-        var newObjType = updateObject(
+        var updater = new TypeUpdater(this.meta, 'overwriteType');
+        var newObjType = updater.updateObject(
             tempType, index.keyPath.slice(1), newType
         );
 
