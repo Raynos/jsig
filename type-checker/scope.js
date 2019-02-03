@@ -339,6 +339,16 @@ function FileScope(parent) {
 }
 util.inherits(FileScope, BaseScope);
 
+FileScope.prototype.getPrototypeFields =
+function getPrototypeFields(funcName) {
+    var p = this.prototypes[funcName];
+    if (!p) {
+        return null;
+    }
+
+    return p.fields;
+};
+
 FileScope.prototype.loadModuleTokens =
 function loadModuleTokens() {
     var moduleType = JsigAST.object({
@@ -427,7 +437,10 @@ function addPrototypeField(id, fieldName, typeDefn) {
         };
     }
 
-    this.prototypes[id].fields[fieldName] = typeDefn;
+    var proto = this.prototypes[id];
+    // TODO: we always assign the type of the last method
+    // assignment in case there are multiple.
+    proto.fields[fieldName] = typeDefn;
 };
 
 FileScope.prototype.getReturnExpressionType =
@@ -610,12 +623,7 @@ function getPrototypeFields() {
         parent = parent.parent;
     }
 
-    var p = parent.prototypes[this.funcName];
-    if (!p) {
-        return null;
-    }
-
-    return p.fields;
+    return parent.getPrototypeFields(this.funcName);
 };
 
 FunctionScope.prototype.addKnownField =

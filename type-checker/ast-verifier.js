@@ -100,7 +100,37 @@ ASTVerifier.prototype.verifyProgram =
 function verifyProgram(node) {
     var parts = splitFunctionDeclaration(node.body);
 
-    var i = 0;
+    // Pre-scan assignment expressions for prototype fields
+    for (var i = 0; i < parts.statements.length; i++) {
+        var statement = parts.statements[i];
+
+        // If we are assigning a field to the prototype then track
+        // that this field has been set against a prototype.
+        if (statement.type === 'ExpressionStatement' &&
+            statement.expression.type === 'AssignmentExpression' &&
+            statement.expression.left.type === 'MemberExpression' &&
+            statement.expression.left.object.type === 'MemberExpression' &&
+            statement.expression.left.object.property.name === 'prototype'
+        ) {
+            var leftAssignment = statement.expression.left;
+
+            assert(leftAssignment.object.object.type === 'Identifier',
+                'expected identifier');
+            var funcName = leftAssignment.object.object.name;
+            var fieldName = leftAssignment.property.name;
+
+            assert(this.meta.currentScope.type === 'file',
+                'expected to be in file scope');
+
+            var methodType = JsigAST.literal(
+                '%Mixed%%MethodInferrenceField', true
+            );
+            this.meta.currentScope.addPrototypeField(
+                funcName, fieldName, methodType
+            );
+        }
+    }
+
     for (i = 0; i < parts.functions.length; i++) {
         var name = parts.functions[i].id.name;
 
