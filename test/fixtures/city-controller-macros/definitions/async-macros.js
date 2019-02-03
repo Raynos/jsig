@@ -63,7 +63,7 @@ function resolveFunction(node, macroToken) {
                                 this.errorType, AST.value('null')
                             ])),
                             AST.param('result',
-                                AST.literal('WeirdPlaceHolder', true)
+                                AST.literal('%Macro%%Placeholder', true)
                             )
                         ],
                         result: AST.literal('void')
@@ -81,7 +81,7 @@ function resolveFunction(node, macroToken) {
                 var lastError = afterErrors[afterErrors.length - 1];
 
                 if (lastError.type === 'jsig.sub-type.type-class-mismatch' &&
-                    lastError.expected === 'WeirdPlaceHolder'
+                    lastError.expected === '%Macro%%Placeholder'
                 ) {
                     resultType = lastError._child;
                     expectedType.args[1].value.args[1].value = resultType;
