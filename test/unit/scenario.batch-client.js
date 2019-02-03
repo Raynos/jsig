@@ -146,10 +146,10 @@ JSIGSnippet.test('good assign method as func expression', {
     var exported = meta.serializeType(meta.moduleExportsType);
 
     assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void,\n' +
         '    channel: T0,\n' +
         '    hosts: T1,\n' +
-        '    value: String,\n' +
-        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
+        '    value: String\n' +
         '}, channel: T0, hosts: T1) => void'
     );
 
@@ -180,10 +180,10 @@ JSIGSnippet.test('good declare export after assignment to prototype', {
     var exported = meta.serializeType(meta.moduleExportsType);
 
     assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void,\n' +
         '    channel: T0,\n' +
         '    hosts: T1,\n' +
-        '    value: String,\n' +
-        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
+        '    value: String\n' +
         '}, channel: T0, hosts: T1) => void'
     );
 
@@ -213,10 +213,10 @@ JSIGSnippet.test('good working prototype method definition', {
     var exported = meta.serializeType(meta.moduleExportsType);
 
     assert.equal(exported, '<T0, T1>(this: {\n' +
+        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void,\n' +
         '    channel: T0,\n' +
         '    hosts: T1,\n' +
-        '    value: String,\n' +
-        '    _sendRequest: <T0, T1>(this: [Cyclic], foo: String) => void\n' +
+        '    value: String\n' +
         '}, channel: T0, hosts: T1) => void'
     );
 

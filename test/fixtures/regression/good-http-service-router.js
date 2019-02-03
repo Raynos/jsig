@@ -95,7 +95,7 @@ function mountService(hash, serviceName, serviceDefinition) {
         );
 
         if (!currentMethods) {
-            currentMethods = {};
+            currentMethods = Object.create(null);
             hash.set(route, currentMethods);
         }
 

@@ -69,7 +69,7 @@ JSigSnippet.prototype.compile = function compile() {
     return this.programMeta;
 };
 
-JSigSnippet.prototype.checkMeta = function checkMeta(assert) {
+JSigSnippet.prototype.checkMeta = function checkMeta(assert, count) {
     var meta = this.programMeta;
 
     assert.ok(meta, 'expected meta to exist');
@@ -82,13 +82,14 @@ JSigSnippet.prototype.checkMeta = function checkMeta(assert) {
         }
         /* eslint-enable no-process-env */
 
-        console.error(meta.prettyPrintAllErrors());
+        console.error(meta.prettyPrintAllErrors(count));
     }
 };
 
-JSigSnippet.prototype.compileAndCheck = function compileAndCheck(assert) {
+JSigSnippet.prototype.compileAndCheck =
+function compileAndCheck(assert, count) {
     var meta = this.compile();
-    this.checkMeta(assert);
+    this.checkMeta(assert, count);
 
     return meta;
 };

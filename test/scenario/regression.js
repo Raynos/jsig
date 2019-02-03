@@ -31,7 +31,7 @@ test('regression: (interface) ProcWatcher', function t(assert) {
         globalsFile: globalsFile
     });
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.equal(meta.errors.length, 0, 'expected no error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();
@@ -45,7 +45,7 @@ test('regression: HttpHash', function t(assert) {
         globalsFile: globalsFile
     });
     assert.ok(meta, 'expected meta to exist');
-    assert.equal(meta.errors.length, 0, 'expected one error');
+    assert.equal(meta.errors.length, 0, 'expected no error');
     assert.ok(meta.moduleExportsType, 'expected export to exist');
 
     assert.end();

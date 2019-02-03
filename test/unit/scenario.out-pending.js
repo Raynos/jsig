@@ -65,7 +65,7 @@ JSIGSnippet.test.skip('good method call with class', {
         }
     */}
 }, function t(snippet, assert) {
-    // var meta = snippet.compileAndCheck(assert);
+    // var meta = snippet.compileAndCheck(assert, 1);
     // var exported = meta.serializeType(meta.moduleExportsType);
 
     // console.log('what was exported?', exported);

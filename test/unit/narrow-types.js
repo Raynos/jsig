@@ -119,12 +119,43 @@ JSIGSnippet.test('for loop type restrictions are copied', {
             foo = 'bar';
         }
 
+        typeof foo;
         if (foo) {
             foo + '5';
         }
     */}
 }, function t(snippet, assert) {
-    snippet.compileAndCheck(assert);
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.typeofErrors.length, 1);
+
+    assert.equal(meta.typeofErrors[0].valueType,
+        'String | %Void%%Uninitialized');
+
+    assert.end();
+});
+
+JSIGSnippet.test('for loop + if type restrictions are copied', {
+    snippet: function m() {/*
+        var foo = null;
+
+        for (var i = 0; i < 5; i++) {
+            if (5) {
+                foo = { x: 'bar' };
+            }
+        }
+
+        typeof foo;
+        if (foo) {
+            foo.x = '5';
+        }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compileAndCheck(assert);
+    assert.equal(meta.typeofErrors.length, 1);
+
+    assert.equal(meta.typeofErrors[0].valueType,
+        '{ x: String } | %Null%%Default');
+
     assert.end();
 });
 
@@ -481,6 +512,53 @@ JSIGSnippet.test('narrowing based on nested string literals fields', {
 
     assert.equal(meta.typeofErrors[0].valueType, '{ obj: { foo: "foo" } }');
     assert.equal(meta.typeofErrors[1].valueType, '{ obj: { foo: "bar" } }');
+
+    assert.end();
+});
+
+JSIGSnippet.test('narrowing nested if statements', {
+    snippet: function m() {/*
+        var foundHash = true;
+        var splat = null;
+
+        if (foundHash) {
+            if (hash) {
+                if (hash.handler === null) {
+                    if (hash.variablePaths) {
+                        if (hash.variablePaths.isSplat) {
+                            splat = '';
+                            hash = hash.variablePaths;
+                        }
+                    }
+                }
+            }
+        }
+    */},
+    header: function h() {/*
+        type Handler : {}
+        type RouteNode : {
+            handler : Handler | null
+            variablePaths : RouteNode | null
+            isSplat : Boolean
+        }
+
+        hash : RouteNode | {
+            handler : Handler | null,
+            variablePaths : RouteNode | null,
+            isSplat : false
+        } | {
+            handler : Handler | null,
+            variablePaths: RouteNode | null,
+            isSplat: true
+        }
+    */}
+}, function t(snippet, assert) {
+    var meta = snippet.compile(assert);
+
+    assert.equal(meta.typeofErrors.length, 0);
+
+    // assert.equal(meta.typeofErrors[0].valueType, '{ obj: { foo: "foo" } }');
+    // assert.equal(meta.typeofErrors[1].valueType, '{ obj: { foo: "bar" } }');
 
     assert.end();
 });
