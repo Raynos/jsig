@@ -368,7 +368,9 @@ function verifyAssignmentExpression(node) {
     }
 
     var beforeError = this.meta.countErrors();
+    this.meta.currentScope.setWithinAssignment();
     var leftType = this.meta.verifyNode(node.left, null);
+    this.meta.currentScope.unsetWithinAssignment();
     var afterError = this.meta.countErrors();
 
     if (
@@ -536,6 +538,7 @@ function verifyAssignmentExpression(node) {
         }
     }
 
+    // TODO: move this logic into the StaticInference machine instead.
     // After assignment to prototype method with inferrence we must
     // go and update the prototype `thisType` to contain the new method
     if (assignmentSucceeded && leftType.type === 'typeLiteral' &&
@@ -553,9 +556,7 @@ function verifyAssignmentExpression(node) {
         var constructorThisArg = constructorVar.defn.thisArg.value;
 
         var methodName = node.left.property.name;
-        constructorThisArg.keyValues.push(
-            JsigAST.keyValue(methodName, rightType)
-        );
+        constructorThisArg.overwriteKey(methodName, rightType);
     }
 
     // If we assign to an open field we have to update the type
@@ -758,7 +759,9 @@ function verifyMemberExpression(node) {
 
 ASTVerifier.prototype.verifyThisExpression =
 function verifyThisExpression(node) {
-    var thisType = this.meta.currentScope.getThisType();
+    var thisType = this.meta.currentScope.getThisType(
+        this.meta.currentScope.withinAssignment
+    );
 
     if (!thisType) {
         var funcName = this.meta.currentScope.funcName;
@@ -1889,7 +1892,7 @@ function verifyVariableDeclaration(node) {
 
     var id = decl.id.name;
 
-    var token = this.meta.currentScope.getOwnVar(id);
+    var token = this.meta.currentScope.getFunctionVar(id);
     if (token) {
         assert(token.preloaded, 'cannot declare variable twice');
     }
@@ -1948,6 +1951,47 @@ function verifyVariableDeclaration(node) {
     return null;
 };
 
+// Here we identify all variables changed in a block and then
+// we apply those to the outer scope by marking those variables
+// as a union of the two types.
+ASTVerifier.prototype._bubbleRestrictionToOuterScope =
+function _bubbleRestrictionToOuterScope(
+    node, nestedBranch
+) {
+    var lastStatement = null;
+    if (node.type === 'BlockStatement') {
+        var statements = node.body;
+        lastStatement = statements[statements.length - 1];
+    }
+
+    // If the nested block has a return as the last statement
+    // then do not apply any variable type mutation to the
+    // outer scope.
+    if (lastStatement && lastStatement.type === 'ReturnStatement') {
+        return;
+    }
+
+    var currScope = this.meta.currentScope;
+    var restrictedTypes = nestedBranch.getRestrictedTypes();
+    for (var i = 0; i < restrictedTypes.length; i++) {
+        var name = restrictedTypes[i];
+        var nestedType = nestedBranch.getOwnVar(name);
+        var outerType = currScope.getFunctionVar(name);
+
+        if (!nestedType || !outerType) {
+            continue;
+        }
+
+        if (nestedType.type === 'restriction') {
+            var union = computeSmallestUnion(
+                node, nestedType.defn, outerType.defn
+            );
+
+            currScope.restrictType(name, union);
+        }
+    }
+};
+
 ASTVerifier.prototype.verifyForStatement =
 function verifyForStatement(node) {
     this.meta.verifyNode(node.init, null);
@@ -1964,31 +2008,15 @@ function verifyForStatement(node) {
     this.meta.verifyNode(node.body, null);
     this.meta.exitBranchScope();
 
+    forBranch.flushPendingUpdates();
+
     /*  A for loop runs 0 or more times.
 
         If a type changed in the body of the loop, then let the
         type outside of the loop be the union of the initial
         type and the loop body type
     */
-    var currScope = this.meta.currentScope;
-    var restrictedTypes = forBranch.getRestrictedTypes();
-    for (var i = 0; i < restrictedTypes.length; i++) {
-        var name = restrictedTypes[i];
-        var forType = forBranch.getOwnVar(name);
-        var outerType = currScope.getOwnVar(name);
-
-        if (!forType || !outerType) {
-            continue;
-        }
-
-        if (forType.type === 'restriction') {
-            var union = computeSmallestUnion(
-                node, forType.defn, outerType.defn
-            );
-
-            currScope.restrictType(name, union);
-        }
-    }
+    this._bubbleRestrictionToOuterScope(node.body, forBranch);
 };
 
 ASTVerifier.prototype.verifyUpdateExpression =
@@ -2013,6 +2041,46 @@ function verifyUpdateExpression(node) {
 ASTVerifier.prototype.verifyObjectExpression =
 function verifyObjectExpression(node) {
     return this.meta.inferType(node);
+};
+
+/*  If an identifier was restricted/narrowed in both branches
+    then we want to apply that restriction back to the rest of
+    the outer scope after the if/else finishes.
+*/
+ASTVerifier.prototype._applyRestrictionsToParentScope =
+function _applyRestrictionsToParentScope(
+    node, ifBranch, elseBranch, isRestricted
+) {
+    var restrictedTypes = ifBranch.getRestrictedTypes();
+    for (var i = 0; i < restrictedTypes.length; i++) {
+        var name = restrictedTypes[i];
+        var ifType = ifBranch.getOwnVar(name);
+        var elseType = elseBranch.getOwnVar(name);
+
+        if (!ifType || !elseType) {
+            continue;
+        }
+
+        if (isSameType(ifType.defn, elseType.defn)) {
+            isRestricted.push(name);
+            this.meta.currentScope.restrictType(name, ifType.defn);
+        } else if (
+            ifType.type === 'restriction' &&
+            elseType.type === 'restriction'
+        ) {
+            var union = computeSmallestUnion(
+                node, ifType.defn, elseType.defn
+            );
+
+            isRestricted.push(name);
+            // console.log('wtf', {
+            //     scopeType: this.meta.currentScope.type,
+            //     name: name,
+            //     union: this.meta.serializeType(union)
+            // });
+            this.meta.currentScope.restrictType(name, union);
+        }
+    }
 };
 
 /*
@@ -2070,40 +2138,22 @@ function verifyIfStatement(node) {
         }
     }
 
+    ifBranch.flushPendingUpdates();
+    elseBranch.flushPendingUpdates();
+
     var isRestricted = [];
 
-    var restrictedTypes = ifBranch.getRestrictedTypes();
-    for (var i = 0; i < restrictedTypes.length; i++) {
-        var name = restrictedTypes[i];
-        var ifType = ifBranch.getOwnVar(name);
-        var elseType = elseBranch.getOwnVar(name);
-
-        if (!ifType || !elseType) {
-            continue;
-        }
-
-        if (isSameType(ifType.defn, elseType.defn)) {
-            isRestricted.push(name);
-            this.meta.currentScope.restrictType(name, ifType.defn);
-        } else if (
-            ifType.type === 'restriction' &&
-            elseType.type === 'restriction'
-        ) {
-            var union = computeSmallestUnion(
-                node, ifType.defn, elseType.defn
-            );
-
-            isRestricted.push(name);
-            // console.log('wtf', {
-            //     scopeType: this.meta.currentScope.type,
-            //     name: name,
-            //     union: this.meta.serializeType(union)
-            // });
-            this.meta.currentScope.restrictType(name, union);
-        }
-    }
+    this._applyRestrictionsToParentScope(
+        node, ifBranch, elseBranch, isRestricted
+    );
 
     // TODO create unions based on typeRestrictions & mutations...
+    // if (node.consequent) {
+    //     this._bubbleRestrictionToOuterScope(node.consequent, ifBranch);
+    // }
+    // if (node.alternate) {
+    //     this._bubbleRestrictionToOuterScope(node.alternate, elseBranch);
+    // }
 
     // Support an early return if statement
     // If the `consequent` is a `ReturnStatement` then
@@ -2122,10 +2172,10 @@ function verifyIfStatement(node) {
             lastStatement.type === 'ContinueStatement'
         )
     ) {
-        restrictedTypes = elseBranch.getRestrictedTypes();
-        for (i = 0; i < restrictedTypes.length; i++) {
-            name = restrictedTypes[i];
-            elseType = elseBranch.getOwnVar(name);
+        var restrictedTypes = elseBranch.getRestrictedTypes();
+        for (var i = 0; i < restrictedTypes.length; i++) {
+            var name = restrictedTypes[i];
+            var elseType = elseBranch.getOwnVar(name);
 
             if (isRestricted.indexOf(name) === -1) {
                 this.meta.currentScope.restrictType(name, elseType.defn);
@@ -2412,6 +2462,8 @@ function verifyWhileStatement(node) {
     this.meta.enterBranchScope(ifBranch);
     this.meta.verifyNode(node.body, null);
     this.meta.exitBranchScope();
+
+    ifBranch.flushPendingUpdates();
 };
 
 ASTVerifier.prototype.verifyTryStatement =
@@ -2427,6 +2479,9 @@ function verifyTryStatement(node) {
     this.meta.enterBranchScope(catchBranch);
     this.meta.verifyNode(node.handler, null);
     this.meta.exitBranchScope();
+
+    tryBranch.flushPendingUpdates();
+    catchBranch.flushPendingUpdates();
 
     var restrictedTypes = tryBranch.getRestrictedTypes();
     for (var i = 0; i < restrictedTypes.length; i++) {
@@ -2671,7 +2726,10 @@ function _checkHiddenClass(node) {
                 this.meta.addError(err);
             }
 
-            knownOffset++;
+            // Only increment field offset if not a prototype method
+            if (!(protoFields && protoFields[key])) {
+                knownOffset++;
+            }
         }
     }
 };
@@ -2826,17 +2884,31 @@ function _findPropertyInSet(
         */
 
         var fieldUnion = [];
+        var prevErrors = this.meta.getErrors();
 
         for (var i = 0; i < jsigType.unions.length; i++) {
             var fieldType = this._findPropertyInType(
                 node, jsigType.unions[i], propertyName,
                 isExportsObject, isDictionaryType
             );
-            if (!fieldType) {
+
+            // If we could not resolve member expression and not
+            // within assignmen then it's not valid.
+            if (!fieldType && !this.meta.currentScope.withinAssignment) {
                 return null;
+            } else if (!fieldType) {
+                continue;
             }
 
             fieldUnion.push(fieldType);
+        }
+
+        if (fieldUnion.length === 0) {
+            return null;
+        }
+
+        if (this.meta.currentScope.withinAssignment) {
+            this.meta.setErrors(prevErrors);
         }
 
         var union = computeSmallestUnion(
@@ -2969,7 +3041,7 @@ function _findPropertyInObject(
     }
 
     // If open and mutation then allow mixed type.
-    if (jsigType.open && this.meta.currentScope.writableTokenLookup) {
+    if (jsigType.open && this.meta.currentScope.withinAssignment) {
         return JsigAST.literal('%Mixed%%OpenField', true);
     } else if (jsigType.open) {
         // If open and accessing outside of assignment

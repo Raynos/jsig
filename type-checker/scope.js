@@ -5,6 +5,7 @@ var util = require('util');
 
 var JsigAST = require('../ast/');
 var isSameType = require('./lib/is-same-type.js');
+var computeSmallestUnion = require('./lib/compute-smallest-union.js');
 
 module.exports = {
     GlobalScope: GlobalScope,
@@ -109,6 +110,17 @@ BaseScope.prototype.getVar = function getVar(id, isWritable) {
         this.parent.getVar(id, isWritable);
 };
 
+// This is scoped to the nearest function scope
+BaseScope.prototype.getFunctionVar =
+function getFunctionVar(id, isWritable) {
+    if (isWritable || this.writableTokenLookup) {
+        return this.identifiers[id];
+    }
+
+    return this.typeRestrictions[id] || this.identifiers[id];
+};
+
+// This is scoped to the own scope, aka can query a branch only.
 BaseScope.prototype.getOwnVar = function getOwnVar(id, isWritable) {
     if (isWritable || this.writableTokenLookup) {
         return this.identifiers[id];
@@ -170,11 +182,12 @@ function forceUpdateVar(id, typeDefn) {
         assert(typeDefn, 'cannot force update to null');
 
         this._thisValueType = typeDefn;
-        return new IdentifierToken(typeDefn, false);
+        return;
     }
 
     if (!this.identifiers[id] && this.parent) {
-        return this.parent.forceUpdateVar(id, typeDefn);
+        this.parent.forceUpdateVar(id, typeDefn);
+        return;
     }
 
     assert(this.identifiers[id], 'identifier must already exist');
@@ -182,7 +195,6 @@ function forceUpdateVar(id, typeDefn) {
 
     var token = new IdentifierToken(typeDefn, false);
     this.identifiers[id] = token;
-    return token;
 };
 
 BaseScope.prototype.getGlobalType =
@@ -691,6 +703,7 @@ function BranchScope(parent) {
     this._restrictedThisValueType = null;
     this._narrowedThisValueType = null;
     this.narrowedTypes = Object.create(null);
+    this.pendingUpdates = [];
 }
 util.inherits(BranchScope, BaseScope);
 
@@ -719,14 +732,38 @@ function getFunctionScope() {
     return parent;
 };
 
+BranchScope.prototype.scanPendingUpdates =
+function scanPendingUpdates(id) {
+    for (var i = 0; i < this.pendingUpdates.length; i++) {
+        var tuple = this.pendingUpdates[i];
+        if (tuple[0] === id) {
+            return new IdentifierToken(tuple[1], false);
+        }
+    }
+};
+
 BranchScope.prototype.getVar = function getVar(id, isWritable) {
-    // console.log('getVar(', id, ',', this.writableTokenLookup, ')');
     if (isWritable || this.writableTokenLookup) {
-        return this.identifiers[id] || this.parent.getVar(id, true);
+        return this.identifiers[id] || this.scanPendingUpdates(id) ||
+            this.parent.getVar(id, true);
     }
 
     return this.typeRestrictions[id] || this.narrowedTypes[id] ||
-        this.identifiers[id] || this.parent.getVar(id, isWritable);
+        this.identifiers[id] || this.scanPendingUpdates(id) ||
+        this.parent.getVar(id, isWritable);
+};
+
+// This is scoped to the nearest function scope
+BranchScope.prototype.getFunctionVar =
+function getFunctionVar(id, isWritable) {
+    if (isWritable || this.writableTokenLookup) {
+        return this.identifiers[id] || this.scanPendingUpdates(id) ||
+            this.parent.getFunctionVar(id, true);
+    }
+
+    return this.typeRestrictions[id] || this.narrowedTypes[id] ||
+        this.identifiers[id] || this.scanPendingUpdates(id) ||
+        this.parent.getFunctionVar(id, isWritable);
 };
 
 BranchScope.prototype.getOwnVar = function getOwnVar(id, isWritable) {
@@ -835,6 +872,11 @@ function getKnownFunctionScope(funcName) {
     However, if the type of the variable currently is
     Null%%Default or Void%%Uninitialized then only locally
     mark it as a new identifier
+
+    TODO: force updating a variable in a branch seems sketchy
+    as it's unknown if the branch will even evaluate.
+    this might create a weird "last write wins situation" with
+    an if + else branch both force updating the same variable.
 */
 BranchScope.prototype.forceUpdateVar =
 function forceUpdateVar(id, typeDefn) {
@@ -850,11 +892,23 @@ function forceUpdateVar(id, typeDefn) {
     ) {
         assert(typeDefn, 'cannot force update to null');
 
-        return this.restrictType(id, typeDefn);
+        // We must apply the restriction on this id within this scope.
+        this.restrictType(id, typeDefn);
+
+        // if we are in a branch and we are trying to force
+        // update a variable whose value is uninitialized or null
+        // then we can update to a union of null and the new value
+        // This is the correct semantics but will poison the ElseBranch
+        // if we forceUpdateVar() in the IfBranch.
+        // ideally the IfBranch does not poison the ElseBranch and
+        // we only forceUpdateVar() on parent scope once both branches
+        // have been evaluated.
+        typeDefn = computeSmallestUnion(null, typeDefn, currentType.defn);
     }
 
     if (!this.identifiers[id] && this.parent) {
-        return this.parent.forceUpdateVar(id, typeDefn);
+        this.pendingUpdates.push([id, typeDefn]);
+        return;
     }
 
     assert(this.identifiers[id], 'identifier must already exist');
@@ -862,5 +916,12 @@ function forceUpdateVar(id, typeDefn) {
 
     token = new IdentifierToken(typeDefn, false);
     this.identifiers[id] = token;
-    return token;
+};
+
+BranchScope.prototype.flushPendingUpdates =
+function flushPendingUpdates() {
+    for (var i = 0; i < this.pendingUpdates.length; i++) {
+        var tuple = this.pendingUpdates[i];
+        this.parent.forceUpdateVar(tuple[0], tuple[1]);
+    }
 };
