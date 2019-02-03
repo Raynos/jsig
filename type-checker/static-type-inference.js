@@ -133,7 +133,9 @@ function _findFunctionReturnType(funcScope) {
 
 StaticTypeInference.prototype.inferConstructorType =
 function inferConstructorType(node) {
+    var funcName = this.meta.getFunctionName(node);
     var errorCount = this.meta.countErrors();
+
     var args = [];
     for (var i = 0; i < node.params.length; i++) {
         args.push(JsigAST.param(
@@ -144,15 +146,29 @@ function inferConstructorType(node) {
         ));
     }
 
+    // TODO: mark thisType as being a special open type
+    // TOOD: mark thisType as a special infer ???
+    var protoFields = this.meta.currentScope.getPrototypeFields(funcName);
+    var fields = [];
+    if (protoFields !== null) {
+        var methodNames = Object.keys(protoFields);
+        for (i = 0; i < methodNames.length; i++) {
+            fields.push(JsigAST.keyValue(
+                methodNames[i],
+                protoFields[methodNames[i]]
+            ));
+        }
+    }
+
+    var thisArg = JsigAST.object(fields, null, {
+        open: true
+    });
+
     var returnType = JsigAST.literal('%Void%%UnknownReturn', true);
     var inferredFuncType = JsigAST.functionType({
         result: returnType,
         args: args,
-        // TODO: mark thisType as being a special open type
-        // TOOD: mark thisType as a special infer ???
-        thisArg: JsigAST.param('this', JsigAST.object([], null, {
-            open: true
-        }))
+        thisArg: JsigAST.param('this', thisArg)
         // TODO: should we mark generics here or handle that later????
     });
 
@@ -160,8 +176,6 @@ function inferConstructorType(node) {
     //     this.meta.serializeType(inferredFuncType));
 
     if (node.type === 'FunctionDeclaration') {
-        var funcName = this.meta.getFunctionName(node);
-
         // Evaluate the function implementation based on inferred type.
         var maybeRevert = this._verifyFunction(node, inferredFuncType);
         if (!maybeRevert) {
