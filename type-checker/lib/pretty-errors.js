@@ -24,12 +24,16 @@ function getErrors(checker) {
     return checker.getErrors().concat(checker.getTypeofErrors());
 }
 
-function prettyPrintAllErrors(checker) {
+function prettyPrintAllErrors(checker, limit) {
+    if (typeof limit !== 'number') {
+        limit = Infinity;
+    }
+
     var parts = [];
     parts.push('');
 
     var errors = getErrors(checker);
-    for (var i = 0; i < errors.length; i++) {
+    for (var i = 0; i < errors.length && i < limit; i++) {
         var error = errors[i];
         parts.push(prettyPrintErrorStatement(checker, error));
     }
@@ -41,12 +45,16 @@ function prettyPrintAllErrors(checker) {
     return parts.join('\n');
 }
 
-function prettyPrintAllErrorsWithTrace(checker) {
+function prettyPrintAllErrorsWithTrace(checker, limit) {
+    if (typeof limit !== 'number') {
+        limit = Infinity;
+    }
+
     var parts = [];
     parts.push('');
 
     var errors = getErrors(checker);
-    for (var i = 0; i < errors.length; i++) {
+    for (var i = 0; i < errors.length && i < limit; i++) {
         var error = errors[i];
 
         parts.push(prettyPrintErrorStatement(checker, error));
