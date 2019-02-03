@@ -49,6 +49,7 @@ function BaseScope(parent) {
     this.typeRestrictions = Object.create(null);
     this.functionScopes = Object.create(null);
     this.writableTokenLookup = false;
+    this.withinAssignment = false;
     this._restrictedThisValueType = null;
 }
 
@@ -129,6 +130,16 @@ function setWritableTokenLookup() {
 BaseScope.prototype.unsetWritableTokenLookup =
 function unsetWritableTokenLookup() {
     this.writableTokenLookup = false;
+};
+
+BaseScope.prototype.setWithinAssignment =
+function setWithinAssignment() {
+    this.withinAssignment = true;
+};
+
+BaseScope.prototype.unsetWithinAssignment =
+function unsetWithinAssignment() {
+    this.withinAssignment = false;
 };
 
 BaseScope.prototype.addUnknownVar =
@@ -488,7 +499,6 @@ function FunctionScope(parent, funcName, funcNode) {
     this.knownReturnTypes = [];
     this.returnStatementASTNodes = [];
     this.funcASTNode = funcNode;
-    this.writableTokenLookup = false;
 }
 util.inherits(FunctionScope, BaseScope);
 
