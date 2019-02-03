@@ -22,32 +22,6 @@ function SubTypeChecker(meta, node) {
     this.rightSeen = [];
 }
 
-// TODO: pretty sure this function is needed...
-// function getUnionWithoutOptional(unionType) {
-//     var newType = null;
-
-//     var newUnions = [];
-//     for (var i = 0; i < unionType.unions.length; i++) {
-//         var innerType = unionType.unions[i];
-//         if (innerType.type === 'valueLiteral' &&
-//             innerType.name === 'undefined'
-//         ) {
-//             continue;
-//         }
-
-//         newUnions.push(innerType);
-//     }
-
-//     if (newUnions.length === 1) {
-//         newType = newUnions[0];
-//     } else {
-//         newType = cloneJSIG(unionType);
-//         newType.unions = newUnions;
-//     }
-
-//     return newType;
-// }
-
 /*  checkSubType() answers the question of is the `child` a
     subtype of the `parent`
 
