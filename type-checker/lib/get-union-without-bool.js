@@ -69,6 +69,9 @@ function isAlwaysFalsey(t) {
         (t.type === 'typeLiteral' && t.builtin &&
             t.name === '%Void%%Uninitialized'
         ) ||
+        (t.type === 'typeLiteral' && t.builtin &&
+            t.name === '%Null%%Default'
+        ) ||
         (t.type === 'valueLiteral' &&
             t.name === 'boolean' && t.value === 'false'
         );
