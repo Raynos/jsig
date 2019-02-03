@@ -716,7 +716,7 @@ function _buildKeyPathType(finalValue) {
 
             currentType = JsigAST.functionType({
                 args: list,
-                result: JsigAST.literal('_', true)
+                result: JsigAST.literal('_')
             });
         } else if (item.indexOf('tuple.values') === 0) {
             range = item.slice(13);
@@ -725,14 +725,14 @@ function _buildKeyPathType(finalValue) {
             currentType = JsigAST.tuple(list);
         } else if (item === 'function.result') {
             currentType = JsigAST.functionType({
-                args: [JsigAST.literal('...', true)],
+                args: [JsigAST.literal('...')],
                 result: currentType
             });
         } else if (item === 'function.thisArg') {
             currentType = JsigAST.functionType({
-                args: [JsigAST.literal('...', true)],
+                args: [JsigAST.literal('...')],
                 thisArg: JsigAST.keyValue('this', currentType),
-                result: JsigAST.literal('_', true)
+                result: JsigAST.literal('_')
             });
         } else {
             assert(false, 'unexpected item in keyPath stack: ' + item);
@@ -756,7 +756,7 @@ function _buildListFromRange(range, valueType) {
         if (i === index) {
             arr[i] = valueType;
         } else {
-            arr[i] = JsigAST.literal('_', true);
+            arr[i] = JsigAST.literal('_');
         }
     }
 
