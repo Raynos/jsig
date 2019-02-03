@@ -114,8 +114,8 @@ function setErrors(list) {
 };
 
 TypeChecker.prototype.prettyPrintAllErrors =
-function prettyPrintAllErrors() {
-    return pretty.prettyPrintAllErrors(this);
+function prettyPrintAllErrors(limit) {
+    return pretty.prettyPrintAllErrors(this, limit);
 };
 
 TypeChecker.prototype.prettyPrintErrorStatement =
@@ -124,8 +124,8 @@ function prettyPrintErrorStatement(error) {
 };
 
 TypeChecker.prototype.prettyPrintAllErrorsWithTrace =
-function prettyPrintAllErrors() {
-    return pretty.prettyPrintAllErrorsWithTrace(this);
+function prettyPrintAllErrors(limit) {
+    return pretty.prettyPrintAllErrorsWithTrace(this, limit);
 };
 
 TypeChecker.prototype.prettyPrintTraces =
