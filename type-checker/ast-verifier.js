@@ -166,7 +166,7 @@ function verifyProgram(node) {
         !this.meta.hasFullyExportedType()
     ) {
         var exportType = this.meta.getModuleExportsType();
-        var actualType = JsigAST.literal('<MissingType>', true);
+        var actualType = JsigAST.literal('<MissingType>');
 
         if (this.meta.getExportedFields().length > 0) {
             var fields = this.meta.getExportedFields();
