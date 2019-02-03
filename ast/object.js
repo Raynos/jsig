@@ -41,6 +41,25 @@ function buildObjectIndex(index) {
     return index;
 };
 
+ObjectNode.prototype.overwriteKey =
+function overwriteKey(keyName, newValueType) {
+    var foundPair = null;
+    for (var i = 0; i < this.keyValues.length; i++) {
+        if (this.keyValues[i].key === keyName) {
+            foundPair = this.keyValues[i];
+            break;
+        }
+    }
+
+    if (foundPair) {
+        foundPair.value = newValueType;
+    } else {
+        this.keyValues.push(
+            new KeyValueNode(keyName, newValueType)
+        );
+    }
+};
+
 function convertToKeyValues(keyValuesObj) {
     var keyValues = [];
     var keys = Object.keys(keyValuesObj);

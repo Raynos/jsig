@@ -11,7 +11,8 @@ interface JsigObjectNode {
 
     buildObjectIndex(
         index?: Object<String, JsigType>
-    ) => Object<String, JsigType>
+    ) => Object<String, JsigType>,
+    overwriteKey(String, JsigType) => void
 }
 
 ObjectNode : (
